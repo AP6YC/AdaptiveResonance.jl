@@ -1,5 +1,7 @@
 # AdaptiveResonance
 
+A Julialang package for adaptive resonance theory (ART) algorithms.
+
 [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://AP6YC.github.io/AdaptiveResonance.jl/stable)
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://AP6YC.github.io/AdaptiveResonance.jl/dev)
 [![Build Status](https://travis-ci.com/AP6YC/AdaptiveResonance.jl.svg?branch=master)](https://travis-ci.com/AP6YC/AdaptiveResonance.jl)
