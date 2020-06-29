@@ -1,6 +1,5 @@
-using AdaptiveResonance
-using Test
+using SafeTestsets
 
-@testset "AdaptiveResonance.jl" begin
-    # Write your own tests here.
+@safetestset "Function tests" begin
+    include("f_tests.jl")
 end
