@@ -1,3 +1,4 @@
+# Julia package development ignores
 *.jl.*.cov
 *.jl.cov
 *.jl.mem
@@ -6,3 +7,6 @@
 /dev/
 /docs/build/
 /docs/site/
+
+# Project ignores
+drafting/
