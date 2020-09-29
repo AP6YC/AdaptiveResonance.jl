@@ -1,4 +1,4 @@
-module AdaptiveResonance
+module ARTMAP-dev
 
 using Logging
 using Parameters
@@ -11,13 +11,10 @@ using LinearAlgebra
 #     import CuArrays		# If CUDA is available, import CuArrays
 #     CuArrays.allowscalar(false)
 # end
-
-include("basics.jl")
 include("funcs.jl")
-include("ARTMAP.jl")
-using .ARTMAP
 
-export DDVFA, opts_DDVFA, GNFA, opts_GNFA, train!, SFAM
+export DDVFA, opts_DDVFA, GNFA, opts_GNFA, train!
+
 # struct DDVFA_hard
 #    # Assign numerical parameters from options
 #    rho
@@ -130,20 +127,20 @@ end # opts_GNFA
         ...
     ```
 """
-@with_kw mutable struct GNFA
+mutable struct GNFA
     # @debug "Initializing Gamma-Normalized Fuzzy ART"
     # @debug "Successfully initialized Gamma-Normalized Fuzzy ART"
     opts = opts_GNFA()
 
     # Assign numerical parameters from options
-    rho = opts.rho
-    alpha = opts.alpha
-    beta = opts.beta
-    gamma = opts.gamma
-    gamma_ref = opts.gamma_ref
+    rho
+    alpha
+    beta
+    gamma
+    gamma_ref
 
     # Flag parameters
-    method::String = opts.method
+    method::String
     display::Bool = opts.display
 
     # Internal flags
@@ -171,6 +168,47 @@ end # opts_GNFA
     W_old = []    # Old F2 node weight vectors (for stopping criterion)
 
 end # GNFA
+# @with_kw mutable struct GNFA
+#     # @debug "Initializing Gamma-Normalized Fuzzy ART"
+#     # @debug "Successfully initialized Gamma-Normalized Fuzzy ART"
+#     opts = opts_GNFA()
+
+#     # Assign numerical parameters from options
+#     rho = opts.rho
+#     alpha = opts.alpha
+#     beta = opts.beta
+#     gamma = opts.gamma
+#     gamma_ref = opts.gamma_ref
+
+#     # Flag parameters
+#     method::String = opts.method
+#     display::Bool = opts.display
+
+#     # Internal flags
+#     complement_coding::Bool = false
+#     max_epoch::Bool = false
+#     no_weight_change::Bool = false
+
+#     # Working variables
+#     threshold::Float64 = 0
+#     F2::Array{GNFA, 1} = []
+#     labels::Array{Int64, 1} = []
+#     T::Array{Float64, 1} = []
+#     M::Array{Float64, 1} = []
+#     n_samples::Int64 = 0
+#     n_categories::Int64 = 0
+#     dim::Int64 = 0
+#     dim_comp::Int64 = 0
+#     epoch::Int64 = 0
+
+#     # "Private" working variables
+#     sample::Array{Float64, 1} = []   # Current sample presented to DDVFA
+#     # W::Array{Float64, 1} = []        # All F2 nodes' weight vectors
+#     # W_old::Array{Float64, 1} = []    # Old F2 node weight vectors (for stopping criterion)
+#     W = []      # All F2 nodes' weight vectors
+#     W_old = []    # Old F2 node weight vectors (for stopping criterion)
+
+# end # GNFA
 
 """
     DDVFA()
@@ -379,6 +417,110 @@ Get the value of a struct's field through the julia native method.
 function get_field_native(obj::Any, field_name::String)
     return getfield(obj, Symbol(field_name))
 end
+
+"""
+    similarity_meta(method, F2, field_name, gamma_ref)
+
+Compute the similarity metric depending on method using meta programming to
+access the correct field.
+"""
+function similarity_meta(method::String, F2, field_name::String, gamma_ref::AbstractFloat)
+    @debug "Computing similarity"
+
+    if field_name != "T" && field_name != "M"
+        error("Incorrect field name for similarity metric.")
+    end
+
+    field = get_field_native(F2, field_name)
+
+    # Single linkage
+    if method == "single"
+        value = maximum(field)
+    # Average linkage
+    elseif method == "average"
+        value = mean(field)
+    # Complete linkage
+    elseif method == "complete"
+        value = minimum(field)
+    # Median linkage
+    elseif method == "median"
+        value = median(field)
+    elseif method == "weighted"
+        value = field' * (F2.n / sum(F2.n))
+    elseif method == "centroid"
+        Wc = minimum(F2.W)
+        T = norm(min(sample, Wc), 1)
+        if field_name == "T"
+            value = T
+        elseif field_name == "M"
+            value = (norm(Wc, 1)^gamma_ref)*T
+        end
+    else
+        error("Invalid/unimplemented similarity method")
+    end
+    return value
+end # similarity
+
+"""
+    similarity(method, F2, field_name, gamma_ref)
+
+Compute the similarity metric depending on method with explicit comparisons
+for the field name.
+"""
+function similarity(method::String, F2, field_name::String, sample, gamma_ref::AbstractFloat)
+    @debug "Computing similarity"
+
+    if field_name != "T" && field_name != "M"
+        error("Incorrect field name for similarity metric.")
+    end
+    # Single linkage
+    if method == "single"
+        if field_name == "T"
+            value = maximum(F2.T)
+        elseif field_name == "M"
+            value = maximum(F2.M)
+        end
+    # Average linkage
+    elseif method == "average"
+        if field_name == "T"
+            value = mean(F2.T)
+        elseif field_name == "M"
+            value = mean(F2.M)
+        end
+    # Complete linkage
+    elseif method == "complete"
+        if field_name == "T"
+            value = minimum(F2.T)
+        elseif field_name == "M"
+            value = minimum(F2.M)
+        end
+    # Median linkage
+    elseif method == "median"
+        if field_name == "T"
+            value = median(F2.T)
+        elseif field_name == "M"
+            value = median(F2.M)
+        end
+    # Weighted linkage
+    elseif method == "weighted"
+        if field_name == "T"
+            value = F2.T * (F2.n / sum(F2.n))
+        elseif field_name == "M"
+            value = F2.M * (F2.n / sum(F2.n))
+        end
+    # Centroid linkage
+    elseif method == "centroid"
+        Wc = minimum(F2.W)
+        T = norm(min(sample, Wc), 1)
+        if field_name == "T"
+            value = T
+        elseif field_name == "M"
+            value = (norm(Wc, 1)^gamma_ref)*T
+        end
+    else
+        error("Invalid/unimplemented similarity method")
+    end
+end # similarity
 
 
 end # module
