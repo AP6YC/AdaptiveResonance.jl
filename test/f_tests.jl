@@ -3,6 +3,8 @@ using Test
 using CSV
 using DrWatson
 
+include("test_ddvfa.jl")
+
 
 @testset "basics.jl" begin
     # Boilerplate tests to verify basic Julia use
@@ -14,9 +16,9 @@ using DrWatson
 end
 
 
-function ddvfa_example()
+@testset "DDVFA.jl" begin
 
-    CSV.read(datadir("art_data.csv"))
+    ddvfa_example()
 
 end
 
