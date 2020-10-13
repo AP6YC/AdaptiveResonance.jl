@@ -1,5 +1,3 @@
-# module DDVFA
-
 using Logging
 using Parameters
 using Statistics
@@ -7,38 +5,6 @@ using LinearAlgebra
 using ProgressBars
 using Printf
 
-# export DDVFA, opts_DDVFA, GNFA, opts_GNFA, train!
-
-# struct DDVFA_hard
-#    # Assign numerical parameters from options
-#    rho
-#    alpha
-#    beta
-#    gamma
-#    gamma_ref
-
-#    # Flag parameters
-#    method::String
-#    display::Bool
-
-#    # Internal flags
-#    complement_coding::Bool = false
-#    max_epoch::Bool = false
-#    no_weight_change::Bool = false
-
-#    # Working variables
-#    threshold::Float64 =
-#    F2::Array{GNFA, 1}
-#    labels::Array{Int64, 1}
-#    n_samples::UInt128
-#    dim::UInt128
-#    epochs::UInt128 = 0
-
-#    # "Private" working variables
-#    sample::Array{Float64, 1}   # Current sample presented to DDVFA
-#    W::Array{Float64, 1}        # All F2 nodes' weight vectors
-#    W_old::Array{Float64, 1}
-# end
 
 """
     opts_GNFA()
@@ -52,7 +18,6 @@ using Printf
     ```
 """
 @with_kw mutable struct opts_GNFA @deftype Float64
-    # @debug "Initializing opts_GNFA"
     # Vigilance parameter: [0, 1]
     rho = 0.6; @assert rho >= 0 && rho <= 1
     # Choice parameter: alpha > 0
@@ -72,8 +37,8 @@ using Printf
     # shuffle::Bool = false
     random_seed = 1234.5678
     max_epochs = 1
-    # @info "Successfully initialized opts_GNFA"
 end # opts_GNFA
+
 
 """
     GNFA()
@@ -111,6 +76,7 @@ mutable struct GNFA
     dim_comp::Int
     epoch::Int
 end # GNFA
+
 
 function GNFA()
     # Get opts
@@ -153,6 +119,7 @@ function GNFA(opts)
     )
 end # GNFA()
 
+
 function initialize!(art::GNFA, x::Array)
     # @info "Initializing GNFA"
     art.dim_comp = size(x)[1]
@@ -167,6 +134,7 @@ function initialize!(art::GNFA, x::Array)
     # label = supervised ? y[1] : 1
     # push!(art.labels, label)
 end # initialize! GNFA
+
 
 function train!(art::GNFA, x::Array ; y::Array=[])
     # Get size and if supervised
@@ -264,6 +232,7 @@ function train!(art::GNFA, x::Array ; y::Array=[])
     end
 end # train! GNFA
 
+
 function classify(art::GNFA, x::Array)
     dim, n_samples = size(x)
     y_hat = zeros(Int, n_samples)
@@ -296,10 +265,6 @@ function classify(art::GNFA, x::Array)
     return y_hat
 end # classify GNFA
 
-# function element_min(x::Array, W::Array)
-#     # Compute the element-wise minimum of two vectors
-#     return minimum([x W], dims = 2)
-# end # element_min
 
 function activation_match!(art::GNFA, x::Array)
     art.T = zeros(art.n_categories)
@@ -311,11 +276,14 @@ function activation_match!(art::GNFA, x::Array)
     end
 end # activation_match!
 
+
 # Generic learning function
 function learn(art::GNFA, x, W)
     # Update W
     return art.opts.beta .* element_min(x, W) .+ W .* (1 - art.opts.beta)
 end
+
+
 # In place learning function with instance counting
 function learn!(art::GNFA, x, index)
     # Update W
@@ -333,68 +301,6 @@ function stopping_conditions(art::GNFA)
     # return stop
 end # stopping_conditions GNFA
 
-
-
-
-
-
-"""
-    DDVFA()
-
-    Implements a DDVFA learner.
-
-    # Examples
-    ```julia-repl
-    julia> DDVFA()
-    DDVFA
-        opts: opts_DDVFA
-        ...
-    ```
-"""
-# @with_kw mutable struct DDVFA
-#     # @debug "Initializing DDVFA"
-#     # Get parameters
-#     opts = opts_DDVFA()
-#     # opts::opts_DDVFA
-#     subopts = opts_GNFA(rho=opts.rho_ub)
-
-#     # Assign numerical parameters from options
-#     rho = opts.rho_lb
-#     alpha = opts.alpha
-#     beta = opts.beta
-#     gamma = opts.gamma
-#     gamma_ref = opts.gamma_ref
-
-#     # Flag parameters
-#     method::String = opts.method
-#     display::Bool = opts.display
-
-#     # Internal flags
-#     complement_coding::Bool = false
-#     max_epoch::Bool = false
-#     no_weight_change::Bool = false
-
-#     # Working variables
-#     threshold::Float64 = 0
-#     F2::Array{GNFA, 1} = []
-#     labels::Array{Int64, 1} = []
-#     n_samples::Int64 = 0
-#     n_categories::Int64 = 0
-#     dim::Int64 = 0
-#     dim_comp::Int64 = 0
-#     epoch::Int64 = 0
-
-#     # "Private" working variables
-#     # sample::Array{Float64, 2} = []   # Current sample presented to DDVFA
-#     # W::Array{Float64, 2} = []       # All F2 nodes' weight vectors
-#     # W_old::Array{Float64, 2} = []   # Old F2 node weight vectors (for stopping criterion)
-#     W = []       # All F2 nodes' weight vectors
-#     W_old = []   # Old F2 node weight vectors (for stopping criterion)
-#     # Constructor that allows for empty working qs
-#     # DDVFA() = new()
-#     # @info "Successfully initialized DDVFA"
-# end # DDVFA
-# DDVFA() where{T<:Real} = DDVFA{T}()
 
 """
     opts_DDVFA()
@@ -433,6 +339,20 @@ end # stopping_conditions GNFA
 end # opts_DDVFA
 
 
+"""
+    DDVFA()
+
+    Implements a DDVFA learner.
+
+    # Examples
+    ```julia-repl
+    julia> DDVFA()
+    DDVFA
+        opts: opts_DDVFA
+        supopts: opts_GNFA
+        ...
+    ```
+"""
 mutable struct DDVFA
     # Get parameters
     opts::opts_DDVFA
@@ -451,6 +371,7 @@ mutable struct DDVFA
     epoch::Int
 end # DDVFA
 
+
 function DDVFA()
     opts = opts_DDVFA()
     subopts = opts_GNFA(rho=opts.rho_ub)
@@ -467,13 +388,13 @@ function DDVFA()
           0,
           0
     )
-
 end # DDVFA()
 
-"""
-    train(ddvfa, data, n_epochs)
 
-Train the DDVFA model on the data for n_epochs
+"""
+    train!(ddvfa, data)
+
+Train the DDVFA model on the data.
 """
 function train!(art::DDVFA, x::Array)
     @info "Training DDVFA"
@@ -557,32 +478,10 @@ function train!(art::DDVFA, x::Array)
     end
 end # train DDVFA
 
+
 function stopping_conditions(art::DDVFA)
     return art.W == art.W_old || art.epoch >= art.opts.max_epoch
 end # stopping_conditions
-
-# """
-#     complement_code(data)
-
-# Normalize the data x to [0, 1] and returns the augmented vector [x, 1 - x].
-# """
-# function complement_code(data::Array)
-#     # Complement code the data and return a concatenated matrix
-#     dim, n_samples = size(data)
-#     x_raw = zeros(dim, n_samples)
-
-#     mins = [minimum(data[i, :]) for i in 1:dim]
-#     maxs = [maximum(data[i, :]) for i in 1:dim]
-
-#     for i = 1:dim
-#         if maxs[i] - mins[i] != 0
-#             x_raw[i, :] = (data[i, :] .- mins[i]) ./ (maxs[i] - mins[i])
-#         end
-#     end
-
-#     x = vcat(x_raw, 1 .- x_raw)
-#     return x
-# end
 
 
 """
@@ -598,6 +497,7 @@ function get_field_meta(obj::Any, field_name::String)
     return eval(code)
 end
 
+
 """
     get_field_native(obj, field_name)
 
@@ -606,6 +506,7 @@ Get the value of a struct's field through the julia native method.
 function get_field_native(obj::Any, field_name::String)
     return getfield(obj, Symbol(field_name))
 end
+
 
 """
     similarity_meta(method, F2, field_name, gamma_ref)
@@ -649,6 +550,7 @@ function similarity_meta(method::String, F2::GNFA, field_name::String, gamma_ref
     end
     return value
 end # similarity_meta
+
 
 """
     similarity(method, F2, field_name, gamma_ref)
@@ -710,5 +612,3 @@ function similarity(method::String, F2::GNFA, field_name::String, sample::Array,
         error("Invalid/unimplemented similarity method")
     end
 end # similarity
-
-# end

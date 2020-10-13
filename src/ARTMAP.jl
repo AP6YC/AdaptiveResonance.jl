@@ -1,16 +1,10 @@
-# module ARTMAP
-
 using Parameters
 using LinearAlgebra
 using Logging
 using ProgressBars
 using Printf
 
-# using LinearAlgebra
 using MLJ
-
-# export SFAM
-# include("funcs.jl")
 
 @with_kw mutable struct opts_SFAM @deftype Float64
     # Vigilance parameter: [0, 1]
@@ -259,6 +253,4 @@ end
 
 # function SFAM(opts)
 #     SFAM(opts, [], [], [], [], [])
-# end
-
 # end
