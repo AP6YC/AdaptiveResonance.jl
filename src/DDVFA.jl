@@ -1,12 +1,13 @@
-module DDVFA
+# module DDVFA
 
 using Logging
 using Parameters
 using Statistics
 using LinearAlgebra
 using ProgressBars
+using Printf
 
-export DDVFA, opts_DDVFA, GNFA, opts_GNFA, train!
+# export DDVFA, opts_DDVFA, GNFA, opts_GNFA, train!
 
 # struct DDVFA_hard
 #    # Assign numerical parameters from options
@@ -295,10 +296,10 @@ function classify(art::GNFA, x::Array)
     return y_hat
 end # classify GNFA
 
-function element_min(x::Array, W::Array)
-    # Compute the element-wise minimum of two vectors
-    return minimum([x W], dims = 2)
-end # element_min
+# function element_min(x::Array, W::Array)
+#     # Compute the element-wise minimum of two vectors
+#     return minimum([x W], dims = 2)
+# end # element_min
 
 function activation_match!(art::GNFA, x::Array)
     art.T = zeros(art.n_categories)
@@ -560,28 +561,28 @@ function stopping_conditions(art::DDVFA)
     return art.W == art.W_old || art.epoch >= art.opts.max_epoch
 end # stopping_conditions
 
-"""
-    complement_code(data)
+# """
+#     complement_code(data)
 
-Normalize the data x to [0, 1] and returns the augmented vector [x, 1 - x].
-"""
-function complement_code(data::Array)
-    # Complement code the data and return a concatenated matrix
-    dim, n_samples = size(data)
-    x_raw = zeros(dim, n_samples)
+# Normalize the data x to [0, 1] and returns the augmented vector [x, 1 - x].
+# """
+# function complement_code(data::Array)
+#     # Complement code the data and return a concatenated matrix
+#     dim, n_samples = size(data)
+#     x_raw = zeros(dim, n_samples)
 
-    mins = [minimum(data[i, :]) for i in 1:dim]
-    maxs = [maximum(data[i, :]) for i in 1:dim]
+#     mins = [minimum(data[i, :]) for i in 1:dim]
+#     maxs = [maximum(data[i, :]) for i in 1:dim]
 
-    for i = 1:dim
-        if maxs[i] - mins[i] != 0
-            x_raw[i, :] = (data[i, :] .- mins[i]) ./ (maxs[i] - mins[i])
-        end
-    end
+#     for i = 1:dim
+#         if maxs[i] - mins[i] != 0
+#             x_raw[i, :] = (data[i, :] .- mins[i]) ./ (maxs[i] - mins[i])
+#         end
+#     end
 
-    x = vcat(x_raw, 1 .- x_raw)
-    return x
-end
+#     x = vcat(x_raw, 1 .- x_raw)
+#     return x
+# end
 
 
 """
@@ -710,4 +711,4 @@ function similarity(method::String, F2::GNFA, field_name::String, sample::Array,
     end
 end # similarity
 
-end
+# end

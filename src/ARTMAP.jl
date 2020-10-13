@@ -1,4 +1,4 @@
-module ARTMAP
+# module ARTMAP
 
 using Parameters
 using LinearAlgebra
@@ -6,7 +6,7 @@ using Logging
 using ProgressBars
 using Printf
 
-using LinearAlgebra
+# using LinearAlgebra
 using MLJ
 
 # export SFAM
@@ -167,23 +167,23 @@ function classify(art::SFAM, x::Array)
     return y_hat
 end
 
-function complement_code(data::Array)
-    # Complement code the data and return a concatenated matrix
-    dim, n_samples = size(data)
-    x_raw = zeros(dim, n_samples)
+# function complement_code(data::Array)
+#     # Complement code the data and return a concatenated matrix
+#     dim, n_samples = size(data)
+#     x_raw = zeros(dim, n_samples)
 
-    mins = [minimum(data[i, :]) for i in 1:dim]
-    maxs = [maximum(data[i, :]) for i in 1:dim]
+#     mins = [minimum(data[i, :]) for i in 1:dim]
+#     maxs = [maximum(data[i, :]) for i in 1:dim]
 
-    for i = 1:dim
-        if maxs[i] - mins[i] != 0
-            x_raw[i, :] = (data[i, :] .- mins[i]) ./ (maxs[i] - mins[i])
-        end
-    end
+#     for i = 1:dim
+#         if maxs[i] - mins[i] != 0
+#             x_raw[i, :] = (data[i, :] .- mins[i]) ./ (maxs[i] - mins[i])
+#         end
+#     end
 
-    x = vcat(x_raw, 1 .- x_raw)
-    return x
-end
+#     x = vcat(x_raw, 1 .- x_raw)
+#     return x
+# end
 
 function stopping_conditions(art::SFAM)
     # Compute the stopping condition, return a bool
@@ -195,10 +195,10 @@ function stopping_conditions(art::SFAM)
     return art.W == art.W_old || art.epoch >= art.opts.max_epochs
 end
 
-function element_min(x::Array, W::Array)
-    # Compute the element-wise minimum of two vectors
-    return minimum([x W], dims = 2)
-end
+# function element_min(x::Array, W::Array)
+#     # Compute the element-wise minimum of two vectors
+#     return minimum([x W], dims = 2)
+# end
 
 function learn(art::SFAM, x::Array, W::Array)
     # Update W
@@ -261,4 +261,4 @@ end
 #     SFAM(opts, [], [], [], [], [])
 # end
 
-end
+# end
