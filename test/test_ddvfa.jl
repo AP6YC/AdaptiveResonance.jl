@@ -15,7 +15,7 @@ function ddvfa_example()
 
     # Parse the data
     # vars = matread("data/ACIL.mat")'
-    data_file = "data/art_data_rng.csv"
+    data_file = "../data/art_data_rng.csv"
     train_x = readdlm(data_file, ',')
     # vars = matread("data/art_data_rng.csv")
     # train_x = vars["data"]

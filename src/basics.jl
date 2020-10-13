@@ -1,6 +1,4 @@
-export my_f, foo, doGreet, greet
-
-
+# export my_f, foo, doGreet, greet
 function foo(a, b)
     return a + b
 end

@@ -19,13 +19,18 @@ include("DDVFA.jl")
 # using .ARTMAP
 # using .DDVFA
 
-export
-# Functions
-    train!
-# DDVFA
-    DDVFA, opts_DDVFA, GNFA, opts_GNFA,
-# ARTMAP
-    SFAM, opts_SFAM
+export train!, DDVFA, opts_DDVFA, GNFA, opts_GNFA, SFAM, opts_SFAM, my_f, foo, doGreet, greet
+
+# export
+# # Functions
+#     train!,
+# # DDVFA
+#     DDVFA, opts_DDVFA, GNFA, opts_GNFA,
+# # ARTMAP
+#     SFAM, opts_SFAM,
+# # Basics
+#     my_f, foo, doGreet, greet
+
 
 # # struct DDVFA_hard
 # #    # Assign numerical parameters from options
