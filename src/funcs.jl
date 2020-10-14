@@ -1,6 +1,30 @@
-# module funcs
+"""
+    complement_code(data)
 
-# export similarity, similarity_meta
+Normalize the data x to [0, 1] and returns the augmented vector [x, 1 - x].
+"""
+function complement_code(data::Array)
+    # Complement code the data and return a concatenated matrix
+    dim, n_samples = size(data)
+    x_raw = zeros(dim, n_samples)
+
+    mins = [minimum(data[i, :]) for i in 1:dim]
+    maxs = [maximum(data[i, :]) for i in 1:dim]
+
+    for i = 1:dim
+        if maxs[i] - mins[i] != 0
+            x_raw[i, :] = (data[i, :] .- mins[i]) ./ (maxs[i] - mins[i])
+        end
+    end
+
+    x = vcat(x_raw, 1 .- x_raw)
+    return x
+end
+
+function element_min(x::Array, W::Array)
+    # Compute the element-wise minimum of two vectors
+    return minimum([x W], dims = 2)
+end
 
 
 """
@@ -106,5 +130,3 @@ function similarity(method::String, F2, field_name::String, sample, gamma_ref::A
         error("Invalid/unimplemented similarity method")
     end
 end # similarity
-
-# end
