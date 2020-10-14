@@ -3,8 +3,95 @@ using LinearAlgebra
 using Logging
 using ProgressBars
 using Printf
-
 using MLJ
+
+@with_kw mutable struct opts_FAM @deftype Float64
+    # Vigilance parameter: [0, 1]
+    rho = 0.6; @assert rho >= 0 && rho <= 1
+    # Choice parameter: alpha > 0
+    alpha = 1e-7; @assert alpha > 0
+    # Match tracking parameter
+    epsilon = 1e-3; @assert epsilon > 0 && epsilon < 1
+    # Learning parameter: (0, 1]
+    beta = 1; @assert beta > 0 && beta <= 1
+    # Similarity method (activation and match):
+    #   'single', 'average', 'complete', 'median', 'weighted', or 'centroid'
+    method::String = "single"
+    # Display flag
+    display::Bool = true
+    # shuffle::Bool = false
+    random_seed = 1234.5678
+    max_epochs = 1
+end
+
+mutable struct FAM
+    opts::opts_FAM
+    W::Array{Float64, 2}
+    W_old::Array{Float64, 2}
+    labels::Array{Int, 1}
+    y::Array{Int, 1}
+    dim::Int
+    n_categories::Int
+    epoch::Int
+end
+
+function FAM()
+    opts = FAM()
+    FAM(opts,
+         Array{Float64}(undef, 0,0),
+         Array{Float64}(undef, 0,0),
+         Array{Int}(undef, 0),
+         Array{Int}(undef, 0),
+         0, 0, 0)
+end
+
+function FAM(opts::opts_FAM)
+    FAM(opts, [], [], [], [], 0, 0, 0)
+end
+
+@with_kw mutable struct opts_DFAM @deftype Float64
+    # Vigilance parameter: [0, 1]
+    rho = 0.6; @assert rho >= 0 && rho <= 1
+    # Choice parameter: alpha > 0
+    alpha = 1e-7; @assert alpha > 0
+    # Match tracking parameter
+    epsilon = 1e-3; @assert epsilon > 0 && epsilon < 1
+    # Learning parameter: (0, 1]
+    beta = 1; @assert beta > 0 && beta <= 1
+    # Similarity method (activation and match):
+    #   'single', 'average', 'complete', 'median', 'weighted', or 'centroid'
+    method::String = "single"
+    # Display flag
+    display::Bool = true
+    # shuffle::Bool = false
+    random_seed = 1234.5678
+    max_epochs = 1
+end
+
+mutable struct DFAM
+    opts::opts_DFAM
+    W::Array{Float64, 2}
+    W_old::Array{Float64, 2}
+    labels::Array{Int, 1}
+    y::Array{Int, 1}
+    dim::Int
+    n_categories::Int
+    epoch::Int
+end
+
+function DFAM()
+    opts = DFAM()
+    DFAM(opts,
+         Array{Float64}(undef, 0,0),
+         Array{Float64}(undef, 0,0),
+         Array{Int}(undef, 0),
+         Array{Int}(undef, 0),
+         0, 0, 0)
+end
+
+function DFAM(opts::opts_FAM)
+    DFAM(opts, [], [], [], [], 0, 0, 0)
+end
 
 @with_kw mutable struct opts_SFAM @deftype Float64
     # Vigilance parameter: [0, 1]
@@ -161,96 +248,33 @@ function classify(art::SFAM, x::Array)
     return y_hat
 end
 
-# function complement_code(data::Array)
-#     # Complement code the data and return a concatenated matrix
-#     dim, n_samples = size(data)
-#     x_raw = zeros(dim, n_samples)
-
-#     mins = [minimum(data[i, :]) for i in 1:dim]
-#     maxs = [maximum(data[i, :]) for i in 1:dim]
-
-#     for i = 1:dim
-#         if maxs[i] - mins[i] != 0
-#             x_raw[i, :] = (data[i, :] .- mins[i]) ./ (maxs[i] - mins[i])
-#         end
-#     end
-
-#     x = vcat(x_raw, 1 .- x_raw)
-#     return x
-# end
 
 function stopping_conditions(art::SFAM)
     # Compute the stopping condition, return a bool
-    # stop = false
-    # if art.W == art.W_old || art.epoch >= art.opts.max_epochs
-    #     stop = true
-    # end
-    # return stop
     return art.W == art.W_old || art.epoch >= art.opts.max_epochs
 end
 
-# function element_min(x::Array, W::Array)
-#     # Compute the element-wise minimum of two vectors
-#     return minimum([x W], dims = 2)
-# end
 
 function learn(art::SFAM, x::Array, W::Array)
     # Update W
     return art.opts.beta .* element_min(x, W) .+ W .* (1 - art.opts.beta)
 end
 
+
 function activation(art::SFAM, x::Array, W::Array)
     # Compute T and return
     return norm(element_min(x, W), 1) / (art.opts.alpha + norm(W, 1))
 end
+
 
 function art_match(art::SFAM, x::Array, W::Array)
     # Compute M and return
     return norm(element_min(x, W), 1) / art.dim
 end
 
+
 function performance(y_hat::Array, y::Array)
     # Compute the confusion matrix and calculate performance as trace/sum
     conf = confusion_matrix(categorical(y_hat), categorical(y), warn=false)
     perf = tr(conf.mat)/sum(conf.mat)
 end
-
-# using Parameters
-
-# export SFAM
-
-# include("funcs.jl")
-
-# @with_kw mutable struct opts_SFAM @deftype Float64
-#     # Vigilance parameter: [0, 1]
-#     rho = 0.6; @assert rho >= 0 && rho <= 1
-#     # Choice parameter: alpha > 0
-#     alpha = 1e-3; @assert alpha > 0
-#     # Learning parameter: (0, 1]
-#     beta = 1; @assert beta > 0 && beta <= 1
-#     # Similarity method (activation and match):
-#     #   'single', 'average', 'complete', 'median', 'weighted', or 'centroid'
-#     method::String = "single"
-#     # Display flag
-#     display::Bool = true
-#     # shuffle::Bool = false
-#     random_seed = 1234.5678
-# end # opts_SFAM
-
-# mutable struct SFAM
-#     opts
-#     W
-#     W_old
-#     labels
-#     dim
-#     n_categories
-# end
-
-# function SFAM()
-#     opts = opts_SFAM()
-#     SFAM(opts, [], [], [], [], [])
-# end
-
-# function SFAM(opts)
-#     SFAM(opts, [], [], [], [], [])
-# end

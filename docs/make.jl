@@ -1,17 +1,18 @@
 using Documenter, AdaptiveResonance
 
-makedocs(;
+makedocs(
     modules=[AdaptiveResonance],
-    format=Documenter.HTML(prettyurls = get(ENV, "CI", nothing) == "true"),
+    # format=Documenter.HTML(prettyurls = get(ENV, "CI", nothing) == "true"),
+    format=Documenter.HTML(),
     # pages=[
     #     "Home" => "index.md",
     # ],
     repo="https://github.com/AP6YC/AdaptiveResonance.jl/blob/{commit}{path}#L{line}",
     sitename="AdaptiveResonance.jl",
     authors="Sasha Petrenko",
-    assets=String[],
+    # assets=String[],
 )
 
-deploydocs(;
+deploydocs(
     repo="github.com/AP6YC/AdaptiveResonance.jl.git",
 )
