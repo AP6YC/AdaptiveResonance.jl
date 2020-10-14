@@ -13,5 +13,5 @@ makedocs(;
 )
 
 deploydocs(;
-    repo="github.com/AP6YC/AdaptiveResonance.jl",
+    repo="github.com/AP6YC/AdaptiveResonance.jl.git",
 )
