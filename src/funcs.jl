@@ -1,8 +1,3 @@
-# module funcs
-
-# export similarity, similarity_meta
-
-
 """
     complement_code(data)
 
@@ -135,5 +130,3 @@ function similarity(method::String, F2, field_name::String, sample, gamma_ref::A
         error("Invalid/unimplemented similarity method")
     end
 end # similarity
-
-# end

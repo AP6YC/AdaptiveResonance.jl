@@ -41,9 +41,9 @@ end # opts_GNFA
 
 
 """
-    GNFA()
+    GNFA
 
-    Implements a GNFA learner.
+    Gamma-Normalized Fuzzy ART learner struct
 
     # Examples
     ```julia-repl
@@ -77,7 +77,19 @@ mutable struct GNFA
     epoch::Int
 end # GNFA
 
+"""
+    GNFA()
 
+    Implements a Gamma-Normalized Fuzzy ART learner.
+
+    # Examples
+    ```julia-repl
+    julia> GNFA()
+    GNFA
+        opts: opts_GNFA
+        ...
+    ```
+"""
 function GNFA()
     # Get opts
     opts = opts_GNFA()
@@ -100,6 +112,19 @@ function GNFA()
     )
 end # GNFA()
 
+"""
+    GNFA(opts)
+
+    Implements a Gamma-Normalized Fuzzy ART learner with specified options.
+
+    # Examples
+    ```julia-repl
+    julia> GNFA(opts)
+    GNFA
+        opts: opts_GNFA
+        ...
+    ```
+"""
 function GNFA(opts)
     GNFA(opts,                          # opts
         #  false,                         # complement_coding
@@ -119,7 +144,20 @@ function GNFA(opts)
     )
 end # GNFA()
 
+"""
+    initialize!()
 
+    Initializes a GNFA learner with an intial sample 'x'
+
+    # Examples
+    ```julia-repl
+    julia> my_GNFA = GNFA()
+    GNFA
+        opts: opts_GNFA
+        ...
+    julia> initialize!(my_GNFA, [1 2 3 4])
+    ```
+"""
 function initialize!(art::GNFA, x::Array)
     # @info "Initializing GNFA"
     art.dim_comp = size(x)[1]
@@ -135,7 +173,21 @@ function initialize!(art::GNFA, x::Array)
     # push!(art.labels, label)
 end # initialize! GNFA
 
+"""
+    train!()
 
+    Trains a GNFA learner with dataset 'x' and optional labels 'y'
+
+    # Examples
+    ```julia-repl
+    julia> my_GNFA = GNFA()
+    GNFA
+        opts: opts_GNFA
+        ...
+    julia> x = load_data()
+    julia> train!(my_GNFA, x)
+    ```
+"""
 function train!(art::GNFA, x::Array ; y::Array=[])
     # Get size and if supervised
     if length(size(x)) == 2
@@ -232,7 +284,24 @@ function train!(art::GNFA, x::Array ; y::Array=[])
     end
 end # train! GNFA
 
+"""
+    classify(art::GNFA, x::Array)
 
+    Predict categories of 'x' using the GNFA model.
+
+    Returns predicted categories 'y_hat'
+
+    # Examples
+    ```julia-repl
+    julia> my_GNFA = GNFA()
+    GNFA
+        opts: opts_GNFA
+        ...
+    julia> x, y = load_data()
+    julia> train!(my_GNFA, x)
+    julia> y_hat = classify(my_GNFA, y)
+    ```
+"""
 function classify(art::GNFA, x::Array)
     dim, n_samples = size(x)
     y_hat = zeros(Int, n_samples)
@@ -265,7 +334,23 @@ function classify(art::GNFA, x::Array)
     return y_hat
 end # classify GNFA
 
+"""
+    activation_match!(art::GNFA, x::Array)
 
+    Computes the activationa and match functions of the art module against sample x.
+
+    # Examples
+    ```julia-repl
+    julia> my_GNFA = GNFA()
+    GNFA
+        opts: opts_GNFA
+        ...
+    julia> x, y = load_data()
+    julia> train!(my_GNFA, x)
+    julia> x_sample = x[:, 1]
+    julia> activation_match!(my_GNFA, x_sample)
+    ```
+"""
 function activation_match!(art::GNFA, x::Array)
     art.T = zeros(art.n_categories)
     art.M = zeros(art.n_categories)
