@@ -1,16 +1,33 @@
 using AdaptiveResonance
 using Test
+using CSV
+using DrWatson
 
-function foo(a, b)
-    return a + b
-end
+include("test_ddvfa.jl")
 
-my_f(2, 1)
-
-@testset "AdaptiveResonance.jl" begin
-    # Write your own tests here.
+@testset "basics.jl" begin
+    # Boilerplate tests to verify basic Julia use
+    @test my_f(2, 2) == 6
     @test 1 + 1 == 2
     @test foo(1, 1) == 2
     @test my_f(2, 1) == 5
     @test greet() == doGreet("World")
+end
+
+
+@testset "DDVFA.jl" begin
+
+    ddvfa_example()
+
+end
+
+@testset "AdaptiveResonance.jl" begin
+
+
+end
+
+@testset "ARTMAP.jl" begin
+
+    my_sfam = SFAM()
+
 end

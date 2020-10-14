@@ -1,36 +1,32 @@
 module AdaptiveResonance
 
+using Logging
+using Parameters
+using Statistics
+using LinearAlgebra
+
+# using CUDAapi
+# if has_cuda()		# Check if CUDA is available
+#     @info "CUDA is on"
+#     import CuArrays		# If CUDA is available, import CuArrays
+#     CuArrays.allowscalar(false)
+# end
+
+include("basics.jl")
 include("funcs.jl")
+include("ARTMAP.jl")
+include("DDVFA.jl")
 
-export doGreet, my_f, greet
+# export train!, DDVFA, opts_DDVFA, GNFA, opts_GNFA, SFAM, opts_SFAM, my_f, foo, doGreet, greet
 
-"""
-    greet()
-
-Prints a hello world!
-
-# Examples
-```julia-repl
-julia> greet()
-Hello World!
-```
-"""
-greet() = print("Hello World!")
-
-
-"""
-    doGreet(name)
-
-Greets the name given.
-
-# Examples
-```julia-repl
-julia> doGreet("Julia")
-Hello Julia!
-```
-"""
-function doGreet(name)
-    print("Hello ", name, "!")
-end
+export
+# Functions
+    train!,
+# DDVFA
+    DDVFA, opts_DDVFA, GNFA, opts_GNFA,
+# ARTMAP
+    SFAM, opts_SFAM,
+# Basics
+    my_f, foo, doGreet, greet
 
 end # module
