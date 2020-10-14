@@ -1,8 +1,5 @@
 # AdaptiveResonance.jl
 
-```@index
-```
-
 The [Package Guide](@ref) provides a tutorial explaining how to get started using Documenter.
 
 Some examples of packages using Documenter can be found on the [Examples](@ref) page.
@@ -20,16 +17,14 @@ Pages = [
 ]
 Depth = 1
 ```
-
-This is how you use the module manually.
+<!-- This is how you use the module manually. -->
 
 ## Library Outline
 
 ```@contents
 Pages = ["lib/public.md", "lib/internals.md"]
 ```
-
-This is how you develop the library.
+<!-- This is how you develop the library. -->
 
 ### [Index](@id main-index)
 
@@ -40,3 +35,6 @@ Pages = ["lib/public.md"]
 ```@autodocs
 Modules = [AdaptiveResonance]
 ```
+
+<!-- ```@index
+``` -->

@@ -3,9 +3,9 @@ using Documenter, AdaptiveResonance
 makedocs(;
     modules=[AdaptiveResonance],
     format=Documenter.HTML(),
-    pages=[
-        "Home" => "index.md",
-    ],
+    # pages=[
+    #     "Home" => "index.md",
+    # ],
     repo="https://github.com/AP6YC/AdaptiveResonance.jl/blob/{commit}{path}#L{line}",
     sitename="AdaptiveResonance.jl",
     authors="Sasha Petrenko",
