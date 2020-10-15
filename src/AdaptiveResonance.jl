@@ -25,6 +25,8 @@ export
 # DDVFA
     DDVFA, opts_DDVFA, GNFA, opts_GNFA,
 # ARTMAP
+    FAM, opts_FAM,
+    DFAM, opts_DFAM,
     SFAM, opts_SFAM,
 # Basics
     my_f, foo, doGreet, greet
