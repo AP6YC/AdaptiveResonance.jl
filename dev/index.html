@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>AdaptiveResonance.jl · AdaptiveResonance.jl</title><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="assets/documenter.js"></script><script src="siteinfo.js"></script><script src="../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/documenter-dark.css" data-theme-name="documenter-dark"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit">AdaptiveResonance.jl</span></div><form class="docs-search" action="search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li class="is-active"><a class="tocitem" href>AdaptiveResonance.jl</a><ul class="internal"><li><a class="tocitem" href="#Manual-Outline"><span>Manual Outline</span></a></li><li><a class="tocitem" href="#Library-Outline"><span>Library Outline</span></a></li></ul></li><li><a class="tocitem" href="lib/internals/">Developer Documentation</a></li><li><a class="tocitem" href="lib/public/">Public Usage</a></li><li><a class="tocitem" href="man/contributing/">Contributing</a></li><li><a class="tocitem" href="man/examples/">Examples</a></li><li><a class="tocitem" href="man/guide/">Package Guide</a></li><li><a class="tocitem" href="man/syntax/">Syntax</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>AdaptiveResonance.jl</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>AdaptiveResonance.jl</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/AP6YC/AdaptiveResonance.jl/blob/master/docs/src/index.md#L" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="AdaptiveResonance.jl"><a class="docs-heading-anchor" href="#AdaptiveResonance.jl">AdaptiveResonance.jl</a><a id="AdaptiveResonance.jl-1"></a><a class="docs-heading-anchor-permalink" href="#AdaptiveResonance.jl" title="Permalink"></a></h1><p>The <a href="man/guide/#Package-Guide">Package Guide</a> provides a tutorial explaining how to get started using Documenter.</p><p>Some examples of packages using Documenter can be found on the <a href="man/examples/#Examples">Examples</a> page.</p><p>See the <a href="#main-index">Index</a> for the complete list of documented functions and types.</p><h2 id="Manual-Outline"><a class="docs-heading-anchor" href="#Manual-Outline">Manual Outline</a><a id="Manual-Outline-1"></a><a class="docs-heading-anchor-permalink" href="#Manual-Outline" title="Permalink"></a></h2><ul><li><a href="man/guide/#Package-Guide">Package Guide</a></li><li><a href="man/examples/#Examples">Examples</a></li><li><a href="man/syntax/#Syntax">Syntax</a></li><li><a href="man/contributing/#Contributing">Contributing</a></li></ul><p>&lt;!– This is how you use the module manually. –&gt;</p><h2 id="Library-Outline"><a class="docs-heading-anchor" href="#Library-Outline">Library Outline</a><a id="Library-Outline-1"></a><a class="docs-heading-anchor-permalink" href="#Library-Outline" title="Permalink"></a></h2><ul><li><a href="lib/public/#Public-Usage">Public Usage</a></li><li><a href="lib/internals/#Developer-Documentation">Developer Documentation</a></li></ul><p>&lt;!– This is how you develop the library. –&gt;</p><h3 id="main-index"><a class="docs-heading-anchor" href="#main-index">Index</a><a id="main-index-1"></a><a class="docs-heading-anchor-permalink" href="#main-index" title="Permalink"></a></h3><ul></ul><article class="docstring"><header><a class="docstring-binding" id="AdaptiveResonance.DDVFA" href="#AdaptiveResonance.DDVFA"><code>AdaptiveResonance.DDVFA</code></a> — <span class="docstring-category">Type</span></header><section><div><pre><code class="language-julia">DDVFA()
+
+Implements a DDVFA learner.
+
+# Examples
+```julia-repl
+julia&gt; DDVFA()
+DDVFA
+    opts: opts_DDVFA
+    supopts: opts_GNFA
+    ...
+```</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/AP6YC/AdaptiveResonance.jl/blob/75f1d1dc73b0985d014bbbe6cffee27a5c07415b/src/DDVFA.jl#LL427-L440">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="AdaptiveResonance.GNFA" href="#AdaptiveResonance.GNFA"><code>AdaptiveResonance.GNFA</code></a> — <span class="docstring-category">Type</span></header><section><div><pre><code class="language-julia">GNFA
+
+Gamma-Normalized Fuzzy ART learner struct
+
+# Examples
+```julia-repl
+julia&gt; GNFA()
+GNFA
+    opts: opts_GNFA
+    ...
+```</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/AP6YC/AdaptiveResonance.jl/blob/75f1d1dc73b0985d014bbbe6cffee27a5c07415b/src/DDVFA.jl#LL43-L55">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="AdaptiveResonance.GNFA-Tuple{Any}" href="#AdaptiveResonance.GNFA-Tuple{Any}"><code>AdaptiveResonance.GNFA</code></a> — <span class="docstring-category">Method</span></header><section><div><pre><code class="language-julia">GNFA(opts)
+
+Implements a Gamma-Normalized Fuzzy ART learner with specified options.
+
+# Examples
+```julia-repl
+julia&gt; GNFA(opts)
+GNFA
+    opts: opts_GNFA
+    ...
+```</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/AP6YC/AdaptiveResonance.jl/blob/75f1d1dc73b0985d014bbbe6cffee27a5c07415b/src/DDVFA.jl#LL115-L127">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="AdaptiveResonance.GNFA-Tuple{}" href="#AdaptiveResonance.GNFA-Tuple{}"><code>AdaptiveResonance.GNFA</code></a> — <span class="docstring-category">Method</span></header><section><div><pre><code class="language-julia">GNFA()
+
+Implements a Gamma-Normalized Fuzzy ART learner.
+
+# Examples
+```julia-repl
+julia&gt; GNFA()
+GNFA
+    opts: opts_GNFA
+    ...
+```</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/AP6YC/AdaptiveResonance.jl/blob/75f1d1dc73b0985d014bbbe6cffee27a5c07415b/src/DDVFA.jl#LL80-L92">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="AdaptiveResonance.opts_DDVFA" href="#AdaptiveResonance.opts_DDVFA"><code>AdaptiveResonance.opts_DDVFA</code></a> — <span class="docstring-category">Type</span></header><section><div><pre><code class="language-julia">opts_DDVFA()
+
+Distributed Dual Vigilance Fuzzy ART options struct.
+
+# Examples
+```julia-repl
+julia&gt; opts_DDVFA()
+Initialized opts_DDVFA
+```</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/JuliaLang/julia/blob/44fa15b1502a45eac76c9017af94332d4557b251/base/#L0-L10">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="AdaptiveResonance.opts_GNFA" href="#AdaptiveResonance.opts_GNFA"><code>AdaptiveResonance.opts_GNFA</code></a> — <span class="docstring-category">Type</span></header><section><div><pre><code class="language-julia">opts_GNFA()
+
+Gamma-Normalized Fuzzy ART options struct.
+
+# Examples
+```julia-repl
+julia&gt; opts_GNFA()
+Initialized GNFA
+```</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/JuliaLang/julia/blob/44fa15b1502a45eac76c9017af94332d4557b251/base/#L0-L10">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="AdaptiveResonance.activation_match!-Tuple{GNFA,Array}" href="#AdaptiveResonance.activation_match!-Tuple{GNFA,Array}"><code>AdaptiveResonance.activation_match!</code></a> — <span class="docstring-category">Method</span></header><section><div><pre><code class="language-julia">activation_match!(art::GNFA, x::Array)
+
+Computes the activationa and match functions of the art module against sample x.
+
+# Examples
+```julia-repl
+julia&gt; my_GNFA = GNFA()
+GNFA
+    opts: opts_GNFA
+    ...
+julia&gt; x, y = load_data()
+julia&gt; train!(my_GNFA, x)
+julia&gt; x_sample = x[:, 1]
+julia&gt; activation_match!(my_GNFA, x_sample)
+```</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/AP6YC/AdaptiveResonance.jl/blob/75f1d1dc73b0985d014bbbe6cffee27a5c07415b/src/DDVFA.jl#LL337-L353">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="AdaptiveResonance.classify-Tuple{GNFA,Array}" href="#AdaptiveResonance.classify-Tuple{GNFA,Array}"><code>AdaptiveResonance.classify</code></a> — <span class="docstring-category">Method</span></header><section><div><pre><code class="language-julia">classify(art::GNFA, x::Array)
+
+Predict categories of &#39;x&#39; using the GNFA model.
+
+Returns predicted categories &#39;y_hat&#39;
+
+# Examples
+```julia-repl
+julia&gt; my_GNFA = GNFA()
+GNFA
+    opts: opts_GNFA
+    ...
+julia&gt; x, y = load_data()
+julia&gt; train!(my_GNFA, x)
+julia&gt; y_hat = classify(my_GNFA, y)
+```</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/AP6YC/AdaptiveResonance.jl/blob/75f1d1dc73b0985d014bbbe6cffee27a5c07415b/src/DDVFA.jl#LL287-L304">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="AdaptiveResonance.complement_code-Tuple{Array}" href="#AdaptiveResonance.complement_code-Tuple{Array}"><code>AdaptiveResonance.complement_code</code></a> — <span class="docstring-category">Method</span></header><section><div><pre><code class="language-julia">complement_code(data)</code></pre><p>Normalize the data x to [0, 1] and returns the augmented vector [x, 1 - x].</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/AP6YC/AdaptiveResonance.jl/blob/75f1d1dc73b0985d014bbbe6cffee27a5c07415b/src/funcs.jl#LL1-L5">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="AdaptiveResonance.doGreet-Tuple{Any}" href="#AdaptiveResonance.doGreet-Tuple{Any}"><code>AdaptiveResonance.doGreet</code></a> — <span class="docstring-category">Method</span></header><section><div><pre><code class="language-julia">doGreet(name)</code></pre><p>Greets the name given.</p><p><strong>Examples</strong></p><pre><code class="language-julia-repl">julia&gt; doGreet(&quot;Julia&quot;)
+Hello Julia!</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/AP6YC/AdaptiveResonance.jl/blob/75f1d1dc73b0985d014bbbe6cffee27a5c07415b/src/basics.jl#LL47-L57">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="AdaptiveResonance.foo-Tuple{Any,Any}" href="#AdaptiveResonance.foo-Tuple{Any,Any}"><code>AdaptiveResonance.foo</code></a> — <span class="docstring-category">Method</span></header><section><div><p>foo(a, b)</p><p>The ubiquitous foo function to verify basic functionality in tests.     Returns a + b</p><p><strong>Examples</strong></p><pre><code class="language-julia-repl">julia&gt; foo(1, 2)
+3</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/AP6YC/AdaptiveResonance.jl/blob/75f1d1dc73b0985d014bbbe6cffee27a5c07415b/src/basics.jl#LL1-L12">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="AdaptiveResonance.get_field_meta-Tuple{Any,String}" href="#AdaptiveResonance.get_field_meta-Tuple{Any,String}"><code>AdaptiveResonance.get_field_meta</code></a> — <span class="docstring-category">Method</span></header><section><div><pre><code class="language-julia">get_field_meta(obj, field_name)</code></pre><p>Get the value of a struct&#39;s field using meta programming.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/AP6YC/AdaptiveResonance.jl/blob/75f1d1dc73b0985d014bbbe6cffee27a5c07415b/src/DDVFA.jl#LL572-L576">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="AdaptiveResonance.get_field_native-Tuple{Any,String}" href="#AdaptiveResonance.get_field_native-Tuple{Any,String}"><code>AdaptiveResonance.get_field_native</code></a> — <span class="docstring-category">Method</span></header><section><div><pre><code class="language-julia">get_field_native(obj, field_name)</code></pre><p>Get the value of a struct&#39;s field through the julia native method.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/AP6YC/AdaptiveResonance.jl/blob/75f1d1dc73b0985d014bbbe6cffee27a5c07415b/src/DDVFA.jl#LL586-L590">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="AdaptiveResonance.greet-Tuple{}" href="#AdaptiveResonance.greet-Tuple{}"><code>AdaptiveResonance.greet</code></a> — <span class="docstring-category">Method</span></header><section><div><pre><code class="language-julia">greet()</code></pre><p>Print a hello world!</p><p><strong>Examples</strong></p><pre><code class="language-julia-repl">julia&gt; greet()
+Hello World!</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/AP6YC/AdaptiveResonance.jl/blob/75f1d1dc73b0985d014bbbe6cffee27a5c07415b/src/basics.jl#LL33-L43">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="AdaptiveResonance.initialize!-Tuple{GNFA,Array}" href="#AdaptiveResonance.initialize!-Tuple{GNFA,Array}"><code>AdaptiveResonance.initialize!</code></a> — <span class="docstring-category">Method</span></header><section><div><pre><code class="language-julia">initialize!()
+
+Initializes a GNFA learner with an intial sample &#39;x&#39;
+
+# Examples
+```julia-repl
+julia&gt; my_GNFA = GNFA()
+GNFA
+    opts: opts_GNFA
+    ...
+julia&gt; initialize!(my_GNFA, [1 2 3 4])
+```</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/AP6YC/AdaptiveResonance.jl/blob/75f1d1dc73b0985d014bbbe6cffee27a5c07415b/src/DDVFA.jl#LL147-L160">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="AdaptiveResonance.my_f-Tuple{Any,Any}" href="#AdaptiveResonance.my_f-Tuple{Any,Any}"><code>AdaptiveResonance.my_f</code></a> — <span class="docstring-category">Method</span></header><section><div><pre><code class="language-julia">my_f(x, y)</code></pre><p>Basic inline function to verify basic functionality in tests.     Returns 2 * x + y</p><p><strong>Examples</strong></p><pre><code class="language-julia-repl">julia&gt; my_f(2, 1)
+5</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/AP6YC/AdaptiveResonance.jl/blob/75f1d1dc73b0985d014bbbe6cffee27a5c07415b/src/basics.jl#LL18-L29">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="AdaptiveResonance.similarity-Tuple{String,Any,String,Any,AbstractFloat}" href="#AdaptiveResonance.similarity-Tuple{String,Any,String,Any,AbstractFloat}"><code>AdaptiveResonance.similarity</code></a> — <span class="docstring-category">Method</span></header><section><div><pre><code class="language-julia">similarity(method, F2, field_name, gamma_ref)</code></pre><p>Compute the similarity metric depending on method with explicit comparisons for the field name.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/AP6YC/AdaptiveResonance.jl/blob/75f1d1dc73b0985d014bbbe6cffee27a5c07415b/src/funcs.jl#LL73-L78">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="AdaptiveResonance.similarity-Tuple{String,GNFA,String,Array,AbstractFloat}" href="#AdaptiveResonance.similarity-Tuple{String,GNFA,String,Array,AbstractFloat}"><code>AdaptiveResonance.similarity</code></a> — <span class="docstring-category">Method</span></header><section><div><pre><code class="language-julia">similarity(method, F2, field_name, gamma_ref)</code></pre><p>Compute the similarity metric depending on method with explicit comparisons for the field name.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/AP6YC/AdaptiveResonance.jl/blob/75f1d1dc73b0985d014bbbe6cffee27a5c07415b/src/DDVFA.jl#LL640-L645">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="AdaptiveResonance.similarity_meta-Tuple{String,Any,String,AbstractFloat}" href="#AdaptiveResonance.similarity_meta-Tuple{String,Any,String,AbstractFloat}"><code>AdaptiveResonance.similarity_meta</code></a> — <span class="docstring-category">Method</span></header><section><div><pre><code class="language-julia">similarity_meta(method, F2, field_name, gamma_ref)</code></pre><p>Compute the similarity metric depending on method using meta programming to access the correct field.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/AP6YC/AdaptiveResonance.jl/blob/75f1d1dc73b0985d014bbbe6cffee27a5c07415b/src/funcs.jl#LL30-L35">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="AdaptiveResonance.similarity_meta-Tuple{String,GNFA,String,AbstractFloat}" href="#AdaptiveResonance.similarity_meta-Tuple{String,GNFA,String,AbstractFloat}"><code>AdaptiveResonance.similarity_meta</code></a> — <span class="docstring-category">Method</span></header><section><div><pre><code class="language-julia">similarity_meta(method, F2, field_name, gamma_ref)</code></pre><p>Compute the similarity metric depending on method using meta programming to access the correct field.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/AP6YC/AdaptiveResonance.jl/blob/75f1d1dc73b0985d014bbbe6cffee27a5c07415b/src/DDVFA.jl#LL596-L601">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="AdaptiveResonance.train!-Tuple{DDVFA,Array}" href="#AdaptiveResonance.train!-Tuple{DDVFA,Array}"><code>AdaptiveResonance.train!</code></a> — <span class="docstring-category">Method</span></header><section><div><pre><code class="language-julia">train!(ddvfa, data)</code></pre><p>Train the DDVFA model on the data.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/AP6YC/AdaptiveResonance.jl/blob/75f1d1dc73b0985d014bbbe6cffee27a5c07415b/src/DDVFA.jl#LL479-L483">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="AdaptiveResonance.train!-Tuple{GNFA,Array}" href="#AdaptiveResonance.train!-Tuple{GNFA,Array}"><code>AdaptiveResonance.train!</code></a> — <span class="docstring-category">Method</span></header><section><div><pre><code class="language-julia">train!()
+
+Trains a GNFA learner with dataset &#39;x&#39; and optional labels &#39;y&#39;
+
+# Examples
+```julia-repl
+julia&gt; my_GNFA = GNFA()
+GNFA
+    opts: opts_GNFA
+    ...
+julia&gt; x = load_data()
+julia&gt; train!(my_GNFA, x)
+```</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/AP6YC/AdaptiveResonance.jl/blob/75f1d1dc73b0985d014bbbe6cffee27a5c07415b/src/DDVFA.jl#LL176-L190">source</a></section></article><p>&lt;!– <code>@index</code> –&gt;</p></article><nav class="docs-footer"><a class="docs-footer-nextpage" href="lib/internals/">Developer Documentation »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Thursday 15 October 2020 18:40">Thursday 15 October 2020</span>. Using Julia version 1.4.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
