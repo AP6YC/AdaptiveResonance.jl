@@ -57,11 +57,6 @@ mutable struct GNFA
     # Assign numerical parameters from options
     opts::opts_GNFA
 
-    # Internal flags
-    # complement_coding::Bool
-    # max_epoch::Bool
-    # no_weight_change::Bool
-
     # Working variables
     threshold::Float64
     labels::Array{Int, 1}
@@ -95,9 +90,6 @@ function GNFA()
     opts = opts_GNFA()
 
     GNFA(opts,                          # opts
-        #  false,                         # complement_coding
-        #  false,                         # max_epoch
-        #  false,                         # no_weight_change
          0,                             # threshold
          Array{Int}(undef,0),           # labels
          Array{Float64}(undef, 0),      # T
@@ -127,9 +119,6 @@ end # GNFA()
 """
 function GNFA(opts)
     GNFA(opts,                          # opts
-        #  false,                         # complement_coding
-        #  false,                         # max_epoch
-        #  false,                         # no_weight_change
          0,                             # threshold
          Array{Int}(undef,0),           # labels
          Array{Float64}(undef, 0),      # T
@@ -378,12 +367,7 @@ end
 
 
 function stopping_conditions(art::GNFA)
-    # stop = false
-    # if isequal(art.W, art.W_old) || art.epoch >= art.opts.max_epochs
-    #     stop = true
-    # end
     return isequal(art.W, art.W_old) || art.epoch >= art.opts.max_epochs
-    # return stop
 end # stopping_conditions GNFA
 
 
@@ -399,7 +383,6 @@ end # stopping_conditions GNFA
     ```
 """
 @with_kw mutable struct opts_DDVFA @deftype Float64
-    # @debug "Instantiating opts_DDVFA"
     # Lower-bound vigilance parameter: [0, 1]
     rho_lb = 0.80; @assert rho_lb >= 0 && rho_lb <= 1
     rho = rho_lb
@@ -529,10 +512,6 @@ function train!(art::DDVFA, x::Array)
                 bmu = index[jx]
                 M = similarity(art.opts.method, art.F2[bmu], "M", sample, art.opts.gamma_ref)
                 if M >= art.threshold
-                    # # DIAGNOSTIC
-                    # if i == 125
-                    #     @info "Sample", sample, "BMU", bmu, "M", M, "index", index[1:5]
-                    # end
                     train!(art.F2[bmu], sample)
                     art.labels[i] = bmu
                     mismatch_flag = false
