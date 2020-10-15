@@ -2,8 +2,8 @@ using Documenter, AdaptiveResonance
 
 makedocs(
     modules=[AdaptiveResonance],
-    # format=Documenter.HTML(prettyurls = get(ENV, "CI", nothing) == "true"),
-    format=Documenter.HTML(),
+    format=Documenter.HTML(prettyurls = get(ENV, "CI", nothing) == "true"),
+    # format=Documenter.HTML(),
     # pages=[
     #     "Home" => "index.md",
     # ],
