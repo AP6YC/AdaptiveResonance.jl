@@ -36,7 +36,7 @@ mutable struct FAM
 end
 
 function FAM()
-    opts = FAM()
+    opts = opts_FAM()
     FAM(opts,
          Array{Float64}(undef, 0,0),
          Array{Float64}(undef, 0,0),
@@ -80,7 +80,7 @@ mutable struct DFAM
 end
 
 function DFAM()
-    opts = DFAM()
+    opts = opts_DFAM()
     DFAM(opts,
          Array{Float64}(undef, 0,0),
          Array{Float64}(undef, 0,0),

@@ -1,5 +1,7 @@
 using Logging
 using DelimitedFiles
+using AdaptiveResonance
+
 # using Profile
 # using ProfileVega
 
@@ -8,7 +10,6 @@ LogLevel(Logging.Info)
 
 # include("../src/artmap.jl")
 # include("../src/ddvfa.jl")
-using AdaptiveResonance
 
 # Parse the data
 # vars = matread("data/ACIL.mat")'

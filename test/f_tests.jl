@@ -1,9 +1,9 @@
 using AdaptiveResonance
 using Test
 using CSV
-using DrWatson
-
-include("test_ddvfa.jl")
+using MLDatasets
+using Logging
+using DelimitedFiles
 
 @testset "basics.jl" begin
     # Boilerplate tests to verify basic Julia use
@@ -17,17 +17,23 @@ end
 
 @testset "DDVFA.jl" begin
 
+    include("test_ddvfa.jl")
     ddvfa_example()
 
 end
 
 @testset "AdaptiveResonance.jl" begin
 
+    my_fam = FAM()
+    my_dfam = DFAM()
+    my_sfam = SFAM()
+    my_ddvfa = DDVFA()
 
 end
 
 @testset "ARTMAP.jl" begin
 
-    my_sfam = SFAM()
+    include("test_sfam.jl")
+    sfam_example()
 
 end

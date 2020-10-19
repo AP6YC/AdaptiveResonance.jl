@@ -1,23 +1,18 @@
-using Logging
-using DelimitedFiles
+# using AdaptiveResonance
+# using Logging
+# using DelimitedFiles
+
 # using Profile
 # using ProfileVega
-using AdaptiveResonance
 
 function ddvfa_example()
 
     # Set the log level
     LogLevel(Logging.Info)
 
-    # include("artmap.jl")
-    # include("ddvfa.jl")
-
     # Parse the data
-    # vars = matread("data/ACIL.mat")'
     data_file = "../data/art_data_rng.csv"
     train_x = readdlm(data_file, ',')
-    # vars = matread("data/art_data_rng.csv")
-    # train_x = vars["data"]
     train_x = permutedims(train_x)
 
     # Create the ART module, train, and classify
@@ -34,6 +29,4 @@ function ddvfa_example()
 
     # # View the profile as a flamegraph
     # ProfileVega.view()
-
-
 end

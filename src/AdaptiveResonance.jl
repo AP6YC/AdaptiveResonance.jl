@@ -21,7 +21,7 @@ include("DDVFA.jl")
 
 export
 # Functions
-    train!,
+    train!, classify, performance,
 # DDVFA
     DDVFA, opts_DDVFA, GNFA, opts_GNFA,
 # ARTMAP
