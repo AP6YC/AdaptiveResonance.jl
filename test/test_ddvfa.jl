@@ -1,10 +1,3 @@
-# using AdaptiveResonance
-# using Logging
-# using DelimitedFiles
-
-# using Profile
-# using ProfileVega
-
 function ddvfa_example()
 
     # Set the log level

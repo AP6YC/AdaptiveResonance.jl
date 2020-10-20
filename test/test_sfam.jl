@@ -2,8 +2,10 @@ function sfam_example()
     # Set the logging level to Info
     LogLevel(Logging.Info)
 
-    # Load the data
+    # Load the data, downloading if in a CI context: TODO
+    # if ENV["CI"] == true
     MNIST.download("../data/mnist/", i_accept_the_terms_of_use=true)
+    # end
     train_x, train_y = MNIST.traindata()
     test_x, test_y = MNIST.testdata()
 

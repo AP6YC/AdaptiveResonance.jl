@@ -1,6 +1,5 @@
 using AdaptiveResonance
 using Test
-using CSV
 using MLDatasets
 using Logging
 using DelimitedFiles

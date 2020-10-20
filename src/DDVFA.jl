@@ -86,22 +86,8 @@ end # GNFA
     ```
 """
 function GNFA()
-    # Get opts
     opts = opts_GNFA()
-
-    GNFA(opts,                          # opts
-         0,                             # threshold
-         Array{Int}(undef,0),           # labels
-         Array{Float64}(undef, 0),      # T
-         Array{Float64}(undef, 0),      # M
-         Array{Float64}(undef, 0, 0),   # W
-         Array{Float64}(undef, 0, 0),   # W_old
-         Array{Int}(undef, 0),          # n_instance
-         0,                             # n_categories
-         0,                             # dim
-         0,                             # dim_comp
-         0                              # epoch
-    )
+    GNFA(opts)
 end # GNFA()
 
 """
@@ -442,6 +428,11 @@ end # DDVFA
 
 function DDVFA()
     opts = opts_DDVFA()
+    DDVFA(opts)
+end
+
+
+function DDVFA(opts::opts_DDVFA)
     subopts = opts_GNFA(rho=opts.rho_ub)
     DDVFA(opts,
           subopts,

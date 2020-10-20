@@ -37,16 +37,16 @@ end
 
 function FAM()
     opts = opts_FAM()
-    FAM(opts,
-         Array{Float64}(undef, 0,0),
-         Array{Float64}(undef, 0,0),
-         Array{Int}(undef, 0),
-         Array{Int}(undef, 0),
-         0, 0, 0)
+    FAM(opts)
 end
 
 function FAM(opts::opts_FAM)
-    FAM(opts, [], [], [], [], 0, 0, 0)
+    FAM(opts,
+        Array{Float64}(undef, 0,0),
+        Array{Float64}(undef, 0,0),
+        Array{Int}(undef, 0),
+        Array{Int}(undef, 0),
+        0, 0, 0)
 end
 
 @with_kw mutable struct opts_DFAM @deftype Float64
@@ -81,16 +81,16 @@ end
 
 function DFAM()
     opts = opts_DFAM()
+    DFAM(opts)
+end
+
+function DFAM(opts::opts_DFAM)
     DFAM(opts,
          Array{Float64}(undef, 0,0),
          Array{Float64}(undef, 0,0),
          Array{Int}(undef, 0),
          Array{Int}(undef, 0),
          0, 0, 0)
-end
-
-function DFAM(opts::opts_FAM)
-    DFAM(opts, [], [], [], [], 0, 0, 0)
 end
 
 @with_kw mutable struct opts_SFAM @deftype Float64
@@ -125,16 +125,16 @@ end
 
 function SFAM()
     opts = opts_SFAM()
+    SFAM(opts)
+end
+
+function SFAM(opts::opts_SFAM)
     SFAM(opts,
          Array{Float64}(undef, 0,0),
          Array{Float64}(undef, 0,0),
          Array{Int}(undef, 0),
          Array{Int}(undef, 0),
          0, 0, 0)
-end
-
-function SFAM(opts::opts_SFAM)
-    SFAM(opts, [], [], [], [], 0, 0, 0)
 end
 
 function train!(art::SFAM, x::Array, y::Array)
