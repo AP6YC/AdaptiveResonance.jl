@@ -1,13 +1,9 @@
-# using MLDatasets
-# using Logging
-# using AdaptiveResonance
-
 function sfam_example()
+    # Set the logging level to Info
     LogLevel(Logging.Info)
 
-    # include("julia/artmap.jl")
-
     # Load the data
+    MNIST.download("../data/mnist/", i_accept_the_terms_of_use=true)
     train_x, train_y = MNIST.traindata()
     test_x, test_y = MNIST.testdata()
 
