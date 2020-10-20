@@ -544,76 +544,9 @@ end # train DDVFA
 
 
 function stopping_conditions(art::DDVFA)
+    # Compute the stopping condition, return a bool
     return art.W == art.W_old || art.epoch >= art.opts.max_epoch
 end # stopping_conditions
-
-
-"""
-    get_field_meta(obj, field_name)
-
-Get the value of a struct's field using meta programming.
-"""
-function get_field_meta(obj::Any, field_name::String)
-    field = Symbol(field_name)
-    code = quote
-        (obj) -> obj.$field
-    end
-    return eval(code)
-end
-
-
-"""
-    get_field_native(obj, field_name)
-
-Get the value of a struct's field through the julia native method.
-"""
-function get_field_native(obj::Any, field_name::String)
-    return getfield(obj, Symbol(field_name))
-end
-
-
-"""
-    similarity_meta(method, F2, field_name, gamma_ref)
-
-Compute the similarity metric depending on method using meta programming to
-access the correct field.
-"""
-function similarity_meta(method::String, F2::GNFA, field_name::String, gamma_ref::AbstractFloat)
-    @debug "Computing similarity"
-
-    if field_name != "T" && field_name != "M"
-        error("Incorrect field name for similarity metric.")
-    end
-
-    field = get_field_native(F2, field_name)
-
-    # Single linkage
-    if method == "single"
-        value = maximum(field)
-    # Average linkage
-    elseif method == "average"
-        value = mean(field)
-    # Complete linkage
-    elseif method == "complete"
-        value = minimum(field)
-    # Median linkage
-    elseif method == "median"
-        value = median(field)
-    elseif method == "weighted"
-        value = field' * (F2.n / sum(F2.n))
-    elseif method == "centroid"
-        Wc = minimum(F2.W)
-        T = norm(min(sample, Wc), 1)
-        if field_name == "T"
-            value = T
-        elseif field_name == "M"
-            value = (norm(Wc, 1)^gamma_ref)*T
-        end
-    else
-        error("Invalid/unimplemented similarity method")
-    end
-    return value
-end # similarity_meta
 
 
 """
@@ -676,3 +609,70 @@ function similarity(method::String, F2::GNFA, field_name::String, sample::Array,
         error("Invalid/unimplemented similarity method")
     end
 end # similarity
+
+# """
+#     get_field_meta(obj, field_name)
+
+# Get the value of a struct's field using meta programming.
+# """
+# function get_field_meta(obj::Any, field_name::String)
+#     field = Symbol(field_name)
+#     code = quote
+#         (obj) -> obj.$field
+#     end
+#     return eval(code)
+# end
+
+
+# """
+#     get_field_native(obj, field_name)
+
+# Get the value of a struct's field through the julia native method.
+# """
+# function get_field_native(obj::Any, field_name::String)
+#     return getfield(obj, Symbol(field_name))
+# end
+
+
+# """
+#     similarity_meta(method, F2, field_name, gamma_ref)
+
+# Compute the similarity metric depending on method using meta programming to
+# access the correct field.
+# """
+# function similarity_meta(method::String, F2::GNFA, field_name::String, gamma_ref::AbstractFloat)
+#     @debug "Computing similarity"
+
+#     if field_name != "T" && field_name != "M"
+#         error("Incorrect field name for similarity metric.")
+#     end
+
+#     field = get_field_native(F2, field_name)
+
+#     # Single linkage
+#     if method == "single"
+#         value = maximum(field)
+#     # Average linkage
+#     elseif method == "average"
+#         value = mean(field)
+#     # Complete linkage
+#     elseif method == "complete"
+#         value = minimum(field)
+#     # Median linkage
+#     elseif method == "median"
+#         value = median(field)
+#     elseif method == "weighted"
+#         value = field' * (F2.n / sum(F2.n))
+#     elseif method == "centroid"
+#         Wc = minimum(F2.W)
+#         T = norm(min(sample, Wc), 1)
+#         if field_name == "T"
+#             value = T
+#         elseif field_name == "M"
+#             value = (norm(Wc, 1)^gamma_ref)*T
+#         end
+#     else
+#         error("Invalid/unimplemented similarity method")
+#     end
+#     return value
+# end # similarity_meta

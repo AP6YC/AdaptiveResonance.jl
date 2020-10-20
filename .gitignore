@@ -9,7 +9,8 @@
 /docs/site/
 
 # Project ignores
-drafting/
+data/mnist/
+!data/.gitkeep
 
 # IDE ignores
 .vscode/
