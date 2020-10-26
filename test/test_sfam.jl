@@ -31,7 +31,7 @@ function sfam_example()
 
     # Flatten the arrays
     train_x_flat = zeros(size_a*size_b, N_train)
-    test_x_flat = zeros(size_at*size_bt, N_train)
+    test_x_flat = zeros(size_at*size_bt, N_test)
     for i=1:N_train
         train_x_flat[:, i] = train_x[:,:, i][:]
     end
@@ -47,6 +47,6 @@ function sfam_example()
     y_hat = classify(art, test_x_flat)
 
     # Calculate performance
-    # perf = performance(y_hat, test_y)
-    # println("Performance is ", perf)
+    perf = performance(y_hat, test_y)
+    println("Performance is ", perf)
 end

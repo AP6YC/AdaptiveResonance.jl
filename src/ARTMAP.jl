@@ -24,6 +24,7 @@ using MLJ
     max_epochs = 1
 end
 
+
 mutable struct FAM
     opts::opts_FAM
     W::Array{Float64, 2}
@@ -35,10 +36,12 @@ mutable struct FAM
     epoch::Int
 end
 
+
 function FAM()
     opts = opts_FAM()
     FAM(opts)
 end
+
 
 function FAM(opts::opts_FAM)
     FAM(opts,
@@ -48,6 +51,7 @@ function FAM(opts::opts_FAM)
         Array{Int}(undef, 0),
         0, 0, 0)
 end
+
 
 @with_kw mutable struct opts_DFAM @deftype Float64
     # Vigilance parameter: [0, 1]
@@ -79,10 +83,12 @@ mutable struct DFAM
     epoch::Int
 end
 
+
 function DFAM()
     opts = opts_DFAM()
     DFAM(opts)
 end
+
 
 function DFAM(opts::opts_DFAM)
     DFAM(opts,
@@ -92,6 +98,7 @@ function DFAM(opts::opts_DFAM)
          Array{Int}(undef, 0),
          0, 0, 0)
 end
+
 
 @with_kw mutable struct opts_SFAM @deftype Float64
     # Vigilance parameter: [0, 1]
@@ -112,6 +119,7 @@ end
     max_epochs = 1
 end # opts_SFAM
 
+
 mutable struct SFAM
     opts::opts_SFAM
     W::Array{Float64, 2}
@@ -123,10 +131,12 @@ mutable struct SFAM
     epoch::Int
 end
 
+
 function SFAM()
     opts = opts_SFAM()
     SFAM(opts)
 end
+
 
 function SFAM(opts::opts_SFAM)
     SFAM(opts,
@@ -136,6 +146,7 @@ function SFAM(opts::opts_SFAM)
          Array{Int}(undef, 0),
          0, 0, 0)
 end
+
 
 function train!(art::SFAM, x::Array, y::Array)
     art.dim, n_samples = size(x)
@@ -209,6 +220,7 @@ function train!(art::SFAM, x::Array, y::Array)
         art.W_old = deepcopy(art.W)
     end
 end
+
 
 function classify(art::SFAM, x::Array)
     art.dim, n_samples = size(x)

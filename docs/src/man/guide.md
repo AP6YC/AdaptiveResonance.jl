@@ -2,7 +2,7 @@
 
 ## Installation
 
-The AdaptiveResonance package can be installed using the Julia package manager. From the Julia REPL, type ']' to enterh the Pkg REPL mode and run
+The AdaptiveResonance package can be installed using the Julia package manager. From the Julia REPL, type ']' to enter the Pkg REPL mode and run
 
 ```
 pkg> add AdaptiveResonance

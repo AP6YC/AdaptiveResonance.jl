@@ -72,6 +72,7 @@ mutable struct GNFA
     epoch::Int
 end # GNFA
 
+
 """
     GNFA()
 
@@ -89,6 +90,7 @@ function GNFA()
     opts = opts_GNFA()
     GNFA(opts)
 end # GNFA()
+
 
 """
     GNFA(opts)
@@ -117,7 +119,8 @@ function GNFA(opts)
          0,                             # dim_comp
          0                              # epoch
     )
-end # GNFA()
+end # GNFA(opts)
+
 
 """
     initialize!()
@@ -146,7 +149,8 @@ function initialize!(art::GNFA, x::Array)
     art.W[:, 1] = x
     # label = supervised ? y[1] : 1
     # push!(art.labels, label)
-end # initialize! GNFA
+end # initialize!(GNFA, x)
+
 
 """
     train!()
@@ -257,7 +261,8 @@ function train!(art::GNFA, x::Array ; y::Array=[])
             break
         end
     end
-end # train! GNFA
+end # train!(GNFA, x, y=[])
+
 
 """
     classify(art::GNFA, x::Array)
@@ -307,7 +312,8 @@ function classify(art::GNFA, x::Array)
         end
     end
     return y_hat
-end # classify GNFA
+end # classify(GNFA, x)
+
 
 """
     activation_match!(art::GNFA, x::Array)
@@ -334,14 +340,14 @@ function activation_match!(art::GNFA, x::Array)
         art.T[i] = (norm(element_min(x, art.W[:, i]), 1)/(art.opts.alpha + W_norm))^art.opts.gamma
         art.M[i] = (W_norm^art.opts.gamma_ref)*art.T[i]
     end
-end # activation_match!
+end # activation_match!(GNFA, x)
 
 
 # Generic learning function
 function learn(art::GNFA, x, W)
     # Update W
     return art.opts.beta .* element_min(x, W) .+ W .* (1 - art.opts.beta)
-end
+end # learn(GNFA, x, W)
 
 
 # In place learning function with instance counting
@@ -349,12 +355,12 @@ function learn!(art::GNFA, x, index)
     # Update W
     art.W[:, index] = learn(art, x, art.W[:, index])
     art.n_instance[index] += 1
-end
+end # learn!(GNFA, x, index)
 
 
 function stopping_conditions(art::GNFA)
     return isequal(art.W, art.W_old) || art.epoch >= art.opts.max_epochs
-end # stopping_conditions GNFA
+end # stopping_conditions(GNFA)
 
 
 """
@@ -393,20 +399,6 @@ end # stopping_conditions GNFA
 end # opts_DDVFA
 
 
-"""
-    DDVFA()
-
-    Implements a DDVFA learner.
-
-    # Examples
-    ```julia-repl
-    julia> DDVFA()
-    DDVFA
-        opts: opts_DDVFA
-        supopts: opts_GNFA
-        ...
-    ```
-"""
 mutable struct DDVFA
     # Get parameters
     opts::opts_DDVFA
@@ -426,10 +418,24 @@ mutable struct DDVFA
 end # DDVFA
 
 
+"""
+    DDVFA()
+
+    Implements a DDVFA learner.
+
+    # Examples
+    ```julia-repl
+    julia> DDVFA()
+    DDVFA
+        opts: opts_DDVFA
+        supopts: opts_GNFA
+        ...
+    ```
+"""
 function DDVFA()
     opts = opts_DDVFA()
     DDVFA(opts)
-end
+end # DDVFA()
 
 
 function DDVFA(opts::opts_DDVFA)
@@ -441,13 +447,12 @@ function DDVFA(opts::opts_DDVFA)
           Array{Int}(undef, 0),
           Array{Float64}(undef, 0, 0),
           Array{Float64}(undef, 0, 0),
-        #   0,
           0,
           0,
           0,
           0
     )
-end # DDVFA()
+end # DDVFA(opts)
 
 
 """
@@ -531,13 +536,13 @@ function train!(art::DDVFA, x::Array)
         end
         art.W_old = deepcopy(art.W)
     end
-end # train DDVFA
+end # train!(DDVFA, x)
 
 
 function stopping_conditions(art::DDVFA)
     # Compute the stopping condition, return a bool
     return art.W == art.W_old || art.epoch >= art.opts.max_epoch
-end # stopping_conditions
+end # stopping_conditions(DDVFA)
 
 
 """
@@ -600,70 +605,3 @@ function similarity(method::String, F2::GNFA, field_name::String, sample::Array,
         error("Invalid/unimplemented similarity method")
     end
 end # similarity
-
-# """
-#     get_field_meta(obj, field_name)
-
-# Get the value of a struct's field using meta programming.
-# """
-# function get_field_meta(obj::Any, field_name::String)
-#     field = Symbol(field_name)
-#     code = quote
-#         (obj) -> obj.$field
-#     end
-#     return eval(code)
-# end
-
-
-# """
-#     get_field_native(obj, field_name)
-
-# Get the value of a struct's field through the julia native method.
-# """
-# function get_field_native(obj::Any, field_name::String)
-#     return getfield(obj, Symbol(field_name))
-# end
-
-
-# """
-#     similarity_meta(method, F2, field_name, gamma_ref)
-
-# Compute the similarity metric depending on method using meta programming to
-# access the correct field.
-# """
-# function similarity_meta(method::String, F2::GNFA, field_name::String, gamma_ref::AbstractFloat)
-#     @debug "Computing similarity"
-
-#     if field_name != "T" && field_name != "M"
-#         error("Incorrect field name for similarity metric.")
-#     end
-
-#     field = get_field_native(F2, field_name)
-
-#     # Single linkage
-#     if method == "single"
-#         value = maximum(field)
-#     # Average linkage
-#     elseif method == "average"
-#         value = mean(field)
-#     # Complete linkage
-#     elseif method == "complete"
-#         value = minimum(field)
-#     # Median linkage
-#     elseif method == "median"
-#         value = median(field)
-#     elseif method == "weighted"
-#         value = field' * (F2.n / sum(F2.n))
-#     elseif method == "centroid"
-#         Wc = minimum(F2.W)
-#         T = norm(min(sample, Wc), 1)
-#         if field_name == "T"
-#             value = T
-#         elseif field_name == "M"
-#             value = (norm(Wc, 1)^gamma_ref)*T
-#         end
-#     else
-#         error("Invalid/unimplemented similarity method")
-#     end
-#     return value
-# end # similarity_meta

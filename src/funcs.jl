@@ -26,6 +26,28 @@ function element_min(x::Array, W::Array)
     return minimum([x W], dims = 2)
 end
 
+# """
+#     get_field_meta(obj, field_name)
+
+# Get the value of a struct's field using meta programming.
+# """
+# function get_field_meta(obj::Any, field_name::String)
+#     field = Symbol(field_name)
+#     code = quote
+#         (obj) -> obj.$field
+#     end
+#     return eval(code)
+# end
+
+
+# """
+#     get_field_native(obj, field_name)
+
+# Get the value of a struct's field through the julia native method.
+# """
+# function get_field_native(obj::Any, field_name::String)
+#     return getfield(obj, Symbol(field_name))
+# end
 
 # """
 #     similarity_meta(method, F2, field_name, gamma_ref)
