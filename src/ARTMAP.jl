@@ -5,6 +5,17 @@ using ProgressBars
 using Printf
 using MLJ
 
+
+"""
+    opts_FAM()
+
+    Implements a Fuzzy ARTMAP learner's options.
+
+    # Examples
+    ```julia-repl
+    julia> my_opts = opts_FAM()
+    ```
+"""
 @with_kw mutable struct opts_FAM @deftype Float64
     # Vigilance parameter: [0, 1]
     rho = 0.6; @assert rho >= 0 && rho <= 1
@@ -25,6 +36,11 @@ using MLJ
 end
 
 
+"""
+    FAM
+
+    Fuzzy ARTMAP struct.
+"""
 mutable struct FAM
     opts::opts_FAM
     W::Array{Float64, 2}
@@ -37,12 +53,39 @@ mutable struct FAM
 end
 
 
+"""
+    FAM()
+
+    Implements a Fuzzy ARTMAP learner.
+
+    # Examples
+    ```julia-repl
+    julia> FAM()
+    FAM
+        opts: opts_FAM
+        ...
+    ```
+"""
 function FAM()
     opts = opts_FAM()
     FAM(opts)
 end
 
 
+"""
+    FAM(opts)
+
+    Implements a Fuzzy ARTMAP learner with specified options.
+
+    # Examples
+    ```julia-repl
+    julia> opts = opts_FAM()
+    julia> FAM(opts)
+    FAM
+        opts: opts_FAM
+        ...
+    ```
+"""
 function FAM(opts::opts_FAM)
     FAM(opts,
         Array{Float64}(undef, 0,0),
@@ -53,7 +96,17 @@ function FAM(opts::opts_FAM)
 end
 
 
-@with_kw mutable struct opts_DFAM @deftype Float64
+"""
+    opts_DAM()
+
+    Implements a Default ARTMAP learner's options.
+
+    # Examples
+    ```julia-repl
+    julia> my_opts = opts_DAM()
+    ```
+"""
+@with_kw mutable struct opts_DAM @deftype Float64
     # Vigilance parameter: [0, 1]
     rho = 0.6; @assert rho >= 0 && rho <= 1
     # Choice parameter: alpha > 0
@@ -72,8 +125,15 @@ end
     max_epochs = 1
 end
 
-mutable struct DFAM
-    opts::opts_DFAM
+
+
+"""
+    DAM
+
+    Default ARTMAP struct.
+"""
+mutable struct DAM
+    opts::opts_DAM
     W::Array{Float64, 2}
     W_old::Array{Float64, 2}
     labels::Array{Int, 1}
@@ -84,22 +144,61 @@ mutable struct DFAM
 end
 
 
-function DFAM()
-    opts = opts_DFAM()
-    DFAM(opts)
+"""
+    DAM()
+
+    Implements a Default ARTMAP learner.
+
+    # Examples
+    ```julia-repl
+    julia> DAM()
+    DAM
+        opts: opts_DAM
+        ...
+    ```
+"""
+function DAM()
+    opts = opts_DAM()
+    DAM(opts)
 end
 
 
-function DFAM(opts::opts_DFAM)
-    DFAM(opts,
-         Array{Float64}(undef, 0,0),
-         Array{Float64}(undef, 0,0),
-         Array{Int}(undef, 0),
-         Array{Int}(undef, 0),
-         0, 0, 0)
+
+"""
+    DAM(opts)
+
+    Implements a Default ARTMAP learner with specified options
+
+    # Examples
+    ```julia-repl
+    julia> opts = opts_DAM()
+    julia> DAM(opts)
+    DAM
+        opts: opts_DAM
+        ...
+    ```
+"""
+function DAM(opts::opts_DAM)
+    DAM(opts,
+        Array{Float64}(undef, 0,0),
+        Array{Float64}(undef, 0,0),
+        Array{Int}(undef, 0),
+        Array{Int}(undef, 0),
+        0, 0, 0)
 end
 
 
+
+"""
+    opts_SFAM()
+
+    Implements a Simple Fuzzy ARTMAP learner's options.
+
+    # Examples
+    ```julia-repl
+    julia> my_opts = opts_SFAM()
+    ```
+"""
 @with_kw mutable struct opts_SFAM @deftype Float64
     # Vigilance parameter: [0, 1]
     rho = 0.75; @assert rho >= 0 && rho <= 1
@@ -120,6 +219,11 @@ end
 end # opts_SFAM
 
 
+"""
+    SFAM
+
+    Simple Fuzzy ARTMAP struct.
+"""
 mutable struct SFAM
     opts::opts_SFAM
     W::Array{Float64, 2}
@@ -132,12 +236,40 @@ mutable struct SFAM
 end
 
 
+"""
+    SFAM()
+
+    Implements a Simple Fuzzy ARTMAP learner.
+
+    # Examples
+    ```julia-repl
+    julia> SFAM()
+    SFAM
+        opts: opts_SFAM
+        ...
+    ```
+"""
 function SFAM()
     opts = opts_SFAM()
     SFAM(opts)
 end
 
 
+
+"""
+    SFAM(opts)
+
+    Implements a Simple Fuzzy ARTMAP learner with specified options.
+
+    # Examples
+    ```julia-repl
+    julia> opts = opts_SFAM()
+    julia> SFAM(opts)
+    SFAM
+        opts: opts_SFAM
+        ...
+    ```
+"""
 function SFAM(opts::opts_SFAM)
     SFAM(opts,
          Array{Float64}(undef, 0,0),
@@ -148,6 +280,22 @@ function SFAM(opts::opts_SFAM)
 end
 
 
+
+"""
+    train(art, x, y)
+
+    Trains a Simple Fuzzy ARTMAP learner in a supervised manner.
+
+    # Examples
+    ```julia-repl
+    julia> x, y = load_data()
+    julia> art = SFAM()
+    SFAM
+        opts: opts_SFAM
+        ...
+    julia> train!(art, x, y)
+    ```
+"""
 function train!(art::SFAM, x::Array, y::Array)
     art.dim, n_samples = size(x)
     art.y = zeros(Int, n_samples)
@@ -222,6 +370,24 @@ function train!(art::SFAM, x::Array, y::Array)
 end
 
 
+
+"""
+    classify(art, x)
+
+    Categorize data 'x' using a trained Simple Fuzzy ARTMAP module 'art'.
+
+    # Examples
+    ```julia-repl
+    julia> x, y = load_data()
+    julia> x_test, y_test = load_test_data()
+    julia> art = SFAM()
+    SFAM
+        opts: opts_SFAM
+        ...
+    julia> train!(art, x, y)
+    julia> classify(art, x_test)
+    ```
+"""
 function classify(art::SFAM, x::Array)
     art.dim, n_samples = size(x)
     y_hat = zeros(Int, n_samples)
@@ -260,33 +426,60 @@ function classify(art::SFAM, x::Array)
     return y_hat
 end
 
+"""
+    stopping_conditions(art::SFAM)
 
+    Stopping conditions for Simple Fuzzy ARTMAP, checked at the end of every epoch.
+"""
 function stopping_conditions(art::SFAM)
     # Compute the stopping condition, return a bool
     return art.W == art.W_old || art.epoch >= art.opts.max_epochs
 end
 
 
+"""
+    learn(art::SFAM, x, W)
+
+    Returns a single updated weight for the Simple Fuzzy ARTMAP module for
+        weight vector W and sample x.
+"""
 function learn(art::SFAM, x::Array, W::Array)
     # Update W
     return art.opts.beta .* element_min(x, W) .+ W .* (1 - art.opts.beta)
 end
 
 
+"""
+    activation(art::SFAM, x, W)
+
+    Returns the activation value of the Simple Fuzzy ARTMAP module with weight
+        W and sample x.
+"""
 function activation(art::SFAM, x::Array, W::Array)
     # Compute T and return
     return norm(element_min(x, W), 1) / (art.opts.alpha + norm(W, 1))
 end
 
 
+"""
+    art_match(art::SFAM, x, W)
+
+    Returns the match function for the Simple Fuzzy ARTMAP module with weight W
+        and sample x.
+"""
 function art_match(art::SFAM, x::Array, W::Array)
     # Compute M and return
     return norm(element_min(x, W), 1) / art.dim
 end
 
 
+"""
+    performance(y_hat, y)
+
+    Returns the categorization performance of y_hat against y.
+"""
 function performance(y_hat::Array, y::Array)
     # Compute the confusion matrix and calculate performance as trace/sum
     conf = confusion_matrix(categorical(y_hat), categorical(y), warn=false)
-    perf = tr(conf.mat)/sum(conf.mat)
+    return tr(conf.mat)/sum(conf.mat)
 end

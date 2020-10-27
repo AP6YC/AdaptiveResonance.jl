@@ -26,16 +26,16 @@ end
 
     # Default constructors
     fam = FAM()
-    dfam = DFAM()
+    dam = DAM()
     sfam = SFAM()
     ddvfa = DDVFA()
 
     # Specify constructors
     fam_opts = opts_FAM()
-    dfam_opts = opts_DFAM()
+    dam_opts = opts_DAM()
     sfam_opts = opts_SFAM()
     fam_2 = FAM(fam_opts)
-    dfam_2 = DFAM(dfam_opts)
+    dam_2 = DAM(dam_opts)
     sfam_2 = SFAM(sfam_opts)
 end
 
