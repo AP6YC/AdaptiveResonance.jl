@@ -1,7 +1,12 @@
-function sfam_example()
-    # Set the logging level to Info
-    LogLevel(Logging.Info)
+struct DataSplit
+    train_x::Array
+    test_x::Array
+    train_y::Array
+    test_y::Array
+    DataSplit(train_x, test_x, train_y, test_y) = new(train_x, test_x, train_y, test_y)
+ end
 
+function load_am_data()
     # Load the data, downloading if in a CI context: TODO
     # if ENV["CI"] == true
     MNIST.download("../data/mnist/", i_accept_the_terms_of_use=true)
@@ -41,12 +46,36 @@ function sfam_example()
     train_y = train_y[1:N_train]
     test_y = test_y[1:N_test]
 
+    # Create the data struct in a nice package to pass to testing functions
+    data = DataSplit(train_x_flat, test_x_flat, train_y, test_y)
+
+    return data
+end
+
+function sfam_example(data)
+    # Set the logging level to Info
+    LogLevel(Logging.Info)
+
     # Create the ART module, train, and classify
     art = SFAM()
-    train!(art, train_x_flat, train_y)
-    y_hat = classify(art, test_x_flat)
+    train!(art, data.train_x, data.train_y)
+    y_hat = classify(art, data.test_x)
 
     # Calculate performance
-    perf = performance(y_hat, test_y)
+    perf = performance(y_hat, data.test_y)
+    println("Performance is ", perf)
+end
+
+function dam_example(data)
+    # Set the logging level to Info
+    LogLevel(Logging.Info)
+
+    # Create the ART module, train, and classify
+    art = DAM()
+    train!(art, data.train_x, data.train_y)
+    y_hat = classify(art, data.test_x)
+
+    # Calculate performance
+    perf = performance(y_hat, data.test_y)
     println("Performance is ", perf)
 end

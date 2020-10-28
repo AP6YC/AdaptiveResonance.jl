@@ -188,7 +188,6 @@ function DAM(opts::opts_DAM)
 end
 
 
-
 """
     train(art::DAM, x, y)
 
@@ -279,6 +278,73 @@ end
 
 
 """
+    classify(art, x)
+
+    Categorize data 'x' using a trained Default ARTMAP module 'art'.
+
+    # Examples
+    ```julia-repl
+    julia> x, y = load_data()
+    julia> x_test, y_test = load_test_data()
+    julia> art = DAM()
+    DAM
+        opts: opts_DAM
+        ...
+    julia> train!(art, x, y)
+    julia> classify(art, x_test)
+    ```
+"""
+function classify(art::DAM, x::Array)
+    art.dim, n_samples = size(x)
+    y_hat = zeros(Int, n_samples)
+    x = complement_code(x)
+
+    iter = ProgressBar(1:n_samples)
+    for ix in iter
+        set_description(iter, string(@sprintf("ID: %i, Cat: %i", ix, art.n_categories)))
+
+        # Compute activation function
+        T = zeros(art.n_categories)
+        for jx in 1:art.n_categories
+            T[jx] = activation(art, x[:, ix], art.W[:, jx])
+        end
+
+        # Sort activation function values in descending order
+        index = sortperm(T, rev=true)
+        mismatch_flag = true
+        for jx in 1:art.n_categories
+            # Compute match function
+            M = art_match(art, x[:, ix], art.W[:, index[jx]])
+            @debug M
+            # Current winner
+            if M >= art.opts.rho
+                y_hat[ix] = art.labels[index[jx]]
+                mismatch_flag = false
+                break
+            end
+        end
+        if mismatch_flag
+            # Create new weight vector
+            @debug "Mismatch"
+            y_hat[ix] = -1
+        end
+    end
+    return y_hat
+end
+
+
+"""
+    stopping_conditions(art::DAM)
+
+    Stopping conditions for Default ARTMAP, checked at the end of every epoch.
+"""
+function stopping_conditions(art::DAM)
+    # Compute the stopping condition, return a bool
+    return art.W == art.W_old || art.epoch >= art.opts.max_epochs
+end
+
+
+"""
     activation(art::DAM, x, W)
 
     Default ARTMAP's choice-by-difference activation function.
@@ -299,6 +365,18 @@ end
 function learn(art::DAM, x::Array, W::Array)
     # Update W
     return art.opts.beta .* element_min(x, W) .+ W .* (1 - art.opts.beta)
+end
+
+
+"""
+    art_match(art::DAM, x, W)
+
+    Returns the match function for the Default ARTMAP module with weight W and
+        sample x.
+"""
+function art_match(art::DAM, x::Array, W::Array)
+    # Compute M and return
+    return norm(element_min(x, W), 1) / art.dim
 end
 
 
@@ -395,7 +473,6 @@ function SFAM(opts::opts_SFAM)
 end
 
 
-
 """
     train(art, x, y)
 
@@ -485,7 +562,6 @@ function train!(art::SFAM, x::Array, y::Array)
 end
 
 
-
 """
     classify(art, x)
 
@@ -540,6 +616,7 @@ function classify(art::SFAM, x::Array)
     end
     return y_hat
 end
+
 
 """
     stopping_conditions(art::SFAM)
