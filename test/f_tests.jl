@@ -4,6 +4,7 @@ using MLDatasets
 using Logging
 using DelimitedFiles
 
+
 @testset "basics.jl" begin
     # Boilerplate tests to verify basic Julia use
     @test my_f(2, 2) == 6
@@ -22,6 +23,7 @@ end
 
 end
 
+
 @testset "AdaptiveResonance.jl" begin
 
     # Default constructors
@@ -38,6 +40,7 @@ end
     dam_2 = DAM(dam_opts)
     sfam_2 = SFAM(sfam_opts)
 end
+
 
 @testset "ARTMAP.jl" begin
 

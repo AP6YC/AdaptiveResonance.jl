@@ -9,15 +9,15 @@ using Printf
 """
     opts_GNFA()
 
-    Gamma-Normalized Fuzzy ART options struct.
+Gamma-Normalized Fuzzy ART options struct.
 
-    # Examples
-    ```julia-repl
-    julia> opts_GNFA()
-    Initialized GNFA
-    ```
+# Examples
+```julia-repl
+julia> opts_GNFA()
+Initialized GNFA
+```
 """
-@with_kw mutable struct opts_GNFA @deftype Float64
+@with_kw mutable struct opts_GNFA <: AbstractARTOpts @deftype Float64
     # Vigilance parameter: [0, 1]
     rho = 0.6; @assert rho >= 0 && rho <= 1
     # Choice parameter: alpha > 0
@@ -43,17 +43,17 @@ end # opts_GNFA
 """
     GNFA
 
-    Gamma-Normalized Fuzzy ART learner struct
+Gamma-Normalized Fuzzy ART learner struct
 
-    # Examples
-    ```julia-repl
-    julia> GNFA()
-    GNFA
-        opts: opts_GNFA
-        ...
-    ```
+# Examples
+```julia-repl
+julia> GNFA()
+GNFA
+    opts: opts_GNFA
+    ...
+```
 """
-mutable struct GNFA
+mutable struct GNFA <: AbstractART
     # Assign numerical parameters from options
     opts::opts_GNFA
 
@@ -76,15 +76,15 @@ end # GNFA
 """
     GNFA()
 
-    Implements a Gamma-Normalized Fuzzy ART learner.
+Implements a Gamma-Normalized Fuzzy ART learner.
 
-    # Examples
-    ```julia-repl
-    julia> GNFA()
-    GNFA
-        opts: opts_GNFA
-        ...
-    ```
+# Examples
+```julia-repl
+julia> GNFA()
+GNFA
+    opts: opts_GNFA
+    ...
+```
 """
 function GNFA()
     opts = opts_GNFA()
@@ -95,15 +95,15 @@ end # GNFA()
 """
     GNFA(opts)
 
-    Implements a Gamma-Normalized Fuzzy ART learner with specified options.
+Implements a Gamma-Normalized Fuzzy ART learner with specified options.
 
-    # Examples
-    ```julia-repl
-    julia> GNFA(opts)
-    GNFA
-        opts: opts_GNFA
-        ...
-    ```
+# Examples
+```julia-repl
+julia> GNFA(opts)
+GNFA
+    opts: opts_GNFA
+    ...
+```
 """
 function GNFA(opts)
     GNFA(opts,                          # opts
@@ -125,16 +125,16 @@ end # GNFA(opts)
 """
     initialize!()
 
-    Initializes a GNFA learner with an intial sample 'x'
+Initializes a GNFA learner with an intial sample 'x'
 
-    # Examples
-    ```julia-repl
-    julia> my_GNFA = GNFA()
-    GNFA
-        opts: opts_GNFA
-        ...
-    julia> initialize!(my_GNFA, [1 2 3 4])
-    ```
+# Examples
+```julia-repl
+julia> my_GNFA = GNFA()
+GNFA
+    opts: opts_GNFA
+    ...
+julia> initialize!(my_GNFA, [1 2 3 4])
+```
 """
 function initialize!(art::GNFA, x::Array)
     # @info "Initializing GNFA"
@@ -155,17 +155,17 @@ end # initialize!(GNFA, x)
 """
     train!()
 
-    Trains a GNFA learner with dataset 'x' and optional labels 'y'
+Trains a GNFA learner with dataset 'x' and optional labels 'y'
 
-    # Examples
-    ```julia-repl
-    julia> my_GNFA = GNFA()
-    GNFA
-        opts: opts_GNFA
-        ...
-    julia> x = load_data()
-    julia> train!(my_GNFA, x)
-    ```
+# Examples
+```julia-repl
+julia> my_GNFA = GNFA()
+GNFA
+    opts: opts_GNFA
+    ...
+julia> x = load_data()
+julia> train!(my_GNFA, x)
+```
 """
 function train!(art::GNFA, x::Array ; y::Array=[])
     # Get size and if supervised
@@ -267,20 +267,20 @@ end # train!(GNFA, x, y=[])
 """
     classify(art::GNFA, x::Array)
 
-    Predict categories of 'x' using the GNFA model.
+Predict categories of 'x' using the GNFA model.
 
-    Returns predicted categories 'y_hat'
+Returns predicted categories 'y_hat'
 
-    # Examples
-    ```julia-repl
-    julia> my_GNFA = GNFA()
-    GNFA
-        opts: opts_GNFA
-        ...
-    julia> x, y = load_data()
-    julia> train!(my_GNFA, x)
-    julia> y_hat = classify(my_GNFA, y)
-    ```
+# Examples
+```julia-repl
+julia> my_GNFA = GNFA()
+GNFA
+    opts: opts_GNFA
+    ...
+julia> x, y = load_data()
+julia> train!(my_GNFA, x)
+julia> y_hat = classify(my_GNFA, y)
+```
 """
 function classify(art::GNFA, x::Array)
     dim, n_samples = size(x)
@@ -318,19 +318,19 @@ end # classify(GNFA, x)
 """
     activation_match!(art::GNFA, x::Array)
 
-    Computes the activationa and match functions of the art module against sample x.
+Computes the activationa and match functions of the art module against sample x.
 
-    # Examples
-    ```julia-repl
-    julia> my_GNFA = GNFA()
-    GNFA
-        opts: opts_GNFA
-        ...
-    julia> x, y = load_data()
-    julia> train!(my_GNFA, x)
-    julia> x_sample = x[:, 1]
-    julia> activation_match!(my_GNFA, x_sample)
-    ```
+# Examples
+```julia-repl
+julia> my_GNFA = GNFA()
+GNFA
+    opts: opts_GNFA
+    ...
+julia> x, y = load_data()
+julia> train!(my_GNFA, x)
+julia> x_sample = x[:, 1]
+julia> activation_match!(my_GNFA, x_sample)
+```
 """
 function activation_match!(art::GNFA, x::Array)
     art.T = zeros(art.n_categories)
@@ -366,15 +366,15 @@ end # stopping_conditions(GNFA)
 """
     opts_DDVFA()
 
-    Distributed Dual Vigilance Fuzzy ART options struct.
+Distributed Dual Vigilance Fuzzy ART options struct.
 
-    # Examples
-    ```julia-repl
-    julia> opts_DDVFA()
-    Initialized opts_DDVFA
-    ```
+# Examples
+```julia-repl
+julia> opts_DDVFA()
+Initialized opts_DDVFA
+```
 """
-@with_kw mutable struct opts_DDVFA @deftype Float64
+@with_kw mutable struct opts_DDVFA <: AbstractARTOpts @deftype Float64
     # Lower-bound vigilance parameter: [0, 1]
     rho_lb = 0.80; @assert rho_lb >= 0 && rho_lb <= 1
     rho = rho_lb
@@ -399,7 +399,7 @@ end # stopping_conditions(GNFA)
 end # opts_DDVFA
 
 
-mutable struct DDVFA
+mutable struct DDVFA <: AbstractART
     # Get parameters
     opts::opts_DDVFA
     subopts::opts_GNFA
@@ -421,16 +421,16 @@ end # DDVFA
 """
     DDVFA()
 
-    Implements a DDVFA learner.
+Implements a DDVFA learner.
 
-    # Examples
-    ```julia-repl
-    julia> DDVFA()
-    DDVFA
-        opts: opts_DDVFA
-        supopts: opts_GNFA
-        ...
-    ```
+# Examples
+```julia-repl
+julia> DDVFA()
+DDVFA
+    opts: opts_DDVFA
+    supopts: opts_GNFA
+    ...
+```
 """
 function DDVFA()
     opts = opts_DDVFA()
@@ -539,6 +539,13 @@ function train!(art::DDVFA, x::Array)
 end # train!(DDVFA, x)
 
 
+"""
+    stopping_conditions(art::DDVFA)
+
+Stopping conditions for Distributed Dual Vigilance Fuzzy ARTMAP. Returns true
+if there is no change in weights during the epoch or the maxmimum epochs has
+been reached.
+"""
 function stopping_conditions(art::DDVFA)
     # Compute the stopping condition, return a bool
     return art.W == art.W_old || art.epoch >= art.opts.max_epoch
