@@ -137,7 +137,6 @@ julia> initialize!(my_GNFA, [1 2 3 4])
 ```
 """
 function initialize!(art::GNFA, x::Array)
-    # @info "Initializing GNFA"
     art.dim_comp = size(x)[1]
     art.n_instance = [1]
     art.n_categories = 1
@@ -171,24 +170,19 @@ function train!(art::GNFA, x::Array ; y::Array=[])
     # Get size and if supervised
     if length(size(x)) == 2
         art.dim_comp, n_samples = size(x)
-        prog_bar = true
+        # Create a progressbar only if the display flag is set
+        prog_bar = art.opts.display
     else
         art.dim_comp = length(x)
         n_samples = 1
+        # No progress bar even if display is set since learning a single sample
         prog_bar = false
     end
 
     supervised = !isempty(y)
+
     # Initialization if empty
     if isempty(art.W)
-        # @info "Initializing GNFA"
-        # art.n_instance = [1]
-        # art.n_categories = 1
-        # art.dim = art.dim_comp/2 # Assumes input is already complement coded
-        # art.threshold = art.opts.rho * (art.dim^art.opts.gamma_ref)
-        # initial_sample = 2
-        # art.W = Array{Float64}(undef, art.dim_comp, 1)
-        # art.W[:, 1] = x[:, 1]
         label = supervised ? y[1] : 1
         push!(art.labels, label)
         initialize!(art, x[:, 1])
@@ -204,7 +198,8 @@ function train!(art::GNFA, x::Array ; y::Array=[])
     while true
         art.epoch = art.epoch + 1
         # Loop over samples
-        iter = prog_bar ? iter = ProgressBar(initial_sample:n_samples) : 1
+        iter_raw = initial_sample:n_samples
+        iter = prog_bar ?  ProgressBar(iter_raw) : iter_raw
         for i = iter
             if prog_bar
                 set_description(iter, string(@sprintf("Ep: %i, ID: %i, Cat: %i", art.epoch, i, art.n_categories)))
@@ -461,7 +456,9 @@ end # DDVFA(opts)
 Train the DDVFA model on the data.
 """
 function train!(art::DDVFA, x::Array)
-    @info "Training DDVFA"
+    if art.opts.display
+        @info "Training DDVFA"
+    end
 
     # Data information
     art.dim, n_samples = size(x)
@@ -493,9 +490,12 @@ function train!(art::DDVFA, x::Array)
     art.epoch = 0
     while true
         art.epoch += 1
-        iter = ProgressBar(initial_sample:n_samples)
+        iter_raw = initial_sample:n_samples
+        iter = art.opts.display ? ProgressBar(iter_raw) : iter_raw
         for i = iter
-            set_description(iter, string(@sprintf("Ep: %i, ID: %i, Cat: %i", art.epoch, i, art.n_categories)))
+            if art.opts.display
+                set_description(iter, string(@sprintf("Ep: %i, ID: %i, Cat: %i", art.epoch, i, art.n_categories)))
+            end
             sample = x[:, i]
             T = zeros(art.n_categories)
             for jx = 1:art.n_categories

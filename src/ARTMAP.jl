@@ -114,12 +114,12 @@ julia> my_opts = opts_DAM()
     # Choice parameter: alpha > 0
     alpha = 1e-7; @assert alpha > 0
     # Match tracking parameter
-    epsilon = 1e-3; @assert epsilon > 0 && epsilon < 1
+    epsilon = -1e-3; @assert epsilon > -1 && epsilon < 1
     # Learning parameter: (0, 1]
     beta = 1; @assert beta > 0 && beta <= 1
     # Similarity method (activation and match):
     #   'single', 'average', 'complete', 'median', 'weighted', or 'centroid'
-    method::String = "single"
+    # method::String = "single"
     # Display flag
     display::Bool = true
     # shuffle::Bool = false

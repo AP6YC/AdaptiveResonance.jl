@@ -1,3 +1,19 @@
+function tt_ddvfa(opts, train_x)
+    # Create the ART module, train, and classify
+    art = DDVFA(opts)
+    train!(art, train_x)
+
+    # Total number of categories
+    total_vec = [art.F2[i].n_categories for i = 1:art.n_categories]
+    total_cat = sum(total_vec)
+    println("Categories:", art.n_categories)
+    println("Weights:", total_cat)
+
+    # # Calculate performance
+    # perf = performance(y_hat, test_y)
+    # println("Performance is ", perf)
+end
+
 function ddvfa_example()
 
     # Set the log level
@@ -9,16 +25,17 @@ function ddvfa_example()
     train_x = permutedims(train_x)
 
     # Create the ART module, train, and classify
-    art = DDVFA()
-    train!(art, train_x)
+    @info "DDVFA Testing: Default Training"
+    default_opts = opts_DDVFA()
+    tt_ddvfa(default_opts, train_x)
+    @info "DDVFA Testing: Default Complete"
 
-    # Total number of categories
-    total_vec = [art.F2[i].n_categories for i = 1:art.n_categories]
-    total_cat = sum(total_vec)
-
-    # # Calculate performance
-    # perf = performance(y_hat, test_y)
-    # println("Performance is ", perf)
+    # Create the ART module, train, and classify with no display
+    @info "DDVFA Testing: No Display Training"
+    no_disp_opts = opts_DDVFA()
+    no_disp_opts.display = false
+    tt_ddvfa(no_disp_opts, train_x)
+    @info "DDVFA Testing: No Display Complete"
 
     # # View the profile as a flamegraph
     # ProfileVega.view()

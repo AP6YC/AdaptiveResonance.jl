@@ -30,7 +30,7 @@ A Julialang package for adaptive resonance theory (ART) algorithms.
 [gitter-url]: https://gitter.im/juliadocs/users
 
 
-This package is developed and maintained by [Sasha Petrenko](https://github.com/AP6YC) with sponsorship by the [Applied Computationa Intelligence Laboratory (ACIL)](https://acil.mst.edu/).
+This package is developed and maintained by [Sasha Petrenko](https://github.com/AP6YC) with sponsorship by the [Applied Computationa Intelligence Laboratory (ACIL)](https://acil.mst.edu/). This project is supported from grants with the [Night Vision Electronic Sensors Directorate](https://c5isr.ccdc.army.mil/inside_c5isr_center/nvesd/), the [DARPA Lifelong Learning Machines (L2M) program](https://www.darpa.mil/program/lifelong-learning-machines), and [Teledyne Technologies](http://www.teledyne.com/).
 
 # Contents
 
@@ -40,9 +40,9 @@ This package is developed and maintained by [Sasha Petrenko](https://github.com/
 - [Contributing](#contributing)
 - [History](#history)
 - [Credits](#credits)
-      - [Authors:](#authors)
-      - [Software](#software)
-      - [Datasets](#datasets)
+  - [Authors:](#authors)
+  - [Software](#software)
+  - [Datasets](#datasets)
 - [License](#license)
 
 # Structure
@@ -74,10 +74,10 @@ Please raise an [issue][issues-url].
 
 # Credits
 
-#### Authors:
+## Authors:
 * Sasha Petrenko <sap625@mst.edu>
 
-#### Software
+## Software
 
 The code in this repository is inspired by and occasionally leverages the following repositories:
 
@@ -94,7 +94,7 @@ The code in this repository is inspired by and occasionally leverages the follow
     - [DVHA](https://github.com/ACIL-Group/DVHA): An python implementation of dual vigilance hypersphere ART.
 
 
-#### Datasets
+## Datasets
 
 1. UCI machine learning repository:
 http://archive.ics.uci.edu/ml
