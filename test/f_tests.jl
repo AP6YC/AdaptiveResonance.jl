@@ -45,7 +45,7 @@ end
 @testset "ARTMAP.jl" begin
 
     include("test_sfam.jl")
-    data = load_am_data()
+    data = load_am_data(200, 50)
     sfam_example(data)
     dam_example(data)
 

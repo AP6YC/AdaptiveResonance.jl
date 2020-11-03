@@ -1,16 +1,9 @@
 module AdaptiveResonance
 
-using Logging
-using Parameters
-using Statistics
-using LinearAlgebra
-
-# using CUDAapi
-# if has_cuda()		# Check if CUDA is available
-#     @info "CUDA is on"
-#     import CuArrays		# If CUDA is available, import CuArrays
-#     CuArrays.allowscalar(false)
-# end
+# using Logging
+# using Parameters
+# using Statistics
+# using LinearAlgebra
 
 abstract type AbstractARTOpts end
 abstract type AbstractART end

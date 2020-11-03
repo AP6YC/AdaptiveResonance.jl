@@ -1,3 +1,8 @@
+"""
+    DataSplit
+
+A basic struct for encapsulating the four components of supervised training.
+"""
 struct DataSplit
     train_x::Array
     test_x::Array
@@ -6,7 +11,15 @@ struct DataSplit
     DataSplit(train_x, test_x, train_y, test_y) = new(train_x, test_x, train_y, test_y)
  end
 
-function load_am_data()
+
+ """
+    load_am_data(N_train, N_test)
+
+Loads the ARTMAP test data, cutting off at N_train training data points and
+N_test testing data points. In this case, it loads the MNIST handwritten digits
+dataset and packages them into a DataSplit struct.
+ """
+function load_am_data(N_train::Int, N_test::Int)
     # Load the data, downloading if in a CI context: TODO
     # if ENV["CI"] == true
     MNIST.download("../data/mnist/", i_accept_the_terms_of_use=true)
@@ -19,8 +32,8 @@ function load_am_data()
     size_at, size_bt, data_nt = size(test_x)
 
     # Cut off the number of data points and flatten
-    N_train = 200
-    N_test = 50
+    # N_train = 200
+    # N_test = 50
 
     # Take the minimum of the user N and the number of data
     N_train = minimum([N_train, data_n])
@@ -52,6 +65,12 @@ function load_am_data()
     return data
 end
 
+
+"""
+    sfam_example(data)
+
+Trains and tests a Simple Fuzzy ARTMAP module with input data.
+"""
 function sfam_example(data)
     # Set the logging level to Info
     LogLevel(Logging.Info)
@@ -66,6 +85,12 @@ function sfam_example(data)
     println("Performance is ", perf)
 end
 
+
+"""
+    dam_example(data)
+
+Trains and tests a Default ARTMAP module with input data.
+"""
 function dam_example(data)
     # Set the logging level to Info
     LogLevel(Logging.Info)
