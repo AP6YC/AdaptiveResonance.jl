@@ -1,5 +1,5 @@
 using SafeTestsets
 
 @safetestset "Function tests" begin
-    include("f_tests.jl")
+    include("test_sets.jl")
 end

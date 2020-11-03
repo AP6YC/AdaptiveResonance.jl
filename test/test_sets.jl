@@ -4,6 +4,8 @@ using MLDatasets
 using Logging
 using DelimitedFiles
 
+# Auxiliary generic functions for loading data, etc.
+include("test_utils.jl")
 
 @testset "basics.jl" begin
     # Boilerplate tests to verify basic Julia use
@@ -17,8 +19,11 @@ end
 
 @testset "DDVFA.jl" begin
 
+    # DDVFA train and test functions
     include("test_ddvfa.jl")
     ddvfa_example()
+
+    # GNFA train and test
     my_gnfa = GNFA()
 
 end
@@ -39,11 +44,13 @@ end
     fam_2 = FAM(fam_opts)
     dam_2 = DAM(dam_opts)
     sfam_2 = SFAM(sfam_opts)
+
 end
 
 
 @testset "ARTMAP.jl" begin
 
+    # ARTMAP training and testing functions
     include("test_sfam.jl")
     data = load_am_data(200, 50)
     sfam_example(data)

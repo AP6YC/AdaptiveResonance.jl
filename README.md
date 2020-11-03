@@ -32,52 +32,54 @@ A Julialang package for adaptive resonance theory (ART) algorithms.
 
 This package is developed and maintained by [Sasha Petrenko](https://github.com/AP6YC) with sponsorship by the [Applied Computationa Intelligence Laboratory (ACIL)](https://acil.mst.edu/). This project is supported from grants with the [Night Vision Electronic Sensors Directorate](https://c5isr.ccdc.army.mil/inside_c5isr_center/nvesd/), the [DARPA Lifelong Learning Machines (L2M) program](https://www.darpa.mil/program/lifelong-learning-machines), and [Teledyne Technologies](http://www.teledyne.com/).
 
-# Contents
+## Contents
 
 - [AdaptiveResonance](#adaptiveresonance)
-- [Contents](#contents)
-- [Structure](#structure)
-- [Contributing](#contributing)
-- [History](#history)
-- [Credits](#credits)
-  - [Authors:](#authors)
-  - [Software](#software)
-  - [Datasets](#datasets)
-- [License](#license)
+  - [Contents](#contents)
+  - [Structure](#structure)
+  - [Contributing](#contributing)
+  - [History](#history)
+  - [Credits](#credits)
+    - [Authors](#authors)
+    - [Software](#software)
+    - [Datasets](#datasets)
+  - [License](#license)
 
-# Structure
+## Structure
 
 The following file-tree summarizes the project structure:
 
-```
+```console
 AdaptiveResonance
-├── docs                    // Docs: documentation for the module
-│   └───src                 //      Documentation source files
-├── src                     // Source: majority of source code
-├── test                    // Test: Unit, integration, and environment tests
-├── .appveyor               // Appveyor: Windows-specific coverage
-├── .gitignore              // Git: .gitignore for the whole project
-├── .travis.yml             // Travis: code coverage automation
-├── LICENSE                 // Doc: the license to the project
-├── Project.toml            // Julia: the Pkg.jl dependencies of the project
-└── README.md               // Doc: this document
+├── data                    // Data: CI data location.
+├── docs                    // Docs: documentation for the module.
+│   └───src                 //      Documentation source files.
+├── src                     // Source: majority of source code.
+├── test                    // Test: Unit, integration, and environment tests.
+├── .appveyor               // Appveyor: Windows-specific coverage.
+├── .gitignore              // Git: .gitignore for the whole project.
+├── .travis.yml             // Travis: code coverage automation.
+├── LICENSE                 // Doc: the license to the project.
+├── Project.toml            // Julia: the Pkg.jl dependencies of the project.
+└── README.md               // Doc: this document.
 ```
 
-# Contributing
+## Contributing
 
 Please raise an [issue][issues-url].
 
+## History
 
-# History
+- 7/10/2020 - Begin project.
+- 11/3/2020 - Complete baseline modules and tests.
 
-* 7/10/2020 - Begin project
+## Credits
 
-# Credits
+### Authors
 
-## Authors:
-* Sasha Petrenko <sap625@mst.edu>
+- Sasha Petrenko <sap625@mst.edu>
 
-## Software
+### Software
 
 The code in this repository is inspired by and occasionally leverages the following repositories:
 
@@ -93,8 +95,7 @@ The code in this repository is inspired by and occasionally leverages the follow
     - [NuART-Py](https://github.com/ACIL-Group/NuART-Py): An internal ACIL python package for ART neural networks.
     - [DVHA](https://github.com/ACIL-Group/DVHA): An python implementation of dual vigilance hypersphere ART.
 
-
-## Datasets
+### Datasets
 
 1. UCI machine learning repository:
 http://archive.ics.uci.edu/ml
@@ -108,7 +109,7 @@ https://www.researchgate.net/publication/239525861_Datasets_package
 4. Clustering basic benchmark:
 http://cs.uef.fi/sipu/datasets
 
-# License
+## License
 
 This software is openly maintained by the ACIL of the Missouri University of Science and Technology under the [MIT License](LICENSE).
 
