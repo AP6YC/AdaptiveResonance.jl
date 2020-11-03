@@ -3,6 +3,8 @@ environment:
   matrix:
   - julia_version: 1.5
   - julia_version: nightly
+  # Set this to download test data outside of repo
+  DATADEPS_ALWAYS_ACCEPT: true
 platform:
   - x86
   - x64

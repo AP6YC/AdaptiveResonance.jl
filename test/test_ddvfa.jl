@@ -1,4 +1,9 @@
-function tt_ddvfa(opts, train_x)
+"""
+    tt_ddvfa(opts, train_x)
+
+Trains and tests (tt) a DDVFA module on unlabled data train_x.
+"""
+function tt_ddvfa(opts::opts_DDVFA, train_x::Array)
     # Create the ART module, train, and classify
     art = DDVFA(opts)
     train!(art, train_x)
@@ -14,6 +19,12 @@ function tt_ddvfa(opts, train_x)
     # println("Performance is ", perf)
 end
 
+
+"""
+    ddvfa_example()
+
+Trains and tests multiple instances of DDVFA modules for full test coverage.
+"""
 function ddvfa_example()
 
     # Set the log level
