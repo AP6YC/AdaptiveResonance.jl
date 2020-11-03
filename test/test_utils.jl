@@ -22,10 +22,13 @@ dataset and packages them into a DataSplit struct.
 function load_am_data(N_train::Int, N_test::Int)
     # Load the data, downloading if in a CI context: TODO
     # if ENV["CI"] == true
-    MNIST.download("../data/mnist/", i_accept_the_terms_of_use=true)
+    data_dir = "../data/mnist/"
+    if !isdir(data_dir)
+        MNIST.download(data_dir, i_accept_the_terms_of_use=true)
+    end
     # end
-    train_x, train_y = MNIST.traindata()
-    test_x, test_y = MNIST.testdata()
+    train_x, train_y = MNIST.traindata(dir=data_dir)
+    test_x, test_y = MNIST.testdata(dir=data_dir)
 
     # Get sizes of train and test data
     size_a, size_b, data_n = size(train_x)

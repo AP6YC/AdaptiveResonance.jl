@@ -1,10 +1,5 @@
 module AdaptiveResonance
 
-# using Logging
-# using Parameters
-# using Statistics
-# using LinearAlgebra
-
 abstract type AbstractARTOpts end
 abstract type AbstractART end
 

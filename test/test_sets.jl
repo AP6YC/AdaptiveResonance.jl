@@ -25,7 +25,35 @@ end
 
     # GNFA train and test
     my_gnfa = GNFA()
+    data = load_am_data(200, 50)
+    local_complement_code = AdaptiveResonance.complement_code(data.train_x)
+    train!(my_gnfa, local_complement_code)
 
+    # Similarity methods
+    methods = ["single",
+               "average",
+               "complete",
+               "median",
+               "weighted",
+               "centroid"]
+
+    # Both field names
+    field_names = ["T", "M"]
+
+    # Compute a local sample for GNFA similarity method testing
+    local_sample = local_complement_code[:, 1]
+
+    # Compute the local activation and match
+    AdaptiveResonance.activation_match!(my_gnfa, local_sample)
+
+    # Test every method and field name
+    for method in methods
+        println("Method: ", method)
+        for field_name in field_names
+            result = AdaptiveResonance.similarity(method, my_gnfa, field_name, local_sample, my_gnfa.opts.gamma_ref)
+            println(field_name, ": ", result)
+        end
+    end
 end
 
 

@@ -21,6 +21,11 @@ function complement_code(data::Array)
     return x
 end
 
+"""
+    element_min(x::Array, W::Array)
+
+Returns the element-wise minimum between sample x and weight W.
+"""
 function element_min(x::Array, W::Array)
     # Compute the element-wise minimum of two vectors
     return minimum([x W], dims = 2)
@@ -152,4 +157,3 @@ end
 #         error("Invalid/unimplemented similarity method")
 #     end
 # end # similarity
-

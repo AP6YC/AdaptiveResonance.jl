@@ -5,7 +5,6 @@ using LinearAlgebra
 using ProgressBars
 using Printf
 
-
 """
     opts_GNFA()
 
@@ -39,7 +38,6 @@ Initialized GNFA
     max_epochs = 1
 end # opts_GNFA
 
-
 """
     GNFA
 
@@ -72,7 +70,6 @@ mutable struct GNFA <: AbstractART
     epoch::Int
 end # GNFA
 
-
 """
     GNFA()
 
@@ -90,7 +87,6 @@ function GNFA()
     opts = opts_GNFA()
     GNFA(opts)
 end # GNFA()
-
 
 """
     GNFA(opts)
@@ -121,7 +117,6 @@ function GNFA(opts)
     )
 end # GNFA(opts)
 
-
 """
     initialize!()
 
@@ -149,7 +144,6 @@ function initialize!(art::GNFA, x::Array)
     # label = supervised ? y[1] : 1
     # push!(art.labels, label)
 end # initialize!(GNFA, x)
-
 
 """
     train!()
@@ -309,7 +303,6 @@ function classify(art::GNFA, x::Array)
     return y_hat
 end # classify(GNFA, x)
 
-
 """
     activation_match!(art::GNFA, x::Array)
 
@@ -339,24 +332,26 @@ end # activation_match!(GNFA, x)
 
 
 # Generic learning function
-function learn(art::GNFA, x, W)
+function learn(art::GNFA, x::Array, W::Array)
     # Update W
     return art.opts.beta .* element_min(x, W) .+ W .* (1 - art.opts.beta)
 end # learn(GNFA, x, W)
 
-
 # In place learning function with instance counting
-function learn!(art::GNFA, x, index)
+function learn!(art::GNFA, x::Array, index::Int)
     # Update W
     art.W[:, index] = learn(art, x, art.W[:, index])
     art.n_instance[index] += 1
 end # learn!(GNFA, x, index)
 
+"""
+    stopping_conditions(art::GNFA)
 
+Stopping conditions for a GNFA module.
+"""
 function stopping_conditions(art::GNFA)
     return isequal(art.W, art.W_old) || art.epoch >= art.opts.max_epochs
 end # stopping_conditions(GNFA)
-
 
 """
     opts_DDVFA()
@@ -449,7 +444,6 @@ function DDVFA(opts::opts_DDVFA)
     )
 end # DDVFA(opts)
 
-
 """
     train!(ddvfa, data)
 
@@ -538,7 +532,6 @@ function train!(art::DDVFA, x::Array)
     end
 end # train!(DDVFA, x)
 
-
 """
     stopping_conditions(art::DDVFA)
 
@@ -550,7 +543,6 @@ function stopping_conditions(art::DDVFA)
     # Compute the stopping condition, return a bool
     return art.W == art.W_old || art.epoch >= art.opts.max_epoch
 end # stopping_conditions(DDVFA)
-
 
 """
     similarity(method, F2, field_name, gamma_ref)
@@ -595,14 +587,15 @@ function similarity(method::String, F2::GNFA, field_name::String, sample::Array,
     # Weighted linkage
     elseif method == "weighted"
         if field_name == "T"
-            value = F2.T * (F2.n / sum(F2.n))
+            value = F2.T' * (F2.n_instance ./ sum(F2.n_instance))
         elseif field_name == "M"
-            value = F2.M * (F2.n / sum(F2.n))
+            value = F2.M' * (F2.n_instance ./ sum(F2.n_instance))
         end
     # Centroid linkage
     elseif method == "centroid"
-        Wc = minimum(F2.W)
-        T = norm(min(sample, Wc), 1)
+        Wc = minimum(F2.W, dims=2)
+        # (norm(min(obj.sample, Wc), 1)/(obj.alpha + norm(Wc, 1)))^obj.gamma;
+        T = norm(element_min(sample, Wc), 1) / (F2.opts.alpha + norm(Wc, 1))^F2.opts.gamma
         if field_name == "T"
             value = T
         elseif field_name == "M"
