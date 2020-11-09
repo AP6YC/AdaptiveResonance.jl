@@ -252,7 +252,6 @@ function train!(art::GNFA, x::Array ; y::Array=[])
     end
 end # train!(GNFA, x, y=[])
 
-
 """
     classify(art::GNFA, x::Array)
 
@@ -330,14 +329,21 @@ function activation_match!(art::GNFA, x::Array)
     end
 end # activation_match!(GNFA, x)
 
+"""
+    learn(art::GNFA, x::Array, W::Array)
 
-# Generic learning function
+Return the modified weight of the art module conditioned by sample x.
+"""
 function learn(art::GNFA, x::Array, W::Array)
     # Update W
     return art.opts.beta .* element_min(x, W) .+ W .* (1 - art.opts.beta)
 end # learn(GNFA, x, W)
 
-# In place learning function with instance counting
+"""
+    learn(art::GNFA, x::Array, W::Array)
+
+In place learning function with instance counting.
+"""
 function learn!(art::GNFA, x::Array, index::Int)
     # Update W
     art.W[:, index] = learn(art, x, art.W[:, index])
@@ -388,7 +394,20 @@ Initialized opts_DDVFA
     max_epoch = 1
 end # opts_DDVFA
 
+"""
+    DDVFA
 
+Distributed Dual Vigilance Fuzzy ARTMAP module struct.
+
+# Examples
+```julia-repl
+julia> DDVFA()
+DDVFA
+    opts: opts_DDVFA
+    supopts::opts_GNFA
+    ...
+```
+"""
 mutable struct DDVFA <: AbstractART
     # Get parameters
     opts::opts_DDVFA
@@ -406,7 +425,6 @@ mutable struct DDVFA <: AbstractART
     dim_comp::Int
     epoch::Int
 end # DDVFA
-
 
 """
     DDVFA()
@@ -427,7 +445,21 @@ function DDVFA()
     DDVFA(opts)
 end # DDVFA()
 
+"""
+    DDVFA(opts::opts_DDVFA)
 
+Implements a DDVFA learner with specified options.
+
+# Examples
+```julia-repl
+julia> my_opts = opts_DDVFA()
+julia> DDVFA(my_opts)
+DDVFA
+    opts: opts_DDVFA
+    supopts: opts_GNFA
+    ...
+```
+"""
 function DDVFA(opts::opts_DDVFA)
     subopts = opts_GNFA(rho=opts.rho_ub)
     DDVFA(opts,

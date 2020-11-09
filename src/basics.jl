@@ -14,7 +14,6 @@ function foo(a, b)
     return a + b
 end
 
-
 """
     my_f(x, y)
 
@@ -29,7 +28,6 @@ julia> my_f(2, 1)
 """
 my_f(x, y) = 2x + y
 
-
 """
     greet()
 
@@ -42,7 +40,6 @@ Hello World!
 ```
 """
 greet() = println("Hello World!")
-
 
 """
     doGreet(name)

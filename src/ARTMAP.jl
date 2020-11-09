@@ -5,7 +5,6 @@ using ProgressBars
 using Printf
 using MLJ
 
-
 """
     opts_FAM()
 
@@ -37,7 +36,6 @@ julia> my_opts = opts_FAM()
     max_epochs = 1
 end
 
-
 """
     FAM
 
@@ -53,7 +51,6 @@ mutable struct FAM <: AbstractART
     n_categories::Int
     epoch::Int
 end
-
 
 """
     FAM()
@@ -72,7 +69,6 @@ function FAM()
     opts = opts_FAM()
     FAM(opts)
 end
-
 
 """
     FAM(opts)
@@ -96,7 +92,6 @@ function FAM(opts::opts_FAM)
         Array{Int}(undef, 0),
         0, 0, 0)
 end
-
 
 """
     opts_DAM()
@@ -127,7 +122,6 @@ julia> my_opts = opts_DAM()
     max_epochs = 1
 end
 
-
 """
     DAM
 
@@ -143,7 +137,6 @@ mutable struct DAM <: AbstractART
     n_categories::Int
     epoch::Int
 end
-
 
 """
     DAM()
@@ -162,7 +155,6 @@ function DAM()
     opts = opts_DAM()
     DAM(opts)
 end
-
 
 """
     DAM(opts)
@@ -186,7 +178,6 @@ function DAM(opts::opts_DAM)
         Array{Int}(undef, 0),
         0, 0, 0)
 end
-
 
 """
     train(art::DAM, x, y)
@@ -279,7 +270,6 @@ function train!(art::DAM, x::Array, y::Array)
     end
 end
 
-
 """
     classify(art, x)
 
@@ -335,7 +325,6 @@ function classify(art::DAM, x::Array)
     return y_hat
 end
 
-
 """
     stopping_conditions(art::DAM)
 
@@ -345,7 +334,6 @@ function stopping_conditions(art::DAM)
     # Compute the stopping condition, return a bool
     return art.W == art.W_old || art.epoch >= art.opts.max_epochs
 end
-
 
 """
     activation(art::DAM, x, W)
@@ -358,7 +346,6 @@ function activation(art::DAM, x::Array, W::Array)
         (1-art.opts.alpha)*(art.dim - norm(W, 1))
 end
 
-
 """
     learn(art::DAM, x, W)
 
@@ -370,7 +357,6 @@ function learn(art::DAM, x::Array, W::Array)
     return art.opts.beta .* element_min(x, W) .+ W .* (1 - art.opts.beta)
 end
 
-
 """
     art_match(art::DAM, x, W)
 
@@ -381,7 +367,6 @@ function art_match(art::DAM, x::Array, W::Array)
     # Compute M and return
     return norm(element_min(x, W), 1) / art.dim
 end
-
 
 """
     opts_SFAM()
@@ -414,7 +399,6 @@ julia> my_opts = opts_SFAM()
     max_epochs = 1
 end # opts_SFAM
 
-
 """
     SFAM
 
@@ -430,7 +414,6 @@ mutable struct SFAM <: AbstractART
     n_categories::Int
     epoch::Int
 end
-
 
 """
     SFAM()
@@ -449,7 +432,6 @@ function SFAM()
     opts = opts_SFAM()
     SFAM(opts)
 end
-
 
 """
     SFAM(opts)
@@ -473,7 +455,6 @@ function SFAM(opts::opts_SFAM)
          Array{Int}(undef, 0),
          0, 0, 0)
 end
-
 
 """
     train(art, x, y)
@@ -563,7 +544,6 @@ function train!(art::SFAM, x::Array, y::Array)
     end
 end
 
-
 """
     classify(art, x)
 
@@ -619,7 +599,6 @@ function classify(art::SFAM, x::Array)
     return y_hat
 end
 
-
 """
     stopping_conditions(art::SFAM)
 
@@ -629,7 +608,6 @@ function stopping_conditions(art::SFAM)
     # Compute the stopping condition, return a bool
     return art.W == art.W_old || art.epoch >= art.opts.max_epochs
 end
-
 
 """
     learn(art::SFAM, x, W)
@@ -642,7 +620,6 @@ function learn(art::SFAM, x::Array, W::Array)
     return art.opts.beta .* element_min(x, W) .+ W .* (1 - art.opts.beta)
 end
 
-
 """
     activation(art::SFAM, x, W)
 
@@ -654,7 +631,6 @@ function activation(art::SFAM, x::Array, W::Array)
     return norm(element_min(x, W), 1) / (art.opts.alpha + norm(W, 1))
 end
 
-
 """
     art_match(art::SFAM, x, W)
 
@@ -665,7 +641,6 @@ function art_match(art::SFAM, x::Array, W::Array)
     # Compute M and return
     return norm(element_min(x, W), 1) / art.dim
 end
-
 
 """
     performance(y_hat, y)
