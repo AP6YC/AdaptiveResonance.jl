@@ -175,7 +175,7 @@ function train!(art::GNFA, x::Array ; y::Array=[])
 
     supervised = !isempty(y)
 
-    # Initialization if empty
+    # Initialization if weights are empty; fast commit the first sample
     if isempty(art.W)
         label = supervised ? y[1] : 1
         push!(art.labels, label)

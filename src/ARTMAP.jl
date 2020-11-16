@@ -24,9 +24,6 @@ julia> my_opts = opts_FAM()
     epsilon = 1e-3; @assert epsilon > 0 && epsilon < 1
     # Learning parameter: (0, 1]
     beta = 1; @assert beta > 0 && beta <= 1
-    # Similarity method (activation and match):
-    #   'single', 'average', 'complete', 'median', 'weighted', or 'centroid'
-    method::String = "single"
     # Uncommitted node flag
     uncommitted::Bool = true
     # Display flag
@@ -112,9 +109,6 @@ julia> my_opts = opts_DAM()
     epsilon = -1e-3; @assert epsilon > -1 && epsilon < 1
     # Learning parameter: (0, 1]
     beta = 1; @assert beta > 0 && beta <= 1
-    # Similarity method (activation and match):
-    #   'single', 'average', 'complete', 'median', 'weighted', or 'centroid'
-    # method::String = "single"
     # Display flag
     display::Bool = true
     # shuffle::Bool = false
@@ -387,9 +381,6 @@ julia> my_opts = opts_SFAM()
     epsilon = 1e-3; @assert epsilon > 0 && epsilon < 1
     # Learning parameter: (0, 1]
     beta = 1; @assert beta > 0 && beta <= 1
-    # Similarity method (activation and match):
-    #   'single', 'average', 'complete', 'median', 'weighted', or 'centroid'
-    method::String = "single"
     # Uncommitted node flag
     uncommitted::Bool = true
     # Display flag

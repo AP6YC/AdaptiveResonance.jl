@@ -7,6 +7,7 @@ include("basics.jl")
 include("funcs.jl")
 include("ARTMAP.jl")
 include("DDVFA.jl")
+include("CVI.jl")
 
 export
 # Functions
