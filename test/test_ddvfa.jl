@@ -19,7 +19,6 @@ function tt_ddvfa(opts::opts_DDVFA, train_x::Array)
     # println("Performance is ", perf)
 end
 
-
 """
     ddvfa_example()
 

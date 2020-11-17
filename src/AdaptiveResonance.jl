@@ -3,9 +3,8 @@ module AdaptiveResonance
 abstract type AbstractARTOpts end
 abstract type AbstractART end
 
-include("basics.jl")
 include("funcs.jl")
-include("ARTMAP.jl")
+include("ARTMAP/ARTMAP.jl")
 include("DDVFA.jl")
 include("CVI.jl")
 
@@ -17,8 +16,6 @@ export
 # ARTMAP
     FAM, opts_FAM,
     DAM, opts_DAM,
-    SFAM, opts_SFAM,
-# Basics
-    my_f, foo, doGreet, greet
+    SFAM, opts_SFAM
 
 end # module

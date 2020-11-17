@@ -7,16 +7,6 @@ using DelimitedFiles
 # Auxiliary generic functions for loading data, etc.
 include("test_utils.jl")
 
-@testset "basics.jl" begin
-    # Boilerplate tests to verify basic Julia use
-    @test my_f(2, 2) == 6
-    @test 1 + 1 == 2
-    @test foo(1, 1) == 2
-    @test my_f(2, 1) == 5
-    @test greet() == doGreet("World")
-end
-
-
 @testset "DDVFA.jl" begin
 
     # DDVFA train and test functions
@@ -56,7 +46,6 @@ end
     end
 end
 
-
 @testset "AdaptiveResonance.jl" begin
 
     # Default constructors
@@ -74,7 +63,6 @@ end
     sfam_2 = SFAM(sfam_opts)
 
 end
-
 
 @testset "ARTMAP.jl" begin
 
