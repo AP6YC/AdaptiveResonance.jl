@@ -82,12 +82,15 @@ FAM
 ```
 """
 function FAM(opts::opts_FAM)
-    FAM(opts,
-        Array{Float64}(undef, 0,0),
-        Array{Float64}(undef, 0,0),
-        Array{Int}(undef, 0),
-        Array{Int}(undef, 0),
-        0, 0, 0)
+    FAM(opts,                       # opts_FAM
+        Array{Float64}(undef, 0,0), # W
+        Array{Float64}(undef, 0,0), # W_old
+        Array{Int}(undef, 0),       # labels
+        Array{Int}(undef, 0),       # y
+        0,                          # dim
+        0,                          # n_categories
+        0                           # epoch
+    )
 end
 
 """
@@ -165,12 +168,15 @@ DAM
 ```
 """
 function DAM(opts::opts_DAM)
-    DAM(opts,
-        Array{Float64}(undef, 0,0),
-        Array{Float64}(undef, 0,0),
-        Array{Int}(undef, 0),
-        Array{Int}(undef, 0),
-        0, 0, 0)
+    DAM(opts,                       # opts_DAM
+        Array{Float64}(undef, 0,0), # W
+        Array{Float64}(undef, 0,0), # W_old
+        Array{Int}(undef, 0),       # labels
+        Array{Int}(undef, 0),       # y
+        0,                          # dim
+        0,                          # n_categories
+        0                           # epoch
+    )
 end
 
 """
@@ -439,12 +445,15 @@ SFAM
 ```
 """
 function SFAM(opts::opts_SFAM)
-    SFAM(opts,
-         Array{Float64}(undef, 0,0),
-         Array{Float64}(undef, 0,0),
-         Array{Int}(undef, 0),
-         Array{Int}(undef, 0),
-         0, 0, 0)
+    SFAM(opts,                          # opts_SFAM
+         Array{Float64}(undef, 0,0),    # W
+         Array{Float64}(undef, 0,0),    # W_old
+         Array{Int}(undef, 0),          # labels
+         Array{Int}(undef, 0),          # y
+         0,                             # dim
+         0,                             # n_categories
+         0                              # epoch
+    )
 end
 
 """
