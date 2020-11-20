@@ -12,6 +12,7 @@ using Statistics: median, mean
 # Abstract types
 abstract type AbstractARTOpts end
 abstract type AbstractART end
+abstract type AbstractCVI end
 
 # Include all files
 include("funcs.jl")
