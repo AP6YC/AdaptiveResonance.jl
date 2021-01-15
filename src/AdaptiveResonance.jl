@@ -32,6 +32,13 @@ export
     # ARTMAP
     FAM, opts_FAM,
     DAM, opts_DAM,
-    SFAM, opts_SFAM
+    SFAM, opts_SFAM,
+
+    # ARTSCENE
+    color_to_gray,
+    contrast_normalization,
+    contrast_sensitive_oriented_filtering,
+    contrast_insensitive_oriented_filtering,
+    orientation_competition
 
 end # module

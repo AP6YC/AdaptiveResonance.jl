@@ -8,3 +8,4 @@
 include("DAM.jl")
 include("FAM.jl")
 include("SFAM.jl")
+include("ARTSCENE.jl")

@@ -7,6 +7,14 @@ using DelimitedFiles
 # Auxiliary generic functions for loading data, etc.
 include("test_utils.jl")
 
+@testset "ARTSCENE.jl" begin
+
+    # ARTSCENE training and testing
+    include("test_artscene.jl")
+    # artscene_example()
+
+end
+
 @testset "DDVFA.jl" begin
 
     # DDVFA train and test functions
