@@ -99,10 +99,12 @@ DAM
 julia> train!(art, x, y)
 ```
 """
-function train!(art::DAM, x::Array, y::Array)
+function train!(art::DAM, x::Array, y::Array ; preprocessed=false)
     art.dim, n_samples = size(x)
     art.y = zeros(Int, n_samples)
-    x = complement_code(x)
+    if !preprocessed
+        x = complement_code(x)
+    end
     art.epoch = 0
 
     # Convenient semantic flag
@@ -192,10 +194,12 @@ julia> train!(art, x, y)
 julia> classify(art, x_test)
 ```
 """
-function classify(art::DAM, x::Array)
+function classify(art::DAM, x::Array ; preprocessed=false)
     art.dim, n_samples = size(x)
     y_hat = zeros(Int, n_samples)
-    x = complement_code(x)
+    if !preprocessed
+        x = complement_code(x)
+    end
 
     iter = ProgressBar(1:n_samples)
     for ix in iter

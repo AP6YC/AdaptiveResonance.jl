@@ -481,7 +481,7 @@ end # DDVFA(opts)
 
 Train the DDVFA model on the data.
 """
-function train!(art::DDVFA, x::Array)
+function train!(art::DDVFA, x::Array ; preprocessed=false)
     if art.opts.display
         @info "Training DDVFA"
     end
@@ -491,7 +491,9 @@ function train!(art::DDVFA, x::Array)
     art.dim_comp = 2*art.dim
     art.labels = zeros(n_samples)
 
-    x = complement_code(x)
+    if !preprocessed
+        x = complement_code(x)
+    end
 
     # Initialization
     if isempty(art.F2)

@@ -101,10 +101,12 @@ SFAM
 julia> train!(art, x, y)
 ```
 """
-function train!(art::SFAM, x::Array, y::Array)
+function train!(art::SFAM, x::Array, y::Array ; preprocessed=false)
     art.dim, n_samples = size(x)
     art.y = zeros(Int, n_samples)
-    x = complement_code(x)
+    if !preprocessed
+        x = complement_code(x)
+    end
     art.epoch = 0
 
     while true
@@ -191,10 +193,12 @@ julia> train!(art, x, y)
 julia> classify(art, x_test)
 ```
 """
-function classify(art::SFAM, x::Array)
+function classify(art::SFAM, x::Array ; preprocessed=false)
     art.dim, n_samples = size(x)
     y_hat = zeros(Int, n_samples)
-    x = complement_code(x)
+    if !preprocessed
+        x = complement_code(x)
+    end
 
     iter = ProgressBar(1:n_samples)
     for ix in iter

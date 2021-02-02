@@ -23,8 +23,11 @@ include("CVI/CVI.jl")
 # Export all public names
 export
 
-    # Functions
+    # Algorithmic functions
     train!, classify, performance,
+
+    # Utility functions
+    complement_code,
 
     # DDVFA
     DDVFA, opts_DDVFA, GNFA, opts_GNFA,
