@@ -5,7 +5,14 @@ Normalize the data x to [0, 1] and returns the augmented vector [x, 1 - x].
 """
 function complement_code(data::Array)
     # Complement code the data and return a concatenated matrix
-    dim, n_samples = size(data)
+
+    # Get the correct dimensionality and number of samples
+    if ndims(data) > 1
+        dim, n_samples = size(data)
+    else
+        dim = 1
+        n_samples = length(data)
+    end
     x_raw = zeros(dim, n_samples)
 
     mins = [minimum(data[i, :]) for i in 1:dim]
@@ -54,7 +61,6 @@ end
 #     end
 #     return eval(code)
 # end
-
 
 # """
 #     get_field_native(obj, field_name)
