@@ -639,3 +639,64 @@ function similarity(method::String, F2::GNFA, field_name::String, sample::Array,
         error("Invalid/unimplemented similarity method")
     end
 end # similarity
+
+"""
+    classify(art::GNFA, x::Array)
+
+Predict categories of 'x' using the GNFA model.
+
+Returns predicted categories 'y_hat'
+
+# Examples
+```julia-repl
+julia> my_GNFA = GNFA()
+GNFA
+    opts: opts_GNFA
+    ...
+julia> x, y = load_data()
+julia> train!(my_GNFA, x)
+julia> y_hat = classify(my_GNFA, y)
+```
+"""
+function classify(art::DDVFA, x::Array)
+
+    # Data information
+    art.dim, n_samples = size(x)
+    art.dim_comp = 2*art.dim
+    art.labels = zeros(n_samples)
+
+    if !preprocessed
+        x = complement_code(x)
+    end
+
+    iter = art.opts.display ? ProgressBar(iter_raw) : iter_raw
+    for i = iter
+        if art.opts.display
+            set_description(iter, string(@sprintf("Ep: %i, ID: %i, Cat: %i", art.epoch, i, art.n_categories)))
+        end
+        sample = x[:, i]
+        T = zeros(art.n_categories)
+        for jx = 1:art.n_categories
+            activation_match!(art.F2[jx], sample)
+            T[jx] = similarity(art.opts.method, art.F2[jx], "T", sample, art.opts.gamma_ref)
+        end
+        index = sortperm(T, rev=true)
+        mismatch_flag = true
+        for jx = 1:art.n_categories
+            bmu = index[jx]
+            M = similarity(art.opts.method, art.F2[bmu], "M", sample, art.opts.gamma_ref)
+            if M >= art.threshold
+                # Current winner
+                y_hat[ix] = art.labels[bmu]
+                mismatch_flag = false
+                break
+            end
+        end
+        if mismatch_flag
+            @debug "Mismatch"
+            y_hat[ix] = -1
+        end
+    end
+
+    return y_hat
+end
