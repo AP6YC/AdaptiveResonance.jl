@@ -100,6 +100,9 @@ julia> train!(art, x, y)
 ```
 """
 function train!(art::DAM, x::Array, y::Array ; preprocessed=false)
+    if art.opts.display
+        @info "Training DAM"
+    end
     # Get the correct dimensionality and number of samples
     if ndims(x) > 1
         art.dim, n_samples = size(x)
@@ -202,6 +205,9 @@ julia> classify(art, x_test)
 ```
 """
 function classify(art::DAM, x::Array ; preprocessed=false)
+    if art.opts.display
+        @info "Testing DAM"
+    end
     # Get the correct dimensionality and number of samples
     if ndims(x) > 1
         art.dim, n_samples = size(x)

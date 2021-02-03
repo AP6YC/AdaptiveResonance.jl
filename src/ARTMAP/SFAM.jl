@@ -102,6 +102,9 @@ julia> train!(art, x, y)
 ```
 """
 function train!(art::SFAM, x::Array, y::Array ; preprocessed=false)
+    if art.opts.display
+        @info "Training SFAM"
+    end
     # Get the correct dimensionality and number of samples
     if ndims(x) > 1
         art.dim, n_samples = size(x)
@@ -205,6 +208,9 @@ julia> classify(art, x_test)
 ```
 """
 function classify(art::SFAM, x::Array ; preprocessed=false)
+    if art.opts.display
+        @info "Testing DDVFA"
+    end
     # Get the correct dimensionality and number of samples
     if ndims(x) > 1
         art.dim, n_samples = size(x)

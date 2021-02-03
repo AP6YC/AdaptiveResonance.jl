@@ -659,7 +659,9 @@ julia> y_hat = classify(my_GNFA, y)
 ```
 """
 function classify(art::DDVFA, x::Array ; preprocessed=false)
-
+    if art.opts.display
+        @info "Testing DDVFA"
+    end
     # Data information
     # art.dim, n_samples = size(x)
     _, n_samples = size(x)
