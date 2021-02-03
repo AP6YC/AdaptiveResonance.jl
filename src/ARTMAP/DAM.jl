@@ -100,7 +100,14 @@ julia> train!(art, x, y)
 ```
 """
 function train!(art::DAM, x::Array, y::Array ; preprocessed=false)
-    art.dim, n_samples = size(x)
+    # Get the correct dimensionality and number of samples
+    if ndims(x) > 1
+        art.dim, n_samples = size(x)
+    else
+        art.dim = 1
+        n_samples = length(x)
+    end
+
     art.y = zeros(Int, n_samples)
     if !preprocessed
         x = complement_code(x)

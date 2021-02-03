@@ -9,16 +9,15 @@ struct DataSplit
     train_y::Array
     test_y::Array
     DataSplit(train_x, test_x, train_y, test_y) = new(train_x, test_x, train_y, test_y)
- end
+end
 
-
- """
+"""
     load_am_data(N_train, N_test)
 
 Loads the ARTMAP test data, cutting off at N_train training data points and
 N_test testing data points. In this case, it loads the MNIST handwritten digits
 dataset and packages them into a DataSplit struct.
- """
+"""
 function load_am_data(N_train::Int, N_test::Int)
     # Load the data, downloading if in a CI context: TODO
     # if ENV["CI"] == true
@@ -33,10 +32,6 @@ function load_am_data(N_train::Int, N_test::Int)
     # Get sizes of train and test data
     size_a, size_b, data_n = size(train_x)
     size_at, size_bt, data_nt = size(test_x)
-
-    # Cut off the number of data points and flatten
-    # N_train = 200
-    # N_test = 50
 
     # Take the minimum of the user N and the number of data
     N_train = minimum([N_train, data_n])
