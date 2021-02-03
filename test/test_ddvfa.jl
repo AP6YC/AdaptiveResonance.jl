@@ -7,7 +7,8 @@ function tt_ddvfa(opts::opts_DDVFA, train_x::Array)
     # Create the ART module, train, and classify
     art = DDVFA(opts)
     train!(art, train_x)
-    classify(art, train_x)
+    y_hat = classify(art, train_x)
+    # perf = performance(y_hat, data.test_y)
 
     # Total number of categories
     total_vec = [art.F2[i].n_categories for i = 1:art.n_categories]

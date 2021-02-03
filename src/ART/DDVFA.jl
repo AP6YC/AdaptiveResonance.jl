@@ -658,23 +658,26 @@ julia> train!(my_GNFA, x)
 julia> y_hat = classify(my_GNFA, y)
 ```
 """
-function classify(art::DDVFA, x::Array)
+function classify(art::DDVFA, x::Array ; preprocessed=false)
 
     # Data information
-    art.dim, n_samples = size(x)
-    art.dim_comp = 2*art.dim
-    art.labels = zeros(n_samples)
+    # art.dim, n_samples = size(x)
+    _, n_samples = size(x)
+    # art.dim_comp = 2*art.dim
+    # art.labels = zeros(n_samples)
+    y_hat = zeros(Int, n_samples)
 
     if !preprocessed
         x = complement_code(x)
     end
 
+    iter_raw = 1:n_samples
     iter = art.opts.display ? ProgressBar(iter_raw) : iter_raw
-    for i = iter
+    for ix = iter
         if art.opts.display
-            set_description(iter, string(@sprintf("Ep: %i, ID: %i, Cat: %i", art.epoch, i, art.n_categories)))
+            set_description(iter, string(@sprintf("Ep: %i, ID: %i, Cat: %i", art.epoch, ix, art.n_categories)))
         end
-        sample = x[:, i]
+        sample = x[:, ix]
         T = zeros(art.n_categories)
         for jx = 1:art.n_categories
             activation_match!(art.F2[jx], sample)
