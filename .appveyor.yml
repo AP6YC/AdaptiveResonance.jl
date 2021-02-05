@@ -6,7 +6,7 @@ environment:
   # Set this to download test data outside of repo
   DATADEPS_ALWAYS_ACCEPT: true
 platform:
-  - x86
+  # - x86
   - x64
 matrix:
   allow_failures:

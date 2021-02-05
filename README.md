@@ -4,7 +4,8 @@ A Julialang package for adaptive resonance theory (ART) algorithms.
 
 | **Documentation**  | **Build Status** | **Coverage** |
 |:------------------:|:----------------:|:------------:|
-| [![Stable][docs-stable-img]][docs-stable-url] [![Dev][docs-dev-img]][docs-dev-url] | [![Build Status][travis-img]][travis-url] [![Build Status][appveyor-img]][appveyor-url] | [![Codecov][codecov-img]][codecov-url] [![Coveralls][coveralls-img]][coveralls-url] |
+| [![Stable][docs-stable-img]][docs-stable-url] [![Dev][docs-dev-img]][docs-dev-url] | [![Build Status][ci-img]][ci-url] [![Build Status][appveyor-img]][appveyor-url] | [![Codecov][codecov-img]][codecov-url] [![Coveralls][coveralls-img]][coveralls-url] |
+<!-- | [![Stable][docs-stable-img]][docs-stable-url] [![Dev][docs-dev-img]][docs-dev-url] | [![Build Status][travis-img]][travis-url] [![Build Status][appveyor-img]][appveyor-url] | [![Codecov][codecov-img]][codecov-url] [![Coveralls][coveralls-img]][coveralls-url] | -->
 
 [docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
 [docs-stable-url]: https://AP6YC.github.io/AdaptiveResonance.jl/stable
@@ -12,8 +13,10 @@ A Julialang package for adaptive resonance theory (ART) algorithms.
 [docs-dev-img]: https://img.shields.io/badge/docs-dev-blue.svg
 [docs-dev-url]: https://AP6YC.github.io/AdaptiveResonance.jl/dev
 
-[travis-img]: https://travis-ci.com/AP6YC/AdaptiveResonance.jl.svg?branch=master
-[travis-url]: https://travis-ci.com/AP6YC/AdaptiveResonance.jl
+[ci-img]: https://github.com/AP6YC/AdaptiveResonance.jl/workflows/CI/badge.svg
+[ci-url]: https://github.com/AP6YC/AdaptiveResonance.jl/actions?query=workflow%3ACI
+<!-- [travis-img]: https://travis-ci.com/AP6YC/AdaptiveResonance.jl.svg?branch=master -->
+<!-- [travis-url]: https://travis-ci.com/AP6YC/AdaptiveResonance.jl -->
 
 [appveyor-img]: https://ci.appveyor.com/api/projects/status/github/AP6YC/AdaptiveResonance.jl?svg=true
 [appveyor-url]: https://ci.appveyor.com/project/AP6YC/AdaptiveResonance-jl
