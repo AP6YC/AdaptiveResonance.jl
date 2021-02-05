@@ -15,7 +15,7 @@ jobs:
       fail-fast: false
       matrix:
         version:
-          - "1.0"  # LTS
+          # - "1.0"  # LTS
           - "1"    # Latest Release
         os:
           - ubuntu-latest
@@ -35,6 +35,9 @@ jobs:
           - os: ubuntu-latest
             version: 1.5
             arch: x64
+    env:
+      # Set this to download test data outside of repo
+      DATADEPS_ALWAYS_ACCEPT: true
     steps:
       - uses: actions/checkout@v2
       - uses: julia-actions/setup-julia@v1
@@ -44,8 +47,6 @@ jobs:
       - uses: actions/cache@v2
         env:
           cache-name: cache-artifacts
-          # Set this to download test data outside of repo
-          DATADEPS_ALWAYS_ACCEPT: true
         with:
           path: ~/.julia/artifacts
           key: ${{ runner.os }}-${{ matrix.arch }}-test-${{ env.cache-name }}-${{ hashFiles('**/Project.toml') }}
