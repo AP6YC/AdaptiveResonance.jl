@@ -641,21 +641,21 @@ function similarity(method::String, F2::GNFA, field_name::String, sample::Array,
 end # similarity
 
 """
-    classify(art::GNFA, x::Array)
+    classify(art::DDVFA, x::Array)
 
-Predict categories of 'x' using the GNFA model.
+Predict categories of 'x' using the DDVFA model.
 
-Returns predicted categories 'y_hat'
+Returns predicted categories 'y_hat.'
 
 # Examples
 ```julia-repl
-julia> my_GNFA = GNFA()
-GNFA
-    opts: opts_GNFA
+julia> my_DDVFA = DDVFA()
+DDVFA
+    opts: opts_DDVFA
     ...
 julia> x, y = load_data()
-julia> train!(my_GNFA, x)
-julia> y_hat = classify(my_GNFA, y)
+julia> train!(my_DDVFA, x)
+julia> y_hat = classify(my_DDVFA, y)
 ```
 """
 function classify(art::DDVFA, x::Array ; preprocessed=false)
