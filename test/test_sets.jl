@@ -11,8 +11,8 @@ include("test_utils.jl")
 
     # ARTSCENE training and testing
     include("test_artscene.jl")
-    artscene_example()
-
+    artscene_filter_plumbing()
+    artscene_filter_porcelain()
 end
 
 @testset "DDVFA.jl" begin

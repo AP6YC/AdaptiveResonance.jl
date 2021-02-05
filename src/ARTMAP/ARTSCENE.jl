@@ -11,7 +11,11 @@ using SharedArrays
 # @everywhere using SharedArrays
 # @everywhere begin
 
-# Stage 1: Color-to-gray image transformation
+"""
+    color_to_gray(image::Array)
+
+ARTSCENE Stage 1: Color-to-gray image transformation.
+"""
 function color_to_gray(image::Array)
     # Treat the image as a column-major array, cast to grayscale
     dim, n_row, n_column = size(image)
@@ -19,14 +23,20 @@ function color_to_gray(image::Array)
     # return Gray.(image)
 end
 
-# Surround kernel S function for Stage 2
+"""
+    surround_kernel(i::Int, j::Int, p::Int, q::Int, scale::Int)
+
+Surround kernel S function for ARTSCENE Stage 2
+"""
 function surround_kernel(i::Int, j::Int, p::Int, q::Int, scale::Int)
-# @everywhere function surround_kernel(i::Int, j::Int, p::Int, q::Int, scale::Int)
     return 1/(2*pi*scale^2)*MathConstants.e^(-((i-p)^2 + (j-q)^2)/(2*scale^2))
 end
 
-# Time rate of change of LGN network (Stage 2)
-# function ddt_x(x::SharedArray, image::Array, sigma_s::Array)
+"""
+    ddt_x(x::Array, image::Array, sigma_s::Array, distributed::Bool)
+
+Time rate of change of LGN network (ARTSCENE Stage 2).
+"""
 function ddt_x(x::Array, image::Array, sigma_s::Array, distributed::Bool)
     n_row, n_column = size(x)
     n_g = length(sigma_s)
@@ -46,7 +56,6 @@ function ddt_x(x::Array, image::Array, sigma_s::Array, distributed::Bool)
                         for p in kernel_h, q in kernel_w])
             # Compute the enhanced contrast
             dx[i,j,g] = - x[i,j,g] + (1 - x[i,j,g])*image[i,j] - (1 + x[i,j,g])*S_ijg_I
-
         end
         end
         end
@@ -54,7 +63,11 @@ function ddt_x(x::Array, image::Array, sigma_s::Array, distributed::Bool)
     return dx
 end
 
-# Stage 2: Constrast normalization
+"""
+    contrast_normalization(image::Array ; distributed::Bool=true)
+
+ARTSCENE Stage 2: Constrast normalization.
+"""
 function contrast_normalization(image::Array ; distributed::Bool=true)
     # All scale parameters
     sigma_s = [1, 4, 8, 12]
@@ -77,7 +90,11 @@ function contrast_normalization(image::Array ; distributed::Bool=true)
     return x
 end
 
-# Oriented, elongated, spatially offset kernel G for Stage 3
+"""
+    oriented_kernel(i::Int, j::Int, p::Int, q::Int, k::Int, sigma_h::Real, sigma_v::Real ; sign::String="plus")
+
+Oriented, elongated, spatially offset kernel G for ARTSCENE Stage 3.
+"""
 function oriented_kernel(i::Int, j::Int, p::Int, q::Int, k::Int, sigma_h::Real, sigma_v::Real ; sign::String="plus")
     m = sin(pi*k/4)
     n = cos(pi*k/4)
@@ -97,7 +114,11 @@ function oriented_kernel(i::Int, j::Int, p::Int, q::Int, k::Int, sigma_h::Real, 
     return G
 end
 
-# Shunting equation for Stage 3
+"""
+    ddt_y(y::Array, X_plus::Array, X_minus::Array, alpha::Real, distributed::Bool)
+
+Shunting equation for ARTSCENE Stage 3.
+"""
 function ddt_y(y::Array, X_plus::Array, X_minus::Array, alpha::Real, distributed::Bool)
     # n_row, n_column = size(x) # TODO: SOURCE OF WRONGNESS
     n_row, n_column = size(y)
@@ -135,7 +156,11 @@ function ddt_y(y::Array, X_plus::Array, X_minus::Array, alpha::Real, distributed
     return dy
 end
 
-# Stage 3: Contrast-sensitive oriented filtering
+"""
+    contrast_sensitive_oriented_filtering(image::Array, x::Array ; distributed::Bool=true)
+
+ARTSCENE Stage 3: Contrast-sensitive oriented filtering.
+"""
 function contrast_sensitive_oriented_filtering(image::Array, x::Array ; distributed::Bool=true)
     # Get the size of the field
     n_row, n_column = size(x)
@@ -162,12 +187,14 @@ function contrast_sensitive_oriented_filtering(image::Array, x::Array ; distribu
     end
 
     return y
-
 end
 
-# Stage 4: Contrast-insensitive oriented filtering
-function contrast_insensitive_oriented_filtering(y::Array)
+"""
+    contrast_insensitive_oriented_filtering(y::Array)
 
+ARTSCENE Stage 4: Contrast-insensitive oriented filtering.
+"""
+function contrast_insensitive_oriented_filtering(y::Array)
     n_row, n_column, n_g, n_k = size(y)
 
     # Compute the LGN ON-cell and OFF-cell output signals
@@ -177,6 +204,11 @@ function contrast_insensitive_oriented_filtering(y::Array)
     return Y_plus + Y_minus
 end
 
+"""
+    competition_kernel(l::Int, k::Int ; sign::String="plus")
+
+Competition kernel for ARTSCENE: Stage 5.
+"""
 function competition_kernel(l::Int, k::Int ; sign::String="plus")
 
     if sign == "plus"
@@ -190,31 +222,43 @@ function competition_kernel(l::Int, k::Int ; sign::String="plus")
     return g
 end
 
-function ddt_z(z::Array)
+"""
+    ddt_z(z::Array)
+
+Time rate of change for ARTSCENE: Stage 5.
+"""
+function ddt_z(z::Array ; distributed=true)
     n_row, n_column, n_g, n_k = size(z)
     kernel_r = 5
 
     # dz = zeros(n_row, n_column, n_k, n_g)
     # for k = 1:n_k
-    dz = SharedArray{Float64, 4}((n_row, n_column, n_k, n_g))
-    @sync @distributed for k = 1:n_k
-    for g = 1:n_g
-    for i = 1:n_row
-    for j = 1:n_column
-        zgp = sum([z[i,j,g,l]*competition_kernel(l,k,sign="plus") for l = 1:n_g])
-        zgm = sum([z[i,j,g,l]*competition_kernel(l,k,sign="minus") for l = 1:n_g])
-        dz[i,j,g,k] = (- z[i,j,g,k]
-                       + (1 - z[i,j,g,k]*zgp)
-                       - (1 + z[i,j,g,k]*zgm))
-    end
-    end
-    end
+    if distributed
+        dz = SharedArray{Float64, 4}((n_row, n_column, n_k, n_g))
+        @sync @distributed for k = 1:n_k
+        for g = 1:n_g
+        for i = 1:n_row
+        for j = 1:n_column
+            zgp = sum([z[i,j,g,l]*competition_kernel(l,k,sign="plus") for l = 1:n_g])
+            zgm = sum([z[i,j,g,l]*competition_kernel(l,k,sign="minus") for l = 1:n_g])
+            dz[i,j,g,k] = (- z[i,j,g,k]
+                        + (1 - z[i,j,g,k]*zgp)
+                        - (1 + z[i,j,g,k]*zgm))
+        end
+        end
+        end
+        end
     end
 
     return dz
 end
 
 # Stage 5: Orientation competition at the same position
+"""
+    orientation_competition(z::Array)
+
+ARTSCENE Stage 5: Orientation competition at the same position.
+"""
 function orientation_competition(z::Array)
 
     # Parameters
@@ -235,6 +279,11 @@ function orientation_competition(z::Array)
     return z
 end
 
+"""
+    patch_orientation_color(z::Array, image::Array)
+
+ARTSCENE Stage 6: Create patch feature vectors.
+"""
 function patch_orientation_color(z::Array, image::Array)
     n_i, n_j, n_g, n_k = size(z)
     patch_i = 4
@@ -249,8 +298,8 @@ function patch_orientation_color(z::Array, image::Array)
     for p_i = 1:patch_i
         for p_j = 1:patch_j
             # Get the correct range objects for the grid
-            i_range = Int(size_i*(p_i-1)+1):Int(size_i*p_i)
-            j_range = Int(size_j*(p_j-1)+1):Int(size_j*p_j)
+            i_range = Int(floor(size_i*(p_i-1)+1)):Int(floor(size_i*p_i))
+            j_range = Int(floor(size_j*(p_j-1)+1)):Int(floor(size_j*p_j))
             # Compute the color averages
             for c = 1:n_colors
                 C[p_i,p_j,c] = 1/size_patch*sum(image[c, i_range, j_range])
@@ -266,155 +315,57 @@ function patch_orientation_color(z::Array, image::Array)
     return O, C
 end
 
-# end
+function artscene_filter(raw_image ;  distributed=true)
+    # Set the logging level to Info
+    # LogLevel(Logging.Info)
+    n_processes = nprocs()
+    n_workers = nworkers()
+    @info "Processes: $n_processes, Workers: n_workers"
 
-# include("../src/ARTMAP/ARTSCENE.jl")
-# Random image
-# image = rand(608, 608, 3)
-# image_path = "E:\\dev\\mount\\200630_ForDistribution\\Cylinder1\\scene\\0070.png"
-# # raw_image = load("data/image.png")
-# raw_image = load(image_path)
-# raw_image = imresize(raw_image, ratio=1/4)
-# matrix_raw_image = convert(Array{Float64}, channelview(raw_image))
+    # Random image
+    image_size = size(raw_image)
+    image_type =  typeof(raw_image)
+    @info "Original: Size = $image_size, Type = $image_type"
 
-# Stage 1: Grayscale
-# raw_image = convert(Array{Float64, 3}(undef, n_row, n_column, n_color), raw_image)
-# image = color_to_gray(raw_image)
-# image = convert(Array{Float64}, image)
-# image = color_to_gray(matrix_raw_image)
+    # Stage 1: Grayscale
+    image = color_to_gray(raw_image)
+    image_size = size(image)
+    image_type = typeof(image)
+    @info "Stage 1: Grayscale: Size = $image_size, Type = $image_type"
+    @info "Stage 1: Done"
 
-# @info "Stage 1 Done"
+    # Stage 2: Contrast normalization
+    x = contrast_normalization(image, distributed=true)
+    image_size = size(x)
+    image_type = typeof(x)
+    @info "Stage 2: Contrast: Size = $image_size, Type = $image_type"
+    @info "Stage 2: Done"
 
-# # Stage 2: Contrast normalization
-# x = contrast_normalization(image)
-# @info "Stage 2 Done"
+    # Stage 3: Contrast-sensitive oriented filtering
+    y = contrast_sensitive_oriented_filtering(image, x)
+    image_size = size(y)
+    image_type = typeof(y)
+    @info "Stage 3: Sensitive Oriented: Size = $image_size, Type = $image_type"
+    @info "Stage 3: Done"
 
-# # Stage 3: Contrast-sensitive oriented filtering
-# y = contrast_sensitive_oriented_filtering(image, x)
-# @info "Stage 3 Done"
+    # Stage 4: Contrast-insensitive oriented filtering
+    z = contrast_insensitive_oriented_filtering(y)
+    image_size = size(z)
+    image_type = typeof(z)
+    @info "Stage 4: Insensitive Oriented: Size = $image_size, Type = $image_type"
+    @info "Stage 4: Done"
 
-# # Stage 4: Contrast-insensitive oriented filtering
-# z = contrast_insensitive_oriented_filtering(y)
-# @info "Stage 4 Done"
+    # Stage 5: Orientation competition
+    z = orientation_competition(z)
+    image_size = size(z)
+    image_type = typeof(z)
+    @info "Stage 5: Orientation Competition: Size = $image_size, Type = $image_type"
+    @info "Stage 5: Done"
 
-# # Stage 5: Orientation competition
-# z = orientation_competition(z)
-# @info "Stage 5 Done"
+    # *Stage 6*: Compute patch vectors (orientation and color)
+    # O, C = patch_orientation_color(z, matrix_raw_image)
+    O, C = patch_orientation_color(z, raw_image)
+    @info "Stage 6: Done"
 
-# # *Stage 6*: Compute patch vectors (orientation and color)
-# O, C = patch_orientation_color(z, matrix_raw_image)
-
-# println(size(z))
-
-# rmprocs(workers())
-
-# # Stage 1: Color-to-gray image transformation
-# function color_to_gray(image::Array)
-#     # Treat the image as a column-major array, cast to grayscale
-#     # Gray{Float64}.(image)
-#     n_row, n_column, dim = size(image)
-#     return [sum(image[i,j,:]) for i=1:n_row, j=1:n_column]
-# end
-
-# # Surround kernel S function for Stage 2
-# function surround_kernel(i::Int, j::Int, p::Int, q::Int, scale::Int)
-#     return 1/(2*pi*scale^2)*MathConstants.e^(-((i-p)^2 + (j-q)^2)/(2*scale^2))
-# end
-
-# # function get_S(n_row, n_column)
-# #     scales = [1, 4, 8, 12]
-# #     S = zeros(n_row, n_column, length(scales))
-# #     for i = 1:n_row
-# #         for j = 1:n_column
-# #             S = [surround_kernel(i, j, p, q, scales[g]) for p=1:n_row, q=1:n_column]
-# #         end
-# #     end
-# # end
-
-# # Time rate of change of LGN network (Stage 2)
-# function ddt_x(x::Array, image::Array, scales::Array)
-#     n_row, n_column = size(x)
-#     n_g = length(scales)
-#     dx = zeros(n_row, n_column, 4)
-
-#     for i = 1:n_row
-#         for j = 1:n_column
-#             for g = 1:n_g
-#                 # Compute the surround kernel
-#                 S_ijg_I = [surround_kernel(i, j, p, q, scales[g])*image[p, q]
-#                            for p=1:n_row, q=1:n_column]
-#                 # Compute the enhanced contrast
-#                 dx[i,j,g] = -x[i,j,g]
-#                             + (1 - x[i,j,g])*image[i,j]
-#                             - (1 + x[i,j,g])*sum(S_ijg_I)
-#             end
-#         end
-#     end
-#     return dx
-# end
-
-# # Stage 2: Constrast normalization
-# function contrast_normalization(image)
-#     # All scale parameters
-#     scales = [1, 4, 8, 12]
-#     n_g = length(scales)
-
-#     # Number if iterations to settle on contrast result
-#     n_iterations = 5
-
-#     # Get the shape of the image
-#     n_row, n_column = size(image)
-#     x = zeros(n_row, n_column, n_g)
-#     for g = 1:n_g
-#         x[:,:, g] = deepcopy(image)
-#     end
-
-#     for i = 1:n_iterations
-#         println("Iteration", i)
-#         x = x + ddt_x(x, image, scales)
-#     end
-#     return x
-# end
-
-# # Oriented, elongated, spatially offset kernel G for Stage 3
-# function oriented_kernel(i, j, p, q, k, scale)
-#     m = sin.(pi*k/4)
-#     n = cos.(pi*k/4)
-#     return
-# end
-
-# # Shunting equation for Stage 3
-# function ddt_y(x, y, alpha, scale)
-#     n_row, n_column = size(x)
-#     n_orientation = 4
-#     dy = zeros(n_row, n_column, n_orientation)
-#     for k = 1:n_orientation
-#         for i = 1:n_row
-#             for j = n_column
-#                 dy[i,j,k] = -alpha*y[i,j,k] + (1-y[i,j,k])
-#             end
-#         end
-#     end
-# end
-
-# # Stage 3: Contrast-sensitive oriented filtering
-# function contrast_sensitive_oriented_filtering(image, x)
-#     # Get the size of the field
-#     n_row, n_column = size(x)
-
-#     # Compute the LGN ON-cell and OFF-cell output signals
-#     X_plus = [max(0, x[i,j]) for i=1:n_row, j=1:n_column]
-#     X_minus = [max(0, -x[i,j]) for i=1:n_row, j=1:n_column]
-
-#     return
-# end
-
-# # Stage 4: Contrast-insensitive oriented filtering
-# function contrast_insensitive_oriented_filtering(image)
-#     return
-# end
-
-# # Stage 5: Orientation competition at the same position
-# function orientation_competition(image)
-#     return
-# end
+    return O, C
+end

@@ -42,6 +42,7 @@ export
     contrast_normalization,
     contrast_sensitive_oriented_filtering,
     contrast_insensitive_oriented_filtering,
-    orientation_competition
+    orientation_competition,
+    patch_orientation_color
 
 end # module
