@@ -11,7 +11,7 @@ include("test_utils.jl")
 
     # ARTSCENE training and testing
     include("test_artscene.jl")
-    # artscene_example()
+    artscene_example()
 
 end
 
