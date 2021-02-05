@@ -1,0 +1,179 @@
+name: CI
+# Run on master, tags, or any pull request
+on:
+  # schedule:
+  #   - cron: '0 2 * * *'  # Daily at 2 AM UTC (8 PM CST)
+  push:
+    branches: [master]
+    tags: ["*"]
+  pull_request:
+jobs:
+  test:
+    name: Julia ${{ matrix.version }} - ${{ matrix.os }} - ${{ matrix.arch }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        version:
+          - "1.0"  # LTS
+          - "1"    # Latest Release
+        os:
+          - ubuntu-latest
+          - macOS-latest
+          - windows-latest
+        arch:
+          - x64
+          - x86
+        exclude:
+          # Test 32-bit only on Linux
+          - os: macOS-latest
+            arch: x86
+          - os: windows-latest
+            arch: x86
+        include:
+          # Add a 1.5 job because that's what Invenia actually uses
+          - os: ubuntu-latest
+            version: 1.5
+            arch: x64
+    steps:
+      - uses: actions/checkout@v2
+      - uses: julia-actions/setup-julia@v1
+        with:
+          version: ${{ matrix.version }}
+          arch: ${{ matrix.arch }}
+      - uses: actions/cache@v2
+        env:
+          cache-name: cache-artifacts
+        with:
+          path: ~/.julia/artifacts
+          key: ${{ runner.os }}-${{ matrix.arch }}-test-${{ env.cache-name }}-${{ hashFiles('**/Project.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.arch }}-test-${{ env.cache-name }}-
+            ${{ runner.os }}-${{ matrix.arch }}-test-
+            ${{ runner.os }}-${{ matrix.arch }}-
+            ${{ runner.os }}-
+      - uses: julia-actions/julia-buildpkg@latest
+      - run: |
+          git config --global user.name Tester
+          git config --global user.email te@st.er
+      - uses: julia-actions/julia-runtest@latest
+      - uses: julia-actions/julia-processcoverage@v1
+      - uses: codecov/codecov-action@v1
+        with:
+          file: lcov.info
+
+  # slack:
+  #   name: Notify Slack Failure
+  #   needs: test
+  #   runs-on: ubuntu-latest
+  #   if: always() && github.event_name == 'schedule'
+  #   steps:
+  #     - uses: technote-space/workflow-conclusion-action@v2
+  #     - uses: voxmedia/github-action-slack-notify-build@v1
+  #       if: env.WORKFLOW_CONCLUSION == 'failure'
+  #       with:
+  #         channel: nightly-dev
+  #         status: FAILED
+  #         color: danger
+  #       env:
+  #         SLACK_BOT_TOKEN: ${{ secrets.DEV_SLACK_BOT_TOKEN }}
+
+  docs:
+    name: Documentation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: julia-actions/setup-julia@v1
+        with:
+          version: '1'
+      - run: |
+          git config --global user.name name
+          git config --global user.email email
+          git config --global github.user username
+      - run: |
+          julia --project=docs -e '
+            using Pkg
+            Pkg.develop(PackageSpec(path=pwd()))
+            Pkg.instantiate()'
+      - run: |
+          julia --project=docs -e '
+            using Documenter: doctest
+            using PkgTemplates
+            doctest(PkgTemplates)'
+      - run: julia --project=docs docs/make.jl
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
+
+# # This is a basic workflow to help you get started with Actions
+
+# name: Unit Test
+
+# # Controls when the action will run.
+# on:
+#   # Triggers the workflow on push or pull request events but only for the master branch
+#   push:
+#     branches: [ master ]
+#   pull_request:
+#     branches: [ master ]
+
+#   # Allows you to run this workflow manually from the Actions tab
+#   workflow_dispatch:
+
+# # A workflow run is made up of one or more jobs that can run sequentially or in parallel
+# jobs:
+#   # This workflow contains a single job called "build"
+#   build:
+#     # The type of runner that the job will run on
+#     # runs-on: ubuntu-latest
+#     strategy:
+#       matrix:
+#         julia: [1.5, latest]
+#     # Steps represent a sequence of tasks that will be executed as part of the job
+#     steps:
+#       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+#       - uses: actions/checkout@v2
+
+#       # Runs a single command using the runners shell
+#       - name: Run a one-line script
+#         run: echo Hello, world!
+
+#       # Runs a set of commands using the runners shell
+#       - name: Run a multi-line script
+#         run: |
+#           echo Add other actions to build,
+#           echo test, and deploy your project.
+
+
+# name: Python package
+
+# on: [push]
+
+# jobs:
+#   build:
+
+#     runs-on: ubuntu-latest
+#     strategy:
+#       matrix:
+#         python-version: [2.7, 3.5, 3.6, 3.7, 3.8]
+
+#     steps:
+#     - uses: actions/checkout@v2
+#     - name: Set up Python ${{ matrix.python-version }}
+#       uses: actions/setup-python@v2
+#       with:
+#         python-version: ${{ matrix.python-version }}
+#     - name: Install dependencies
+#       run: |
+#         python -m pip install --upgrade pip
+#         pip install flake8 pytest
+#         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+#     - name: Lint with flake8
+#       run: |
+#         # stop the build if there are Python syntax errors or undefined names
+#         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+#         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+#         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+#     - name: Test with pytest
+#       run: |
+#         pytest
