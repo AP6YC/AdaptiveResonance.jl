@@ -24,7 +24,7 @@ jobs:
         arch:
           - x64
           # - x86
-        exclude:
+        # exclude:
           # Test 32-bit only on Linux
           # - os: macOS-latest
           #   arch: x86
