@@ -43,6 +43,7 @@ export
     contrast_sensitive_oriented_filtering,
     contrast_insensitive_oriented_filtering,
     orientation_competition,
-    patch_orientation_color
+    patch_orientation_color,
+    artscene_filter
 
 end # module
