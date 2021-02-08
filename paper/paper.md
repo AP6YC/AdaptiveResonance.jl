@@ -5,10 +5,10 @@ tags:
   - Adaptive Resonance Theory
   - neural networks
 authors:
-  - name: Adrian M. Price-Whelan^[Custom footnotes for e.g. denoting who the corresponding author is can be included like this.]
+  - name: Sasha Petrenko^[Missouri University of Science and Technology]
     orcid: 0000-0003-2442-8901
 date: 8 February 2021
-bibliography: paper/paper.bib
+bibliography: paper.bib
 ---
 
 # Summary

@@ -39,6 +39,13 @@ jobs:
       # Set this to download test data outside of repo
       DATADEPS_ALWAYS_ACCEPT: true
     steps:
+      # Cancel ongoing tests if pushing to branch again before the previous
+      # build is finished.
+      - name: Cancel ongoing tests for previous commits
+        uses: styfle/cancel-workflow-action@0.6.0
+        with:
+          access_token: ${{ github.token }}
+
       - uses: actions/checkout@v2
       - uses: julia-actions/setup-julia@v1
         with:

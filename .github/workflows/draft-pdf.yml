@@ -5,6 +5,13 @@ jobs:
     runs-on: ubuntu-latest
     name: Paper Draft
     steps:
+      # Cancel ongoing build if pushing to branch again before the previous
+      # build is finished.
+      - name: Cancel ongoing build for previous commits
+        uses: styfle/cancel-workflow-action@0.6.0
+        with:
+          access_token: ${{ github.token }}
+
       - name: Checkout
         uses: actions/checkout@v2
       - name: Build draft PDF
