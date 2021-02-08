@@ -8,7 +8,7 @@ authors:
   - name: Adrian M. Price-Whelan^[Custom footnotes for e.g. denoting who the corresponding author is can be included like this.]
     orcid: 0000-0003-2442-8901
 date: 8 February 2021
-bibliography: paper.bib
+bibliography: paper/paper.bib
 ---
 
 # Summary
