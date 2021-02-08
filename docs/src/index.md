@@ -12,24 +12,8 @@ See the [Index](@ref main-index) for the complete list of documented functions a
 Pages = [
     "man/guide.md",
     "man/examples.md",
-    "man/syntax.md",
-    "man/contributing.md"
+    "man/contributing.md",
+    "man/full-index.md",
 ]
 Depth = 1
-```
-
-## Library Outline
-
-```@contents
-Pages = ["lib/public.md", "lib/internals.md"]
-```
-
-### [Index](@id main-index)
-
-```@index
-Pages = ["lib/public.md"]
-```
-
-```@autodocs
-Modules = [AdaptiveResonance]
 ```

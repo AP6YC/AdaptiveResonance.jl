@@ -1,2 +1,4 @@
 [deps]
+AdaptiveResonance = "3d72adc0-63d3-4141-bf9b-84450dd0395b"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+LiveServer = "16fef848-5104-11e9-1b77-fb7a48bbb589"

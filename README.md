@@ -5,6 +5,10 @@ A Julialang package for Adaptive Resonance Theory (ART) algorithms.
 | **Documentation**  | **Build Status** | **Coverage** |
 |:------------------:|:----------------:|:------------:|
 | [![Stable][docs-stable-img]][docs-stable-url] [![Dev][docs-dev-img]][docs-dev-url] | [![Build Status][ci-img]][ci-url] [![Build Status][appveyor-img]][appveyor-url] | [![Codecov][codecov-img]][codecov-url] [![Coveralls][coveralls-img]][coveralls-url] |
+
+| **Dependents** | **Date** | **Status** |
+|:--------------:|:--------:|:----------:|
+| [![deps](https://juliahub.com/docs/AdaptiveResonance/deps.svg)](https://juliahub.com/ui/Packages/AdaptiveResonance/Sm0We?t=2) | [![version](https://juliahub.com/docs/AdaptiveResonance/version.svg)](https://juliahub.com/ui/Packages/AdaptiveResonance/Sm0We) | [![pkgeval](https://juliahub.com/docs/AdaptiveResonance/pkgeval.svg)](https://juliahub.com/ui/Packages/AdaptiveResonance/Sm0We) |
 <!-- | [![Stable][docs-stable-img]][docs-stable-url] [![Dev][docs-dev-img]][docs-dev-url] | [![Build Status][travis-img]][travis-url] [![Build Status][appveyor-img]][appveyor-url] | [![Codecov][codecov-img]][codecov-url] [![Coveralls][coveralls-img]][coveralls-url] | -->
 
 [docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg

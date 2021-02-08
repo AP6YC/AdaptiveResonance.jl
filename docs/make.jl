@@ -4,9 +4,15 @@ makedocs(
     modules=[AdaptiveResonance],
     format=Documenter.HTML(prettyurls = get(ENV, "CI", nothing) == "true"),
     # format=Documenter.HTML(),
-    # pages=[
-    #     "Home" => "index.md",
-    # ],
+    pages=[
+        "Home" => "index.md",
+        "Tutorial" => [
+            "Guide" => "man/guide.md",
+            "Examples" => "man/examples.md",
+            "Contributing" => "man/contributing.md",
+            "Index" => "man/full-index.md"
+        ]
+    ],
     repo="https://github.com/AP6YC/AdaptiveResonance.jl/blob/{commit}{path}#L{line}",
     sitename="AdaptiveResonance.jl",
     authors="Sasha Petrenko",
