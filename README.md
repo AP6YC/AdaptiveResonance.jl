@@ -1,6 +1,6 @@
 # AdaptiveResonance
 
-A Julialang package for adaptive resonance theory (ART) algorithms.
+A Julialang package for Adaptive Resonance Theory (ART) algorithms.
 
 | **Documentation**  | **Build Status** | **Coverage** |
 |:------------------:|:----------------:|:------------:|
@@ -32,13 +32,13 @@ A Julialang package for adaptive resonance theory (ART) algorithms.
 [discourse-tag-url]: https://discourse.julialang.org/tags/documenter
 [gitter-url]: https://gitter.im/juliadocs/users
 
-
-This package is developed and maintained by [Sasha Petrenko](https://github.com/AP6YC) with sponsorship by the [Applied Computationa Intelligence Laboratory (ACIL)](https://acil.mst.edu/). This project is supported from grants with the [Night Vision Electronic Sensors Directorate](https://c5isr.ccdc.army.mil/inside_c5isr_center/nvesd/), the [DARPA Lifelong Learning Machines (L2M) program](https://www.darpa.mil/program/lifelong-learning-machines), and [Teledyne Technologies](http://www.teledyne.com/).
+This package is developed and maintained by [Sasha Petrenko](https://github.com/AP6YC) with sponsorship by the [Applied Computational Intelligence Laboratory (ACIL)](https://acil.mst.edu/). This project is supported from grants with the [Night Vision Electronic Sensors Directorate](https://c5isr.ccdc.army.mil/inside_c5isr_center/nvesd/), the [DARPA Lifelong Learning Machines (L2M) program](https://www.darpa.mil/program/lifelong-learning-machines), and [Teledyne Technologies](http://www.teledyne.com/).
 
 ## Contents
 
 - [AdaptiveResonance](#adaptiveresonance)
   - [Contents](#contents)
+  - [Overview](#overview)
   - [Structure](#structure)
   - [Contributing](#contributing)
   - [History](#history)
@@ -48,15 +48,25 @@ This package is developed and maintained by [Sasha Petrenko](https://github.com/
     - [Datasets](#datasets)
   - [License](#license)
 
+## Overview
+
+This project is a [JuliaHub](https://juliahub.com/) project
+
+```julia
+] add AdaptiveResonance
+```
+
 ## Structure
 
 The following file-tree summarizes the project structure:
 
 ```console
 AdaptiveResonance
+├── .github                 // GitHub: workflows for testing and documentation.
 ├── data                    // Data: CI data location.
 ├── docs                    // Docs: documentation for the module.
 │   └───src                 //      Documentation source files.
+├── examples                // Source: example usage scripts.
 ├── src                     // Source: majority of source code.
 ├── test                    // Test: Unit, integration, and environment tests.
 ├── .appveyor               // Appveyor: Windows-specific coverage.
@@ -75,6 +85,7 @@ Please raise an [issue][issues-url].
 
 - 7/10/2020 - Begin project.
 - 11/3/2020 - Complete baseline modules and tests.
+- 2/8/2021 - Formalize usage documentation.
 
 ## Credits
 
@@ -84,7 +95,9 @@ Please raise an [issue][issues-url].
 
 ### Software
 
-The code in this repository is inspired by and occasionally leverages the following repositories:
+Adaptive Resonance Theory has been developed in theory and in application by many research groups since the theory's conception, and so this project was not developed in a vacuum.
+This project itself is built upon the wisdom and precedent of decades of previous work in ART in a variety of programming languages.
+The code in this repository is inspired the following repositories:
 
 - [ACIL Organization GitHub](https://github.com/ACIL-Group)
   - MATLAB
@@ -97,6 +110,11 @@ The code in this repository is inspired by and occasionally leverages the follow
   - Python
     - [NuART-Py](https://github.com/ACIL-Group/NuART-Py): An internal ACIL python package for ART neural networks.
     - [DVHA](https://github.com/ACIL-Group/DVHA): An python implementation of dual vigilance hypersphere ART.
+- [Boston University's Cognitive and Neural Systems (CNS) Tech Lab](http://techlab.bu.edu/resources/software/C51.html)
+- [Nanyang Technological University's Tan Ah Whee](ntu.edu.sg/home/asahtan/downloads.htm)
+- [Bernabé Linares-Barranco](http://www2.imse-cnm.csic.es/~bernabe)
+- [Marko Tscherepanow's LibTopoART](libtopoart.eu)
+- [National University of Singapore's Lei Meng](https://github.com/Lei-Meng)
 
 ### Datasets
 
@@ -115,12 +133,3 @@ http://cs.uef.fi/sipu/datasets
 ## License
 
 This software is openly maintained by the ACIL of the Missouri University of Science and Technology under the [MIT License](LICENSE).
-
-<!--Old CI token code:
-
-[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://AP6YC.github.io/AdaptiveResonance.jl/stable)
-[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://AP6YC.github.io/AdaptiveResonance.jl/dev)
-[![Build Status](https://travis-ci.com/AP6YC/AdaptiveResonance.jl.svg?branch=master)](https://travis-ci.com/AP6YC/AdaptiveResonance.jl)
-[![Build Status](https://ci.appveyor.com/api/projects/status/github/AP6YC/AdaptiveResonance.jl?svg=true)](https://ci.appveyor.com/project/AP6YC/AdaptiveResonance-jl)
-[![Codecov](https://codecov.io/gh/AP6YC/AdaptiveResonance.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/AP6YC/AdaptiveResonance.jl)
-[![Coveralls](https://coveralls.io/repos/github/AP6YC/AdaptiveResonance.jl/badge.svg?branch=master)](https://coveralls.io/github/AP6YC/AdaptiveResonance.jl?branch=master) -->
