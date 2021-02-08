@@ -1,3 +1,4 @@
+---
 title: 'AdaptiveResonance: A Julia implementation of Adaptive Resonance Theory (ART) algorithms'
 tags:
   - Julia
