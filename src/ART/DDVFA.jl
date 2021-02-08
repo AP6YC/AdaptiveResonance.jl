@@ -1,10 +1,3 @@
-# using Logging
-# using Parameters
-# using Statistics
-# using LinearAlgebra
-# using ProgressBars
-# using Printf
-
 """
     opts_GNFA()
 
@@ -39,7 +32,7 @@ Initialized GNFA
 end # opts_GNFA
 
 """
-    GNFA
+    GNFA <: AbstractART
 
 Gamma-Normalized Fuzzy ART learner struct
 
@@ -60,6 +53,7 @@ mutable struct GNFA <: AbstractART
     labels::Array{Int, 1}
     T::Array{Float64, 1}
     M::Array{Float64, 1}
+
     # "Private" working variables
     W::Array{Float64, 2}
     W_old::Array{Float64, 2}
@@ -89,7 +83,7 @@ function GNFA()
 end # GNFA()
 
 """
-    GNFA(opts)
+    GNFA(opts::opts_GNFA)
 
 Implements a Gamma-Normalized Fuzzy ART learner with specified options.
 
@@ -101,7 +95,7 @@ GNFA
     ...
 ```
 """
-function GNFA(opts)
+function GNFA(opts::opts_GNFA)
     GNFA(opts,                          # opts
          0,                             # threshold
          Array{Int}(undef,0),           # labels
@@ -118,7 +112,7 @@ function GNFA(opts)
 end # GNFA(opts)
 
 """
-    initialize!()
+    initialize!(art::GNFA, x::Array)
 
 Initializes a GNFA learner with an intial sample 'x'
 
@@ -146,7 +140,7 @@ function initialize!(art::GNFA, x::Array)
 end # initialize!(GNFA, x)
 
 """
-    train!()
+    train!(art::GNFA, x::Array ; y::Array=[])
 
 Trains a GNFA learner with dataset 'x' and optional labels 'y'
 
@@ -305,7 +299,7 @@ end # classify(GNFA, x)
 """
     activation_match!(art::GNFA, x::Array)
 
-Computes the activationa and match functions of the art module against sample x.
+Computes the activation and match functions of the art module against sample x.
 
 # Examples
 ```julia-repl
@@ -337,10 +331,10 @@ Return the modified weight of the art module conditioned by sample x.
 function learn(art::GNFA, x::Array, W::Array)
     # Update W
     return art.opts.beta .* element_min(x, W) .+ W .* (1 - art.opts.beta)
-end # learn(GNFA, x, W)
+end # learn(art::GNFA, x::Array, W::Array)
 
 """
-    learn(art::GNFA, x::Array, W::Array)
+    learn!(art::GNFA, x::Array, index::Int)
 
 In place learning function with instance counting.
 """
@@ -348,7 +342,7 @@ function learn!(art::GNFA, x::Array, index::Int)
     # Update W
     art.W[:, index] = learn(art, x, art.W[:, index])
     art.n_instance[index] += 1
-end # learn!(GNFA, x, index)
+end # learn!(art::GNFA, x::Array, index::Int)
 
 """
     stopping_conditions(art::GNFA)
@@ -357,7 +351,7 @@ Stopping conditions for a GNFA module.
 """
 function stopping_conditions(art::GNFA)
     return isequal(art.W, art.W_old) || art.epoch >= art.opts.max_epochs
-end # stopping_conditions(GNFA)
+end # stopping_conditions(art::GNFA)
 
 """
     opts_DDVFA()
@@ -395,7 +389,7 @@ Initialized opts_DDVFA
 end # opts_DDVFA
 
 """
-    DDVFA
+    DDVFA <: AbstractART
 
 Distributed Dual Vigilance Fuzzy ARTMAP module struct.
 
@@ -429,7 +423,7 @@ end # DDVFA
 """
     DDVFA()
 
-Implements a DDVFA learner.
+Implements a DDVFA learner with default options.
 
 # Examples
 ```julia-repl
@@ -477,7 +471,7 @@ function DDVFA(opts::opts_DDVFA)
 end # DDVFA(opts)
 
 """
-    train!(ddvfa, data)
+    train!(art::DDVFA, x::Array ; preprocessed=false)
 
 Train the DDVFA model on the data.
 """
@@ -564,14 +558,14 @@ function train!(art::DDVFA, x::Array ; preprocessed=false)
         end
         art.W_old = deepcopy(art.W)
     end
-end # train!(DDVFA, x)
+end # train!(art::DDVFA, x::Array ; preprocessed=false)
 
 """
     stopping_conditions(art::DDVFA)
 
-Stopping conditions for Distributed Dual Vigilance Fuzzy ARTMAP. Returns true
-if there is no change in weights during the epoch or the maxmimum epochs has
-been reached.
+Stopping conditions for Distributed Dual Vigilance Fuzzy ARTMAP.
+
+Returns true if there is no change in weights during the epoch or the maxmimum epochs has been reached.
 """
 function stopping_conditions(art::DDVFA)
     # Compute the stopping condition, return a bool
@@ -579,12 +573,12 @@ function stopping_conditions(art::DDVFA)
 end # stopping_conditions(DDVFA)
 
 """
-    similarity(method, F2, field_name, gamma_ref)
+    similarity(method::String, F2::GNFA, field_name::String, sample::Array, gamma_ref::Real)
 
 Compute the similarity metric depending on method with explicit comparisons
 for the field name.
 """
-function similarity(method::String, F2::GNFA, field_name::String, sample::Array, gamma_ref::AbstractFloat)
+function similarity(method::String, F2::GNFA, field_name::String, sample::Array, gamma_ref::Real)
     @debug "Computing similarity"
 
     if field_name != "T" && field_name != "M"
@@ -638,10 +632,10 @@ function similarity(method::String, F2::GNFA, field_name::String, sample::Array,
     else
         error("Invalid/unimplemented similarity method")
     end
-end # similarity
+end # similarity(method::String, F2::GNFA, field_name::String, sample::Array, gamma_ref::Real)
 
 """
-    classify(art::DDVFA, x::Array)
+    classify(art::DDVFA, x::Array ; preprocessed=false)
 
 Predict categories of 'x' using the DDVFA model.
 
@@ -704,4 +698,4 @@ function classify(art::DDVFA, x::Array ; preprocessed=false)
     end
 
     return y_hat
-end
+end # classify(art::DDVFA, x::Array ; preprocessed=false)

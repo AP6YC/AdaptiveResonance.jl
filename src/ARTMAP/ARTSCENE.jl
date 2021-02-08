@@ -21,7 +21,7 @@ function color_to_gray(image::Array)
     dim, n_row, n_column = size(image)
     return [sum(image[:,i,j])/3 for i=1:n_row, j=1:n_column]
     # return Gray.(image)
-end
+end # color_to_gray(image::Array)
 
 """
     surround_kernel(i::Int, j::Int, p::Int, q::Int, scale::Int)
@@ -30,7 +30,7 @@ Surround kernel S function for ARTSCENE Stage 2
 """
 function surround_kernel(i::Int, j::Int, p::Int, q::Int, scale::Int)
     return 1/(2*pi*scale^2)*MathConstants.e^(-((i-p)^2 + (j-q)^2)/(2*scale^2))
-end
+end # surround_kernel(i::Int, j::Int, p::Int, q::Int, scale::Int)
 
 """
     ddt_x(x::Array, image::Array, sigma_s::Array, distributed::Bool)
@@ -61,7 +61,7 @@ function ddt_x(x::Array, image::Array, sigma_s::Array, distributed::Bool)
         end
     end
     return dx
-end
+end # ddt_x(x::Array, image::Array, sigma_s::Array, distributed::Bool)
 
 """
     contrast_normalization(image::Array ; distributed::Bool=true)
@@ -88,7 +88,7 @@ function contrast_normalization(image::Array ; distributed::Bool=true)
     end
 
     return x
-end
+end # contrast_normalization(image::Array ; distributed::Bool=true)
 
 """
     oriented_kernel(i::Int, j::Int, p::Int, q::Int, k::Int, sigma_h::Real, sigma_v::Real ; sign::String="plus")
@@ -112,7 +112,7 @@ function oriented_kernel(i::Int, j::Int, p::Int, q::Int, k::Int, sigma_h::Real, 
     end
 
     return G
-end
+end # oriented_kernel(i::Int, j::Int, p::Int, q::Int, k::Int, sigma_h::Real, sigma_v::Real ; sign::String="plus")
 
 """
     ddt_y(y::Array, X_plus::Array, X_minus::Array, alpha::Real, distributed::Bool)
@@ -154,7 +154,7 @@ function ddt_y(y::Array, X_plus::Array, X_minus::Array, alpha::Real, distributed
         end
     end
     return dy
-end
+end # ddt_y(y::Array, X_plus::Array, X_minus::Array, alpha::Real, distributed::Bool)
 
 """
     contrast_sensitive_oriented_filtering(image::Array, x::Array ; distributed::Bool=true)
@@ -187,7 +187,7 @@ function contrast_sensitive_oriented_filtering(image::Array, x::Array ; distribu
     end
 
     return y
-end
+end # contrast_sensitive_oriented_filtering(image::Array, x::Array ; distributed::Bool=true)
 
 """
     contrast_insensitive_oriented_filtering(y::Array)
@@ -202,7 +202,7 @@ function contrast_insensitive_oriented_filtering(y::Array)
     Y_minus = [max(0, -y[i,j,g,k]) for i=1:n_row, j=1:n_column, g=1:n_g, k=1:n_k]
 
     return Y_plus + Y_minus
-end
+end # contrast_insensitive_oriented_filtering(y::Array)
 
 """
     competition_kernel(l::Int, k::Int ; sign::String="plus")
@@ -220,10 +220,10 @@ function competition_kernel(l::Int, k::Int ; sign::String="plus")
     end
 
     return g
-end
+end # competition_kernel(l::Int, k::Int ; sign::String="plus")
 
 """
-    ddt_z(z::Array)
+    ddt_z(z::Array ; distributed=true)
 
 Time rate of change for ARTSCENE: Stage 5.
 """
@@ -251,9 +251,8 @@ function ddt_z(z::Array ; distributed=true)
     end
 
     return dz
-end
+end # ddt_z(z::Array ; distributed=true)
 
-# Stage 5: Orientation competition at the same position
 """
     orientation_competition(z::Array)
 
@@ -313,9 +312,14 @@ function patch_orientation_color(z::Array, image::Array)
         end
     end
     return O, C
-end
+end # patch_orientation_color(z::Array, image::Array)
 
-function artscene_filter(raw_image ;  distributed=true)
+"""
+    artscene_filter(raw_image::Array ;  distributed=true)
+
+Process the full artscene filter toolchain on an image.
+"""
+function artscene_filter(raw_image::Array ;  distributed=true)
     # Set the logging level to Info
     # LogLevel(Logging.Info)
     n_processes = nprocs()
@@ -368,4 +372,4 @@ function artscene_filter(raw_image ;  distributed=true)
     @info "Stage 6: Done"
 
     return O, C
-end
+end # artscene_filter(raw_image::Array ;  distributed=true)

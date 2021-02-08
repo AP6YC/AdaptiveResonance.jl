@@ -87,7 +87,7 @@ function SFAM(opts::opts_SFAM)
 end
 
 """
-    train(art::SFAM, x, y)
+    train(art::SFAM, x::Array, y::Array ; preprocessed=false)
 
 Trains a Simple Fuzzy ARTMAP learner in a supervised manner.
 
@@ -191,7 +191,7 @@ function train!(art::SFAM, x::Array, y::Array ; preprocessed=false)
 end
 
 """
-    classify(art::SFAM, x)
+    classify(art::SFAM, x::Array ; preprocessed=false)
 
 Categorize data 'x' using a trained Simple Fuzzy ARTMAP module 'art'.
 
@@ -267,7 +267,7 @@ function stopping_conditions(art::SFAM)
 end
 
 """
-    learn(art::SFAM, x, W)
+    learn(art::SFAM, x::Array, W::Array)
 
 Returns a single updated weight for the Simple Fuzzy ARTMAP module for weight
 vector W and sample x.
@@ -278,7 +278,7 @@ function learn(art::SFAM, x::Array, W::Array)
 end
 
 """
-    activation(art::SFAM, x, W)
+    activation(art::SFAM, x::Array, W::Array)
 
 Returns the activation value of the Simple Fuzzy ARTMAP module with weight W
 and sample x.
@@ -289,7 +289,7 @@ function activation(art::SFAM, x::Array, W::Array)
 end
 
 """
-    art_match(art::SFAM, x, W)
+    art_match(art::SFAM, x::Array, W::Array)
 
 Returns the match function for the Simple Fuzzy ARTMAP module with weight W and
 sample x.
