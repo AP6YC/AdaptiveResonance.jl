@@ -1,6 +1,6 @@
 # AdaptiveResonance
 
-A Julialang package for Adaptive Resonance Theory (ART) algorithms.
+A Julia package for Adaptive Resonance Theory (ART) algorithms.
 
 | **Documentation**  | **Build Status** | **Coverage** |
 |:------------------:|:----------------:|:------------:|
@@ -36,13 +36,17 @@ A Julialang package for Adaptive Resonance Theory (ART) algorithms.
 [discourse-tag-url]: https://discourse.julialang.org/tags/documenter
 [gitter-url]: https://gitter.im/juliadocs/users
 
-This package is developed and maintained by [Sasha Petrenko](https://github.com/AP6YC) with sponsorship by the [Applied Computational Intelligence Laboratory (ACIL)](https://acil.mst.edu/). This project is supported from grants with the [Night Vision Electronic Sensors Directorate](https://c5isr.ccdc.army.mil/inside_c5isr_center/nvesd/), the [DARPA Lifelong Learning Machines (L2M) program](https://www.darpa.mil/program/lifelong-learning-machines), and [Teledyne Technologies](http://www.teledyne.com/).
+This package is developed and maintained by [Sasha Petrenko](https://github.com/AP6YC) with sponsorship by the [Applied Computational Intelligence Laboratory (ACIL)](https://acil.mst.edu/). This project is supported by grants from the [Night Vision Electronic Sensors Directorate](https://c5isr.ccdc.army.mil/inside_c5isr_center/nvesd/), the [DARPA Lifelong Learning Machines (L2M) program](https://www.darpa.mil/program/lifelong-learning-machines), [Teledyne Technologies](http://www.teledyne.com/), and the [National Science Foundation](https://www.nsf.gov/).
+The material, findings, and conclusions here do not necessarily reflect the views of these entities.
+
+Please read the [documentation](https://ap6yc.github.io/AdaptiveResonance.jl/dev/) for detailed usage and tutorials.
 
 ## Contents
 
 - [AdaptiveResonance](#adaptiveresonance)
   - [Contents](#contents)
   - [Overview](#overview)
+  - [Installation](#installation)
   - [Structure](#structure)
   - [Contributing](#contributing)
   - [History](#history)
@@ -54,24 +58,49 @@ This package is developed and maintained by [Sasha Petrenko](https://github.com/
 
 ## Overview
 
-This project is a [JuliaHub](https://juliahub.com/) project
+Adaptive Resonance Theory (ART) is a neurocognitive theory of how recurrent cellular networks can learn distributed patterns without supervision.
+As a theory, it provides coherent and consistent explanations of how real neural networks learn patterns through competition, and it predicts the phenomena of attention and expectation as central to learning.
+In engineering, the theory has been applied to a myriad of algorithmic models for unsupervised machine learning, though it has been extended to supervised and reinforcement learning frameworks.
+This package provides implementations of many of these algorithms in Julia for both scientific research and engineering applications.
+A quickstart is provided in [Installation](#Installation), while detailed usage and examples are provided in the [documentation](https://ap6yc.github.io/AdaptiveResonance.jl/dev/).
+
+## Installation
+
+This project is distributed as a Julia package, available on [JuliaHub](https://juliahub.com/).
+Its usage follows the usual Julia package installation procedure, interactively:
 
 ```julia
 ] add AdaptiveResonance
 ```
 
+or programmatically:
+
+```julia
+using Pkg
+Pkg.add("AdaptiveResonance")
+```
+
+You may also add the package directly from GitHub to get the latest changes:
+
+```julia
+] add https://github.com/AP6YC/AdaptiveResonance.jl
+```
+
 ## Structure
 
-The following file-tree summarizes the project structure:
+The following file tree summarizes the project structure:
 
 ```console
 AdaptiveResonance
-├── .github                 // GitHub: workflows for testing and documentation.
+├── .github/workflows       // GitHub: workflows for testing and documentation.
 ├── data                    // Data: CI data location.
 ├── docs                    // Docs: documentation for the module.
 │   └───src                 //      Documentation source files.
 ├── examples                // Source: example usage scripts.
 ├── src                     // Source: majority of source code.
+│   ├───ART                 //      ART-based unsupervised modules.
+│   ├───ARTMAP              //      ARTMAP-based supervised modules.
+│   └───CVI                 //      Cluster validity indices.
 ├── test                    // Test: Unit, integration, and environment tests.
 ├── .appveyor               // Appveyor: Windows-specific coverage.
 ├── .gitignore              // Git: .gitignore for the whole project.
@@ -121,6 +150,8 @@ The code in this repository is inspired the following repositories:
 - [National University of Singapore's Lei Meng](https://github.com/Lei-Meng)
 
 ### Datasets
+
+Boilerplate clustering datasets are periodically used to test, verify, and provide example of the functionality of the package.
 
 1. UCI machine learning repository:
 http://archive.ics.uci.edu/ml

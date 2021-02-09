@@ -14,7 +14,12 @@ bibliography: paper.bib
 
 # Summary
 
-The forces on stars, galaxies, and dark matter under external gravitational
+AdaptiveResonance is a library for machine learning with Adaptive Resonance Theory (ART) algorithms, written in the numerical computing language Julia.
+ART is a neurocognitive theory of how competitive cellular networks can learn distributed patterns without supervision through recurrent field connections, eliciting the mechanisms of perception, expectation, and recognition [@Grossberg2013; @Grossberg1980].
+
+TODO
+
+<!-- The forces on stars, galaxies, and dark matter under external gravitational
 fields lead to the dynamical evolution of structures in the universe. The orbits
 of these bodies are therefore key to understanding the formation, history, and
 future state of galaxies. The field of "galactic dynamics," which aims to model
@@ -22,11 +27,16 @@ the gravitating components of galaxies to study their structure and evolution,
 is now well-established, commonly taught, and frequently used in astronomy.
 Aside from toy problems and demonstrations, the majority of problems require
 efficient numerical tools, many of which require the same base code (e.g., for
-performing numerical orbit integration).
+performing numerical orbit integration). -->
 
 # Statement of need
 
-`Gala` is an Astropy-affiliated Python package for galactic dynamics. Python
+There exist many variations of algorithms built upon ART [@DaSilva2019].
+Each variation is related by utilizing recurrent connections of fields, driven by learning through match and mismatch of distributed patterns, but they all differ in the specificities of their implementations.
+
+TODO
+
+<!-- `Gala` is an Astropy-affiliated Python package for galactic dynamics. Python
 enables wrapping low-level languages (e.g., C) for speed without losing
 flexibility or ease-of-use in the user-interface. The API for `Gala` was
 designed to provide a class-based and user-friendly interface to fast (C or
@@ -44,11 +54,11 @@ used in graduate courses on Galactic dynamics to, e.g., provide interactive
 visualizations of textbook material [@Binney:2008]. The combination of speed,
 design, and support for Astropy functionality in `Gala` will enable exciting
 scientific explorations of forthcoming data releases from the *Gaia* mission
-[@gaia] by students and experts alike.
+[@gaia] by students and experts alike. -->
 
-# Mathematics
+<!-- # Mathematics -->
 
-Single dollars ($) are required for inline mathematics e.g. $f(x) = e^{\pi/x}$
+<!-- Single dollars ($) are required for inline mathematics e.g. $f(x) = e^{\pi/x}$
 
 Double dollars make self-standing equations:
 
@@ -61,11 +71,11 @@ You can also use plain \LaTeX for equations
 \begin{equation}\label{eq:fourier}
 \hat f(\omega) = \int_{-\infty}^{\infty} f(x) e^{i\omega x} dx
 \end{equation}
-and refer to \autoref{eq:fourier} from text.
+and refer to \autoref{eq:fourier} from text. -->
 
-# Citations
+<!-- # Citations -->
 
-Citations to entries in paper.bib should be in
+<!-- Citations to entries in paper.bib should be in
 [rMarkdown](http://rmarkdown.rstudio.com/authoring_bibliographies_and_citations.html)
 format.
 
@@ -75,20 +85,27 @@ citation) then you can do it with the example BibTeX entry below for @fidgit.
 For a quick reference, the following citation commands can be used:
 - `@author:2001`  ->  "Author et al. (2001)"
 - `[@author:2001]` -> "(Author et al., 2001)"
-- `[@author1:2001; @author2:2001]` -> "(Author1 et al., 2001; Author2 et al., 2002)"
+- `[@author1:2001; @author2:2001]` -> "(Author1 et al., 2001; Author2 et al., 2002)" -->
 
-# Figures
+<!-- # Figures
 
 Figures can be included like this:
 ![Caption for example figure.\label{fig:example}](../data/baboon.png)
 and referenced from text using \autoref{fig:example}.
 
 Figure sizes can be customized by adding an optional second parameter:
-![Caption for example figure.](../data/baboon.png){ width=20% }
+![Caption for example figure.](../data/baboon.png){ width=20% } -->
 
 # Acknowledgements
 
 We acknowledge contributions from Brigitta Sipocz, Syrtis Major, and Semyeong
 Oh, and support from Kathryn Johnston during the genesis of this project.
+
+This package is developed and maintained with sponsorship by the Applied Computational Intelligence Laboratory (ACIL) of the Missouri University of Science and Technology.
+This project is supported by grants from the Army Research Labs Night Vision Electronic Sensors Directorate (NVESD), the DARPA Lifelong Learning Machines (L2M) program, Teledyne Technologies, and the National Science Foundation.
+The material, findings, and conclusions here do not necessarily reflect the views of these entities.
+
+<!-- This package is developed and maintained by [Sasha Petrenko](https://github.com/AP6YC) with sponsorship by the [Applied Computational Intelligence Laboratory (ACIL)](https://acil.mst.edu/). This project is supported by grants from the [Night Vision Electronic Sensors Directorate](https://c5isr.ccdc.army.mil/inside_c5isr_center/nvesd/), the [DARPA Lifelong Learning Machines (L2M) program](https://www.darpa.mil/program/lifelong-learning-machines), [Teledyne Technologies](http://www.teledyne.com/), and the [National Science Foundation](https://www.nsf.gov/).
+The material, findings, and conclusions here do not necessarily reflect the views of these entities. -->
 
 # References

@@ -1,3 +1,9 @@
 # Contributing
 
-To contribute to the package, please create a [GitHub pull request](https://github.com/AP6YC/AdaptiveResonance.jl/pulls).
+To contribute to the package, please follow the usual branch pull request procedure:
+
+1. Fork the project.
+2. Create your feature branch (git checkout -b my-new-feature).
+3. Commit your changes (git commit -am 'Added some feature').
+4. Push to the branch (git push origin my-new-feature).
+5. Create a new [GitHub pull request](https://github.com/AP6YC/AdaptiveResonance.jl/pulls).
