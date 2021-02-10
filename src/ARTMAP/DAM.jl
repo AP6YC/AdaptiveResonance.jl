@@ -19,8 +19,7 @@ julia> my_opts = opts_DAM()
     beta = 1; @assert beta > 0 && beta <= 1
     # Display flag
     display::Bool = true
-    # shuffle::Bool = false
-    random_seed = 1234.5678
+
     max_epochs = 1
 end
 

@@ -21,8 +21,7 @@ julia> my_opts = opts_FAM()
     uncommitted::Bool = true
     # Display flag
     display::Bool = true
-    # shuffle::Bool = false
-    random_seed = 1234.5678
+
     max_epochs = 1
 end
 

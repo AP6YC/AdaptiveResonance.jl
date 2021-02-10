@@ -12,6 +12,57 @@ struct DataSplit
 end
 
 """
+    DataSplit(data_x::Array, data_y::Array, ratio::Float)
+
+Return a DataSplit struct that is split by the ratio (e.g. 0.8).
+"""
+function DataSplit(data_x::Array, data_y::Array, ratio::Real)
+    dim, n_data = size(data_x)
+    split_ind = Int(floor(n_data*ratio))
+
+    train_x = data_x[:, 1:split_ind]
+    test_x = data_x[:, split_ind+1:end]
+    train_y = data_y[1:split_ind]
+    test_y = data_y[split_ind+1:end]
+
+    return DataSplit(train_x, test_x, train_y, test_y)
+end
+
+"""
+    load_iris(data_path::String ; split_ratio::Real = 0.8)
+
+Loads the iris dataset for testing and examples.
+"""
+function load_iris(data_path::String ; split_ratio::Real = 0.8)
+    # data_path = "../data/Iris.csv"
+    raw_data = readdlm(data_path,',')
+    labels = ["Iris-setosa", "Iris-versicolor", "Iris-virginica"]
+    raw_x = raw_data[2:end, 2:5]
+    raw_y_labels = raw_data[2:end, 6]
+    raw_y = []
+    for ix = 1:length(raw_y_labels)
+        for jx = 1:length(labels)
+            if raw_y_labels[ix] == labels[jx]
+                push!(raw_y, jx)
+            end
+        end
+    end
+    n_samples, n_features = size(raw_x)
+
+    # Julia is column-major, use columns for features
+    raw_x = permutedims(raw_x)
+
+    # Shuffle the data and targets
+    ind_shuffle = Random.randperm(n_samples)
+    x = raw_x[:, ind_shuffle]
+    y = raw_y[ind_shuffle]
+
+    data = DataSplit(x, y, split_ratio)
+
+    return data
+end
+
+"""
     load_am_data(N_train, N_test)
 
 Loads the ARTMAP test data, cutting off at N_train training data points and

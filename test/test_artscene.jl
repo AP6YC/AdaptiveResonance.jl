@@ -8,7 +8,8 @@ addprocs(4)
 
 Runs a random image through each artscene filter function with logging.
 """
-function artscene_filter_plumbing()
+# function artscene_filter_plumbing()
+@testset "ARTSCENE Filter Plumbing" begin
     # Set the logging level to Info
     LogLevel(Logging.Info)
     n_processes = nprocs()
@@ -77,7 +78,8 @@ end
 
 Runs the artscene user-level functions on a random image.
 """
-function artscene_filter_porcelain()
+# function artscene_filter_porcelain()
+@testset "ARTSCENE Filter Porcelain" begin
     # Set the logging level to Info
     LogLevel(Logging.Info)
     n_processes = nprocs()

@@ -26,8 +26,7 @@ Initialized GNFA
     method::String = "single"
     # Display flag
     display::Bool = true
-    # shuffle::Bool = false
-    random_seed = 1234.5678
+
     max_epochs = 1
 end # opts_GNFA
 
@@ -383,8 +382,7 @@ Initialized opts_DDVFA
     method::String = "single"
     # Display flag
     display::Bool = true
-    # shuffle::Bool = false
-    random_seed = 1234.5678
+
     max_epoch = 1
 end # opts_DDVFA
 
