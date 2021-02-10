@@ -15,7 +15,7 @@ abstract type AbstractART end
 abstract type AbstractCVI end
 
 # Include all files
-include("funcs.jl")
+include("common.jl")
 include("ARTMAP/ARTMAP.jl")
 include("ART/ART.jl")
 include("CVI/CVI.jl")

@@ -32,6 +32,7 @@ Simple Fuzzy ARTMAP struct.
 """
 mutable struct SFAM <: AbstractART
     opts::opts_SFAM
+    # config::DataConfig
     W::Array{Float64, 2}
     W_old::Array{Float64, 2}
     labels::Array{Int, 1}
@@ -155,7 +156,6 @@ function train!(art::SFAM, x::Array, y::Array ; preprocessed=false)
                 for jx in 1:art.n_categories
                     # Compute match function
                     M = art_match(art, x[:, ix], art.W[:, index[jx]])
-                    @debug M
                     # Current winner
                     if M >= rho_baseline
                         if y[ix] == art.labels[index[jx]]
@@ -208,7 +208,7 @@ julia> classify(art, x_test)
 """
 function classify(art::SFAM, x::Array ; preprocessed=false)
     if art.opts.display
-        @info "Testing DDVFA"
+        @info "Testing SFAM"
     end
     # Get the correct dimensionality and number of samples
     if ndims(x) > 1
@@ -238,7 +238,6 @@ function classify(art::SFAM, x::Array ; preprocessed=false)
         for jx in 1:art.n_categories
             # Compute match function
             M = art_match(art, x[:, ix], art.W[:, index[jx]])
-            @debug M
             # Current winner
             if M >= art.opts.rho
                 y_hat[ix] = art.labels[index[jx]]
@@ -247,7 +246,7 @@ function classify(art::SFAM, x::Array ; preprocessed=false)
             end
         end
         if mismatch_flag
-            # Create new weight vector
+            # Label as -1 if mismatched
             @debug "Mismatch"
             y_hat[ix] = -1
         end

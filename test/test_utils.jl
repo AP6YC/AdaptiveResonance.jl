@@ -39,7 +39,7 @@ function load_iris(data_path::String ; split_ratio::Real = 0.8)
     labels = ["Iris-setosa", "Iris-versicolor", "Iris-virginica"]
     raw_x = raw_data[2:end, 2:5]
     raw_y_labels = raw_data[2:end, 6]
-    raw_y = []
+    raw_y = Array{Int64}(undef, 0)
     for ix = 1:length(raw_y_labels)
         for jx = 1:length(labels)
             if raw_y_labels[ix] == labels[jx]
