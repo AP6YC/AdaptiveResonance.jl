@@ -30,6 +30,7 @@ Default ARTMAP struct.
 """
 mutable struct DAM <: AbstractART
     opts::opts_DAM
+    config::DataConfig
     W::Array{Float64, 2}
     W_old::Array{Float64, 2}
     labels::Array{Int, 1}
@@ -73,6 +74,7 @@ DAM
 """
 function DAM(opts::opts_DAM)
     DAM(opts,                       # opts_DAM
+        DataConfig(),               # config
         Array{Float64}(undef, 0,0), # W
         Array{Float64}(undef, 0,0), # W_old
         Array{Int}(undef, 0),       # labels
@@ -102,18 +104,29 @@ function train!(art::DAM, x::Array, y::Array ; preprocessed=false)
     if art.opts.display
         @info "Training DAM"
     end
-    # Get the correct dimensionality and number of samples
-    if ndims(x) > 1
-        art.dim, n_samples = size(x)
-    else
-        art.dim = 1
-        n_samples = length(x)
+    # # Get the correct dimensionality and number of samples
+    # if ndims(x) > 1
+    #     art.dim, n_samples = size(x)
+    # else
+    #     art.dim = 1
+    #     n_samples = length(x)
+    # end
+
+    # Data information and setup
+    _, n_samples = get_data_shape(x)
+
+    if !art.config.setup
+        data_setup!(art.config, x)
+    end
+
+    if !preprocessed
+        x = complement_code(x, art.config)
     end
 
     art.y = zeros(Int, n_samples)
-    if !preprocessed
-        x = complement_code(x)
-    end
+    # if !preprocessed
+    #     x = complement_code(x)
+    # end
     art.epoch = 0
 
     # Convenient semantic flag
@@ -127,8 +140,8 @@ function train!(art::DAM, x::Array, y::Array ; preprocessed=false)
             if !(y[ix] in art.labels)
                 # Initialize W and labels
                 if isempty(art.W)
-                    art.W = Array{Float64}(undef, art.dim*2, 1)
-                    art.W_old = Array{Float64}(undef, art.dim*2, 1)
+                    art.W = Array{Float64}(undef, art.config.dim*2, 1)
+                    art.W_old = Array{Float64}(undef, art.config.dim*2, 1)
                     art.W[:, ix] = x[:, ix]
                 else
                     art.W = [art.W x[:, ix]]
@@ -207,17 +220,29 @@ function classify(art::DAM, x::Array ; preprocessed=false)
     if art.opts.display
         @info "Testing DAM"
     end
-    # Get the correct dimensionality and number of samples
-    if ndims(x) > 1
-        art.dim, n_samples = size(x)
-    else
-        art.dim = 1
-        n_samples = length(x)
+    # # Get the correct dimensionality and number of samples
+    # if ndims(x) > 1
+    #     art.dim, n_samples = size(x)
+    # else
+    #     art.dim = 1
+    #     n_samples = length(x)
+    # end
+
+    # Data information and setup
+    _, n_samples = get_data_shape(x)
+
+    if !art.config.setup
+        @error "Attempting to classify data before setup"
     end
-    y_hat = zeros(Int, n_samples)
+
     if !preprocessed
-        x = complement_code(x)
+        x = complement_code(x, art.config)
     end
+
+    y_hat = zeros(Int, n_samples)
+    # if !preprocessed
+    #     x = complement_code(x)
+    # end
 
     iter = ProgressBar(1:n_samples)
     for ix in iter

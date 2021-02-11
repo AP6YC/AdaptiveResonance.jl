@@ -1,4 +1,31 @@
 """
+    DataConfig
+
+Conatiner to standardize training/testing data configuration.
+"""
+mutable struct DataConfig
+    setup::Bool
+    mins::Array{Float64, 1}
+    maxs::Array{Float64, 1}
+    dim::Int
+    dim_comp::Int
+end
+
+"""
+    DataConfig()
+
+Default constructor for a data configuration, not set up.
+"""
+function DataConfig()
+    DataConfig(false,                       # setup
+               Array{Float64}(undef, 0),    # min
+               Array{Float64}(undef, 0),    # max
+               0,                           # dim
+               0                            # dim_comp
+    )
+end
+
+"""
     complement_code(data)
 
 Normalize the data x to [0, 1] and returns the augmented vector [x, 1 - x].
@@ -21,6 +48,39 @@ function complement_code(data::Array)
     for i = 1:dim
         if maxs[i] - mins[i] != 0
             x_raw[i, :] = (data[i, :] .- mins[i]) ./ (maxs[i] - mins[i])
+        end
+    end
+
+    x = vcat(x_raw, 1 .- x_raw)
+    return x
+end
+
+"""
+    complement_code(data::Array)
+
+Normalize the data x to [0, 1] and returns the augmented vector [x, 1 - x].
+"""
+function complement_code(data::Array, config::DataConfig)
+    # Complement code the data and return a concatenated matrix
+
+    # Get the correct dimensionality and number of samples
+    # if ndims(data) > 1
+    #     dim, n_samples = size(data)
+    # else
+    #     dim = 1
+    #     n_samples = length(data)
+    # end
+
+    _, n_samples = get_data_shape(data)
+
+    # mins = [minimum(data[i, :]) for i in 1:dim]
+    # maxs = [maximum(data[i, :]) for i in 1:dim]
+
+    x_raw = zeros(config.dim, n_samples)
+
+    for i = 1:config.dim
+        if config.maxs[i] - config.mins[i] != 0
+            x_raw[i, :] = (data[i, :] .- config.mins[i]) ./ (config.maxs[i] - config.mins[i])
         end
     end
 
@@ -68,37 +128,43 @@ function performance(y_hat::Array, y::Array)
 end
 
 """
-    DataConfig
+    get_data_shape(data::Array)
 
-Conatiner to standardize training/testing data configuration.
+Returns the correct feature dimension and number of samples.
 """
-mutable struct DataConfig
-    setup::Bool
-    min::Real
-    max::Real
-    dim::Int
-    dim_comp::Int
+function get_data_shape(data::Array)
+
+    # Get the correct dimensionality and number of samples
+    if ndims(data) > 1
+        dim, n_samples = size(data)
+    else
+        dim = 1
+        n_samples = length(data)
+    end
+
+    return dim, n_samples
+
 end
 
 """
-    DataConfig()
+    data_setup!(config::DataConfig, data::Array)
 
-Default constructor for a data configuration, not set up.
+Sets up the data config for the ART module before training
 """
-function DataConfig()
-    DataConfig(false,   # setup
-               0,       # min
-               0,       # max
-               0,       # dim
-               0        # dim_comp
-    )
-end
+function data_setup!(config::DataConfig, data::Array)
 
-"""
-"""
-function data_setup(art::AbstractART, data::Array)
-    art
-    data
+    if config.setup
+        @warn "Data configuration already set up, overwriting config"
+    else
+        config.setup = true
+    end
+
+    # Get the correct dimensionality and number of samples
+    config.dim, n_samples = get_data_shape(data)
+    config.dim_comp = 2*config.dim
+    config.mins = [minimum(data[i, :]) for i in 1:config.dim]
+    config.maxs = [maximum(data[i, :]) for i in 1:config.dim]
+
 end
 
 # """

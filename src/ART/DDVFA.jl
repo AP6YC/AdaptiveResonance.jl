@@ -404,6 +404,7 @@ mutable struct DDVFA <: AbstractART
     # Get parameters
     opts::opts_DDVFA
     subopts::opts_GNFA
+    config::DataConfig
 
     # Working variables
     threshold::Float64
@@ -456,6 +457,7 @@ function DDVFA(opts::opts_DDVFA)
     subopts = opts_GNFA(rho=opts.rho_ub)
     DDVFA(opts,
           subopts,
+          DataConfig(),
           0,
           Array{GNFA}(undef, 0),
           Array{Int}(undef, 0),
@@ -478,14 +480,18 @@ function train!(art::DDVFA, x::Array ; preprocessed=false)
         @info "Training DDVFA"
     end
 
-    # Data information
-    art.dim, n_samples = size(x)
-    art.dim_comp = 2*art.dim
-    art.labels = zeros(n_samples)
+    # Data information and setup
+    _, n_samples = get_data_shape(x)
+
+    if !art.config.setup
+        data_setup!(art.config, x)
+    end
 
     if !preprocessed
-        x = complement_code(x)
+        x = complement_code(x, art.config)
     end
+
+    art.labels = zeros(n_samples)
 
     # Initialization
     if isempty(art.F2)
@@ -502,11 +508,11 @@ function train!(art::DDVFA, x::Array ; preprocessed=false)
     end
 
     # art.W_old = deepcopy(art.F2[])
-    art.W_old = Array{Float64}(undef, art.dim_comp, 1)
+    art.W_old = Array{Float64}(undef, art.config.dim_comp, 1)
     art.W_old[:, 1] = x[:, 1]
 
     # Learning
-    art.threshold = art.opts.rho*(art.dim^art.opts.gamma_ref)
+    art.threshold = art.opts.rho*(art.config.dim^art.opts.gamma_ref)
     art.epoch = 0
     while true
         art.epoch += 1
@@ -546,7 +552,7 @@ function train!(art::DDVFA, x::Array ; preprocessed=false)
         # Make sure to start at first sample from now on
         initial_sample = 1
         # art.W = []
-        # art.W = Array{Float64}(undef, art.dim*2, 1)
+        # art.W = Array{Float64}(undef, art.config.dim*2, 1)
         art.W = art.F2[1].W
         for kx = 2:art.n_categories
             art.W = [art.W art.F2[kx].W]
@@ -651,19 +657,28 @@ julia> y_hat = classify(my_DDVFA, y)
 ```
 """
 function classify(art::DDVFA, x::Array ; preprocessed=false)
+
     if art.opts.display
         @info "Testing DDVFA"
     end
+
+    # Data information and setup
+    _, n_samples = get_data_shape(x)
+
+    if !art.config.setup
+        @error "Attempting to classify data before setup"
+    end
+
+    if !preprocessed
+        x = complement_code(x, art.config)
+    end
+
     # Data information
     # art.dim, n_samples = size(x)
-    _, n_samples = size(x)
+    # _, n_samples = size(x)
     # art.dim_comp = 2*art.dim
     # art.labels = zeros(n_samples)
     y_hat = zeros(Int, n_samples)
-
-    if !preprocessed
-        x = complement_code(x)
-    end
 
     iter_raw = 1:n_samples
     iter = art.opts.display ? ProgressBar(iter_raw) : iter_raw

@@ -32,7 +32,7 @@ Simple Fuzzy ARTMAP struct.
 """
 mutable struct SFAM <: AbstractART
     opts::opts_SFAM
-    # config::DataConfig
+    config::DataConfig
     W::Array{Float64, 2}
     W_old::Array{Float64, 2}
     labels::Array{Int, 1}
@@ -76,6 +76,7 @@ SFAM
 """
 function SFAM(opts::opts_SFAM)
     SFAM(opts,                          # opts_SFAM
+         DataConfig(),                  # config
          Array{Float64}(undef, 0,0),    # W
          Array{Float64}(undef, 0,0),    # W_old
          Array{Int}(undef, 0),          # labels
@@ -105,21 +106,32 @@ function train!(art::SFAM, x::Array, y::Array ; preprocessed=false)
     if art.opts.display
         @info "Training SFAM"
     end
-    # Get the correct dimensionality and number of samples
-    if ndims(x) > 1
-        art.dim, n_samples = size(x)
-    else
-        art.dim = 1
-        n_samples = length(x)
+    # # Get the correct dimensionality and number of samples
+    # if ndims(x) > 1
+    #     art.dim, n_samples = size(x)
+    # else
+    #     art.dim = 1
+    #     n_samples = length(x)
+    # end
+
+    # Data information and setup
+    _, n_samples = get_data_shape(x)
+
+    if !art.config.setup
+        data_setup!(art.config, x)
+    end
+
+    if !preprocessed
+        x = complement_code(x, art.config)
     end
 
     # Initialize the internal categories
     art.y = zeros(Int, n_samples)
 
-    # If the data is not preprocessed, then complement code it
-    if !preprocessed
-        x = complement_code(x)
-    end
+    # # If the data is not preprocessed, then complement code it
+    # if !preprocessed
+    #     x = complement_code(x)
+    # end
 
     # Initialize the training loop, continue to convergence
     art.epoch = 0
@@ -131,8 +143,8 @@ function train!(art::SFAM, x::Array, y::Array ; preprocessed=false)
             if !(y[ix] in art.labels)
                 # Initialize W and labels
                 if isempty(art.W)
-                    art.W = Array{Float64}(undef, art.dim*2, 1)
-                    art.W_old = Array{Float64}(undef, art.dim*2, 1)
+                    art.W = Array{Float64}(undef, art.config.dim*2, 1)
+                    art.W_old = Array{Float64}(undef, art.config.dim*2, 1)
                     art.W[:, ix] = x[:, ix]
                 else
                     art.W = [art.W x[:, ix]]
@@ -210,17 +222,29 @@ function classify(art::SFAM, x::Array ; preprocessed=false)
     if art.opts.display
         @info "Testing SFAM"
     end
-    # Get the correct dimensionality and number of samples
-    if ndims(x) > 1
-        art.dim, n_samples = size(x)
-    else
-        art.dim = 1
-        n_samples = length(x)
+    # # Get the correct dimensionality and number of samples
+    # if ndims(x) > 1
+    #     art.dim, n_samples = size(x)
+    # else
+    #     art.dim = 1
+    #     n_samples = length(x)
+    # end
+
+    # Data information and setup
+    _, n_samples = get_data_shape(x)
+
+    if !art.config.setup
+        @error "Attempting to classify data before setup"
     end
-    y_hat = zeros(Int, n_samples)
+
     if !preprocessed
-        x = complement_code(x)
+        x = complement_code(x, art.config)
     end
+
+    y_hat = zeros(Int, n_samples)
+    # if !preprocessed
+    #     x = complement_code(x)
+    # end
 
     iter = ProgressBar(1:n_samples)
     for ix in iter

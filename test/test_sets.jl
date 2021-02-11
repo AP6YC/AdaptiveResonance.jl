@@ -34,20 +34,21 @@ end
 
     # ARTMAP training and testing functions
     include("test_sfam.jl")
-    data = load_am_data(200, 50)
+    # data = load_am_data(200, 50)
+    data = load_iris("../data/Iris.csv")
     sfam_example(data)
     dam_example(data)
 
     # Iris training
-    data = load_iris("../data/Iris.csv")
-    # Create the ART module, train, and classify
-    art = SFAM()
-    train!(art, data.train_x, data.train_y)
-    y_hat = classify(art, data.test_x)
+    # data = load_iris("../data/Iris.csv")
+    # # Create the ART module, train, and classify
+    # art = SFAM()
+    # train!(art, data.train_x, data.train_y)
+    # y_hat = classify(art, data.test_x)
 
-    # Calculate performance
-    @info size(y_hat)
-    @info size(data.test_y)
-    perf = performance(y_hat, data.test_y)
-    println("Performance is ", perf)
+    # # Calculate performance
+    # @info size(y_hat)
+    # @info size(data.test_y)
+    # perf = performance(y_hat, data.test_y)
+    # println("Performance is ", perf)
 end
