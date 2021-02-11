@@ -476,17 +476,16 @@ end # DDVFA(opts)
 Train the DDVFA model on the data.
 """
 function train!(art::DDVFA, x::Array ; preprocessed=false)
-    if art.opts.display
-        @info "Training DDVFA"
-    end
+    # Show a message if display is on
+    art.opts.display && @info "Training DDVFA"
 
     # Data information and setup
-    _, n_samples = get_data_shape(x)
+    n_samples = get_n_samples(x)
 
-    if !art.config.setup
-        data_setup!(art.config, x)
-    end
+    # Set up the data config if training for the first time
+    !art.config.setup && data_setup!(art.config, x)
 
+    # If the data is not preprocessed, then complement code it
     if !preprocessed
         x = complement_code(x, art.config)
     end
@@ -657,13 +656,11 @@ julia> y_hat = classify(my_DDVFA, y)
 ```
 """
 function classify(art::DDVFA, x::Array ; preprocessed=false)
-
-    if art.opts.display
-        @info "Testing DDVFA"
-    end
+    # Show a message if display is on
+    art.opts.display && @info "Testing DDVFA"
 
     # Data information and setup
-    _, n_samples = get_data_shape(x)
+    n_samples = get_n_samples(x)
 
     if !art.config.setup
         @error "Attempting to classify data before setup"

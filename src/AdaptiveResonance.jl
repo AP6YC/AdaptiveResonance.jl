@@ -23,6 +23,9 @@ include("CVI/CVI.jl")
 # Export all public names
 export
 
+    # Abstract types
+    AbstractARTOpts, AbstractART, AbstractCVI,
+
     # Algorithmic functions
     train!, classify, performance,
 

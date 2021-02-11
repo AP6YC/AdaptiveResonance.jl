@@ -103,24 +103,18 @@ julia> train!(art, x, y)
 ```
 """
 function train!(art::SFAM, x::Array, y::Array ; preprocessed=false)
-    if art.opts.display
-        @info "Training SFAM"
-    end
-    # # Get the correct dimensionality and number of samples
-    # if ndims(x) > 1
-    #     art.dim, n_samples = size(x)
-    # else
-    #     art.dim = 1
-    #     n_samples = length(x)
-    # end
+    # Show a message if display is on
+    art.opts.display && @info "Training SFAM"
 
     # Data information and setup
-    _, n_samples = get_data_shape(x)
+    n_samples = get_n_samples(x)
 
+    # Set up the data config if it is not already
     if !art.config.setup
         data_setup!(art.config, x)
     end
 
+    # If the data is not preprocessed, then complement code it
     if !preprocessed
         x = complement_code(x, art.config)
     end
@@ -128,10 +122,8 @@ function train!(art::SFAM, x::Array, y::Array ; preprocessed=false)
     # Initialize the internal categories
     art.y = zeros(Int, n_samples)
 
-    # # If the data is not preprocessed, then complement code it
-    # if !preprocessed
-    #     x = complement_code(x)
-    # end
+
+
 
     # Initialize the training loop, continue to convergence
     art.epoch = 0
@@ -222,16 +214,9 @@ function classify(art::SFAM, x::Array ; preprocessed=false)
     if art.opts.display
         @info "Testing SFAM"
     end
-    # # Get the correct dimensionality and number of samples
-    # if ndims(x) > 1
-    #     art.dim, n_samples = size(x)
-    # else
-    #     art.dim = 1
-    #     n_samples = length(x)
-    # end
 
     # Data information and setup
-    _, n_samples = get_data_shape(x)
+    n_samples = get_n_samples(x)
 
     if !art.config.setup
         @error "Attempting to classify data before setup"

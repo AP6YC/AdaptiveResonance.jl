@@ -101,24 +101,18 @@ julia> train!(art, x, y)
 ```
 """
 function train!(art::DAM, x::Array, y::Array ; preprocessed=false)
-    if art.opts.display
-        @info "Training DAM"
-    end
-    # # Get the correct dimensionality and number of samples
-    # if ndims(x) > 1
-    #     art.dim, n_samples = size(x)
-    # else
-    #     art.dim = 1
-    #     n_samples = length(x)
-    # end
+    # Show a message if display is on
+    art.opts.display && @info "Training DAM"
 
     # Data information and setup
-    _, n_samples = get_data_shape(x)
+    n_samples = get_n_samples(x)
 
+    # Get the correct dimensionality and number of samples
     if !art.config.setup
         data_setup!(art.config, x)
     end
 
+    # If the data isn't preprocessed, then complement code it with the config
     if !preprocessed
         x = complement_code(x, art.config)
     end
@@ -217,32 +211,21 @@ julia> classify(art, x_test)
 ```
 """
 function classify(art::DAM, x::Array ; preprocessed=false)
-    if art.opts.display
-        @info "Testing DAM"
-    end
-    # # Get the correct dimensionality and number of samples
-    # if ndims(x) > 1
-    #     art.dim, n_samples = size(x)
-    # else
-    #     art.dim = 1
-    #     n_samples = length(x)
-    # end
+    # Show a message if display is on
+    art.opts.display && @info "Testing DAM"
 
     # Data information and setup
-    _, n_samples = get_data_shape(x)
+    n_samples = get_n_samples(x)
 
-    if !art.config.setup
-        @error "Attempting to classify data before setup"
-    end
+    # Throw an soft error if classifying before setup
+    !art.config.setup && @error "Attempting to classify data before setup"
 
+    # If the data is not preprocessed, then complement code it
     if !preprocessed
         x = complement_code(x, art.config)
     end
 
     y_hat = zeros(Int, n_samples)
-    # if !preprocessed
-    #     x = complement_code(x)
-    # end
 
     iter = ProgressBar(1:n_samples)
     for ix in iter

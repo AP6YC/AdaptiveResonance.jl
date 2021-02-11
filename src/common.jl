@@ -26,69 +26,6 @@ function DataConfig()
 end
 
 """
-    complement_code(data)
-
-Normalize the data x to [0, 1] and returns the augmented vector [x, 1 - x].
-"""
-function complement_code(data::Array)
-    # Complement code the data and return a concatenated matrix
-
-    # Get the correct dimensionality and number of samples
-    if ndims(data) > 1
-        dim, n_samples = size(data)
-    else
-        dim = 1
-        n_samples = length(data)
-    end
-    x_raw = zeros(dim, n_samples)
-
-    mins = [minimum(data[i, :]) for i in 1:dim]
-    maxs = [maximum(data[i, :]) for i in 1:dim]
-
-    for i = 1:dim
-        if maxs[i] - mins[i] != 0
-            x_raw[i, :] = (data[i, :] .- mins[i]) ./ (maxs[i] - mins[i])
-        end
-    end
-
-    x = vcat(x_raw, 1 .- x_raw)
-    return x
-end
-
-"""
-    complement_code(data::Array)
-
-Normalize the data x to [0, 1] and returns the augmented vector [x, 1 - x].
-"""
-function complement_code(data::Array, config::DataConfig)
-    # Complement code the data and return a concatenated matrix
-
-    # Get the correct dimensionality and number of samples
-    # if ndims(data) > 1
-    #     dim, n_samples = size(data)
-    # else
-    #     dim = 1
-    #     n_samples = length(data)
-    # end
-
-    _, n_samples = get_data_shape(data)
-
-    # mins = [minimum(data[i, :]) for i in 1:dim]
-    # maxs = [maximum(data[i, :]) for i in 1:dim]
-
-    x_raw = zeros(config.dim, n_samples)
-
-    for i = 1:config.dim
-        if config.maxs[i] - config.mins[i] != 0
-            x_raw[i, :] = (data[i, :] .- config.mins[i]) ./ (config.maxs[i] - config.mins[i])
-        end
-    end
-
-    x = vcat(x_raw, 1 .- x_raw)
-    return x
-end
-
-"""
     element_min(x::Array, W::Array)
 
 Returns the element-wise minimum between sample x and weight W.
@@ -133,7 +70,6 @@ end
 Returns the correct feature dimension and number of samples.
 """
 function get_data_shape(data::Array)
-
     # Get the correct dimensionality and number of samples
     if ndims(data) > 1
         dim, n_samples = size(data)
@@ -143,7 +79,22 @@ function get_data_shape(data::Array)
     end
 
     return dim, n_samples
+end
 
+"""
+    get_n_samples(data::Array)
+
+Returns the number of samples, accounting for 1-D and 2-D arrays.
+"""
+function get_n_samples(data::Array)
+    # Get the correct dimensionality and number of samples
+    if ndims(data) > 1
+        n_samples = size(data)[2]
+    else
+        n_samples = length(data)
+    end
+
+    return n_samples
 end
 
 """
@@ -152,7 +103,6 @@ end
 Sets up the data config for the ART module before training
 """
 function data_setup!(config::DataConfig, data::Array)
-
     if config.setup
         @warn "Data configuration already set up, overwriting config"
     else
@@ -164,7 +114,57 @@ function data_setup!(config::DataConfig, data::Array)
     config.dim_comp = 2*config.dim
     config.mins = [minimum(data[i, :]) for i in 1:config.dim]
     config.maxs = [maximum(data[i, :]) for i in 1:config.dim]
+end
 
+"""
+    complement_code(data)
+
+Normalize the data x to [0, 1] and returns the augmented vector [x, 1 - x].
+"""
+function complement_code(data::Array)
+    # Complement code the data and return a concatenated matrix
+
+    # Get the correct dimensionality and number of samples
+    # if ndims(data) > 1
+    #     dim, n_samples = size(data)
+    # else
+    #     dim = 1
+    #     n_samples = length(data)
+    # end
+    dim, n_samples = get_data_shape(data)
+    x_raw = zeros(dim, n_samples)
+
+    mins = [minimum(data[i, :]) for i in 1:dim]
+    maxs = [maximum(data[i, :]) for i in 1:dim]
+
+    for i = 1:dim
+        if maxs[i] - mins[i] != 0
+            x_raw[i, :] = (data[i, :] .- mins[i]) ./ (maxs[i] - mins[i])
+        end
+    end
+
+    x = vcat(x_raw, 1 .- x_raw)
+    return x
+end
+
+"""
+    complement_code(data::Array, config::DataConfig)
+
+Complement code the data based upon the given data config
+"""
+function complement_code(data::Array, config::DataConfig)
+
+    n_samples = get_n_samples(data)
+    x_raw = zeros(config.dim, n_samples)
+
+    for i = 1:config.dim
+        if config.maxs[i] - config.mins[i] != 0
+            x_raw[i, :] = (data[i, :] .- config.mins[i]) ./ (config.maxs[i] - config.mins[i])
+        end
+    end
+
+    # Complement code the data and return a concatenated matrix
+    return vcat(x_raw, 1 .- x_raw)
 end
 
 # """

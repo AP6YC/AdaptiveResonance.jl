@@ -61,6 +61,8 @@ end
 
     @info "GNFA Testing"
 
+    Random.seed!(0)
+
     # GNFA train and test
     my_gnfa = GNFA()
     # data = load_am_data(200, 50)
@@ -85,19 +87,19 @@ end
     # Compute the local activation and match
     AdaptiveResonance.activation_match!(my_gnfa, local_sample)
 
-    # truth = Dict("single" => Dict("T" => 0.9999936533852463,
-    #                               "M" => 483.5242679095584),
-    #              "average" => Dict("T" => 0.745567955194466,
-    #                                "M" => 428.88503692634504),
-    #              "complete" => Dict("T" => 0.4422032564291216,
-    #                                 "M" => 346.68735304043133),
-    #              "median" => Dict("T" => 0.7510409115623551,
-    #                               "M" => 431.3747398215685),
-    #              "weighted" => Dict("T" => 0.8923661090763602,
-    #                                 "M" => 437.9978445284187),
-    #              "centroid" => Dict("T" => 1.5258610249962656e-5,
-    #                                 "M" => 0.00390620422399044)
-    #             )
+    truth = Dict("single" => Dict("T" => 0.9988445088278305,
+                                  "M" => 2.591300556893253),
+                 "average" => Dict("T" => 0.41577750468594143,
+                                   "M" => 1.322517210029363),
+                 "complete" => Dict("T" => 0.04556971777638373,
+                                    "M" => 0.13166315262229716),
+                 "median" => Dict("T" => 0.3312241307874298,
+                                  "M" => 1.3248965231497192),
+                 "weighted" => Dict("T" => 0.533208585217186,
+                                    "M" => 1.3855766656866793),
+                 "centroid" => Dict("T" => 0.0,
+                                    "M" => 0.0)
+                )
 
     # Test every method and field name
     for method in methods
@@ -105,7 +107,7 @@ end
         for field_name in field_names
             result = AdaptiveResonance.similarity(method, my_gnfa, field_name, local_sample, my_gnfa.opts.gamma_ref)
             println(field_name, ": ", result)
-            # @test isapprox(truth[method][field_name], result)
+            @test isapprox(truth[method][field_name], result)
         end
     end
 end

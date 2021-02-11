@@ -1,11 +1,8 @@
 using AdaptiveResonance
 using Test
-using MLDatasets
 using Logging
 using DelimitedFiles
 using Random
-
-Random.seed!(0)
 
 # Auxiliary generic functions for loading data, etc.
 include("test_utils.jl")
@@ -31,24 +28,21 @@ end
 end
 
 @testset "ARTMAP.jl" begin
+    # Set the logging level to Info
+    LogLevel(Logging.Info)
+    Random.seed!(0)
 
     # ARTMAP training and testing functions
-    include("test_sfam.jl")
     # data = load_am_data(200, 50)
     data = load_iris("../data/Iris.csv")
-    sfam_example(data)
-    dam_example(data)
 
-    # Iris training
-    # data = load_iris("../data/Iris.csv")
-    # # Create the ART module, train, and classify
-    # art = SFAM()
-    # train!(art, data.train_x, data.train_y)
-    # y_hat = classify(art, data.test_x)
+    for art in [SFAM, DAM]
+        # sfam = SFAM()
+        perf = tt_supervised(art(), data)
+        @test perf > 0.9
+    end
+    # dam = DAM()
+    # perf = tt_supervised(dam, data)
+    # @test perf > 0.9
 
-    # # Calculate performance
-    # @info size(y_hat)
-    # @info size(data.test_y)
-    # perf = performance(y_hat, data.test_y)
-    # println("Performance is ", perf)
 end
