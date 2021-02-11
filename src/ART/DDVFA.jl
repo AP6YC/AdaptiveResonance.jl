@@ -59,8 +59,6 @@ mutable struct GNFA <: AbstractART
     W_old::Array{Float64, 2}
     n_instance::Array{Int, 1}
     n_categories::Int
-    dim::Int
-    dim_comp::Int
     epoch::Int
 end # GNFA
 
@@ -106,16 +104,25 @@ function GNFA(opts::opts_GNFA)
          Array{Float64}(undef, 0, 0),   # W_old
          Array{Int}(undef, 0),          # n_instance
          0,                             # n_categories
-         0,                             # dim
-         0,                             # dim_comp
          0                              # epoch
     )
 end # GNFA(opts)
 
 """
+    GNFA(opts::opts_GNFA, sample::Array)
+
+Create and initialize a GNFA with a single sample in one step.
+"""
+function GNFA(opts::opts_GNFA, sample::Array)
+    art = GNFA(opts)
+    initialize!(art, sample)
+    return art
+end # GNFA(opts::opts_GNFA, sample::Array)
+
+"""
     initialize!(art::GNFA, x::Array)
 
-Initializes a GNFA learner with an intial sample 'x'
+Initializes a GNFA learner with an intial sample 'x'.
 
 # Examples
 ```julia-repl
@@ -126,7 +133,7 @@ GNFA
 julia> initialize!(my_GNFA, [1 2 3 4])
 ```
 """
-function initialize!(art::GNFA, x::Array)
+function initialize!(art::GNFA, x::Array ; y::Int=0)
     # Set up the data config
     if art.config.setup
         @warn "Data configuration already set up, overwriting config"
@@ -136,16 +143,18 @@ function initialize!(art::GNFA, x::Array)
     art.config.dim_comp = size(x)[1]
     art.config.dim = Int(art.config.dim_comp/2) # Assumes input is already complement coded
 
+    # Initialize the instance and categories counters
     art.n_instance = [1]
     art.n_categories = 1
 
+    # Set the threshold
     art.threshold = art.opts.rho * (art.config.dim^art.opts.gamma_ref)
-    # initial_sample = 2
+    # Fast commit the weight
     art.W = Array{Float64}(undef, art.config.dim_comp, 1)
     # art.W[:, 1] = x[:, 1]
     art.W[:, 1] = x
-    # label = supervised ? y[1] : 1
-    # push!(art.labels, label)
+    label = y == 0 ? y : 1
+    push!(art.labels, label)
 end # initialize!(GNFA, x)
 
 """
@@ -164,27 +173,11 @@ julia> train!(my_GNFA, x)
 ```
 """
 function train!(art::GNFA, x::Array ; y::Array=[])
-    # Get the number of samples to process
-    # n_samples = get_n_samples(x)
 
     # Show a progbar only if the data is 2-D and the option is on
     single_sample = length(size(x)) == 1
     prog_bar = single_sample ? false : art.opts.display
-    n_samples = single_sample ? 1: size(x)[2]
-    # prog_bar = length(size(x)) == 2 ? art.opts.display : false
-    # n_samples = length(size(x)) == 2 ? size(x)[2] : 1
-    # # Get size and if supervised
-    # if length(size(x)) == 2
-    #     art.dim_comp, n_samples = size(x)
-    #     # Create a progressbar only if the display flag is set
-    #     prog_bar = art.opts.display
-    # else
-    #     art.dim_comp = length(x)
-    #     n_samples = 1
-    #     # No progress bar even if display is set since learning a single sample
-    #     prog_bar = false
-    # end
-
+    n_samples = single_sample ? 1 : size(x)[2]
     supervised = !isempty(y)
 
     # Initialization if weights are empty; fast commit the first sample
@@ -210,11 +203,8 @@ function train!(art::GNFA, x::Array ; y::Array=[])
             if prog_bar
                 set_description(iter, string(@sprintf("Ep: %i, ID: %i, Cat: %i", art.epoch, i, art.n_categories)))
             end
-            # Check for already computed activation/match values
-            if isempty(art.T) || isempty(art.M)
-                # Compute activation/match functions
-                activation_match!(art, x[:, i])
-            end
+            # Compute activation/match functions
+            activation_match!(art, x[:, i])
             # Sort activation function values in descending order
             index = sortperm(art.T, rev=true)
             # Initialize mismatch as true
@@ -228,7 +218,6 @@ function train!(art::GNFA, x::Array ; y::Array=[])
                     # Learn the sample
                     learn!(art, x[:, i], bmu)
                     # Update sample labels
-                    # art.labels[i] = bmu
                     label = supervised ? y[i] : bmu
                     push!(art.labels, label)
                     # No mismatch
@@ -244,16 +233,11 @@ function train!(art::GNFA, x::Array ; y::Array=[])
                 # art.W = [art.W x[:, i]]
                 art.W = hcat(art.W, x[:,i])
                 # Increment number of samples associated with new category
-                # art.n_instance[art.n_categories] = 1
                 push!(art.n_instance, 1)
                 # Update sample labels
-                # art.labels[i] = art.n_categories
                 label = supervised ? y[i] : art.n_categories
                 push!(art.labels, label)
             end
-            # Empty activation and match vector
-            art.T = []
-            art.M = []
         end
         # Start from the first index from now on
         initial_sample = 1
@@ -262,7 +246,7 @@ function train!(art::GNFA, x::Array ; y::Array=[])
             break
         end
     end
-end # train!(GNFA, x, y=[])
+end # train!(art::GNFA, x::Array ; y::Array=[])
 
 """
     classify(art::GNFA, x::Array)
@@ -560,8 +544,9 @@ function train!(art::DDVFA, x::Array ; preprocessed=false)
                 art.n_categories += 1
                 push!(art.labels, art.n_categories)
                 # Local Fuzzy ART
-                push!(art.F2, GNFA(art.subopts))
-                initialize!(art.F2[art.n_categories], sample)
+                push!(art.F2, GNFA(art.subopts, sample))
+                # push!(art.F2, GNFA(art.subopts))
+                # initialize!(art.F2[art.n_categories], sample)
             end
         end
         # Make sure to start at first sample from now on
