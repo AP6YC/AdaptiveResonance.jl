@@ -21,10 +21,10 @@ julia> my_opts = opts_DAM()
     display::Bool = true
 
     max_epochs = 1
-end
+end # opts_DAM()
 
 """
-    DAM
+    DAM <: AbstractART
 
 Default ARTMAP struct.
 """
@@ -35,10 +35,9 @@ mutable struct DAM <: AbstractART
     W_old::Array{Float64, 2}
     labels::Array{Int, 1}
     y::Array{Int, 1}
-    dim::Int
     n_categories::Int
     epoch::Int
-end
+end # DAM
 
 """
     DAM()
@@ -56,7 +55,7 @@ DAM
 function DAM()
     opts = opts_DAM()
     DAM(opts)
-end
+end # DAM()
 
 """
     DAM(opts)
@@ -79,11 +78,10 @@ function DAM(opts::opts_DAM)
         Array{Float64}(undef, 0,0), # W_old
         Array{Int}(undef, 0),       # labels
         Array{Int}(undef, 0),       # y
-        0,                          # dim
         0,                          # n_categories
         0                           # epoch
     )
-end
+end # DAM(opts::opts_DAM)
 
 """
     train(art::DAM, x, y)
@@ -107,25 +105,22 @@ function train!(art::DAM, x::Array, y::Array ; preprocessed=false)
     # Data information and setup
     n_samples = get_n_samples(x)
 
-    # Get the correct dimensionality and number of samples
-    if !art.config.setup
-        data_setup!(art.config, x)
-    end
+    # Set up the data config if it is not already
+    !art.config.setup && data_setup!(art.config, x)
 
     # If the data isn't preprocessed, then complement code it with the config
     if !preprocessed
         x = complement_code(x, art.config)
     end
 
-    art.y = zeros(Int, n_samples)
-    # if !preprocessed
-    #     x = complement_code(x)
-    # end
-    art.epoch = 0
-
     # Convenient semantic flag
     # is_supervised = !isempty(y)
 
+    # Initialize the internal categories
+    art.y = zeros(Int, n_samples)
+
+    # Initialize the training loop, continue to convergence
+    art.epoch = 0
     while true
         art.epoch += 1
         iter = ProgressBar(1:n_samples)
@@ -134,8 +129,8 @@ function train!(art::DAM, x::Array, y::Array ; preprocessed=false)
             if !(y[ix] in art.labels)
                 # Initialize W and labels
                 if isempty(art.W)
-                    art.W = Array{Float64}(undef, art.config.dim*2, 1)
-                    art.W_old = Array{Float64}(undef, art.config.dim*2, 1)
+                    art.W = Array{Float64}(undef, art.config.dim_comp, 1)
+                    art.W_old = Array{Float64}(undef, art.config.dim_comp, 1)
                     art.W[:, ix] = x[:, ix]
                 else
                     art.W = [art.W x[:, ix]]
@@ -225,8 +220,8 @@ function classify(art::DAM, x::Array ; preprocessed=false)
         x = complement_code(x, art.config)
     end
 
+    # Initialize the output vector and iterate across all data
     y_hat = zeros(Int, n_samples)
-
     iter = ProgressBar(1:n_samples)
     for ix in iter
         set_description(iter, string(@sprintf("ID: %i, Cat: %i", ix, art.n_categories)))
@@ -258,7 +253,7 @@ function classify(art::DAM, x::Array ; preprocessed=false)
         end
     end
     return y_hat
-end
+end # classify(art::DAM, x::Array ; preprocessed=false)
 
 """
     stopping_conditions(art::DAM)
@@ -268,21 +263,21 @@ Stopping conditions for Default ARTMAP, checked at the end of every epoch.
 function stopping_conditions(art::DAM)
     # Compute the stopping condition, return a bool
     return art.W == art.W_old || art.epoch >= art.opts.max_epochs
-end
+end # stopping_conditions(art::DAM)
 
 """
-    activation(art::DAM, x, W)
+    activation(art::DAM, x::Array, W::Array)
 
 Default ARTMAP's choice-by-difference activation function.
 """
 function activation(art::DAM, x::Array, W::Array)
     # Compute T and return
     return norm(element_min(x, W), 1) +
-        (1-art.opts.alpha)*(art.dim - norm(W, 1))
-end
+        (1-art.opts.alpha)*(art.config.dim - norm(W, 1))
+end # activation(art::DAM, x::Array, W::Array)
 
 """
-    learn(art::DAM, x, W)
+    learn(art::DAM, x::Array, W::Array)
 
 Returns a single updated weight for the Simple Fuzzy ARTMAP module for weight
 vector W and sample x.
@@ -290,15 +285,15 @@ vector W and sample x.
 function learn(art::DAM, x::Array, W::Array)
     # Update W
     return art.opts.beta .* element_min(x, W) .+ W .* (1 - art.opts.beta)
-end
+end # learn(art::DAM, x::Array, W::Array)
 
 """
-    art_match(art::DAM, x, W)
+    art_match(art::DAM, x::Array, W::Array)
 
 Returns the match function for the Default ARTMAP module with weight W and
 sample x.
 """
 function art_match(art::DAM, x::Array, W::Array)
     # Compute M and return
-    return norm(element_min(x, W), 1) / art.dim
-end
+    return norm(element_min(x, W), 1) / art.config.dim
+end # art_match(art::DAM, x::Array, W::Array)

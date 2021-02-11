@@ -1,5 +1,5 @@
 """
-    tt_ddvfa(opts, train_x)
+    tt_ddvfa(opts::opts_DDVFA, train_x::Array)
 
 Trains and tests (tt) a DDVFA module on unlabled data train_x.
 """
@@ -16,21 +16,14 @@ function tt_ddvfa(opts::opts_DDVFA, train_x::Array)
     println("Categories:", art.n_categories)
     println("Weights:", total_cat)
 
-    return art
-
     # # Calculate performance
     # perf = performance(y_hat, test_y)
     # println("Performance is ", perf)
-end
 
-"""
-    ddvfa_example()
+    return art
+end # tt_ddvfa(opts::opts_DDVFA, train_x::Array)
 
-Trains and tests multiple instances of DDVFA modules for full test coverage.
-"""
-# function ddvfa_example()
 @testset "DDVFA" begin
-
     # Set the log level
     LogLevel(Logging.Info)
 
@@ -55,12 +48,10 @@ Trains and tests multiple instances of DDVFA modules for full test coverage.
     @test default_art.W == no_disp_art.W
     # # View the profile as a flamegraph
     # ProfileVega.view()
-end
+end # @testset "DDVFA"
 
 @testset "GNFA" begin
-
     @info "GNFA Testing"
-
     Random.seed!(0)
 
     # GNFA train and test
@@ -110,4 +101,4 @@ end
             @test isapprox(truth[method][field_name], result)
         end
     end
-end
+end # @testset "GNFA"

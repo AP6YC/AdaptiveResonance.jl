@@ -23,7 +23,7 @@ julia> my_opts = opts_FAM()
     display::Bool = true
 
     max_epochs = 1
-end
+end # opts_FAM()
 
 """
     FAM
@@ -32,14 +32,14 @@ Fuzzy ARTMAP struct.
 """
 mutable struct FAM <: AbstractART
     opts::opts_FAM
+    config::DataConfig
     W::Array{Float64, 2}
     W_old::Array{Float64, 2}
     labels::Array{Int, 1}
     y::Array{Int, 1}
-    dim::Int
     n_categories::Int
     epoch::Int
-end
+end # FAM
 
 """
     FAM()
@@ -57,7 +57,7 @@ FAM
 function FAM()
     opts = opts_FAM()
     FAM(opts)
-end
+end # FAM()
 
 """
     FAM(opts)
@@ -75,12 +75,12 @@ FAM
 """
 function FAM(opts::opts_FAM)
     FAM(opts,                       # opts_FAM
+        DataConfig(),                 # config
         Array{Float64}(undef, 0,0), # W
         Array{Float64}(undef, 0,0), # W_old
         Array{Int}(undef, 0),       # labels
         Array{Int}(undef, 0),       # y
-        0,                          # dim
         0,                          # n_categories
         0                           # epoch
     )
-end
+end # FAM(opts::opts_FAM)

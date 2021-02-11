@@ -46,6 +46,7 @@ GNFA
 mutable struct GNFA <: AbstractART
     # Assign numerical parameters from options
     opts::opts_GNFA
+    config::DataConfig
 
     # Working variables
     threshold::Float64
@@ -96,6 +97,7 @@ GNFA
 """
 function GNFA(opts::opts_GNFA)
     GNFA(opts,                          # opts
+         DataConfig(),                  # config
          0,                             # threshold
          Array{Int}(undef,0),           # labels
          Array{Float64}(undef, 0),      # T
@@ -125,13 +127,21 @@ julia> initialize!(my_GNFA, [1 2 3 4])
 ```
 """
 function initialize!(art::GNFA, x::Array)
-    art.dim_comp = size(x)[1]
+    # Set up the data config
+    if art.config.setup
+        @warn "Data configuration already set up, overwriting config"
+    else
+        art.config.setup = true
+    end
+    art.config.dim_comp = size(x)[1]
+    art.config.dim = Int(art.config.dim_comp/2) # Assumes input is already complement coded
+
     art.n_instance = [1]
     art.n_categories = 1
-    art.dim = art.dim_comp/2 # Assumes input is already complement coded
-    art.threshold = art.opts.rho * (art.dim^art.opts.gamma_ref)
+
+    art.threshold = art.opts.rho * (art.config.dim^art.opts.gamma_ref)
     # initial_sample = 2
-    art.W = Array{Float64}(undef, art.dim_comp, 1)
+    art.W = Array{Float64}(undef, art.config.dim_comp, 1)
     # art.W[:, 1] = x[:, 1]
     art.W[:, 1] = x
     # label = supervised ? y[1] : 1
@@ -154,17 +164,26 @@ julia> train!(my_GNFA, x)
 ```
 """
 function train!(art::GNFA, x::Array ; y::Array=[])
-    # Get size and if supervised
-    if length(size(x)) == 2
-        art.dim_comp, n_samples = size(x)
-        # Create a progressbar only if the display flag is set
-        prog_bar = art.opts.display
-    else
-        art.dim_comp = length(x)
-        n_samples = 1
-        # No progress bar even if display is set since learning a single sample
-        prog_bar = false
-    end
+    # Get the number of samples to process
+    # n_samples = get_n_samples(x)
+
+    # Show a progbar only if the data is 2-D and the option is on
+    single_sample = length(size(x)) == 1
+    prog_bar = single_sample ? false : art.opts.display
+    n_samples = single_sample ? 1: size(x)[2]
+    # prog_bar = length(size(x)) == 2 ? art.opts.display : false
+    # n_samples = length(size(x)) == 2 ? size(x)[2] : 1
+    # # Get size and if supervised
+    # if length(size(x)) == 2
+    #     art.dim_comp, n_samples = size(x)
+    #     # Create a progressbar only if the display flag is set
+    #     prog_bar = art.opts.display
+    # else
+    #     art.dim_comp = length(x)
+    #     n_samples = 1
+    #     # No progress bar even if display is set since learning a single sample
+    #     prog_bar = false
+    # end
 
     supervised = !isempty(y)
 
@@ -264,10 +283,11 @@ julia> y_hat = classify(my_GNFA, y)
 ```
 """
 function classify(art::GNFA, x::Array)
-    dim, n_samples = size(x)
-    y_hat = zeros(Int, n_samples)
-    # x = complement_code(x)
+    # Get the number of samples to classify
+    n_samples = get_n_samples(x)
 
+    # Initialize the output vector and iterate across all data
+    y_hat = zeros(Int, n_samples)
     iter = ProgressBar(1:n_samples)
     for ix in iter
         set_description(iter, string(@sprintf("ID: %i, Cat: %i", ix, art.n_categories)))
@@ -414,8 +434,6 @@ mutable struct DDVFA <: AbstractART
     W_old::Array{Float64, 2}    # Old F2 node weight vectors (for stopping criterion)
     # n_samples::Int
     n_categories::Int
-    dim::Int
-    dim_comp::Int
     epoch::Int
 end # DDVFA
 
@@ -463,8 +481,6 @@ function DDVFA(opts::opts_DDVFA)
           Array{Int}(undef, 0),
           Array{Float64}(undef, 0, 0),
           Array{Float64}(undef, 0, 0),
-          0,
-          0,
           0,
           0
     )

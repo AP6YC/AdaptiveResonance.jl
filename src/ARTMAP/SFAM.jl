@@ -23,7 +23,7 @@ julia> my_opts = opts_SFAM()
     display::Bool = true
 
     max_epochs = 1
-end # opts_SFAM
+end # opts_SFAM()
 
 """
     SFAM
@@ -37,10 +37,9 @@ mutable struct SFAM <: AbstractART
     W_old::Array{Float64, 2}
     labels::Array{Int, 1}
     y::Array{Int, 1}
-    dim::Int
     n_categories::Int
     epoch::Int
-end
+end # SFAM <: AbstractART
 
 """
     SFAM()
@@ -58,7 +57,7 @@ SFAM
 function SFAM()
     opts = opts_SFAM()
     SFAM(opts)
-end
+end # SFAM()
 
 """
     SFAM(opts)
@@ -81,11 +80,10 @@ function SFAM(opts::opts_SFAM)
          Array{Float64}(undef, 0,0),    # W_old
          Array{Int}(undef, 0),          # labels
          Array{Int}(undef, 0),          # y
-         0,                             # dim
          0,                             # n_categories
          0                              # epoch
     )
-end
+end # SFAM(opts::opts_SFAM)
 
 """
     train(art::SFAM, x::Array, y::Array ; preprocessed=false)
@@ -110,9 +108,7 @@ function train!(art::SFAM, x::Array, y::Array ; preprocessed=false)
     n_samples = get_n_samples(x)
 
     # Set up the data config if it is not already
-    if !art.config.setup
-        data_setup!(art.config, x)
-    end
+    !art.config.setup && data_setup!(art.config, x)
 
     # If the data is not preprocessed, then complement code it
     if !preprocessed
@@ -121,9 +117,6 @@ function train!(art::SFAM, x::Array, y::Array ; preprocessed=false)
 
     # Initialize the internal categories
     art.y = zeros(Int, n_samples)
-
-
-
 
     # Initialize the training loop, continue to convergence
     art.epoch = 0
@@ -135,8 +128,8 @@ function train!(art::SFAM, x::Array, y::Array ; preprocessed=false)
             if !(y[ix] in art.labels)
                 # Initialize W and labels
                 if isempty(art.W)
-                    art.W = Array{Float64}(undef, art.config.dim*2, 1)
-                    art.W_old = Array{Float64}(undef, art.config.dim*2, 1)
+                    art.W = Array{Float64}(undef, art.config.dim_comp, 1)
+                    art.W_old = Array{Float64}(undef, art.config.dim_comp, 1)
                     art.W[:, ix] = x[:, ix]
                 else
                     art.W = [art.W x[:, ix]]
@@ -211,26 +204,22 @@ julia> classify(art, x_test)
 ```
 """
 function classify(art::SFAM, x::Array ; preprocessed=false)
-    if art.opts.display
-        @info "Testing SFAM"
-    end
+    # Show a message if display is on
+    art.opts.display && @info "Testing SFAM"
 
     # Data information and setup
     n_samples = get_n_samples(x)
 
-    if !art.config.setup
-        @error "Attempting to classify data before setup"
-    end
+    # Throw an soft error if classifying before setup
+    !art.config.setup && @error "Attempting to classify data before setup"
 
+    # If the data is not preprocessed, then complement code it
     if !preprocessed
         x = complement_code(x, art.config)
     end
 
+    # Initialize the output vector and iterate across all data
     y_hat = zeros(Int, n_samples)
-    # if !preprocessed
-    #     x = complement_code(x)
-    # end
-
     iter = ProgressBar(1:n_samples)
     for ix in iter
         set_description(iter, string(@sprintf("ID: %i, Cat: %i", ix, art.n_categories)))
@@ -261,7 +250,7 @@ function classify(art::SFAM, x::Array ; preprocessed=false)
         end
     end
     return y_hat
-end
+end # classify(art::SFAM, x::Array ; preprocessed=false)
 
 """
     stopping_conditions(art::SFAM)
@@ -271,7 +260,7 @@ Stopping conditions for Simple Fuzzy ARTMAP, checked at the end of every epoch.
 function stopping_conditions(art::SFAM)
     # Compute the stopping condition, return a bool
     return art.W == art.W_old || art.epoch >= art.opts.max_epochs
-end
+end # stopping_conditions(art::SFAM)
 
 """
     learn(art::SFAM, x::Array, W::Array)
@@ -282,7 +271,7 @@ vector W and sample x.
 function learn(art::SFAM, x::Array, W::Array)
     # Update W
     return art.opts.beta .* element_min(x, W) .+ W .* (1 - art.opts.beta)
-end
+end # learn(art::SFAM, x::Array, W::Array)
 
 """
     activation(art::SFAM, x::Array, W::Array)
@@ -293,7 +282,7 @@ and sample x.
 function activation(art::SFAM, x::Array, W::Array)
     # Compute T and return
     return norm(element_min(x, W), 1) / (art.opts.alpha + norm(W, 1))
-end
+end # activation(art::SFAM, x::Array, W::Array)
 
 """
     art_match(art::SFAM, x::Array, W::Array)
@@ -303,5 +292,6 @@ sample x.
 """
 function art_match(art::SFAM, x::Array, W::Array)
     # Compute M and return
-    return norm(element_min(x, W), 1) / art.dim
-end
+    return norm(element_min(x, W), 1) / art.config.dim
+    # return norm(element_min(x, W), 1) / art.config.dim_comp
+end # art_match(art::SFAM, x::Array, W::Array)

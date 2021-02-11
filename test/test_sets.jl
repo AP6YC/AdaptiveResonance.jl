@@ -8,41 +8,29 @@ using Random
 include("test_utils.jl")
 
 @testset "ARTSCENE.jl" begin
-
     # ARTSCENE training and testing
     include("test_artscene.jl")
-
-end
+end # @testset "ARTSCENE.jl"
 
 @testset "DDVFA.jl" begin
-
-    # DDVFA train and test functions
+    # DDVFA training and testing
     include("test_ddvfa.jl")
-
-end
+end # @testset "DDVFA.jl"
 
 @testset "AdaptiveResonance.jl" begin
-
+    # Module loading
     include("modules.jl")
-
-end
+end # @testset "AdaptiveResonance.jl"
 
 @testset "ARTMAP.jl" begin
-    # Set the logging level to Info
+    # Set the logging level to Info and standardize the random seed
     LogLevel(Logging.Info)
     Random.seed!(0)
 
-    # ARTMAP training and testing functions
-    # data = load_am_data(200, 50)
+    # Load the data and test across all supervised modules
     data = load_iris("../data/Iris.csv")
-
     for art in [SFAM, DAM]
-        # sfam = SFAM()
         perf = tt_supervised(art(), data)
-        @test perf > 0.9
+        @test perf > 0.8
     end
-    # dam = DAM()
-    # perf = tt_supervised(dam, data)
-    # @test perf > 0.9
-
-end
+end # @testset "ARTMAP.jl"

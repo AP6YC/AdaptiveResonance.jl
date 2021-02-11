@@ -17,7 +17,6 @@ Runs a random image through each artscene filter function with logging.
     @info "Processes: $n_processes, Workers: n_workers"
 
     # Random image
-    # raw_image = rand(3, 6, 6)
     raw_image = rand(3, 5, 5)
     image_size = size(raw_image)
     image_type =  typeof(raw_image)
@@ -62,16 +61,6 @@ Runs a random image through each artscene filter function with logging.
     # O, C = patch_orientation_color(z, matrix_raw_image)
     O, C = patch_orientation_color(z, raw_image)
     @info "Stage 6: Done"
-
-    # Stage 3:
-    # Create the ART module, train, and classify
-    # art = DAM()
-    # train!(art, data.train_x, data.train_y)
-    # y_hat = classify(art, data.test_x)
-
-    # # Calculate performance
-    # perf = performance(y_hat, data.test_y)
-    # println("Performance is ", perf)
 end
 
 """
@@ -87,9 +76,11 @@ Runs the artscene user-level functions on a random image.
     n_workers = nworkers()
 
     # Random image
-    # raw_image = rand(3, 6, 6)
     raw_image = rand(3, 5, 5)
 
     @info "Processes: $n_processes, Workers: n_workers"
     O, C = artscene_filter(raw_image)
-end
+end # @testset "ARTSCENE Filter Porcelain"
+
+# Close the workers after testing
+rmprocs(workers())

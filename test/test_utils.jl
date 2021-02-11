@@ -9,7 +9,7 @@ struct DataSplit
     train_y::Array
     test_y::Array
     DataSplit(train_x, test_x, train_y, test_y) = new(train_x, test_x, train_y, test_y)
-end
+end # DataSplit
 
 """
     DataSplit(data_x::Array, data_y::Array, ratio::Float)
@@ -26,7 +26,7 @@ function DataSplit(data_x::Array, data_y::Array, ratio::Real)
     test_y = data_y[split_ind+1:end]
 
     return DataSplit(train_x, test_x, train_y, test_y)
-end
+end # DataSplit(data_x::Array, data_y::Array, ratio::Real)
 
 """
     tt_supervised(art::T, data::DataSplit) where {T<:AbstractART}
@@ -43,7 +43,7 @@ function tt_supervised(art::T, data::DataSplit) where {T<:AbstractART}
     @info "Performance is $perf"
 
     return perf
-end
+end # tt_supervised(art::T, data::DataSplit) where {T<:AbstractART}
 
 """
     showtypetree(T, level=0)
@@ -58,8 +58,7 @@ function showtypetree(T, level=0)
     for t in subtypes(T)
         showtypetree(t, level+1)
     end
-end
-
+end # showtypetree(T, level=0)
 
 """
     load_iris(data_path::String ; split_ratio::Real = 0.8)
@@ -92,7 +91,7 @@ function load_iris(data_path::String ; split_ratio::Real = 0.8)
     data = DataSplit(x, y, split_ratio)
 
     return data
-end
+end # load_iris(data_path::String ; split_ratio::Real = 0.8)
 
 # """
 #     load_am_data(N_train, N_test)
