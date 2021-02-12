@@ -2,11 +2,11 @@
 
 [[AdaptiveResonance]]
 deps = ["Distributed", "LinearAlgebra", "Logging", "MLJ", "Parameters", "Printf", "ProgressBars", "SharedArrays", "Statistics"]
-git-tree-sha1 = "7287089fb08f0c393b746f262e5a937a0dfeaebf"
+git-tree-sha1 = "726a4138f374ec2682d860d378b22fcd0377d2ef"
 repo-rev = "master"
 repo-url = "https://github.com/AP6YC/AdaptiveResonance.jl"
 uuid = "3d72adc0-63d3-4141-bf9b-84450dd0395b"
-version = "0.1.0"
+version = "0.1.1"
 
 [[Artifacts]]
 deps = ["Pkg"]
@@ -30,9 +30,9 @@ version = "0.8.3"
 
 [[ChainRulesCore]]
 deps = ["Compat", "LinearAlgebra", "SparseArrays"]
-git-tree-sha1 = "53fed426c9af1eb68e63b3999e96454c2db79757"
+git-tree-sha1 = "d3d0a4e0d5bc03a6c97f4d249c8a471fc20a2f33"
 uuid = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
-version = "0.9.27"
+version = "0.9.28"
 
 [[CodecZlib]]
 deps = ["TranscodingStreams", "Zlib_jll"]
@@ -164,9 +164,9 @@ uuid = "9fa8497b-333b-5362-9e8d-4d0656e87820"
 
 [[HTTP]]
 deps = ["Base64", "Dates", "IniFile", "MbedTLS", "Sockets", "URIs"]
-git-tree-sha1 = "63055ee44b5c2b95ec1921edcf856c60124ff0c3"
+git-tree-sha1 = "942c1a9c750bbe79912b7bd060a420932afd35b8"
 uuid = "cd3eb016-35fb-5094-929b-558a96fad6f3"
-version = "0.9.2"
+version = "0.9.3"
 
 [[IOCapture]]
 deps = ["Logging"]
@@ -385,9 +385,9 @@ version = "0.8.0"
 
 [[ProgressMeter]]
 deps = ["Distributed", "Printf"]
-git-tree-sha1 = "45640774ee2efa24e52686dbdf895e88102e68fc"
+git-tree-sha1 = "6e9c89cba09f6ef134b00e10625590746ba1e036"
 uuid = "92933f4c-e287-5a05-a399-4b506db050ca"
-version = "1.4.1"
+version = "1.5.0"
 
 [[QuadGK]]
 deps = ["DataStructures", "LinearAlgebra"]
