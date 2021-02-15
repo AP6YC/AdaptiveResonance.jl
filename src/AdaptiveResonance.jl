@@ -29,7 +29,10 @@ export
     # Algorithmic functions
     train!, classify, performance,
 
-    # Utility functions
+    # Common structures
+    DataConfig, data_setup,
+
+    # Common utility functions
     complement_code,
 
     # DDVFA
