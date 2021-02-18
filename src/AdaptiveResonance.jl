@@ -15,8 +15,9 @@ abstract type AbstractART end
 abstract type AbstractCVI end
 
 # Include all files
-include("common.jl")
-include("ARTMAP/ARTMAP.jl")
+include("common.jl")        # Objects shared by all modules
+include("constants.jl")     # Global constants and references for convenience
+include("ARTMAP/ARTMAP.jl") #
 include("ART/ART.jl")
 include("CVI/CVI.jl")
 

@@ -7,6 +7,17 @@ using Random
 # Auxiliary generic functions for loading data, etc.
 include("test_utils.jl")
 
+@testset "constants.jl" begin
+    @info "Constants testing"
+    ddvfa_methods = ["single",
+                     "average",
+                     "complete",
+                     "median",
+                     "weighted",
+                     "centroid"]
+    @test AdaptiveResonance.DDVFA_METHODS == ddvfa_methods
+end
+
 @testset "ARTSCENE.jl" begin
     # ARTSCENE training and testing
     include("test_artscene.jl")

@@ -26,6 +26,43 @@ function DataConfig()
 end # DataConfig()
 
 """
+    DataConfig(mins::Array, maxs::Array)
+
+Convenience constructor for DataConfig, requiring only mins and maxs of the features.
+
+This constructor is used when the mins and maxs differ across features. The dimension is inferred by the length of the mins and maxs.
+"""
+function DataConfig(mins::Array, maxs::Array)
+    # Verify that the mins and maxs are the same length
+    length(mins) != length(maxs) && error("Mins and maxs must be the same length.")
+
+    dim = length(mins)
+
+    DataConfig(true,
+               mins,
+               max,
+               dim,
+               dim*2
+    )
+end
+
+"""
+    DataConfig(min::Real, max::Real, dim::Int64)
+
+Convenience constructor for DataConfig, requiring only a global min, max, and dim.
+
+This constructor is used in the case that the feature mins and maxs are all the same respectively.
+"""
+function DataConfig(min::Real, max::Real, dim::Int64)
+    DataConfig(true,
+               repeat([min], dim),
+               repeat([max], dim),
+               dim,
+               dim*2
+    )
+end
+
+"""
     element_min(x::Array, W::Array)
 
 Returns the element-wise minimum between sample x and weight W.
@@ -100,7 +137,7 @@ end # get_n_samples(data::Array)
 """
     data_setup!(config::DataConfig, data::Array)
 
-Sets up the data config for the ART module before training
+Sets up the data config for the ART module before training.
 """
 function data_setup!(config::DataConfig, data::Array)
     if config.setup
