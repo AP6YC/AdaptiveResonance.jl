@@ -671,11 +671,7 @@ function classify(art::DDVFA, x::Array ; preprocessed=false)
         x = complement_code(x, art.config)
     end
 
-    # Data information
-    # art.dim, n_samples = size(x)
-    # _, n_samples = size(x)
-    # art.dim_comp = 2*art.dim
-    # art.labels = zeros(n_samples)
+    # Initialize the output vector
     y_hat = zeros(Int, n_samples)
 
     iter_raw = 1:n_samples

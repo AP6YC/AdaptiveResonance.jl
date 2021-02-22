@@ -44,7 +44,7 @@ function DataConfig(mins::Array, maxs::Array)
                dim,
                dim*2
     )
-end
+end # DataConfig(mins::Array, maxs::Array)
 
 """
     DataConfig(min::Real, max::Real, dim::Int64)

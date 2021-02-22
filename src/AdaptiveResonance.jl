@@ -44,6 +44,10 @@ export
     DAM, opts_DAM,
     SFAM, opts_SFAM,
 
+    # CVI
+    CONN, XB,
+    param_inc!, param_batch!,
+
     # ARTSCENE
     color_to_gray,
     contrast_normalization,

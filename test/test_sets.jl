@@ -4,8 +4,27 @@ using Logging
 using DelimitedFiles
 using Random
 
+# Set the log level
+LogLevel(Logging.Info)
+
 # Auxiliary generic functions for loading data, etc.
 include("test_utils.jl")
+
+@testset "CVI.jl" begin
+    @info "CVI Testing"
+    # Parse the data
+    data_file = "../data/full_data.csv"
+    data = readdlm(data_file, ',')
+    data = permutedims(data)
+    train_x = data[1:2, :]
+    train_y = data[3, :]
+
+    # Create the ART module, train, and classify
+    # art = SFAM()
+    # train!(art, train_x, train_y)
+
+    cvi = XB()
+end
 
 @testset "constants.jl" begin
     @info "Constants testing"
