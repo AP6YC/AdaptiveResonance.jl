@@ -84,7 +84,7 @@ function DAM(opts::opts_DAM)
 end # DAM(opts::opts_DAM)
 
 """
-    train(art::DAM, x, y)
+    train!(art::DAM, x::Array, y::Array ; preprocessed=false)
 
 Trains a Default ARTMAP learner in a supervised manner.
 
@@ -110,7 +110,7 @@ function train!(art::DAM, x::Array, y::Array ; preprocessed=false)
 
     # If the data isn't preprocessed, then complement code it with the config
     if !preprocessed
-        x = complement_code(x, art.config)
+        x = complement_code(x, config=art.config)
     end
 
     # Convenient semantic flag
@@ -186,10 +186,10 @@ function train!(art::DAM, x::Array, y::Array ; preprocessed=false)
         end
         art.W_old = deepcopy(art.W)
     end
-end
+end # train!(art::DAM, x::Array, y::Array ; preprocessed=false)
 
 """
-    classify(art::DAM, x)
+    classify(art::DAM, x::Array ; preprocessed=false)
 
 Categorize data 'x' using a trained Default ARTMAP module 'art'.
 
@@ -217,7 +217,7 @@ function classify(art::DAM, x::Array ; preprocessed=false)
 
     # If the data is not preprocessed, then complement code it
     if !preprocessed
-        x = complement_code(x, art.config)
+        x = complement_code(x, config=art.config)
     end
 
     # Initialize the output vector and iterate across all data

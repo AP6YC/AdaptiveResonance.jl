@@ -86,7 +86,7 @@ function SFAM(opts::opts_SFAM)
 end # SFAM(opts::opts_SFAM)
 
 """
-    train(art::SFAM, x::Array, y::Array ; preprocessed=false)
+    train!(art::SFAM, x::Array, y::Array ; preprocessed=false)
 
 Trains a Simple Fuzzy ARTMAP learner in a supervised manner.
 
@@ -112,7 +112,7 @@ function train!(art::SFAM, x::Array, y::Array ; preprocessed=false)
 
     # If the data is not preprocessed, then complement code it
     if !preprocessed
-        x = complement_code(x, art.config)
+        x = complement_code(x, config=art.config)
     end
 
     # Initialize the internal categories
@@ -184,7 +184,7 @@ function train!(art::SFAM, x::Array, y::Array ; preprocessed=false)
         end
         art.W_old = deepcopy(art.W)
     end
-end
+end # train!(art::SFAM, x::Array, y::Array ; preprocessed=false)
 
 """
     classify(art::SFAM, x::Array ; preprocessed=false)
@@ -215,7 +215,7 @@ function classify(art::SFAM, x::Array ; preprocessed=false)
 
     # If the data is not preprocessed, then complement code it
     if !preprocessed
-        x = complement_code(x, art.config)
+        x = complement_code(x, config=art.config)
     end
 
     # Initialize the output vector and iterate across all data

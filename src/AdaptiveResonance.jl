@@ -34,7 +34,8 @@ export
     DataConfig, data_setup,
 
     # Common utility functions
-    complement_code,
+    complement_code, get_data_characteristics, linear_normalization,
+    get_data_shape, get_n_samples,
 
     # DDVFA
     DDVFA, opts_DDVFA, GNFA, opts_GNFA,
@@ -46,7 +47,7 @@ export
 
     # CVI
     CONN, XB,
-    param_inc!, param_batch!,
+    param_inc!, param_batch!, evaluate!,
 
     # ARTSCENE
     color_to_gray,

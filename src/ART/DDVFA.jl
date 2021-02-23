@@ -487,7 +487,7 @@ function train!(art::DDVFA, x::Array ; preprocessed=false)
 
     # If the data is not preprocessed, then complement code it
     if !preprocessed
-        x = complement_code(x, art.config)
+        x = complement_code(x, config=art.config)
     end
 
     art.labels = zeros(n_samples)
@@ -663,12 +663,12 @@ function classify(art::DDVFA, x::Array ; preprocessed=false)
     # Data information and setup
     n_samples = get_n_samples(x)
 
-    if !art.config.setup
-        @error "Attempting to classify data before setup"
-    end
+    # Verify that the data is setup before classifying
+    !art.config.setup && @error "Attempting to classify data before setup"
 
+    ## If the data is not preprocessed, then complement code it
     if !preprocessed
-        x = complement_code(x, art.config)
+        x = complement_code(x, config=art.config)
     end
 
     # Initialize the output vector

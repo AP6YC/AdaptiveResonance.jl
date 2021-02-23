@@ -21,7 +21,6 @@ Int. J. Intell. Syst., pp. 1–23, 2018.
 """
 
 using Statistics
-using LinearAlgebra
 
 """
     XB
@@ -31,16 +30,17 @@ The stateful information of the Xie-Beni CVI.
 mutable struct XB <: AbstractCVI
     dim::Int64
     n_samples::Int64
-    mu_data::Array{Float64, 1}
-    n::Array{Float64, 1}
-    v::Array{Float64, 2}
-    CP::Array{Float64, 1}
+    mu_data::Array{Float64, 1}  # dim
+    n::Array{Int64, 1}          # dim
+    v::Array{Float64, 2}        # dim x n_clusters
+    CP::Array{Float64, 1}       # dim
     SEP::Float64
-    G::Array{Float64, 2}
-    D::Array{Float64, 2}
+    G::Array{Float64, 2}        # dim x n_clusters
+    D::Array{Float64, 2}        # n_clusters x n_clusters
     WGSS::Float64
     n_clusters::Int64
-    criterion_value::Array{Float64, 2}
+    # criterion_value::Array{Float64, 2}
+    criterion_value::Float64
 end # XB <: AbstractCVI
 
 """
@@ -52,7 +52,7 @@ function XB()
     XB(0,                               # dim
        0,                               # n_samples
        Array{Float64, 1}(undef, 0),     # mu_data
-       Array{Float64, 1}(undef, 0),     # n
+       Array{Int64, 1}(undef, 0),       # n
        Array{Float64, 2}(undef, 0, 0),  # v
        Array{Float64, 1}(undef, 0),     # CP
        0.0,                             # SEP
@@ -60,14 +60,16 @@ function XB()
        Array{Float64, 2}(undef, 0, 0),  # D
        0.0,                             # WGSS
        0,                               # n_clusters
-       Array{Float64, 2}(undef, 0, 0)   # criterion_value
+       0.0                              # criterion_value
     )
 end # XB()
 
 function setup!(cvi::XB, sample::Array{T, 1}) where {T<:Real}
-    cvi.mu_data
-    # art.W_old = Array{Float64}(undef, art.config.dim_comp, 1)
-    # art.W_old[:, 1] = x[:, 1]
+    # Get the feature dimension
+    cvi.dim = length(sample)
+    # Initialize the 2-D arrays with the correct feature dimension
+    cvi.v = Array{T, 2}(undef, cvi.dim, 0)
+    cvi.G = Array{T, 2}(undef, cvi.dim, 0)
 end
 
 """
@@ -95,30 +97,43 @@ function param_inc!(cvi::XB, sample::Array{T, 1}, label::I) where {T<:Real, I<:I
             D_new = zeros(cvi.n_clusters + 1, cvi.n_clusters + 1)
             D_new[1:cvi.n_clusters, 1:cvi.n_clusters] = cvi.D
             d_column_new = zeros(cvi.n_clusters + 1)
+            # println(d_column_new)
             for jx = 1:cvi.n_clusters
-                d_column_new[jx] = sum((v_new - cvi.v[:, jx]).^2, dims=1)
+                # sum((v_new - cvi.v[:, jx]).^2, dims=1)
+                d_column_new[jx] = sum((v_new - cvi.v[:, jx]).^2)
             end
             D_new[:, label] = d_column_new
             D_new[label, :] = transpose(d_column_new)
         end
         # Update parameters
+        push!(cvi.CP, CP_new)
+        push!(cvi.n, n_new)
+        # Update parameters
         cvi.n_clusters += 1
-        cvi.n = [cvi.n; n_new]
+        # cvi.n = [cvi.n; n_new]
         cvi.v = [cvi.v v_new]
-        cvi.CP = [cvi.CP; CP_new]
+        # cvi.CP = [cvi.CP; CP_new]
         cvi.G = [cvi.G G_new]
+        # if D_new is a scalar, cast it as a 2-D array
+        if isempty(size(D_new))
+            place_holder = convert(T, D_new)
+            D_new = Array{T, 2}(undef, 1, 1)
+            D_new[1, 1] = place_holder
+        end
         cvi.D = D_new
     else
         n_new = cvi.n[label] + 1
         v_new = (1 - 1/n_new) .* cvi.v[:, label] + (1/n_new) .* sample
         delta_v = cvi.v[:, label] - v_new
         diff_x_v = sample .- v_new
-        CP_new = cvi.CP[label] + transpose(diff_x_v)*diff_x_v + cvi.n[label]*transpose(delta_v)*delta_v + 2*tranpose(delta_v)*cvi.G[:, label]
+        CP_new = cvi.CP[label] + transpose(diff_x_v)*diff_x_v + cvi.n[label]*transpose(delta_v)*delta_v + 2*transpose(delta_v)*cvi.G[:, label]
+        d_column_new = zeros(T, cvi.n_clusters)
         for jx = 1:cvi.n_clusters
             if jx == label
                 continue
             end
-            d_column_new[jx] = sum((v_new - cvi.v[:, jx]).^2, dims=1)
+            # sum((v_new - cvi.v[:, jx]).^2, dims=1)
+            d_column_new[jx] = sum((v_new - cvi.v[:, jx]).^2)
         end
         # Update parameters
         cvi.n[label] = n_new
@@ -138,15 +153,17 @@ Compute the XB CVI in batch.
 """
 function param_batch!(cvi::XB, data::Array{T, 2}, labels::Array{I, 1}) where {T<:Real, I<:Int}
     cvi.dim, cvi.n_samples = size(data)
-    cvi.mu_data = mean(data, dims=2)
-    u = findfirst.(isequal.(unique(labels)), [labels])
+    # Take the average across all samples, but cast to 1-D vector
+    cvi.mu_data = mean(data, dims=2)[:]
+    # u = findfirst.(isequal.(unique(labels)), [labels])
+    u = unique(labels)
     cvi.n_clusters = length(u)
     cvi.n = zeros(cvi.n_clusters)
     cvi.v = zeros(cvi.dim, cvi.n_clusters)
     cvi.CP = zeros(cvi.n_clusters)
     cvi.D = zeros(cvi.n_clusters, cvi.n_clusters)
     for ix = 1:cvi.n_clusters
-        subset = data[:, findall(x->x==u[ix])]
+        subset = data[:, findall(x->x==u[ix], labels)]
         cvi.n[ix] = size(subset, 2)
         cvi.v[1:cvi.dim, ix] = mean(subset, dims=2)
         diff_x_v = subset - cvi.v[:, ix] * ones(1, cvi.n[ix])
@@ -154,22 +171,26 @@ function param_batch!(cvi::XB, data::Array{T, 2}, labels::Array{I, 1}) where {T<
     end
     for ix = 1 : (cvi.n_clusters - 1)
         for jx = ix + 1 : cvi.n_clusters
-            cvi.D[jx, ix] = sum((cvi.v[:, ix] - cvi.v[:, jx]).^2, dims=1)
+            # cvi.D[jx, ix] = sum((cvi.v[:, ix] - cvi.v[:, jx]).^2, dims=1)
+            cvi.D[jx, ix] = sum((cvi.v[:, ix] - cvi.v[:, jx]).^2)
         end
     end
     cvi.D = cvi.D + transpose(cvi.D)
 end # param_batch(cvi::XB, data::Array{Real, 2}, labels::Array{Real, 1})
 
-function evaluate(cvi::XB)
+function evaluate!(cvi::XB)
     cvi.WGSS = sum(cvi.CP)
     if cvi.n_clusters > 1
-        mask = ones(Int64, size(cvi.D))
-        mask = UpperTriangular(mask)
-        for ij = 1:size(mask, 1)
-            mask[ij, ij] = 0
-        end
-        values = cvi.D[mask]
+        # Assume a symmetric dimension
+        dim = size(cvi.D)[1]
+        # Get the values from D as the upper triangular offset from the diagonal
+        values = [cvi.D[i,j] for i = 1:dim, j=1:dim if j > i]
+        # SEP is the minimum of these unique D values
         cvi.SEP = minimum(values)
+        # Criterion value is
         cvi.criterion_value = cvi.WGSS/(cvi.n_samples*cvi.SEP)
+    else
+        cvi.SEP = 0.0
+        cvi.criterion_value = 0.0
     end
 end # evaluate(cvi::XB)

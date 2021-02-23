@@ -7,8 +7,8 @@ mutable struct DataConfig
     setup::Bool
     mins::Array{Float64, 1}
     maxs::Array{Float64, 1}
-    dim::Int
-    dim_comp::Int
+    dim::Int64
+    dim_comp::Int64
 end # DataConfig
 
 """
@@ -156,17 +156,37 @@ function data_setup!(config::DataConfig, data::Array)
 end # data_setup!(config::DataConfig, data::Array)
 
 """
-    complement_code(data::Array)
+    get_data_characteristics(data::Array ; config::DataConfig=DataConfig())
 
-Normalize the data x to [0, 1] and returns the augmented vector [x, 1 - x].
+Get the characteristics of the data, taking account if a data config is passed.
+
+If no DataConfig is passed, then the data characteristics come from the array itself. Otherwise, use the config for the statistics of the data and the data array for the number of samples.
 """
-function complement_code(data::Array)
-    # Get the correct dimensionality and number of samples
-    dim, n_samples = get_data_shape(data)
+function get_data_characteristics(data::Array ; config::DataConfig=DataConfig())
+    # If the data is setup, use the config
+    if config.setup
+        n_samples = get_n_samples(data)
+        dim = config.dim
+        mins = config.mins
+        maxs = config.maxs
+    else
+        # Get the correct dimensionality and number of samples
+        dim, n_samples = get_data_shape(data)
+        # Get the ranges for each feature
+        mins = [minimum(data[i, :]) for i in 1:dim]
+        maxs = [maximum(data[i, :]) for i in 1:dim]
+    end
+    return dim, n_samples, mins, maxs
+end
 
-    # Get the ranges for each feature
-    mins = [minimum(data[i, :]) for i in 1:dim]
-    maxs = [maximum(data[i, :]) for i in 1:dim]
+"""
+    linear_normalization(data::Array ; config::DataConfig=DataConfig())
+
+Normalize the data to the range [0, 1] along each feature.
+"""
+function linear_normalization(data::Array ; config::DataConfig=DataConfig())
+    # Get the data characteristics
+    dim, n_samples, mins, maxs = get_data_characteristics(data, config=config)
 
     # Populate a new array with normalized values.
     x_raw = zeros(dim, n_samples)
@@ -175,31 +195,21 @@ function complement_code(data::Array)
             x_raw[i, :] = (data[i, :] .- mins[i]) ./ (maxs[i] - mins[i])
         end
     end
+    return x_raw
+end # linear_normalization(data::Array)
+
+"""
+    complement_code(data::Array ; config::DataConfig=DataConfig())
+
+Normalize the data x to [0, 1] and returns the augmented vector [x, 1 - x].
+"""
+function complement_code(data::Array ; config::DataConfig=DataConfig())
+    # Normalize the data
+    x_raw = linear_normalization(data, config=config)
 
     # Complement code the data and return a concatenated matrix
     return vcat(x_raw, 1 .- x_raw)
 end # complement_code(data::Array)
-
-"""
-    complement_code(data::Array, config::DataConfig)
-
-Complement code the data based upon the given data config.
-"""
-function complement_code(data::Array, config::DataConfig)
-    # Get the number of points to code
-    n_samples = get_n_samples(data)
-
-    # Populate a new array with normalized values.
-    x_raw = zeros(config.dim, n_samples)
-    for i = 1:config.dim
-        if config.maxs[i] - config.mins[i] != 0
-            x_raw[i, :] = (data[i, :] .- config.mins[i]) ./ (config.maxs[i] - config.mins[i])
-        end
-    end
-
-    # Complement code the data and return a concatenated matrix
-    return vcat(x_raw, 1 .- x_raw)
-end # complement_code(data::Array, config::DataConfig)
 
 # """
 #     get_field_meta(obj, field_name)
