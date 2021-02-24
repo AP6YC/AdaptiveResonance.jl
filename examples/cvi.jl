@@ -32,14 +32,14 @@ train_x = data[1:2, :]
 train_y = convert(Array{Int64}, data[3, :])
 
 # Incremental
-cvi = XB()
+cvi_i = XB()
 for ix = 1:length(train_y)
-    param_inc!(cvi, train_x[:, ix], train_y[ix])
-    evaluate!(cvi)
+    param_inc!(cvi_i, train_x[:, ix], train_y[ix])
+    evaluate!(cvi_i)
 end
 
-#
-cvi = XB()
+# Batch
+cvi_b = XB()
 
-vind = param_batch!(cvi, train_x, train_y)
-evaluate!(cvi)
+vind = param_batch!(cvi_b, train_x, train_y)
+evaluate!(cvi_b)
