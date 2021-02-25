@@ -105,14 +105,12 @@ function param_inc!(cvi::XB, sample::Array{T, 1}, label::I) where {T<:Real, I<:I
             D_new[:, label] = d_column_new
             D_new[label, :] = transpose(d_column_new)
         end
-        # Update parameters
+        # Update 1-D parameters with a push
+        cvi.n_clusters += 1
         push!(cvi.CP, CP_new)
         push!(cvi.n, n_new)
-        # Update parameters
-        cvi.n_clusters += 1
-        # cvi.n = [cvi.n; n_new]
+        # Update 2-D parameters with appending and reassignment
         cvi.v = [cvi.v v_new]
-        # cvi.CP = [cvi.CP; CP_new]
         cvi.G = [cvi.G G_new]
         # if D_new is a scalar, cast it as a 2-D array
         if isempty(size(D_new))

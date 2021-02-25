@@ -1,15 +1,5 @@
 using Distributed
 using SharedArrays
-# using Images
-# using Logging
-
-# Set the log level
-# LogLevel(Logging.Info)
-
-# using ImageIO
-# addprocs(4)
-# @everywhere using SharedArrays
-# @everywhere begin
 
 """
     color_to_gray(image::Array)
@@ -20,7 +10,6 @@ function color_to_gray(image::Array)
     # Treat the image as a column-major array, cast to grayscale
     dim, n_row, n_column = size(image)
     return [sum(image[:,i,j])/3 for i=1:n_row, j=1:n_column]
-    # return Gray.(image)
 end # color_to_gray(image::Array)
 
 """
@@ -315,61 +304,60 @@ function patch_orientation_color(z::Array, image::Array)
 end # patch_orientation_color(z::Array, image::Array)
 
 """
-    artscene_filter(raw_image::Array ;  distributed=true)
+    artscene_filter(raw_image::Array{T, 3} ;  distributed::Bool=true) where {T<:Real}
 
 Process the full artscene filter toolchain on an image.
 """
-function artscene_filter(raw_image::Array ;  distributed=true)
-    # Set the logging level to Info
-    # LogLevel(Logging.Info)
+function artscene_filter(raw_image::Array{T, 3} ;  distributed::Bool=true) where {T<:Real}
+
+    # Get the number of workers
     n_processes = nprocs()
     n_workers = nworkers()
-    @info "Processes: $n_processes, Workers: n_workers"
+    @debug "Processes: $n_processes, Workers: $n_workers"
 
     # Random image
     image_size = size(raw_image)
     image_type =  typeof(raw_image)
-    @info "Original: Size = $image_size, Type = $image_type"
+    @debug "Original: Size = $image_size, Type = $image_type"
 
     # Stage 1: Grayscale
     image = color_to_gray(raw_image)
     image_size = size(image)
     image_type = typeof(image)
-    @info "Stage 1: Grayscale: Size = $image_size, Type = $image_type"
-    @info "Stage 1: Done"
+    @debug "Stage 1: Grayscale: Size = $image_size, Type = $image_type"
+    @debug "Stage 1: Done"
 
     # Stage 2: Contrast normalization
     x = contrast_normalization(image, distributed=true)
     image_size = size(x)
     image_type = typeof(x)
-    @info "Stage 2: Contrast: Size = $image_size, Type = $image_type"
-    @info "Stage 2: Done"
+    @debug "Stage 2: Contrast: Size = $image_size, Type = $image_type"
+    @debug "Stage 2: Done"
 
     # Stage 3: Contrast-sensitive oriented filtering
     y = contrast_sensitive_oriented_filtering(image, x)
     image_size = size(y)
     image_type = typeof(y)
-    @info "Stage 3: Sensitive Oriented: Size = $image_size, Type = $image_type"
-    @info "Stage 3: Done"
+    @debug "Stage 3: Sensitive Oriented: Size = $image_size, Type = $image_type"
+    @debug "Stage 3: Done"
 
     # Stage 4: Contrast-insensitive oriented filtering
     z = contrast_insensitive_oriented_filtering(y)
     image_size = size(z)
     image_type = typeof(z)
-    @info "Stage 4: Insensitive Oriented: Size = $image_size, Type = $image_type"
-    @info "Stage 4: Done"
+    @debug "Stage 4: Insensitive Oriented: Size = $image_size, Type = $image_type"
+    @debug "Stage 4: Done"
 
     # Stage 5: Orientation competition
     z = orientation_competition(z)
     image_size = size(z)
     image_type = typeof(z)
-    @info "Stage 5: Orientation Competition: Size = $image_size, Type = $image_type"
-    @info "Stage 5: Done"
+    @debug "Stage 5: Orientation Competition: Size = $image_size, Type = $image_type"
+    @debug "Stage 5: Done"
 
     # *Stage 6*: Compute patch vectors (orientation and color)
-    # O, C = patch_orientation_color(z, matrix_raw_image)
     O, C = patch_orientation_color(z, raw_image)
-    @info "Stage 6: Done"
+    @debug "Stage 6: Done"
 
     return O, C
-end # artscene_filter(raw_image::Array ;  distributed=true)
+end # artscene_filter(raw_image::Array{T, 3} ;  distributed::Bool=true) where {T<:Real}

@@ -29,7 +29,6 @@ include("test_utils.jl")
 
     # Batch
     cvi_b = XB()
-
     vind = param_batch!(cvi_b, train_x, train_y)
     evaluate!(cvi_b)
 end
