@@ -18,21 +18,21 @@ end
 
 function CONN()
     CONN(
-        0,                              # dim
-        0,                              # n_samples
-        Array{Array{Int64, 1}, 1}(undef, 0), # label_protos
-        Array{Float64, 2}(undef, 0, 0), # CADJ
-        Array{Float64, 2}(undef, 0, 0), # CONN
-        0,                              # n_clusters
-        0,                              # n_prototypes
-        0.0,                            # inter_conn
-        0.0,                            # intra_conn
-        0.0,                            # criterion_values
-        Array{Float64, 2}(undef, 0),    # inter_k_cache
-        Array{Float64, 2}(undef, 0, 0), # inter_kl_cache
-        Array{Float64, 2}(undef, 0),    # intra_k_cache
-        "CONN",                         # condition
-        0                               # missing_samples
+        0,                                      # dim
+        0,                                      # n_samples
+        Array{Array{Int64, 1}, 1}(undef, 0),    # label_protos
+        Array{Float64, 2}(undef, 0, 0),         # CADJ
+        Array{Float64, 2}(undef, 0, 0),         # CONN
+        0,                                      # n_clusters
+        0,                                      # n_prototypes
+        0.0,                                    # inter_conn
+        0.0,                                    # intra_conn
+        0.0,                                    # criterion_values
+        Array{Float64, 1}(undef, 0),            # inter_k_cache
+        Array{Float64, 2}(undef, 0, 0),         # inter_kl_cache
+        Array{Float64, 1}(undef, 0),            # intra_k_cache
+        "CONN",                                 # condition
+        0                                       # missing_samples
     )
 end
 
@@ -83,14 +83,14 @@ function expand_array!(arr::Array{Float64} ; n::Int64 = 1)
 end # expand_array!(arr::Array{Float64, 2} ; n::Int64 = 1)
 
 """
-    expand_array!(arr::Array{Float64}, new_dim::Int64 = 0)
+    expand_array_to!(arr::Array{Float64}, new_dim::Int64 = 0)
 
 Expand the array in place to new_dim dimensions.
 
 Accepts 1-D or 2-D float arrays.
 Does nothing if the new dim is smaller than the old one.
 """
-function expand_array!(arr::Array{Float64}, new_dim::Int64 = 0)
+function expand_array_to!(arr::Array{Float64}, new_dim::Int64 = 0)
     # Get the correct dimensionality and number of samples
     if ndims(arr) > 1
         old_dim, _ = size(data)
@@ -107,7 +107,7 @@ function expand_array!(arr::Array{Float64}, new_dim::Int64 = 0)
         # Expand the array in place by n dims
         expand_array!(arr, n=n)
     end
-end # expand_array!(arr::Array{Float64}, new_dim::Int64 = 0)
+end # expand_array_to!(arr::Array{Float64}, new_dim::Int64 = 0)
 
 """
     intra_k(cvi::CONN, Ck::Int64)
@@ -141,7 +141,7 @@ function calc_intra_conn!(cvi::CONN, Ck::Int64=0)
     # If a cluster is given
     if Ck != 0
         # Make room for the cluster
-        expand_array!(cvi.intra_k_cache, Ck)
+        expand_array_to!(cvi.intra_k_cache, Ck)
         # Update the cached value
         cvi.intra_k_cache[Ck] = cvi.intra_k[Ck]
     end
@@ -150,7 +150,7 @@ function calc_intra_conn!(cvi::CONN, Ck::Int64=0)
         # If no cluster is specified
         if Ck == 0
             # Make room for the cached cluster values
-            expand_array!(cvi.intra_k_cache, k)
+            expand_array_to!(cvi.intra_k_cache, k)
             cvi.intra_k_cache[k] = intra_k(cvi, k)
         end
         # Sum cached values
@@ -236,13 +236,12 @@ function calc_inter_conn!(cvi::CONN, Ck::Int64=0, Cl::Int64=0)
         end
     end
     cvi.inter_conn = sum(cvi.inter_k_cache) / cvi.n_clusters
-
 end # calc_inter_conn!(cvi::CONN, Ck::Int64=0, Cl::Int64=0)
 
 """
-    param_inc(cvi::CONN, p::Int64, p2::Int64, label::Int64)
+    param_inc!(cvi::CONN, p::Int64, p2::Int64, label::Int64)
 """
-function param_inc(cvi::CONN, p::Int64, p2::Int64, label::Int64)
+function param_inc!(cvi::CONN, p::Int64, p2::Int64, label::Int64)
     # Increment the sample count
     cvi.n_samples += 1
     # New prototype flag defaults to false
@@ -254,7 +253,7 @@ function param_inc(cvi::CONN, p::Int64, p2::Int64, label::Int64)
         # Increment the prototype count
         cvi.n_prototypes += 1
         # Expand the array to the new number of prototypes
-        expand_array!(cvi.CADJ, cvi.n_prototypes)
+        expand_array_to!(cvi.CADJ, cvi.n_prototypes)
         # If there is more than one prototype
         if p2 > 0
             cvi.CADJ[p, p2] = 1
@@ -284,7 +283,7 @@ function param_inc(cvi::CONN, p::Int64, p2::Int64, label::Int64)
             cvi.missing_samples = 0
         end
         # Expand the CONN array if necessary
-        expand_array!(cvi.CONN, cvi.n_prototypes)
+        expand_array_to!(cvi.CONN, cvi.n_prototypes)
         # Update the CONN matrix
         cvi.CONN[p, p2] = cvi.CADJ[p, p2] + cvi.CADJ[p2, p]
         cvi.CONN[p2, p] = cvi.CONN[p, p2]
@@ -309,4 +308,6 @@ function param_inc(cvi::CONN, p::Int64, p2::Int64, label::Int64)
             end
         end
     end
-end
+end # param_inc!(cvi::CONN, p::Int64, p2::Int64, label::Int64)
+
+# function

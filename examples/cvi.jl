@@ -1,3 +1,4 @@
+using Revise
 using AdaptiveResonance
 using DelimitedFiles
 using Logging
@@ -24,7 +25,6 @@ LogLevel(Logging.Info)
 # end
 
 # Parse the data
-# data_file = "data/full_data.csv"
 data_file = "data/correct_partition.csv"
 data = readdlm(data_file, ',')
 data = permutedims(data)
