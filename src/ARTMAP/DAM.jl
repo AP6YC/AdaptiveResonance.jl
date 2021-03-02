@@ -122,10 +122,12 @@ function train!(art::DAM, x::Array, y::Array ; preprocessed=false)
     # Initialize the training loop, continue to convergence
     art.epoch = 0
     while true
+        # Increment the epoch and get the iterator
         art.epoch += 1
-        iter = ProgressBar(1:n_samples)
+        iter = get_iterator(art.opts, x)
         for ix in iter
-            set_description(iter, string(@sprintf("Ep: %i, ID: %i, Cat: %i", art.epoch, ix, art.n_categories)))
+            # Update the iterator if necessary
+            update_iter(art, iter, ix)
             if !(y[ix] in art.labels)
                 # Initialize W and labels
                 if isempty(art.W)

@@ -158,7 +158,7 @@ function initialize!(art::GNFA, x::Array ; y::Int=0)
     art.W[:, 1] = x
     label = y == 0 ? y : 1
     push!(art.labels, label)
-end # initialize!(GNFA, x)
+end # initialize!(art::GNFA, x::Array ; y::Int=0)
 
 """
     train!(art::GNFA, x::Array ; y::Array=[])
@@ -298,7 +298,7 @@ function classify(art::GNFA, x::Array)
         end
     end
     return y_hat
-end # classify(GNFA, x)
+end # classify(art::GNFA, x::Array)
 
 """
     activation_match!(art::GNFA, x::Array)
@@ -325,7 +325,7 @@ function activation_match!(art::GNFA, x::Array)
         art.T[i] = (norm(element_min(x, art.W[:, i]), 1)/(art.opts.alpha + W_norm))^art.opts.gamma
         art.M[i] = (W_norm^art.opts.gamma_ref)*art.T[i]
     end
-end # activation_match!(GNFA, x)
+end # activation_match!(art::GNFA, x::Array)
 
 """
     learn(art::GNFA, x::Array, W::Array)
@@ -472,7 +472,7 @@ function DDVFA(opts::opts_DDVFA)
           0,
           0
     )
-end # DDVFA(opts)
+end # DDVFA(opts::opts_DDVFA)
 
 """
     train!(art::DDVFA, x::Array ; preprocessed=false)

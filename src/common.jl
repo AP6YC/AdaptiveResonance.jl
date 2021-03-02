@@ -194,7 +194,9 @@ function linear_normalization(data::Array ; config::DataConfig=DataConfig())
     # Populate a new array with normalized values.
     x_raw = zeros(dim, n_samples)
     for i = 1:dim
-        if maxs[i] - mins[i] != 0
+        if maxs[i] < mins[i]
+            error("Got a data max index that is smaller than the corresonding min")
+        elseif maxs[i] - mins[i] != 0
             x_raw[i, :] = (data[i, :] .- mins[i]) ./ (maxs[i] - mins[i])
         end
     end

@@ -36,6 +36,7 @@ mutable struct FuzzyART <: AbstractART
     labels::Array{Int, 1}       # best matching units (class labels)
     labels2::Array{Int, 1}      # second best matching units
     n_categories::Int           # total number of categories
+    n_instance::Array{Int, 1}   # instance counting
     epoch::Int                  # current epoch
 end # FuzzyART <: AbstractART
 
@@ -80,6 +81,7 @@ function FuzzyART(opts::opts_FuzzyART)
         Array{Int}(undef, 0),           # labels
         Array{Int}(undef, 0),           # labels2
         0,                              # n_categories
+        Array{Int}(undef, 0),           # n_instance
         0                               # epoch
     )
 end # FuzzyART(opts::opts_FuzzyART)
@@ -114,17 +116,26 @@ function train!(art::FuzzyART, x::Array ; preprocessed=false)
         x = complement_code(x, config=art.config)
     end
 
+    # Initialization
+    if isempty(art.W)
+        art.W = ones(Float64, art.config.dim_comp)
+        push!(art.n_instance, 0)
+        art.n_categories = 1
+    end
+
     # Initialize the internal categories
     art.labels = zeros(Int, n_samples)
     art.labels2 = zeros(Int, n_samples)
+    art.W_old = deepcopy(art.W)
 
     # Initialize the training loop, continue to convergence
     art.epoch = 0
     while true
         art.epoch += 1
-        iter = ProgressBar(1:n_samples)
+        iter = get_iterator(art.opts, x)
         for ix in iter
-            set_description(iter, string(@sprintf("Ep: %i, ID: %i, Cat: %i", art.epoch, ix, art.n_categories)))
+            # Update the iterator if necessary
+            update_iter(art, iter, ix)
             if !(y[ix] in art.labels)
                 # Initialize W and labels
                 if isempty(art.W)
