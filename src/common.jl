@@ -17,11 +17,12 @@ end # DataConfig
 Default constructor for a data configuration, not set up.
 """
 function DataConfig()
-    DataConfig(false,                       # setup
-               Array{Float64}(undef, 0),    # min
-               Array{Float64}(undef, 0),    # max
-               0,                           # dim
-               0                            # dim_comp
+    DataConfig(
+        false,                      # setup
+        Array{Float64}(undef, 0),   # min
+        Array{Float64}(undef, 0),   # max
+        0,                          # dim
+        0                           # dim_comp
     )
 end # DataConfig()
 
@@ -35,14 +36,15 @@ This constructor is used when the mins and maxs differ across features. The dime
 function DataConfig(mins::Array, maxs::Array)
     # Verify that the mins and maxs are the same length
     length(mins) != length(maxs) && error("Mins and maxs must be the same length.")
-
+    # Get the dimension from one of the arrays
     dim = length(mins)
-
-    DataConfig(true,
-               mins,
-               max,
-               dim,
-               dim*2
+    # Initialize a Dataconfig with the explicit config
+    DataConfig(
+        true,   # setup
+        mins,   # min
+        max,    # max
+        dim,    # dim
+        dim*2   # dim_comp
     )
 end # DataConfig(mins::Array, maxs::Array)
 
@@ -54,13 +56,14 @@ Convenience constructor for DataConfig, requiring only a global min, max, and di
 This constructor is used in the case that the feature mins and maxs are all the same respectively.
 """
 function DataConfig(min::Real, max::Real, dim::Int64)
-    DataConfig(true,
-               repeat([min], dim),
-               repeat([max], dim),
-               dim,
-               dim*2
+    DataConfig(
+        true,               # setup
+        repeat([min], dim), # min
+        repeat([max], dim), # max
+        dim,                # dim
+        dim*2               # dim_comp
     )
-end
+end # DataConfig(min::Real, max::Real, dim::Int64)
 
 """
     element_min(x::Array, W::Array)
@@ -177,7 +180,7 @@ function get_data_characteristics(data::Array ; config::DataConfig=DataConfig())
         maxs = [maximum(data[i, :]) for i in 1:dim]
     end
     return dim, n_samples, mins, maxs
-end
+end # get_data_characteristics(data::Array ; config::DataConfig=DataConfig())
 
 """
     linear_normalization(data::Array ; config::DataConfig=DataConfig())
@@ -196,7 +199,7 @@ function linear_normalization(data::Array ; config::DataConfig=DataConfig())
         end
     end
     return x_raw
-end # linear_normalization(data::Array)
+end # linear_normalization(data::Array ; config::DataConfig=DataConfig())
 
 """
     complement_code(data::Array ; config::DataConfig=DataConfig())
@@ -209,7 +212,72 @@ function complement_code(data::Array ; config::DataConfig=DataConfig())
 
     # Complement code the data and return a concatenated matrix
     return vcat(x_raw, 1 .- x_raw)
-end # complement_code(data::Array)
+end # complement_code(data::Array ; config::DataConfig=DataConfig())
+
+"""
+    get_iterator(opts::O, x::Array) where {O<:AbstractARTOpts}
+"""
+function get_iterator(opts::O, x::Array) where {O<:AbstractARTOpts}
+    # Show a progbar only if the data is 2-D and the option is on
+    dim, n_samples = get_data_shape(x)
+    single_sample = n_samples == 1
+
+    # Decide if using a progress bar or not
+    # Don't use one if either there is a single sample or the display option is off
+    prog_bar = single_sample ? false : opts.display
+
+    # Construct the iterator
+    iter_raw = 1:n_samples
+    iter = prog_bar ?  ProgressBar(iter_raw) : iter_raw
+
+    return iter
+end # get_iterator(opts::O, x::Array) where {O<:AbstractARTOpts}
+
+"""
+    update_iter(art::A, iter::Union{UnitRange, ProgressBar}, i::Int) where {A<:AbstractART}
+"""
+function update_iter(art::A, iter::Union{UnitRange, ProgressBar}, i::Int) where {A<:AbstractART}
+    if iter isa ProgressBar
+        set_description(iter, string(@sprintf("Ep: %i, ID: %i, Cat: %i", art.epoch, i, art.n_categories)))
+    elseif iter isa UnitRange
+        return
+    else
+        error("Updating an incompatible iterator type")
+    end
+end
+
+"""
+    get_sample(x::Array, i::Int)
+
+Returns a sample from data array x safely, accounting for 1-D and
+"""
+function get_sample(x::Array, i::Int)
+    # Get the shape of the data, irrespective of data type
+    dim, n_samples = get_data_shape(x)
+    # Get the type shape of the array
+    x_dim = ndims(x)
+    # Initialize the sample 1-D array with the original dim
+    sample = zeros(dim)
+    # Short-circuit error if asking for index out of bounds
+    i > n_samples && error("Index of data array out of bounds.")
+    # Copy the contents of the input if we got a 1-D array
+    if x_dim == 1
+        sample = x
+    # Otherwise, take the correct slice of the 2-D array
+    else
+        sample = x[:, i]
+    end
+    return sample
+end # get_sample(x::Array, i::Int)
+
+# """
+#     complement_code!(data::Array ; config::DataConfig=DataConfig())
+
+# Complement code the data in place, normalizing to [0, 1] and augmenting [x, 1 - x].
+# """
+# function complement_code!(data::Array ; config::DataConfig=DataConfig())
+#     data = complement_code(data, config=config)
+# end
 
 # """
 #     get_field_meta(obj, field_name)

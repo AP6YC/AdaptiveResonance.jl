@@ -1,20 +1,18 @@
 """
-    opts_SFAM()
+    opts_FuzzyART()
 
-Implements a Simple Fuzzy ARTMAP learner's options.
+Implements a Fuzzy ART learner's options.
 
 # Examples
 ```julia-repl
-julia> my_opts = opts_SFAM()
+julia> my_opts = opts_FuzzyART()
 ```
 """
-@with_kw mutable struct opts_SFAM <: AbstractARTOpts @deftype Float64
+@with_kw mutable struct opts_FuzzyART <: AbstractARTOpts @deftype Float64
     # Vigilance parameter: [0, 1]
-    rho = 0.75; @assert rho >= 0 && rho <= 1
+    rho = 0.5; @assert rho >= 0 && rho <= 1
     # Choice parameter: alpha > 0
-    alpha = 1e-7; @assert alpha > 0
-    # Match tracking parameter
-    epsilon = 1e-3; @assert epsilon > 0 && epsilon < 1
+    alpha = 1e-3; @assert alpha > 0
     # Learning parameter: (0, 1]
     beta = 1; @assert beta > 0 && beta <= 1
     # Uncommitted node flag
@@ -23,87 +21,87 @@ julia> my_opts = opts_SFAM()
     display::Bool = true
     # Maximum numbers of epochs to train for
     max_epochs = 1
-end # opts_SFAM()
+end # opts_FuzzyART()
 
 """
-    SFAM
+    FuzzyART
 
-Simple Fuzzy ARTMAP struct.
+Simple Fuzzy ART struct.
 """
-mutable struct SFAM <: AbstractART
-    opts::opts_SFAM
-    config::DataConfig
-    W::Array{Float64, 2}
-    W_old::Array{Float64, 2}
-    labels::Array{Int, 1}
-    y::Array{Int, 1}
-    n_categories::Int
-    epoch::Int
-end # SFAM <: AbstractART
+mutable struct FuzzyART <: AbstractART
+    opts::opts_FuzzyART         # Fuzzy ART module options
+    config::DataConfig          # data configuration
+    W::Array{Float64, 2}        # top-down weights
+    W_old::Array{Float64, 2}    # old top-down weight values
+    labels::Array{Int, 1}       # best matching units (class labels)
+    labels2::Array{Int, 1}      # second best matching units
+    n_categories::Int           # total number of categories
+    epoch::Int                  # current epoch
+end # FuzzyART <: AbstractART
 
 """
-    SFAM()
+    FuzzyART()
 
-Implements a Simple Fuzzy ARTMAP learner.
+Implements a Fuzzy ART learner.
 
 # Examples
 ```julia-repl
-julia> SFAM()
-SFAM
-    opts: opts_SFAM
+julia> FuzzyART()
+FuzzyART
+    opts: opts_FuzzyART
     ...
 ```
 """
-function SFAM()
-    opts = opts_SFAM()
-    SFAM(opts)
-end # SFAM()
+function FuzzyART()
+    opts = opts_FuzzyART()
+    FuzzyART(opts)
+end # FuzzyART()
 
 """
-    SFAM(opts)
+    FuzzyART(opts)
 
 Implements a Simple Fuzzy ARTMAP learner with specified options.
 
 # Examples
 ```julia-repl
-julia> opts = opts_SFAM()
-julia> SFAM(opts)
-SFAM
-    opts: opts_SFAM
+julia> opts = opts_FuzzyART()
+julia> FuzzyART(opts)
+FuzzyART
+    opts: opts_FuzzyART
     ...
 ```
 """
-function SFAM(opts::opts_SFAM)
-    SFAM(
-        opts,                           # opts_SFAM
+function FuzzyART(opts::opts_FuzzyART)
+    FuzzyART(
+        opts,                           # opts_FuzzyART
         DataConfig(),                   # config
         Array{Float64}(undef, 0,0),     # W
         Array{Float64}(undef, 0,0),     # W_old
         Array{Int}(undef, 0),           # labels
-        Array{Int}(undef, 0),           # y
+        Array{Int}(undef, 0),           # labels2
         0,                              # n_categories
         0                               # epoch
     )
-end # SFAM(opts::opts_SFAM)
+end # FuzzyART(opts::opts_FuzzyART)
 
 """
-    train!(art::SFAM, x::Array, y::Array ; preprocessed=false)
+    train!(art::FuzzyART, x::Array ; preprocessed=false)
 
-Trains a Simple Fuzzy ARTMAP learner in a supervised manner.
+Trains a Fuzzy ART learner.
 
 # Examples
 ```julia-repl
 julia> x, y = load_data()
-julia> art = SFAM()
-SFAM
-    opts: opts_SFAM
+julia> art = FuzzyART()
+FuzzyART
+    opts: opts_FuzzyART
     ...
 julia> train!(art, x, y)
 ```
 """
-function train!(art::SFAM, x::Array, y::Array ; preprocessed=false)
+function train!(art::FuzzyART, x::Array ; preprocessed=false)
     # Show a message if display is on
-    art.opts.display && @info "Training SFAM"
+    art.opts.display && @info "Training FuzzyART"
 
     # Data information and setup
     n_samples = get_n_samples(x)
@@ -117,7 +115,8 @@ function train!(art::SFAM, x::Array, y::Array ; preprocessed=false)
     end
 
     # Initialize the internal categories
-    art.y = zeros(Int, n_samples)
+    art.labels = zeros(Int, n_samples)
+    art.labels2 = zeros(Int, n_samples)
 
     # Initialize the training loop, continue to convergence
     art.epoch = 0
@@ -185,28 +184,28 @@ function train!(art::SFAM, x::Array, y::Array ; preprocessed=false)
         end
         art.W_old = deepcopy(art.W)
     end
-end # train!(art::SFAM, x::Array, y::Array ; preprocessed=false)
+end # train!(art::FuzzyART, x::Array ; preprocessed=false)
 
 """
-    classify(art::SFAM, x::Array ; preprocessed=false)
+    classify(art::FuzzyART, x::Array ; preprocessed=false)
 
-Categorize data 'x' using a trained Simple Fuzzy ARTMAP module 'art'.
+Categorize data 'x' using a trained Fuzzy ART module 'art'.
 
 # Examples
 ```julia-repl
 julia> x, y = load_data()
 julia> x_test, y_test = load_test_data()
-julia> art = SFAM()
-SFAM
-    opts: opts_SFAM
+julia> art = FuzzyART()
+FuzzyART
+    opts: opts_FuzzyART
     ...
 julia> train!(art, x, y)
 julia> classify(art, x_test)
 ```
 """
-function classify(art::SFAM, x::Array ; preprocessed=false)
+function classify(art::FuzzyART, x::Array ; preprocessed=false)
     # Show a message if display is on
-    art.opts.display && @info "Testing SFAM"
+    art.opts.display && @info "Testing FuzzyART"
 
     # Data information and setup
     n_samples = get_n_samples(x)
@@ -251,48 +250,48 @@ function classify(art::SFAM, x::Array ; preprocessed=false)
         end
     end
     return y_hat
-end # classify(art::SFAM, x::Array ; preprocessed=false)
+end # classify(art::FuzzyART, x::Array ; preprocessed=false)
 
 """
-    stopping_conditions(art::SFAM)
+    stopping_conditions(art::FuzzyART)
 
-Stopping conditions for Simple Fuzzy ARTMAP, checked at the end of every epoch.
+Stopping conditions for Fuzzy ART, checked at the end of every epoch.
 """
-function stopping_conditions(art::SFAM)
+function stopping_conditions(art::FuzzyART)
     # Compute the stopping condition, return a bool
     return art.W == art.W_old || art.epoch >= art.opts.max_epochs
-end # stopping_conditions(art::SFAM)
+end # stopping_conditions(art::FuzzyART)
 
 """
-    learn(art::SFAM, x::Array, W::Array)
+    learn(art::FuzzyART, x::Array, W::Array)
 
-Returns a single updated weight for the Simple Fuzzy ARTMAP module for weight
+Returns a single updated weight for the Fuzzy ART module for weight
 vector W and sample x.
 """
-function learn(art::SFAM, x::Array, W::Array)
+function learn(art::FuzzyART, x::Array, W::Array)
     # Update W
     return art.opts.beta .* element_min(x, W) .+ W .* (1 - art.opts.beta)
-end # learn(art::SFAM, x::Array, W::Array)
+end # learn(art::FuzzyART, x::Array, W::Array)
 
 """
-    activation(art::SFAM, x::Array, W::Array)
+    activation(art::FuzzyART, x::Array, W::Array)
 
-Returns the activation value of the Simple Fuzzy ARTMAP module with weight W
+Returns the activation value of the Fuzzy ART module with weight W
 and sample x.
 """
-function activation(art::SFAM, x::Array, W::Array)
+function activation(art::FuzzyART, x::Array, W::Array)
     # Compute T and return
     return norm(element_min(x, W), 1) / (art.opts.alpha + norm(W, 1))
-end # activation(art::SFAM, x::Array, W::Array)
+end # activation(art::FuzzyART, x::Array, W::Array)
 
 """
-    art_match(art::SFAM, x::Array, W::Array)
+    art_match(art::FuzzyART, x::Array, W::Array)
 
-Returns the match function for the Simple Fuzzy ARTMAP module with weight W and
+Returns the match function for the Fuzzy ART module with weight W and
 sample x.
 """
-function art_match(art::SFAM, x::Array, W::Array)
+function art_match(art::FuzzyART, x::Array, W::Array)
     # Compute M and return
     return norm(element_min(x, W), 1) / art.config.dim
     # return norm(element_min(x, W), 1) / art.config.dim_comp
-end # art_match(art::SFAM, x::Array, W::Array)
+end # art_match(art::FuzzyART, x::Array, W::Array)

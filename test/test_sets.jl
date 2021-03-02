@@ -44,11 +44,6 @@ end
     @test AdaptiveResonance.DDVFA_METHODS == ddvfa_methods
 end
 
-@testset "ARTSCENE.jl" begin
-    # ARTSCENE training and testing
-    include("test_artscene.jl")
-end # @testset "ARTSCENE.jl"
-
 @testset "DDVFA.jl" begin
     # DDVFA training and testing
     include("test_ddvfa.jl")
@@ -71,3 +66,8 @@ end # @testset "AdaptiveResonance.jl"
         @test perf > 0.8
     end
 end # @testset "ARTMAP.jl"
+
+@testset "ARTSCENE.jl" begin
+    # ARTSCENE training and testing
+    include("test_artscene.jl")
+end # @testset "ARTSCENE.jl"

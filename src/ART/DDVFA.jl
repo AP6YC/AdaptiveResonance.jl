@@ -140,8 +140,11 @@ function initialize!(art::GNFA, x::Array ; y::Int=0)
     else
         art.config.setup = true
     end
-    art.config.dim_comp = size(x)[1]
-    art.config.dim = Int(art.config.dim_comp/2) # Assumes input is already complement coded
+
+    # IMPORTANT: Assuming that x is a sample, so each entry is a feature
+    dim = length(x)
+    art.config.dim_comp = dim
+    art.config.dim = Int(dim/2) # Assumes input is already complement coded
 
     # Initialize the instance and categories counters
     art.n_instance = [1]
@@ -151,7 +154,7 @@ function initialize!(art::GNFA, x::Array ; y::Int=0)
     art.threshold = art.opts.rho * (art.config.dim^art.opts.gamma_ref)
     # Fast commit the weight
     art.W = Array{Float64}(undef, art.config.dim_comp, 1)
-    # art.W[:, 1] = x[:, 1]
+    # Assign the contents, valid this way for 1-D or 2-D arrays
     art.W[:, 1] = x
     label = y == 0 ? y : 1
     push!(art.labels, label)
@@ -173,21 +176,16 @@ julia> train!(my_GNFA, x)
 ```
 """
 function train!(art::GNFA, x::Array ; y::Array=[])
-
-    # Show a progbar only if the data is 2-D and the option is on
-    single_sample = length(size(x)) == 1
-    prog_bar = single_sample ? false : art.opts.display
-    n_samples = single_sample ? 1 : size(x)[2]
+    # Flag for if training in supervised mode
     supervised = !isempty(y)
-
     # Initialization if weights are empty; fast commit the first sample
     if isempty(art.W)
         label = supervised ? y[1] : 1
         push!(art.labels, label)
         initialize!(art, x[:, 1])
-        initial_sample = 2
+        skip_first = true
     else
-        initial_sample = 1
+        skip_first = false
     end
 
     art.W_old = deepcopy(art.W)
@@ -195,16 +193,19 @@ function train!(art::GNFA, x::Array ; y::Array=[])
     # Learning
     art.epoch = 0
     while true
-        art.epoch = art.epoch + 1
+        # Increment the epoch and get the iterator
+        art.epoch += 1
+        iter = get_iterator(art.opts, x)
         # Loop over samples
-        iter_raw = initial_sample:n_samples
-        iter = prog_bar ?  ProgressBar(iter_raw) : iter_raw
         for i = iter
-            if prog_bar
-                set_description(iter, string(@sprintf("Ep: %i, ID: %i, Cat: %i", art.epoch, i, art.n_categories)))
-            end
+            # Update the iterator if necessary
+            update_iter(art, iter, i)
+            # Skip the first sample if we just initialized
+            (i == 1 && skip_first) && continue
+            # Grab the sample slice
+            sample = get_sample(x, i)
             # Compute activation/match functions
-            activation_match!(art, x[:, i])
+            activation_match!(art, sample)
             # Sort activation function values in descending order
             index = sortperm(art.T, rev=true)
             # Initialize mismatch as true
@@ -216,7 +217,7 @@ function train!(art::GNFA, x::Array ; y::Array=[])
                 # Vigilance check - pass
                 if art.M[bmu] >= art.threshold
                     # Learn the sample
-                    learn!(art, x[:, i], bmu)
+                    learn!(art, sample, bmu)
                     # Update sample labels
                     label = supervised ? y[i] : bmu
                     push!(art.labels, label)
@@ -231,7 +232,7 @@ function train!(art::GNFA, x::Array ; y::Array=[])
                 art.n_categories += 1
                 # Fast commit
                 # art.W = [art.W x[:, i]]
-                art.W = hcat(art.W, x[:,i])
+                art.W = hcat(art.W, sample)
                 # Increment number of samples associated with new category
                 push!(art.n_instance, 1)
                 # Update sample labels
@@ -456,7 +457,10 @@ DDVFA
 ```
 """
 function DDVFA(opts::opts_DDVFA)
-    subopts = opts_GNFA(rho=opts.rho_ub)
+    subopts = opts_GNFA(
+        rho=opts.rho_ub,
+        display=false
+    )
     DDVFA(opts,
           subopts,
           DataConfig(),
@@ -498,30 +502,31 @@ function train!(art::DDVFA, x::Array ; preprocessed=false)
         art.n_categories = 1
         art.labels[1] = 1
         # Local Fuzzy ART
-        # art.F2[art.n_categories] = GNFA(art.subopts)
         push!(art.F2, GNFA(art.subopts))
-        initialize!(art.F2[1], x[:, 1])
-        initial_sample = 2
+        initialize!(art.F2[1], get_sample(x, 1))
+        skip_first = true
     else
-        initial_sample = 1
+        skip_first = false
     end
 
-    # art.W_old = deepcopy(art.F2[])
     art.W_old = Array{Float64}(undef, art.config.dim_comp, 1)
-    art.W_old[:, 1] = x[:, 1]
+    art.W_old[:, 1] = get_sample(x, 1)
 
     # Learning
     art.threshold = art.opts.rho*(art.config.dim^art.opts.gamma_ref)
     art.epoch = 0
     while true
+        # Increment the epoch and get the iterator
         art.epoch += 1
-        iter_raw = initial_sample:n_samples
-        iter = art.opts.display ? ProgressBar(iter_raw) : iter_raw
+        iter = get_iterator(art.opts, x)
         for i = iter
-            if art.opts.display
-                set_description(iter, string(@sprintf("Ep: %i, ID: %i, Cat: %i", art.epoch, i, art.n_categories)))
-            end
-            sample = x[:, i]
+            # Update the iterator if necessary
+            update_iter(art, iter, i)
+            # Skip the first sample if we just initialized
+            (i == 1 && skip_first) && continue
+            # Grab the sample slice
+            sample = get_sample(x, i)
+
             T = zeros(art.n_categories)
             for jx = 1:art.n_categories
                 activation_match!(art.F2[jx], sample)
