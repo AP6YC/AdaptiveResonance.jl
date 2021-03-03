@@ -47,7 +47,7 @@ export
 
     # CVI
     CONN, XB,
-    param_inc!, param_batch!, evaluate!,
+    param_inc!, param_batch!, evaluate!, get_icvi,
 
     # ARTSCENE
     color_to_gray,

@@ -22,7 +22,7 @@ for ix = 1:length(train_y)
     evaluate!(cvi_i)
 end
 
-# # Batch
+# Batch
 # cvi_b = CONN()
 
 # vind = param_batch!(cvi_b, train_x, train_y)

@@ -19,18 +19,36 @@ include("test_utils.jl")
     data = permutedims(data)
     train_x = data[1:2, :]
     train_y = convert(Array{Int64}, data[3, :])
+    n_samples = length(train_y)
 
     # Incremental
+    @info "CVI Incremental"
     cvi_i = XB()
-    for ix = 1:length(train_y)
+    for ix = 1:n_samples
         param_inc!(cvi_i, train_x[:, ix], train_y[ix])
         evaluate!(cvi_i)
     end
 
     # Batch
+    @info "CVI Batch"
     cvi_b = XB()
     vind = param_batch!(cvi_b, train_x, train_y)
     evaluate!(cvi_b)
+
+    # Test that the criterion values are the same
+    @test isapprox(cvi_i.criterion_value, cvi_b.criterion_value)
+
+    # Test the porcelain functions
+    @info "CVI Incremental Porcelain"
+    cvi_p = XB()
+    cvs = zeros(n_samples)
+    for ix = 1:n_samples
+        cvs[ix] = get_icvi(cvi_i, train_x[:, ix], train_y[ix])
+    end
+
+    # Test that the porcelain CV is the same as the others
+    @test isapprox(cvi_i.criterion_value, cvs[end])
+    @test isapprox(cvi_b.criterion_value, cvs[end])
 end
 
 @testset "constants.jl" begin

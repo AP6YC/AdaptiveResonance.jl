@@ -1,5 +1,5 @@
 using AdaptiveResonance
-using MLDatasets
+# using MLDatasets
 using Logging
 
 # Set the logging level to Info

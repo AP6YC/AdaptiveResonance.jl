@@ -8,7 +8,7 @@ mutable struct CONN <: AbstractCVI
     n_prototypes::Int64
     inter_conn::Float64
     intra_conn::Float64
-    criterion_values::Float64
+    criterion_value::Float64
     inter_k_cache::Array{Float64, 1}
     inter_kl_cache::Array{Float64, 2}
     intra_k_cache::Array{Float64, 1}
@@ -27,7 +27,7 @@ function CONN()
         0,                                      # n_prototypes
         0.0,                                    # inter_conn
         0.0,                                    # intra_conn
-        0.0,                                    # criterion_values
+        0.0,                                    # criterion_value
         Array{Float64, 1}(undef, 0),            # inter_k_cache
         Array{Float64, 2}(undef, 0, 0),         # inter_kl_cache
         Array{Float64, 1}(undef, 0),            # intra_k_cache
