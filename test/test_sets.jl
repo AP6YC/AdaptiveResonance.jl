@@ -24,7 +24,8 @@ include("test_utils.jl")
     # Construct the cvis
     cvis = [
         XB(),
-        DB()
+        DB(),
+        PS()
     ]
     n_cvis = length(cvis)
 
@@ -57,7 +58,7 @@ include("test_utils.jl")
     cvs = zeros(n_samples, n_cvis)
     for cx = 1:n_cvis
         for ix = 1:n_samples
-            cvs[ix, cx] = get_icvi(cvi_p[cx], train_x[:, ix], train_y[ix])
+            cvs[ix, cx] = get_icvi!(cvi_p[cx], train_x[:, ix], train_y[ix])
         end
     end
 

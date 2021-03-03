@@ -25,7 +25,9 @@ include("CVI/CVI.jl")
 export
 
     # Abstract types
-    AbstractARTOpts, AbstractART, AbstractCVI,
+    AbstractARTOpts,
+    AbstractART,
+    AbstractCVI,
 
     # Algorithmic functions
     train!,
@@ -57,7 +59,10 @@ export
     DB,
     PS,
     # CONN,
-    param_inc!, param_batch!, evaluate!, get_icvi,
+    param_inc!,
+    param_batch!,
+    evaluate!,
+    get_icvi!,
 
     # ARTSCENE
     color_to_gray,

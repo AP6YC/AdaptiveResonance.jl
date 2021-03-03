@@ -246,7 +246,7 @@ function update_iter(art::A, iter::Union{UnitRange, ProgressBar}, i::Int) where 
     else
         error("Updating an incompatible iterator type")
     end
-end
+end # update_iter(art::A, iter::Union{UnitRange, ProgressBar}, i::Int) where {A<:AbstractART}
 
 """
     get_sample(x::Array, i::Int)
@@ -271,15 +271,6 @@ function get_sample(x::Array, i::Int)
     end
     return sample
 end # get_sample(x::Array, i::Int)
-
-# """
-#     complement_code!(data::Array ; config::DataConfig=DataConfig())
-
-# Complement code the data in place, normalizing to [0, 1] and augmenting [x, 1 - x].
-# """
-# function complement_code!(data::Array ; config::DataConfig=DataConfig())
-#     data = complement_code(data, config=config)
-# end
 
 # """
 #     get_field_meta(obj, field_name)

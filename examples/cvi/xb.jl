@@ -40,6 +40,8 @@ end
 
 # Batch
 cvi_b = XB()
-
-vind = param_batch!(cvi_b, train_x, train_y)
+param_batch!(cvi_b, train_x, train_y)
 evaluate!(cvi_b)
+
+@info cvi_i.criterion_value
+@info cvi_b.criterion_value
