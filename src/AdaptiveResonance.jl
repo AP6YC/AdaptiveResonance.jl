@@ -28,17 +28,24 @@ export
     AbstractARTOpts, AbstractART, AbstractCVI,
 
     # Algorithmic functions
-    train!, classify, performance,
+    train!,
+    classify,
+    performance,
 
     # Common structures
-    DataConfig, data_setup,
+    DataConfig,
+    data_setup,
 
     # Common utility functions
-    complement_code, get_data_characteristics, linear_normalization,
-    get_data_shape, get_n_samples,
+    complement_code,
+    get_data_characteristics,
+    linear_normalization,
+    get_data_shape,
+    get_n_samples,
 
     # DDVFA
-    DDVFA, opts_DDVFA, GNFA, opts_GNFA,
+    DDVFA, opts_DDVFA,
+    GNFA, opts_GNFA,
 
     # ARTMAP
     FAM, opts_FAM,
@@ -46,7 +53,10 @@ export
     SFAM, opts_SFAM,
 
     # CVI
-    CONN, XB,
+    XB,
+    DB,
+    PS,
+    # CONN,
     param_inc!, param_batch!, evaluate!, get_icvi,
 
     # ARTSCENE

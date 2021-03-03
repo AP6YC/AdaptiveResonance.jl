@@ -21,6 +21,8 @@ julia> my_opts = opts_FuzzyART()
     display::Bool = true
     # Maximum numbers of epochs to train for
     max_epochs = 1
+    # Flag to find second best matching unit
+    find_bmu2 = false
 end # opts_FuzzyART()
 
 """
@@ -136,66 +138,108 @@ function train!(art::FuzzyART, x::Array ; preprocessed=false)
         for ix in iter
             # Update the iterator if necessary
             update_iter(art, iter, ix)
-            if !(y[ix] in art.labels)
-                # Initialize W and labels
-                if isempty(art.W)
-                    art.W = Array{Float64}(undef, art.config.dim_comp, 1)
-                    art.W_old = Array{Float64}(undef, art.config.dim_comp, 1)
-                    art.W[:, ix] = x[:, ix]
-                else
-                    art.W = [art.W x[:, ix]]
-                end
-                push!(art.labels, y[ix])
-                art.n_categories += 1
-                art.y[ix] = y[ix]
-            else
-                # Baseline vigilance parameter
-                rho_baseline = art.opts.rho
+            # Grab the sample
+            sample = get_sample(x, ix)
+            # Compute the activation and match
+            activation_match!(art, sample)
 
-                # Compute activation function
-                T = zeros(art.n_categories)
-                for jx in 1:art.n_categories
-                    T[jx] = activation(art, x[:, ix], art.W[:, jx])
-                end
+            # Sort activation function values in descending order
+            index = sortperm(T, rev=true)
+            # Mismatch for bmu and second bmu default to true
+            mismatch_flag = true
+            mismatch_flag_2 = true
 
-                # Sort activation function values in descending order
-                index = sortperm(T, rev=true)
-                mismatch_flag = true
-                for jx in 1:art.n_categories
-                    # Compute match function
-                    M = art_match(art, x[:, ix], art.W[:, index[jx]])
-                    # Current winner
-                    if M >= rho_baseline
-                        if y[ix] == art.labels[index[jx]]
-                            # Learn
-                            @debug "Learning"
-                            art.W[:, index[jx]] = learn(art, x[:, ix], art.W[:, index[jx]])
-                            art.y[ix] = art.labels[index[jx]]
-                            mismatch_flag = false
+            for jx = 1:art.n_categories
+                bmu = index[jx]
+                if art.M[bmu] >= art.opts.rho
+                    # if obj.vc2(bmu)
+                    if mismatch_flag
+                        learn!(art, sample, bmu)
+                        art.labels[bmu] = bmu
+                        mismatch_flag = false
+                        if !art.opts.find_bmu2
+                            mismatch_flag_2 = false
                             break
-                        else
-                            # Match tracking
-                            @debug "Match tracking"
-                            rho_baseline = M + art.opts.epsilon
                         end
+                    else
+                        cvi.labels2[i] = bmu
+                        break
                     end
-                end
-                if mismatch_flag
-                    # Create new weight vector
-                    @debug "Mismatch"
-                    art.W = hcat(art.W, x[:, ix])
-                    push!(art.labels, y[ix])
-                    art.n_categories += 1
-                    art.y[ix] = y[ix]
                 end
             end
         end
-        if stopping_conditions(art)
-            break
-        end
-        art.W_old = deepcopy(art.W)
-    end
+
+
+
+    #         if !(y[ix] in art.labels)
+    #             # Initialize W and labels
+    #             if isempty(art.W)
+    #                 art.W = Array{Float64}(undef, art.config.dim_comp, 1)
+    #                 art.W_old = Array{Float64}(undef, art.config.dim_comp, 1)
+    #                 art.W[:, ix] = x[:, ix]
+    #             else
+    #                 art.W = [art.W x[:, ix]]
+    #             end
+    #             push!(art.labels, y[ix])
+    #             art.n_categories += 1
+    #             art.y[ix] = y[ix]
+    #         else
+    #             # Baseline vigilance parameter
+    #             rho_baseline = art.opts.rho
+
+    #             # Compute activation function
+    #             T = zeros(art.n_categories)
+    #             for jx in 1:art.n_categories
+    #                 T[jx] = activation(art, x[:, ix], art.W[:, jx])
+    #             end
+
+    #             # Sort activation function values in descending order
+    #             index = sortperm(T, rev=true)
+    #             mismatch_flag = true
+    #             for jx in 1:art.n_categories
+    #                 # Compute match function
+    #                 M = art_match(art, x[:, ix], art.W[:, index[jx]])
+    #                 # Current winner
+    #                 if M >= rho_baseline
+    #                     if y[ix] == art.labels[index[jx]]
+    #                         # Learn
+    #                         @debug "Learning"
+    #                         art.W[:, index[jx]] = learn(art, x[:, ix], art.W[:, index[jx]])
+    #                         art.y[ix] = art.labels[index[jx]]
+    #                         mismatch_flag = false
+    #                         break
+    #                     else
+    #                         # Match tracking
+    #                         @debug "Match tracking"
+    #                         rho_baseline = M + art.opts.epsilon
+    #                     end
+    #                 end
+    #             end
+    #             if mismatch_flag
+    #                 # Create new weight vector
+    #                 @debug "Mismatch"
+    #                 art.W = hcat(art.W, x[:, ix])
+    #                 push!(art.labels, y[ix])
+    #                 art.n_categories += 1
+    #                 art.y[ix] = y[ix]
+    #             end
+    #         end
+    #     end
+    #     if stopping_conditions(art)
+    #         break
+    #     end
+    #     art.W_old = deepcopy(art.W)
+    # end
 end # train!(art::FuzzyART, x::Array ; preprocessed=false)
+
+function resonance_check(art::FuzzyART, a::Int)
+    b = art.labels[end]
+    is_res = true
+    nb = art.n_instance[b]
+    if nb == 2
+        is_res = false
+    elseif a <= size(art.map, 2) && any(art.map[1:b-1])
+end
 
 """
     classify(art::FuzzyART, x::Array ; preprocessed=false)
@@ -273,36 +317,71 @@ function stopping_conditions(art::FuzzyART)
     return art.W == art.W_old || art.epoch >= art.opts.max_epochs
 end # stopping_conditions(art::FuzzyART)
 
-"""
-    learn(art::FuzzyART, x::Array, W::Array)
+# """
+#     learn(art::FuzzyART, x::Array, W::Array)
 
-Returns a single updated weight for the Fuzzy ART module for weight
-vector W and sample x.
-"""
-function learn(art::FuzzyART, x::Array, W::Array)
-    # Update W
-    return art.opts.beta .* element_min(x, W) .+ W .* (1 - art.opts.beta)
-end # learn(art::FuzzyART, x::Array, W::Array)
-
-"""
-    activation(art::FuzzyART, x::Array, W::Array)
-
-Returns the activation value of the Fuzzy ART module with weight W
-and sample x.
-"""
-function activation(art::FuzzyART, x::Array, W::Array)
-    # Compute T and return
-    return norm(element_min(x, W), 1) / (art.opts.alpha + norm(W, 1))
-end # activation(art::FuzzyART, x::Array, W::Array)
+# Returns a single updated weight for the Fuzzy ART module for weight
+# vector W and sample x.
+# """
+# function learn(art::FuzzyART, x::Array, W::Array)
+#     # Update W
+#     return art.opts.beta .* element_min(x, W) .+ W .* (1 - art.opts.beta)
+# end # learn(art::FuzzyART, x::Array, W::Array)
 
 """
-    art_match(art::FuzzyART, x::Array, W::Array)
+    learn!(art::FuzzyART, x::Array, ix::Int)
 
-Returns the match function for the Fuzzy ART module with weight W and
-sample x.
+Mutates the weight vector in place at index 'ix' by sample 'x', updating the instance counter.
 """
-function art_match(art::FuzzyART, x::Array, W::Array)
-    # Compute M and return
-    return norm(element_min(x, W), 1) / art.config.dim
-    # return norm(element_min(x, W), 1) / art.config.dim_comp
-end # art_match(art::FuzzyART, x::Array, W::Array)
+function learn!(art::FuzzyART, x::Array, ix::Int)
+    art.W[:, ix] = art.opts.beta .* element_min(x, art.W[:, ix]) .+ art.W[:, ix] .* (1 - art.opts.beta)
+    art.n_instance[ix] += 1
+end # learn!(art::FuzzyART, x::Array, ix::Int)
+
+# """
+#     activation(art::FuzzyART, x::Array, W::Array)
+
+# Returns the activation value of the Fuzzy ART module with weight W
+# and sample x.
+# """
+# function activation(art::FuzzyART, x::Array, W::Array)
+#     # Compute T and return
+#     return norm(element_min(x, W), 1) / (art.opts.alpha + norm(W, 1))
+# end # activation(art::FuzzyART, x::Array, W::Array)
+
+# """
+#     art_match(art::FuzzyART, x::Array, W::Array)
+
+# Returns the match function for the Fuzzy ART module with weight W and
+# sample x.
+# """
+# function art_match(art::FuzzyART, x::Array, W::Array)
+#     # Compute M and return
+#     return norm(element_min(x, W), 1) / art.config.dim
+#     # return norm(element_min(x, W), 1) / art.config.dim_comp
+# end # art_match(art::FuzzyART, x::Array, W::Array)
+
+"""
+    clear_activation_match!(art::FuzzyART)
+
+Clear the Fuzzy ART activation and match vectors.
+"""
+function clear_activation_match!(art::FuzzyART)
+    # Clear the activation and match
+    art.T = zeros(art.n_categories)
+    art.M = zeros(art.n_categories)
+end # clear_activation_match!(art::FuzzyART)
+
+"""
+    activation_match!(art::FuzzyART, x::Array)
+
+Compute the Fuzzy ART activation and match vectors.
+"""
+function activation_match!(art::FuzzyART, x::Array)
+    clear_activation_match!(art)
+    for ix = 1:art.n_categories
+        numerator = norm(element_min(x, art.W[:, ix]), 1)
+        art.T[ix] = numerator / (art.opts.alpha + norm(W[:, ix], 1))
+        art.M[ix] = numerator / art.config.dim
+    end
+end # activation_match!(art::FuzzyART, x::Array)

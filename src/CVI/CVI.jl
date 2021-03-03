@@ -1,5 +1,7 @@
-include("CONN.jl")
+# include("CONN.jl")
 include("XB.jl")
+include("DB.jl")
+include("PS.jl")
 
 """
     get_icvi(cvi::T, x::Array{N, 1}, y::M) where {T<:AbstractCVI, N<:Real, M<:Int}

@@ -21,34 +21,51 @@ include("test_utils.jl")
     train_y = convert(Array{Int64}, data[3, :])
     n_samples = length(train_y)
 
+    # Construct the cvis
+    cvis = [
+        XB(),
+        DB()
+    ]
+    n_cvis = length(cvis)
+
     # Incremental
     @info "CVI Incremental"
-    cvi_i = XB()
-    for ix = 1:n_samples
-        param_inc!(cvi_i, train_x[:, ix], train_y[ix])
-        evaluate!(cvi_i)
+    cvi_i = deepcopy(cvis)
+    for cvi in cvi_i
+        for ix = 1:n_samples
+            param_inc!(cvi, train_x[:, ix], train_y[ix])
+            evaluate!(cvi)
+        end
     end
 
     # Batch
     @info "CVI Batch"
-    cvi_b = XB()
-    vind = param_batch!(cvi_b, train_x, train_y)
-    evaluate!(cvi_b)
+    cvi_b = deepcopy(cvis)
+    for cvi in cvi_b
+        param_batch!(cvi, train_x, train_y)
+        evaluate!(cvi)
+    end
 
     # Test that the criterion values are the same
-    @test isapprox(cvi_i.criterion_value, cvi_b.criterion_value)
+    for i = 1:n_cvis
+        @test isapprox(cvi_i[i].criterion_value, cvi_b[i].criterion_value)
+    end
 
-    # Test the porcelain functions
+    # Porcelain
     @info "CVI Incremental Porcelain"
-    cvi_p = XB()
-    cvs = zeros(n_samples)
-    for ix = 1:n_samples
-        cvs[ix] = get_icvi(cvi_i, train_x[:, ix], train_y[ix])
+    cvi_p = deepcopy(cvis)
+    cvs = zeros(n_samples, n_cvis)
+    for cx = 1:n_cvis
+        for ix = 1:n_samples
+            cvs[ix, cx] = get_icvi(cvi_p[cx], train_x[:, ix], train_y[ix])
+        end
     end
 
     # Test that the porcelain CV is the same as the others
-    @test isapprox(cvi_i.criterion_value, cvs[end])
-    @test isapprox(cvi_b.criterion_value, cvs[end])
+    for cx = 1:n_cvis
+        @test isapprox(cvi_i[cx].criterion_value, cvs[end, cx])
+        @test isapprox(cvi_b[cx].criterion_value, cvs[end, cx])
+    end
 end
 
 @testset "constants.jl" begin
