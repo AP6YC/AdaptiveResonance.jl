@@ -1,15 +1,30 @@
 # Examples
 
-Here are some helpful examples of the usage of the module.
+There are examples for every structure in the package within the package's ```examples/``` folder.
+The code for several of these examples is provided here.
 
-## Example 1:
+## ART
+
+All ART modules learn in an unsupervised (i.e. clustering) mode by default, but they all can accept labels in the simplified ARTMAP fashion.
+
+### Distributed Dual Vigilance Fuzzy ART (DDVFA)
 
 ```julia
 art = DDVFA()
 ```
 
-## Example 2:
+## ARTMAP
+
+### Simplified Fuzzy ARTMAP (SFAM)
 
 ```julia
 art = SFAM()
+```
+
+## CVI
+
+### Xie-Beni (XB)
+
+```julia
+cvi = XB()
 ```

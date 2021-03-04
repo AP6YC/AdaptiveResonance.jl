@@ -13,8 +13,8 @@ function tt_ddvfa(opts::opts_DDVFA, train_x::Array)
     # Total number of categories
     total_vec = [art.F2[i].n_categories for i = 1:art.n_categories]
     total_cat = sum(total_vec)
-    println("Categories:", art.n_categories)
-    println("Weights:", total_cat)
+    @info "Categories: $(art.n_categories)"
+    @info "Weights: $total_cat"
 
     # # Calculate performance
     # perf = performance(y_hat, test_y)
@@ -94,11 +94,16 @@ end # @testset "DDVFA"
 
     # Test every method and field name
     for method in methods
-        println("Method: ", method)
+        results = Dict()
         for field_name in field_names
-            result = AdaptiveResonance.similarity(method, my_gnfa, field_name, local_sample, my_gnfa.opts.gamma_ref)
-            println(field_name, ": ", result)
-            @test isapprox(truth[method][field_name], result)
+            results[field_name] = AdaptiveResonance.similarity(method, my_gnfa, field_name, local_sample, my_gnfa.opts.gamma_ref)
+            @test isapprox(truth[method][field_name], results[field_name])
         end
+        @info "Method: $method" results
     end
+
+    # Check the error handling of the similarity function
+    @test_throws ErrorException AdaptiveResonance.similarity("asdf", my_gnfa, "T", local_sample, my_gnfa.opts.gamma_ref)
+    @test_throws ErrorException AdaptiveResonance.similarity("centroid", my_gnfa, "A", local_sample, my_gnfa.opts.gamma_ref)
+
 end # @testset "GNFA"

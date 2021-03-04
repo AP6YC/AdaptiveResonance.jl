@@ -71,6 +71,7 @@ jobs:
       - uses: codecov/codecov-action@v1
         with:
           file: lcov.info
+      - uses: coverallsapp/github-action@v1.1.2
 
   # slack:
   #   name: Notify Slack Failure
