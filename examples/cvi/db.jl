@@ -1,29 +1,36 @@
-using Revise
 using AdaptiveResonance
-using DelimitedFiles
 using Logging
 
 # Set the log level
 LogLevel(Logging.Info)
 
-# Parse the data
-data_file = "data/correct_partition.csv"
-data = readdlm(data_file, ',')
-data = permutedims(data)
-train_x = data[1:2, :]
-train_y = convert(Array{Int64}, data[3, :])
+# Load the examples helper functions
+include("../example_functions.jl")
 
-# Incremental
+# Load the trainig data
+train_x, train_y = get_cvi_data("data/correct_partition.csv")
+n_samples = length(train_y)
+
+# Run the CVI in incremental mode
 cvi_i = DB()
-for ix = 1:length(train_y)
+for ix = 1:n_samples
     param_inc!(cvi_i, train_x[:, ix], train_y[ix])
     evaluate!(cvi_i)
 end
 
-# Batch
+# Run the CVI in batch mode
 cvi_b = DB()
 param_batch!(cvi_b, train_x, train_y)
 evaluate!(cvi_b)
 
-@info cvi_i.criterion_value
-@info cvi_b.criterion_value
+# Update and get the CVI at once with the porcelain functions
+cvi_p = DB()
+criterion_values = zeros(n_samples)
+for ix = 1:n_samples
+    criterion_values[ix] = get_icvi!(cvi_p, train_x[:, ix], train_y[ix])
+end
+
+# Show the last criterion value
+@info "Incremental CVI value: $(cvi_i.criterion_value)"
+@info "Batch CVI value: $(cvi_b.criterion_value)"
+@info "Porcelain Incremental CVI value: $(criterion_values[end])"

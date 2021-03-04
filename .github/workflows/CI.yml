@@ -68,10 +68,16 @@ jobs:
           git config --global user.email te@st.er
       - uses: julia-actions/julia-runtest@latest
       - uses: julia-actions/julia-processcoverage@v1
+
+      - name: Codecov
       - uses: codecov/codecov-action@v1
         with:
           file: lcov.info
-      - uses: coverallsapp/github-action@v1.1.2
+
+      - name: Coveralls
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
   # slack:
   #   name: Notify Slack Failure
