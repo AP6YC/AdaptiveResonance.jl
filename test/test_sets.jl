@@ -14,11 +14,8 @@ include("test_utils.jl")
     @info "CVI Testing"
 
     # Parse the data
-    data_file = "../data/correct_partition.csv"
-    data = readdlm(data_file, ',')
-    data = permutedims(data)
-    train_x = data[1:2, :]
-    train_y = convert(Array{Int64}, data[3, :])
+    # data_file =
+    train_x, train_y = get_cvi_data("../data/correct_partition.csv")
     n_samples = length(train_y)
 
     # Construct the cvis
