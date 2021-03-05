@@ -2,7 +2,7 @@
 
 [[AdaptiveResonance]]
 deps = ["Distributed", "LinearAlgebra", "Logging", "MLJ", "Parameters", "Printf", "ProgressBars", "Revise", "SharedArrays", "Statistics"]
-git-tree-sha1 = "d903b9da507ca051dde3d0474826567e8c245f42"
+git-tree-sha1 = "128f3e85dd82ae8929bd68947b16ea2e2b1dc2b0"
 repo-rev = "master"
 repo-url = "https://github.com/AP6YC/AdaptiveResonance.jl"
 uuid = "3d72adc0-63d3-4141-bf9b-84450dd0395b"
@@ -519,9 +519,9 @@ version = "0.9.6"
 
 [[StructTypes]]
 deps = ["Dates", "UUIDs"]
-git-tree-sha1 = "5df8d5254973ce3e4532443aa3cd2a1134d227d5"
+git-tree-sha1 = "d7f4287dbc1e590265f50ceda1b40ed2bb31bbbb"
 uuid = "856f2bd8-1eba-4b0a-8007-ebc267875bd4"
-version = "1.3.0"
+version = "1.4.0"
 
 [[SuiteSparse]]
 deps = ["Libdl", "LinearAlgebra", "Serialization", "SparseArrays"]
