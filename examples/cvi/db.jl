@@ -1,5 +1,7 @@
+using Revise
 using AdaptiveResonance
 using Logging
+using ProgressBars
 
 # Set the log level
 LogLevel(Logging.Info)
@@ -13,7 +15,7 @@ n_samples = length(train_y)
 
 # Run the CVI in incremental mode
 cvi_i = DB()
-for ix = 1:n_samples
+for ix = ProgressBar(1:n_samples)
     param_inc!(cvi_i, train_x[:, ix], train_y[ix])
     evaluate!(cvi_i)
 end
@@ -26,7 +28,7 @@ evaluate!(cvi_b)
 # Update and get the CVI at once with the porcelain functions
 cvi_p = DB()
 criterion_values = zeros(n_samples)
-for ix = 1:n_samples
+for ix = ProgressBar(1:n_samples)
     criterion_values[ix] = get_icvi!(cvi_p, train_x[:, ix], train_y[ix])
 end
 
