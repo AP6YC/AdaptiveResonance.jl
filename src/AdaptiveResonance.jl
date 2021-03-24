@@ -63,6 +63,7 @@ export
     param_batch!,
     evaluate!,
     get_icvi!,
+    get_cvi!,
 
     # ARTSCENE
     color_to_gray,

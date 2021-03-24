@@ -49,20 +49,33 @@ include("test_utils.jl")
         @test isapprox(cvi_i[i].criterion_value, cvi_b[i].criterion_value)
     end
 
-    # Porcelain
+    # Incremental porcelain
     @info "CVI Incremental Porcelain"
     cvi_p = deepcopy(cvis)
-    cvs = zeros(n_samples, n_cvis)
+    cvs_i = zeros(n_samples, n_cvis)
     for cx = 1:n_cvis
         for ix = 1:n_samples
-            cvs[ix, cx] = get_icvi!(cvi_p[cx], train_x[:, ix], train_y[ix])
+            cvs_i[ix, cx] = get_icvi!(cvi_p[cx], train_x[:, ix], train_y[ix])
         end
+    end
+
+    # Batch porcelain
+    @info "CVI Batch Porcelain"
+    cvi_bp = deepcopy(cvis)
+    cvs_b = zeros(n_cvis)
+    for cx = 1:n_cvis
+        cvs_b[cx] = get_cvi!(cvi_bp[cx], train_x, train_y)
     end
 
     # Test that the porcelain CV is the same as the others
     for cx = 1:n_cvis
-        @test isapprox(cvi_i[cx].criterion_value, cvs[end, cx])
-        @test isapprox(cvi_b[cx].criterion_value, cvs[end, cx])
+        # Incremental
+        @test isapprox(cvi_i[cx].criterion_value, cvs_i[end, cx])
+        @test isapprox(cvi_b[cx].criterion_value, cvs_i[end, cx])
+
+        # Batch
+        @test isapprox(cvi_i[cx].criterion_value, cvs_b[cx])
+        @test isapprox(cvi_b[cx].criterion_value, cvs_b[cx])
     end
 end
 

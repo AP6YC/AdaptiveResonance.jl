@@ -104,7 +104,6 @@ AdaptiveResonance
 ├── test                    // Test: Unit, integration, and environment tests.
 ├── .appveyor               // Appveyor: Windows-specific coverage.
 ├── .gitignore              // Git: .gitignore for the whole project.
-├── .travis.yml             // Travis: code coverage automation.
 ├── LICENSE                 // Doc: the license to the project.
 ├── Project.toml            // Julia: the Pkg.jl dependencies of the project.
 └── README.md               // Doc: this document.
