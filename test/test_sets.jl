@@ -15,7 +15,7 @@ include("test_utils.jl")
 
     # Parse the data
     # data_file =
-    train_x, train_y = get_cvi_data("../data/correct_partition.csv")
+    train_x, train_y = get_cvi_data("../data/cvi/correct_partition.csv")
     n_samples = length(train_y)
 
     # Construct the cvis
@@ -25,14 +25,37 @@ include("test_utils.jl")
         PS()
     ]
     n_cvis = length(cvis)
+    data_paths = readdir("../data/cvi", join=true)
+
+    # SOLO
+    @info "CVI Incremental Solo"
+    data_path = "../data/cvi/over_partition.csv"
+    @info "ICVI: Data $data_path"
+    data, labels = get_cvi_data(data_path)
+    cvi_i = deepcopy(cvis)
+    for cvi in cvi_i
+        @info "ICVI: $(typeof(cvi))"
+        for ix = 1:n_samples
+            # param_inc!(cvi, train_x[:, ix], train_y[ix])
+            param_inc!(cvi, data[:, ix], labels[ix])
+            evaluate!(cvi)
+        end
+    end
 
     # Incremental
     @info "CVI Incremental"
     cvi_i = deepcopy(cvis)
-    for cvi in cvi_i
-        for ix = 1:n_samples
-            param_inc!(cvi, train_x[:, ix], train_y[ix])
-            evaluate!(cvi)
+    for data_path in data_paths
+        @info "ICVI: Data $data_path"
+        data, labels = get_cvi_data(data_path)
+        cvi_i = deepcopy(cvis)
+        for cvi in cvi_i
+            @info "ICVI: $(typeof(cvi))"
+            for ix = 1:n_samples
+                # param_inc!(cvi, train_x[:, ix], train_y[ix])
+                param_inc!(cvi, data[:, ix], labels[ix])
+                evaluate!(cvi)
+            end
         end
     end
 

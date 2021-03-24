@@ -8,7 +8,13 @@ LogLevel(Logging.Info)
 include("../example_functions.jl")
 
 # Load the trainig data
-train_x, train_y = get_cvi_data("data/correct_partition.csv")
+# data_path = "data/cvi/correct_partition.csv"
+data_path = "data/cvi/under_partition.csv"
+# data_path = "data/cvi/over_partition.csv"
+train_x, train_y = get_cvi_data(data_path)
+train_x, train_y = sort_cvi_data(train_x, train_y)
+# sort_cvi_data!(train_x, train_y)
+
 n_samples = length(train_y)
 
 # Run the CVI in incremental mode
