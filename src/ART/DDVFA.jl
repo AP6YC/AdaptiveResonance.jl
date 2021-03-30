@@ -479,9 +479,12 @@ end # DDVFA(opts::opts_DDVFA)
 
 Train the DDVFA model on the data.
 """
-function train!(art::DDVFA, x::Array ; preprocessed=false)
+function train!(art::DDVFA, x::Array ; y::Array=[], preprocessed=false)
     # Show a message if display is on
     art.opts.display && @info "Training DDVFA"
+
+    # Simple supervised flag
+    supervised = !isempty(y)
 
     # Data information and setup
     n_samples = get_n_samples(x)
@@ -539,7 +542,8 @@ function train!(art::DDVFA, x::Array ; preprocessed=false)
                 M = similarity(art.opts.method, art.F2[bmu], "M", sample, art.opts.gamma_ref)
                 if M >= art.threshold
                     train!(art.F2[bmu], sample)
-                    art.labels[i] = bmu
+                    # art.labels[i] = bmu
+                    art.labels[i] = supervised ? y[i] : bmu
                     mismatch_flag = false
                     break
                 end
@@ -547,7 +551,9 @@ function train!(art::DDVFA, x::Array ; preprocessed=false)
             if mismatch_flag
                 # Global Fuzzy ART
                 art.n_categories += 1
-                push!(art.labels, art.n_categories)
+                label = supervised ? y[i] : art.n_categories
+                # push!(art.labels, art.n_categories)
+                push!(art.labels, label)
                 # Local Fuzzy ART
                 push!(art.F2, GNFA(art.subopts, sample))
                 # push!(art.F2, GNFA(art.subopts))
