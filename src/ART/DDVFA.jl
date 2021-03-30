@@ -474,6 +474,8 @@ function DDVFA(opts::opts_DDVFA)
     )
 end # DDVFA(opts::opts_DDVFA)
 
+
+
 """
     train!(art::DDVFA, x::Array ; preprocessed=false)
 
@@ -529,17 +531,26 @@ function train!(art::DDVFA, x::Array ; y::Array=[], preprocessed=false)
             (i == 1 && skip_first) && continue
             # Grab the sample slice
             sample = get_sample(x, i)
-
+            # Default to mismatch
+            mismatch_flag = true
+            # If label is new, break to make new category
+            if supervised && !(y[i] in art.labels)
+                create_category(art, sample, label=y[i])
+                continue
+            end
+            # Otherwise, check for match
+            # Compute the activation for all categories
             T = zeros(art.n_categories)
             for jx = 1:art.n_categories
                 activation_match!(art.F2[jx], sample)
                 T[jx] = similarity(art.opts.method, art.F2[jx], "T", sample, art.opts.gamma_ref)
             end
+            # Compute the match for each category in the order of greatest activation
             index = sortperm(T, rev=true)
-            mismatch_flag = true
             for jx = 1:art.n_categories
                 bmu = index[jx]
                 M = similarity(art.opts.method, art.F2[bmu], "M", sample, art.opts.gamma_ref)
+                # If we got a match, then learn (update the category)
                 if M >= art.threshold
                     train!(art.F2[bmu], sample)
                     # art.labels[i] = bmu
@@ -549,15 +560,8 @@ function train!(art::DDVFA, x::Array ; y::Array=[], preprocessed=false)
                 end
             end
             if mismatch_flag
-                # Global Fuzzy ART
-                art.n_categories += 1
-                label = supervised ? y[i] : art.n_categories
-                # push!(art.labels, art.n_categories)
-                push!(art.labels, label)
-                # Local Fuzzy ART
-                push!(art.F2, GNFA(art.subopts, sample))
-                # push!(art.F2, GNFA(art.subopts))
-                # initialize!(art.F2[art.n_categories], sample)
+                # label = supervised ? y[i] : art.n_categories + 1
+                create_category(art, sample)
             end
         end
         # Make sure to start at first sample from now on
@@ -574,6 +578,19 @@ function train!(art::DDVFA, x::Array ; y::Array=[], preprocessed=false)
         art.W_old = deepcopy(art.W)
     end
 end # train!(art::DDVFA, x::Array ; preprocessed=false)
+
+function create_category(art::DDVFA, sample::Array ; label=[])
+    # Global Fuzzy ART
+    art.n_categories += 1
+    # label = supervised ? y[i] : art.n_categories
+    local_label = isempty(label) ? art.n_categories : label
+    # push!(art.labels, art.n_categories)
+    push!(art.labels, local_label)
+    # Local Fuzzy ART
+    push!(art.F2, GNFA(art.subopts, sample))
+    # push!(art.F2, GNFA(art.subopts))
+    # initialize!(art.F2[art.n_categories], sample)
+end
 
 """
     stopping_conditions(art::DDVFA)
