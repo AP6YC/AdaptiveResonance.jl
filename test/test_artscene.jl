@@ -16,7 +16,7 @@ Runs the artscene user-level functions on a random image.
     LogLevel(Logging.Debug)
     n_processes = nprocs()
     n_workers = nworkers()
-    @info "Processes: $n_processes, Workers: n_workers"
+    @info "Processes: $n_processes, Workers: $n_workers"
 
     # Random image
     raw_image = rand(3, 5, 5)
