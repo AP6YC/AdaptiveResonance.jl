@@ -35,14 +35,17 @@ end # tt_ddvfa(opts::opts_DDVFA, train_x::Array)
 
     # Train and classify
     art = DDVFA()
-    train!(art, data.train_x, y=data.train_y)
+    y_hat_train = train!(art, data.train_x, y=data.train_y)
     y_hat = classify(art, data.test_x)
 
     # Calculate performance
-    perf = performance(y_hat, data.test_y)
-    @test perf > 0.8
+    perf_train = performance(y_hat_train, data.train_y)
+    perf_test = performance(y_hat, data.test_y)
+    @test perf_train > 0.8
+    @test perf_test > 0.8
 
-    @info "DDVFA perf: $perf"
+    @info "DDVFA Training Perf: $perf_train"
+    @info "DDVFA Testing Perf: $perf_test"
 end
 
 @testset "DDVFA" begin

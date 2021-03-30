@@ -498,7 +498,7 @@ function train!(art::DDVFA, x::Array ; y::Array=[], preprocessed=false)
     end
 
     # art.labels = zeros(n_samples)
-    y_hat = zeros(n_samples)
+    y_hat = zeros(Int, n_samples)
 
     # Initialization
     if isempty(art.F2)
@@ -538,6 +538,7 @@ function train!(art::DDVFA, x::Array ; y::Array=[], preprocessed=false)
             mismatch_flag = true
             # If label is new, break to make new category
             if supervised && !(y[i] in art.labels)
+                y_hat[i] = y[i]
                 create_category(art, sample, y[i])
                 continue
             end
@@ -558,7 +559,9 @@ function train!(art::DDVFA, x::Array ; y::Array=[], preprocessed=false)
                     # Update the weights with the sample
                     train!(art.F2[bmu], sample)
                     # Save the output label for the sample
-                    y_hat[i] = bmu
+                    # y_hat[i] = supervised ? art.labels[i] : bmu
+                    y_hat[i] = art.labels[bmu]
+                    # y_hat[i] = bmu
                     # art.labels[i] = bmu
                     # art.labels[i] = supervised ? y[i] : bmu
                     mismatch_flag = false
@@ -584,19 +587,15 @@ function train!(art::DDVFA, x::Array ; y::Array=[], preprocessed=false)
         end
         art.W_old = deepcopy(art.W)
     end
+    return y_hat
 end # train!(art::DDVFA, x::Array ; preprocessed=false)
 
 function create_category(art::DDVFA, sample::Array, label::Int)
     # Global Fuzzy ART
     art.n_categories += 1
-    # label = supervised ? y[i] : art.n_categories
-    # local_label = isempty(label) ? art.n_categories : label
-    # push!(art.labels, art.n_categories)
     push!(art.labels, label)
     # Local Fuzzy ART
     push!(art.F2, GNFA(art.subopts, sample))
-    # push!(art.F2, GNFA(art.subopts))
-    # initialize!(art.F2[art.n_categories], sample)
 end
 
 """
