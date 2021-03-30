@@ -474,8 +474,6 @@ function DDVFA(opts::opts_DDVFA)
     )
 end # DDVFA(opts::opts_DDVFA)
 
-
-
 """
     train!(art::DDVFA, x::Array ; preprocessed=false)
 
@@ -499,26 +497,31 @@ function train!(art::DDVFA, x::Array ; y::Array=[], preprocessed=false)
         x = complement_code(x, config=art.config)
     end
 
-    art.labels = zeros(n_samples)
+    # art.labels = zeros(n_samples)
+    y_hat = zeros(n_samples)
 
     # Initialization
     if isempty(art.F2)
-        # Global Fuzzy ART
-        art.n_categories = 1
-        art.labels[1] = 1
-        # Local Fuzzy ART
-        push!(art.F2, GNFA(art.subopts))
-        initialize!(art.F2[1], get_sample(x, 1))
+        # Set the first label as either 1 or the first provided label
+        local_label = supervised ? y[1] : 1
+        # Add the local label to the output vector
+        y_hat[1] = local_label
+        # Create a new category
+        create_category(art, get_sample(x, 1), local_label)
+        # Skip the first training entry
         skip_first = true
     else
         skip_first = false
     end
 
+    # Initialize old weight vector for checking stopping conditions between epochs
     art.W_old = Array{Float64}(undef, art.config.dim_comp, 1)
     art.W_old[:, 1] = get_sample(x, 1)
 
-    # Learning
+    # Set the learning threshold as a function of the data dimension
     art.threshold = art.opts.rho*(art.config.dim^art.opts.gamma_ref)
+
+    # Learn until the stopping conditions
     art.epoch = 0
     while true
         # Increment the epoch and get the iterator
@@ -535,7 +538,7 @@ function train!(art::DDVFA, x::Array ; y::Array=[], preprocessed=false)
             mismatch_flag = true
             # If label is new, break to make new category
             if supervised && !(y[i] in art.labels)
-                create_category(art, sample, label=y[i])
+                create_category(art, sample, y[i])
                 continue
             end
             # Otherwise, check for match
@@ -552,16 +555,20 @@ function train!(art::DDVFA, x::Array ; y::Array=[], preprocessed=false)
                 M = similarity(art.opts.method, art.F2[bmu], "M", sample, art.opts.gamma_ref)
                 # If we got a match, then learn (update the category)
                 if M >= art.threshold
+                    # Update the weights with the sample
                     train!(art.F2[bmu], sample)
+                    # Save the output label for the sample
+                    y_hat[i] = bmu
                     # art.labels[i] = bmu
-                    art.labels[i] = supervised ? y[i] : bmu
+                    # art.labels[i] = supervised ? y[i] : bmu
                     mismatch_flag = false
                     break
                 end
             end
             if mismatch_flag
-                # label = supervised ? y[i] : art.n_categories + 1
-                create_category(art, sample)
+                label = supervised ? y[i] : art.n_categories + 1
+                y_hat[i]  = label
+                create_category(art, sample, label)
             end
         end
         # Make sure to start at first sample from now on
@@ -579,13 +586,13 @@ function train!(art::DDVFA, x::Array ; y::Array=[], preprocessed=false)
     end
 end # train!(art::DDVFA, x::Array ; preprocessed=false)
 
-function create_category(art::DDVFA, sample::Array ; label=[])
+function create_category(art::DDVFA, sample::Array, label::Int)
     # Global Fuzzy ART
     art.n_categories += 1
     # label = supervised ? y[i] : art.n_categories
-    local_label = isempty(label) ? art.n_categories : label
+    # local_label = isempty(label) ? art.n_categories : label
     # push!(art.labels, art.n_categories)
-    push!(art.labels, local_label)
+    push!(art.labels, label)
     # Local Fuzzy ART
     push!(art.F2, GNFA(art.subopts, sample))
     # push!(art.F2, GNFA(art.subopts))

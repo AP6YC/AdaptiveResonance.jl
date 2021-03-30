@@ -23,6 +23,28 @@ function tt_ddvfa(opts::opts_DDVFA, train_x::Array)
     return art
 end # tt_ddvfa(opts::opts_DDVFA, train_x::Array)
 
+@testset "DDVFA Supervised" begin
+    # Set the logging level to Info and standardize the random seed
+    LogLevel(Logging.Info)
+    Random.seed!(0)
+
+    @info "------- DDVFA Supervised -------"
+
+    # Load the data and test across all supervised modules
+    data = load_iris("../data/Iris.csv")
+
+    # Train and classify
+    art = DDVFA()
+    train!(art, data.train_x, y=data.train_y)
+    y_hat = classify(art, data.test_x)
+
+    # Calculate performance
+    perf = performance(y_hat, data.test_y)
+    @test perf > 0.8
+
+    @info "DDVFA perf: $perf"
+end
+
 @testset "DDVFA" begin
     # Set the log level
     LogLevel(Logging.Info)
@@ -33,13 +55,13 @@ end # tt_ddvfa(opts::opts_DDVFA, train_x::Array)
     train_x = permutedims(train_x)
 
     # Create the ART module, train, and classify
-    @info "DDVFA Testing: Default Training"
+    @info " ------- DDVFA Testing: Default Training -------"
     default_opts = opts_DDVFA()
     default_art = tt_ddvfa(default_opts, train_x)
     @info "DDVFA Testing: Default Complete"
 
     # Create the ART module, train, and classify with no display
-    @info "DDVFA Testing: No Display Training"
+    @info "------- DDVFA Testing: No Display Training -------"
     no_disp_opts = opts_DDVFA()
     no_disp_opts.display = false
     no_disp_art = tt_ddvfa(no_disp_opts, train_x)
@@ -51,7 +73,7 @@ end # tt_ddvfa(opts::opts_DDVFA, train_x::Array)
 end # @testset "DDVFA"
 
 @testset "GNFA" begin
-    @info "GNFA Testing"
+    @info "------- GNFA Testing -------"
     Random.seed!(0)
 
     # GNFA train and test

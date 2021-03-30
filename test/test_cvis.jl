@@ -16,7 +16,7 @@
     data, labels, n_samples = Dict(), Dict(), Dict()
 
     # Sanitize all the data
-    p = 0.3
+    p = 0.1
     @info "Subsampling data at rate: $p"
     for data_path in data_paths
         # Load the data, get a subset, and relabel in order
