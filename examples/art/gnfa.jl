@@ -5,9 +5,11 @@ using Logging
 LogLevel(Logging.Info)
 
 # Auxiliary generic functions for loading data, etc.
-include("../test/test_utils.jl")
+include("../../test/test_utils.jl")
 
 @info "GNFA Testing"
+
+# Standardize the seed
 Random.seed!(0)
 
 # GNFA train and test
@@ -18,4 +20,5 @@ data = load_iris("data/Iris.csv")
 local_complement_code = complement_code(data.train_x)
 
 train!(my_gnfa, local_complement_code, y=data.train_y)
-# classify(my_gnfa, data.test_x)
+cc_test = complement_code(data.test_x)
+y_hat = classify(my_gnfa, cc_test)

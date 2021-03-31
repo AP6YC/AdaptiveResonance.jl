@@ -21,9 +21,5 @@ train!(art, train_x)
 total_vec = [art.F2[i].n_categories for i = 1:art.n_categories]
 total_cat = sum(total_vec)
 
-# # Calculate performance
-# perf = performance(y_hat, test_y)
-# println("Performance is ", perf)
-
 # # View the profile as a flamegraph
 # ProfileVega.view()

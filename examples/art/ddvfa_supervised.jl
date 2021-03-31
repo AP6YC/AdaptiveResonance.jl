@@ -1,13 +1,18 @@
+"""
+    ddvfa_supervised.jl
+
+Description:
+    Train and test DDVFA in a supervised fashion on the Iris dataset.
+"""
+
 using Logging
 using DelimitedFiles
 using AdaptiveResonance
 
-# using Profile
-# using ProfileVega
-
 # Set the log level
 LogLevel(Logging.Info)
 
+# Add the local utility functions
 include("../../test/test_utils.jl")
 
 # Load the data and test across all supervised modules
