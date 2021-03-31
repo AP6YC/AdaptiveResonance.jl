@@ -10,10 +10,6 @@ LogLevel(Logging.Info)
 # Auxiliary generic functions for loading data, etc.
 include("test_utils.jl")
 
-@testset "CVI.jl" begin
-    include("test_cvis.jl")
-end
-
 @testset "constants.jl" begin
     @info "Constants testing"
     ddvfa_methods = ["single",
