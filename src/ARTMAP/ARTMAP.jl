@@ -1,9 +1,9 @@
-# using Parameters
-# using Logging
-# using ProgressBars
-# using Printf
-# using MLJ: confusion_matrix, categorical
-# using LinearAlgebra: tr
+"""
+    ARTMAP.jl
+
+Description:
+    Includes all of the ARTMAP (i.e., explicitly supervised) ART modules definitions.
+"""
 
 include("DAM.jl")
 include("FAM.jl")

@@ -1,4 +1,11 @@
 """
+    DAM.jl
+
+Description:
+    Options, structures, and logic for the Default ARTMAP (DAM) module.
+"""
+
+"""
     opts_DAM()
 
 Implements a Default ARTMAP learner's options.

@@ -1,3 +1,10 @@
+"""
+    ARTSCENE.jl
+
+Description:
+    All of the visual filter functions for the ARTSCENE algorithm.
+"""
+
 using Distributed
 using SharedArrays
 

@@ -1,4 +1,11 @@
 """
+    FAM.jl
+
+Description:
+    Options, structures, and logic for the Fuzzy ARTMAP (FAM) module.
+"""
+
+"""
     opts_FAM()
 
 Implements a Fuzzy ARTMAP learner's options.

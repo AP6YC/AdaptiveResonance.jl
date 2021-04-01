@@ -1,4 +1,11 @@
 """
+    DDVFA.jl
+
+Description:
+    Includes all of the structures and logic for running a Distributed Dual-Vigilance Fuzzy ART (DDVFA) module.
+"""
+
+"""
     opts_GNFA()
 
 Gamma-Normalized Fuzzy ART options struct.
@@ -475,7 +482,7 @@ function DDVFA(opts::opts_DDVFA)
 end # DDVFA(opts::opts_DDVFA)
 
 """
-    train!(art::DDVFA, x::Array ; preprocessed=false)
+    train!(art::DDVFA, x::Array ; y::Array=[], preprocessed=false)
 
 Train the DDVFA model on the data.
 """
@@ -559,11 +566,7 @@ function train!(art::DDVFA, x::Array ; y::Array=[], preprocessed=false)
                     # Update the weights with the sample
                     train!(art.F2[bmu], sample)
                     # Save the output label for the sample
-                    # y_hat[i] = supervised ? art.labels[i] : bmu
                     y_hat[i] = art.labels[bmu]
-                    # y_hat[i] = bmu
-                    # art.labels[i] = bmu
-                    # art.labels[i] = supervised ? y[i] : bmu
                     mismatch_flag = false
                     break
                 end
@@ -588,15 +591,20 @@ function train!(art::DDVFA, x::Array ; y::Array=[], preprocessed=false)
         art.W_old = deepcopy(art.W)
     end
     return y_hat
-end # train!(art::DDVFA, x::Array ; preprocessed=false)
+end # train!(art::DDVFA, x::Array ; y::Array=[], preprocessed=false)
 
+"""
+    create_category(art::DDVFA, sample::Array, label::Int)
+
+Create a new category by appending and initializing a new GNFA node to F2.
+"""
 function create_category(art::DDVFA, sample::Array, label::Int)
     # Global Fuzzy ART
     art.n_categories += 1
     push!(art.labels, label)
     # Local Fuzzy ART
     push!(art.F2, GNFA(art.subopts, sample))
-end
+end # create_category(art::DDVFA, sample::Array, label::Int)
 
 """
     stopping_conditions(art::DDVFA)

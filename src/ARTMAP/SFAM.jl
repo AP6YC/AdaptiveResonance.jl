@@ -1,4 +1,11 @@
 """
+    SFAM.jl
+
+Description:
+    Options, structures, and logic for the Simplified Fuzzy ARTMAP (SFAM) module.
+"""
+
+"""
     opts_SFAM()
 
 Implements a Simple Fuzzy ARTMAP learner's options.
