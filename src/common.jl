@@ -42,7 +42,7 @@ function DataConfig(mins::Array, maxs::Array)
     DataConfig(
         true,   # setup
         mins,   # min
-        max,    # max
+        maxs,    # max
         dim,    # dim
         dim*2   # dim_comp
     )
@@ -239,12 +239,11 @@ end # get_iterator(opts::O, x::Array) where {O<:AbstractARTOpts}
     update_iter(art::A, iter::Union{UnitRange, ProgressBar}, i::Int) where {A<:AbstractART}
 """
 function update_iter(art::A, iter::Union{UnitRange, ProgressBar}, i::Int) where {A<:AbstractART}
+    # Check explicitly for each, as the function definition restricts the types
     if iter isa ProgressBar
         set_description(iter, string(@sprintf("Ep: %i, ID: %i, Cat: %i", art.epoch, i, art.n_categories)))
     elseif iter isa UnitRange
         return
-    else
-        error("Updating an incompatible iterator type")
     end
 end # update_iter(art::A, iter::Union{UnitRange, ProgressBar}, i::Int) where {A<:AbstractART}
 
