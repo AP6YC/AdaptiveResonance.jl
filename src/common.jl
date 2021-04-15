@@ -100,7 +100,8 @@ function performance(y_hat::Array, y::Array)
     end
 
     # Compute the confusion matrix and calculate performance as trace/sum
-    conf = confusion_matrix(categorical(y_hat_local), categorical(y_local))
+    # conf = confusion_matrix(categorical(y_hat_local), categorical(y_local))
+    conf = confusion_matrix(coerce(y_hat_local, OrderedFactor), coerce(y_local, OrderedFactor))
     return tr(conf.mat)/(sum(conf.mat) + n_mismatch)
 end # performance(y_hat::Array, y::Array)
 

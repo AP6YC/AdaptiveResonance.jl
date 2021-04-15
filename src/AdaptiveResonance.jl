@@ -5,7 +5,7 @@ using Parameters
 using Logging
 using ProgressBars
 using Printf
-using MLJ: confusion_matrix, categorical
+using MLJ: confusion_matrix, coerce, OrderedFactor
 using LinearAlgebra: tr, norm
 using Statistics: median, mean
 
