@@ -20,11 +20,3 @@ art = DDVFA()
 ```julia
 art = SFAM()
 ```
-
-## CVI
-
-### Xie-Beni (XB)
-
-```julia
-cvi = XB()
-```

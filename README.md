@@ -4,12 +4,22 @@ A Julia package for Adaptive Resonance Theory (ART) algorithms.
 
 | **Documentation**  | **Build Status** | **Coverage** |
 |:------------------:|:----------------:|:------------:|
-| [![Stable][docs-stable-img]][docs-stable-url] [![Dev][docs-dev-img]][docs-dev-url] | [![Build Status][ci-img]][ci-url] [![Build Status][appveyor-img]][appveyor-url] | [![Codecov][codecov-img]][codecov-url] [![Coveralls][coveralls-img]][coveralls-url] |
+| [![Stable][docs-stable-img]][docs-stable-url] | [![Build Status][ci-img]][ci-url] | [![Codecov][codecov-img]][codecov-url] |
+| [![Dev][docs-dev-img]][docs-dev-url] | [![Build Status][appveyor-img]][appveyor-url] | [![Coveralls][coveralls-img]][coveralls-url] |
 
 | **Dependents** | **Date** | **Status** |
 |:--------------:|:--------:|:----------:|
-| [![deps](https://juliahub.com/docs/AdaptiveResonance/deps.svg)](https://juliahub.com/ui/Packages/AdaptiveResonance/Sm0We?t=2) | [![version](https://juliahub.com/docs/AdaptiveResonance/version.svg)](https://juliahub.com/ui/Packages/AdaptiveResonance/Sm0We) | [![pkgeval](https://juliahub.com/docs/AdaptiveResonance/pkgeval.svg)](https://juliahub.com/ui/Packages/AdaptiveResonance/Sm0We) |
+| [![deps][deps-img]][deps-url] | [![version][version-img]][version-url] | [![pkgeval][pkgeval-img]][pkgeval-url] |
 <!-- | [![Stable][docs-stable-img]][docs-stable-url] [![Dev][docs-dev-img]][docs-dev-url] | [![Build Status][travis-img]][travis-url] [![Build Status][appveyor-img]][appveyor-url] | [![Codecov][codecov-img]][codecov-url] [![Coveralls][coveralls-img]][coveralls-url] | -->
+
+[deps-img]: https://juliahub.com/docs/AdaptiveResonance/deps.svg
+[deps-url]: https://juliahub.com/ui/Packages/AdaptiveResonance/Sm0We?t=2
+
+[version-img]: https://juliahub.com/docs/AdaptiveResonance/version.svg
+[version-url]: https://juliahub.com/ui/Packages/AdaptiveResonance/Sm0We
+
+[pkgeval-img]: https://juliahub.com/docs/AdaptiveResonance/pkgeval.svg
+[pkgeval-url]: https://juliahub.com/ui/Packages/AdaptiveResonance/Sm0We
 
 [docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
 [docs-stable-url]: https://AP6YC.github.io/AdaptiveResonance.jl/stable
