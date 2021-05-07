@@ -8,4 +8,4 @@ To formally contribute to the package, please follow the usual branch pull reque
 4. Push to the branch (git push origin my-new-feature).
 5. Create a new [GitHub pull request](https://github.com/AP6YC/AdaptiveResonance.jl/pulls).
 
-If you simply have suggestions for improvement, Sasha Petrenko (<sap625@mst.edu>) is the current developer and maintainer of the AdaptiveResonance package, so please feel free to reach out with thoughts and questions.
+If you simply have suggestions for improvement, Sasha Petrenko (<sap625@mst.edu>) is the current developer and maintainer of the AdaptiveResonance.jl package, so please feel free to reach out with thoughts and questions.
