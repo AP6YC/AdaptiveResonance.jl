@@ -505,14 +505,22 @@ function train!(art::DDVFA, x::Array ; y::Array=[], preprocessed=false)
     end
 
     # art.labels = zeros(n_samples)
-    y_hat = zeros(Int, n_samples)
+    if n_samples == 1
+        y_hat = zero(Int)
+    else
+        y_hat = zeros(Int, n_samples)
+    end
 
     # Initialization
     if isempty(art.F2)
         # Set the first label as either 1 or the first provided label
         local_label = supervised ? y[1] : 1
         # Add the local label to the output vector
-        y_hat[1] = local_label
+        if n_samples == 1
+            y_hat = local_label
+        else
+            y_hat[1] = local_label
+        end
         # Create a new category
         create_category(art, get_sample(x, 1), local_label)
         # Skip the first training entry
@@ -541,11 +549,16 @@ function train!(art::DDVFA, x::Array ; y::Array=[], preprocessed=false)
             (i == 1 && skip_first) && continue
             # Grab the sample slice
             sample = get_sample(x, i)
+
             # Default to mismatch
             mismatch_flag = true
             # If label is new, break to make new category
             if supervised && !(y[i] in art.labels)
-                y_hat[i] = y[i]
+                if n_samples == 1
+                    y_hat = y[i]
+                else
+                    y_hat[i] = y[i]
+                end
                 create_category(art, sample, y[i])
                 continue
             end
@@ -566,14 +579,23 @@ function train!(art::DDVFA, x::Array ; y::Array=[], preprocessed=false)
                     # Update the weights with the sample
                     train!(art.F2[bmu], sample)
                     # Save the output label for the sample
-                    y_hat[i] = art.labels[bmu]
+                    label = art.labels[bmu]
+                    if n_samples == 1
+                        y_hat = label
+                    else
+                        y_hat[i] = label
+                    end
                     mismatch_flag = false
                     break
                 end
             end
             if mismatch_flag
                 label = supervised ? y[i] : art.n_categories + 1
-                y_hat[i]  = label
+                if n_samples == 1
+                    y_hat = label
+                else
+                    y_hat[i]  = label
+                end
                 create_category(art, sample, label)
             end
         end
@@ -714,15 +736,26 @@ function classify(art::DDVFA, x::Array ; preprocessed=false)
     end
 
     # Initialize the output vector
-    y_hat = zeros(Int, n_samples)
+    if n_samples == 1
+        y_hat = zero(Int)
+    else
+        y_hat = zeros(Int, n_samples)
+    end
 
-    iter_raw = 1:n_samples
-    iter = art.opts.display ? ProgressBar(iter_raw) : iter_raw
+    # iter_raw = 1:n_samples
+    # iter = art.opts.display ? ProgressBar(iter_raw) : iter_raw
+    iter = get_iterator(art.opts, x)
     for ix = iter
-        if art.opts.display
-            set_description(iter, string(@sprintf("Ep: %i, ID: %i, Cat: %i", art.epoch, ix, art.n_categories)))
-        end
-        sample = x[:, ix]
+        # Update the iterator if necessary
+        update_iter(art, iter, ix)
+        # if art.opts.display
+        #     set_description(iter, string(@sprintf("Ep: %i, ID: %i, Cat: %i", art.epoch, ix, art.n_categories)))
+        # end
+
+        # Grab the sample slice
+        sample = get_sample(x, ix)
+        # sample = x[:, ix]
+
         T = zeros(art.n_categories)
         for jx = 1:art.n_categories
             activation_match!(art.F2[jx], sample)
@@ -735,14 +768,23 @@ function classify(art::DDVFA, x::Array ; preprocessed=false)
             M = similarity(art.opts.method, art.F2[bmu], "M", sample, art.opts.gamma_ref)
             if M >= art.threshold
                 # Current winner
-                y_hat[ix] = art.labels[bmu]
+                label = art.labels[bmu]
+                if n_samples == 1
+                    y_hat = label
+                else
+                    y_hat[ix] = label
+                end
                 mismatch_flag = false
                 break
             end
         end
         if mismatch_flag
             @debug "Mismatch"
-            y_hat[ix] = -1
+            if n_samples == 1
+                y_hat = -1
+            else
+                y_hat[ix] = -1
+            end
         end
     end
 

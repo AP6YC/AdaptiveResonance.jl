@@ -33,7 +33,7 @@ export
 
     # Common structures
     DataConfig,
-    data_setup,
+    data_setup!,
 
     # Common utility functions
     complement_code,

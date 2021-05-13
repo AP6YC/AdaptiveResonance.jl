@@ -23,6 +23,49 @@ function tt_ddvfa(opts::opts_DDVFA, train_x::Array)
     return art
 end # tt_ddvfa(opts::opts_DDVFA, train_x::Array)
 
+@testset "DDVFA Sequential" begin
+    # Set the logging level to Info and standardize the random seed
+    LogLevel(Logging.Info)
+    Random.seed!(0)
+
+    @info "------- DDVFA Sequential -------"
+
+    # Load the data and test across all supervised modules
+    data = load_iris("../data/Iris.csv")
+
+    # Initialize the ART module
+    art = DDVFA()
+    # Turn off display for sequential training/testing
+    art.opts.display = false
+    # Set up the data manually because the module can't infer from single samples
+    data_setup!(art.config, data.train_x)
+
+    # Get the dimension and size of the data
+    dim, n_samples = get_data_shape(data.train_x)
+    y_hat_train = zeros(Int64, n_samples)
+    dim_test, n_samples_test = get_data_shape(data.test_x)
+    y_hat = zeros(Int64, n_samples_test)
+
+    # Iterate over all examples sequentially
+    for i = 1:n_samples
+        y_hat_train[i] = train!(art, data.train_x[:, i], y=[data.train_y[i]])
+    end
+
+    # Iterate over all test samples sequentially
+    for i = 1:n_samples_test
+        y_hat[i] = classify(art, data.test_x[:, i])
+    end
+
+    # Calculate performance
+    perf_train = performance(y_hat_train, data.train_y)
+    perf_test = performance(y_hat, data.test_y)
+    @test perf_train > 0.8
+    @test perf_test > 0.8
+
+    @info "DDVFA Training Perf: $perf_train"
+    @info "DDVFA Testing Perf: $perf_test"
+end
+
 @testset "DDVFA Supervised" begin
     # Set the logging level to Info and standardize the random seed
     LogLevel(Logging.Info)

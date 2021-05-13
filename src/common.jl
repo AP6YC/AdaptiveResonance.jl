@@ -115,8 +115,10 @@ function get_data_shape(data::Array)
     if ndims(data) > 1
         dim, n_samples = size(data)
     else
-        dim = 1
-        n_samples = length(data)
+        # dim = 1
+        # n_samples = length(data)
+        dim = length(data)
+        n_samples = 1
     end
 
     return dim, n_samples
@@ -132,7 +134,8 @@ function get_n_samples(data::Array)
     if ndims(data) > 1
         n_samples = size(data)[2]
     else
-        n_samples = length(data)
+        # n_samples = length(data)
+        n_samples = 1
     end
 
     return n_samples

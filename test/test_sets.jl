@@ -21,15 +21,14 @@ include("test_utils.jl")
     # Example arrays
     three_by_two = [1 2; 3 4; 5 6]
 
-
     # Test DataConfig constructors
     dc1 = DataConfig()                  # Default constructor
     dc2 = DataConfig(0, 1, 2)           # When min and max are same across all features
     dc3 = DataConfig([0, 1], [2, 3])    # When min and max differ across features
 
     # Test get_n_samples
-    @test get_n_samples([1,2,3]) == 3           # 1-D array case
-    @test get_n_samples(three_by_two) == 2   # 2-D array case
+    @test get_n_samples([1,2,3]) == 1           # 1-D array case
+    @test get_n_samples(three_by_two) == 2      # 2-D array case
 
     # Test breaking situations
     @test_throws ErrorException performance([1,2],[1,2,3])
