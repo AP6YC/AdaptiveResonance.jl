@@ -576,6 +576,10 @@ function train!(art::DDVFA, x::Array ; y::Array=[], preprocessed=false)
                 M = similarity(art.opts.method, art.F2[bmu], "M", sample, art.opts.gamma_ref)
                 # If we got a match, then learn (update the category)
                 if M >= art.threshold
+                    # If supervised and the label differs, trigger mismatch
+                    if supervised && art.labels[bmu] != y[i]
+                        break
+                    end
                     # Update the weights with the sample
                     train!(art.F2[bmu], sample)
                     # Save the output label for the sample
@@ -700,6 +704,8 @@ function similarity(method::String, F2::GNFA, field_name::String, sample::Array,
     else
         error("Invalid/unimplemented similarity method")
     end
+
+    return value
 end # similarity(method::String, F2::GNFA, field_name::String, sample::Array, gamma_ref::Real)
 
 """
