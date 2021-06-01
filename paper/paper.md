@@ -8,9 +8,13 @@ tags:
   - Clustering
   - Neural Networks
 authors:
-  - name: Sasha Petrenko^[Missouri University of Science and Technology]
+  - name: Sasha Petrenko
     orcid: 0000-0003-2442-8901
-date: 25 May 2021
+    affiliation: 1
+affiliations:
+  - name: Missouri University of Science and Technology
+    index: 1
+date: 1 June 2021
 bibliography: paper.bib
 ---
 
