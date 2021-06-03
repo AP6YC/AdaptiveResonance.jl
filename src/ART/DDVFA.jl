@@ -765,34 +765,35 @@ function classify(art::DDVFA, x::Array ; preprocessed=false, get_bmu=false)
         end
         # Sort by highest activation
         index = sortperm(T, rev=true)
-        # If reporting only the highest activated category, return that
-        if get_bmu
-            label = art.labels[index[1]]
-            if n_samples == 1
-                y_hat = label
-            else
-                y_hat[ix] = label
-            end
-        # Otherwise, calculate the match and report the label based on the module threshold
-        else
-            mismatch_flag = true
-            for jx = 1:art.n_categories
-                bmu = index[jx]
-                M = similarity(art.opts.method, art.F2[bmu], "M", sample, art.opts.gamma_ref)
-                if M >= art.threshold
-                    # Current winner
-                    label = art.labels[bmu]
-                    if n_samples == 1
-                        y_hat = label
-                    else
-                        y_hat[ix] = label
-                    end
-                    mismatch_flag = false
-                    break
+
+        mismatch_flag = true
+        for jx = 1:art.n_categories
+            bmu = index[jx]
+            M = similarity(art.opts.method, art.F2[bmu], "M", sample, art.opts.gamma_ref)
+            if M >= art.threshold
+                # Current winner
+                label = art.labels[bmu]
+                if n_samples == 1
+                    y_hat = label
+                else
+                    y_hat[ix] = label
                 end
+                mismatch_flag = false
+                break
             end
-            if mismatch_flag
-                @debug "Mismatch"
+        end
+        if mismatch_flag
+            @debug "Mismatch"
+            # If falling back to the highest activated category, return that
+            if get_bmu
+                label = art.labels[index[1]]
+                if n_samples == 1
+                    y_hat = label
+                else
+                    y_hat[ix] = label
+                end
+            # Otherwise, return a mismatch
+            else
                 if n_samples == 1
                     y_hat = -1
                 else
