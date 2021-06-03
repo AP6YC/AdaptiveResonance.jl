@@ -81,14 +81,20 @@ end
     y_hat_train = train!(art, data.train_x, y=data.train_y)
     y_hat = classify(art, data.test_x)
 
+    # Classify getting the bmu
+    y_hat_bmu = classify(art, data.test_x, get_bmu=true)
+
     # Calculate performance
     perf_train = performance(y_hat_train, data.train_y)
     perf_test = performance(y_hat, data.test_y)
+    perf_test_bmu = performance(y_hat_bmu, data.test_y)
     @test perf_train > 0.8
     @test perf_test > 0.8
+    @test perf_test_bmu > 0.8
 
     @info "DDVFA Training Perf: $perf_train"
     @info "DDVFA Testing Perf: $perf_test"
+    @info "DDVFA Testing BMU Perf: $perf_test_bmu"
 end
 
 @testset "DDVFA" begin

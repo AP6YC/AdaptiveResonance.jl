@@ -709,7 +709,7 @@ function similarity(method::String, F2::GNFA, field_name::String, sample::Array,
 end # similarity(method::String, F2::GNFA, field_name::String, sample::Array, gamma_ref::Real)
 
 """
-    classify(art::DDVFA, x::Array ; preprocessed=false)
+    classify(art::DDVFA, x::Array ; preprocessed=false, bmu=false)
 
 Predict categories of 'x' using the DDVFA model.
 
@@ -726,7 +726,7 @@ julia> train!(my_DDVFA, x)
 julia> y_hat = classify(my_DDVFA, y)
 ```
 """
-function classify(art::DDVFA, x::Array ; preprocessed=false)
+function classify(art::DDVFA, x::Array ; preprocessed=false, get_bmu=false)
     # Show a message if display is on
     art.opts.display && @info "Testing DDVFA"
 
@@ -748,48 +748,56 @@ function classify(art::DDVFA, x::Array ; preprocessed=false)
         y_hat = zeros(Int, n_samples)
     end
 
-    # iter_raw = 1:n_samples
-    # iter = art.opts.display ? ProgressBar(iter_raw) : iter_raw
+    # Get the iterator based on the module options and data shape
     iter = get_iterator(art.opts, x)
     for ix = iter
         # Update the iterator if necessary
         update_iter(art, iter, ix)
-        # if art.opts.display
-        #     set_description(iter, string(@sprintf("Ep: %i, ID: %i, Cat: %i", art.epoch, ix, art.n_categories)))
-        # end
 
         # Grab the sample slice
         sample = get_sample(x, ix)
-        # sample = x[:, ix]
 
+        # Calculate all global activations
         T = zeros(art.n_categories)
         for jx = 1:art.n_categories
             activation_match!(art.F2[jx], sample)
             T[jx] = similarity(art.opts.method, art.F2[jx], "T", sample, art.opts.gamma_ref)
         end
+        # Sort by highest activation
         index = sortperm(T, rev=true)
-        mismatch_flag = true
-        for jx = 1:art.n_categories
-            bmu = index[jx]
-            M = similarity(art.opts.method, art.F2[bmu], "M", sample, art.opts.gamma_ref)
-            if M >= art.threshold
-                # Current winner
-                label = art.labels[bmu]
-                if n_samples == 1
-                    y_hat = label
-                else
-                    y_hat[ix] = label
-                end
-                mismatch_flag = false
-                break
-            end
-        end
-        if mismatch_flag
-            @debug "Mismatch"
+        # If reporting only the highest activated category, return that
+        if get_bmu
+            label = art.labels[index[1]]
             if n_samples == 1
-                y_hat = -1
+                y_hat = label
             else
-                y_hat[ix] = -1
+                y_hat[ix] = label
+            end
+        # Otherwise, calculate the match and report the label based on the module threshold
+        else
+            mismatch_flag = true
+            for jx = 1:art.n_categories
+                bmu = index[jx]
+                M = similarity(art.opts.method, art.F2[bmu], "M", sample, art.opts.gamma_ref)
+                if M >= art.threshold
+                    # Current winner
+                    label = art.labels[bmu]
+                    if n_samples == 1
+                        y_hat = label
+                    else
+                        y_hat[ix] = label
+                    end
+                    mismatch_flag = false
+                    break
+                end
+            end
+            if mismatch_flag
+                @debug "Mismatch"
+                if n_samples == 1
+                    y_hat = -1
+                else
+                    y_hat[ix] = -1
+                end
             end
         end
     end
