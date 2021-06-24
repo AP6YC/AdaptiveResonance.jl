@@ -6,3 +6,4 @@ Description:
 """
 
 include("DDVFA.jl")
+include("DVFA.jl")

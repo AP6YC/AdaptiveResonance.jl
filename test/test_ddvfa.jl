@@ -1,7 +1,7 @@
 """
     tt_ddvfa(opts::opts_DDVFA, train_x::Array)
 
-Trains and tests (tt) a DDVFA module on unlabled data train_x.
+Trains and tests (tt) a DDVFA module on unlabeled data train_x.
 """
 function tt_ddvfa(opts::opts_DDVFA, train_x::Array)
     # Create the ART module, train, and classify
@@ -15,10 +15,6 @@ function tt_ddvfa(opts::opts_DDVFA, train_x::Array)
     total_cat = sum(total_vec)
     @info "Categories: $(art.n_categories)"
     @info "Weights: $total_cat"
-
-    # # Calculate performance
-    # perf = performance(y_hat, test_y)
-    # println("Performance is ", perf)
 
     return art
 end # tt_ddvfa(opts::opts_DDVFA, train_x::Array)
@@ -45,6 +41,7 @@ end # tt_ddvfa(opts::opts_DDVFA, train_x::Array)
     y_hat_train = zeros(Int64, n_samples)
     dim_test, n_samples_test = get_data_shape(data.test_x)
     y_hat = zeros(Int64, n_samples_test)
+    y_hat_bmu = zeros(Int64, n_samples_test)
 
     # Iterate over all examples sequentially
     for i = 1:n_samples
@@ -54,16 +51,23 @@ end # tt_ddvfa(opts::opts_DDVFA, train_x::Array)
     # Iterate over all test samples sequentially
     for i = 1:n_samples_test
         y_hat[i] = classify(art, data.test_x[:, i])
+        y_hat_bmu[i] = classify(art, data.test_x[:, i], get_bmu=true)
     end
 
     # Calculate performance
     perf_train = performance(y_hat_train, data.train_y)
     perf_test = performance(y_hat, data.test_y)
-    @test perf_train > 0.8
-    @test perf_test > 0.8
+    perf_test_bmu = performance(y_hat_bmu, data.test_y)
+
+    # Test the permance above a baseline number
+    perf_baseline = 0.8
+    @test perf_train > perf_baseline
+    @test perf_test > perf_baseline
+    @test perf_test_bmu > perf_baseline
 
     @info "DDVFA Training Perf: $perf_train"
     @info "DDVFA Testing Perf: $perf_test"
+    @info "DDVFA Testing BMU Perf: $perf_test_bmu"
 end
 
 @testset "DDVFA Supervised" begin
@@ -80,18 +84,20 @@ end
     art = DDVFA()
     y_hat_train = train!(art, data.train_x, y=data.train_y)
     y_hat = classify(art, data.test_x)
-
-    # Classify getting the bmu
     y_hat_bmu = classify(art, data.test_x, get_bmu=true)
 
     # Calculate performance
     perf_train = performance(y_hat_train, data.train_y)
     perf_test = performance(y_hat, data.test_y)
     perf_test_bmu = performance(y_hat_bmu, data.test_y)
-    @test perf_train > 0.8
-    @test perf_test > 0.8
-    @test perf_test_bmu > 0.8
 
+    # Test the performances with a baseline number
+    perf_baseline = 0.8
+    @test perf_train > perf_baseline
+    @test perf_test > perf_baseline
+    @test perf_test_bmu > perf_baseline
+
+    # Log the results
     @info "DDVFA Training Perf: $perf_train"
     @info "DDVFA Testing Perf: $perf_test"
     @info "DDVFA Testing BMU Perf: $perf_test_bmu"
@@ -136,12 +142,14 @@ end # @testset "DDVFA"
     train!(my_gnfa, local_complement_code)
 
     # Similarity methods
-    methods = ["single",
-               "average",
-               "complete",
-               "median",
-               "weighted",
-               "centroid"]
+    methods = [
+        "single",
+        "average",
+        "complete",
+        "median",
+        "weighted",
+        "centroid"
+    ]
 
     # Both field names
     field_names = ["T", "M"]

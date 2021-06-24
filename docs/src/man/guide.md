@@ -21,15 +21,20 @@ Pkg.add("AdaptiveResonance")
 The AdaptiveResonance package is built upon ART modules that contain all of the state information during training and inference.
 The ART modules are driven by options, which are themselves mutable keyword argument structs from the [Parameters.jl](https://github.com/mauro3/Parameters.jl) package.
 
-### ART Modules
-
-Every ART module is equipped with several constructors, a training function, and a classification function.
-
 ### ART
 
 ART modules are generally unsupervised in formulation, so they do not explicitly require supervisory labels to their training examples.
 However, many of these modules can be formulated in the simplified ARTMAP style whereby the ART B module has a vigilance parameter of 1, directly mapping the categories of the ART A module to any provided supervisory labels.
 Without provided labels, the ART modules behave as expected, incrementally creating categories when necessary during the training phase.
+
+### ART Modules
+
+Every ART module is equipped with several constructors, a training function, and a classification function.
+Each ART module
+
+```julia
+
+```
 
 ### ART Options
 

@@ -253,6 +253,8 @@ function train!(art::GNFA, x::Array ; y::Array=[])
         if stopping_conditions(art)
             break
         end
+        # If we didn't break, deep copy the old weights
+        art.W_old = deepcopy(art.W)
     end
 end # train!(art::GNFA, x::Array ; y::Array=[])
 
@@ -280,9 +282,10 @@ function classify(art::GNFA, x::Array)
 
     # Initialize the output vector and iterate across all data
     y_hat = zeros(Int, n_samples)
-    iter = ProgressBar(1:n_samples)
+    iter = get_iterator(art.opts, x)
     for ix in iter
-        set_description(iter, string(@sprintf("ID: %i, Cat: %i", ix, art.n_categories)))
+        # Update the iterator if necessary
+        update_iter(art, iter, ix)
         # Compute activation and match functions
         activation_match!(art, x[:, ix])
         # Sort activation function values in descending order
@@ -371,8 +374,7 @@ Distributed Dual Vigilance Fuzzy ART options struct.
 
 # Examples
 ```julia-repl
-julia> opts_DDVFA()
-Initialized opts_DDVFA
+julia> my_opts = opts_DDVFA()
 ```
 """
 @with_kw mutable struct opts_DDVFA <: AbstractARTOpts @deftype Float64
@@ -408,7 +410,7 @@ Distributed Dual Vigilance Fuzzy ARTMAP module struct.
 julia> DDVFA()
 DDVFA
     opts: opts_DDVFA
-    supopts::opts_GNFA
+    subopts::opts_GNFA
     ...
 ```
 """
@@ -439,7 +441,7 @@ Implements a DDVFA learner with default options.
 julia> DDVFA()
 DDVFA
     opts: opts_DDVFA
-    supopts: opts_GNFA
+    subopts: opts_GNFA
     ...
 ```
 """
@@ -459,7 +461,7 @@ julia> my_opts = opts_DDVFA()
 julia> DDVFA(my_opts)
 DDVFA
     opts: opts_DDVFA
-    supopts: opts_GNFA
+    subopts: opts_GNFA
     ...
 ```
 """
@@ -604,9 +606,8 @@ function train!(art::DDVFA, x::Array ; y::Array=[], preprocessed=false)
             end
         end
         # Make sure to start at first sample from now on
-        initial_sample = 1
-        # art.W = []
-        # art.W = Array{Float64}(undef, art.config.dim*2, 1)
+        skip_first = false
+        # Deep copy all of the weights for stopping condition check
         art.W = art.F2[1].W
         for kx = 2:art.n_categories
             art.W = [art.W art.F2[kx].W]
@@ -694,7 +695,6 @@ function similarity(method::String, F2::GNFA, field_name::String, sample::Array,
     # Centroid linkage
     elseif method == "centroid"
         Wc = minimum(F2.W, dims=2)
-        # (norm(min(obj.sample, Wc), 1)/(obj.alpha + norm(Wc, 1)))^obj.gamma;
         T = norm(element_min(sample, Wc), 1) / (F2.opts.alpha + norm(Wc, 1))^F2.opts.gamma
         if field_name == "T"
             value = T
@@ -736,7 +736,7 @@ function classify(art::DDVFA, x::Array ; preprocessed=false, get_bmu=false)
     # Verify that the data is setup before classifying
     !art.config.setup && @error "Attempting to classify data before setup"
 
-    ## If the data is not preprocessed, then complement code it
+    # If the data is not preprocessed, then complement code it
     if !preprocessed
         x = complement_code(x, config=art.config)
     end

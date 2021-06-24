@@ -331,40 +331,35 @@ function artscene_filter(raw_image::Array{T, 3} ;  distributed::Bool=true) where
     image = color_to_gray(raw_image)
     image_size = size(image)
     image_type = typeof(image)
-    @debug "Stage 1: Grayscale: Size = $image_size, Type = $image_type"
-    @debug "Stage 1: Done"
+    @debug "Stage 1 Complete: Grayscale: Size = $image_size, Type = $image_type"
 
     # Stage 2: Contrast normalization
     x = contrast_normalization(image, distributed=true)
     image_size = size(x)
     image_type = typeof(x)
-    @debug "Stage 2: Contrast: Size = $image_size, Type = $image_type"
-    @debug "Stage 2: Done"
+    @debug "Stage 2 Complete: Contrast: Size = $image_size, Type = $image_type"
 
     # Stage 3: Contrast-sensitive oriented filtering
     y = contrast_sensitive_oriented_filtering(image, x)
     image_size = size(y)
     image_type = typeof(y)
-    @debug "Stage 3: Sensitive Oriented: Size = $image_size, Type = $image_type"
-    @debug "Stage 3: Done"
+    @debug "Stage 3 Complete: Sensitive Oriented: Size = $image_size, Type = $image_type"
 
     # Stage 4: Contrast-insensitive oriented filtering
     z = contrast_insensitive_oriented_filtering(y)
     image_size = size(z)
     image_type = typeof(z)
-    @debug "Stage 4: Insensitive Oriented: Size = $image_size, Type = $image_type"
-    @debug "Stage 4: Done"
+    @debug "Stage 4 Complete: Insensitive Oriented: Size = $image_size, Type = $image_type"
 
     # Stage 5: Orientation competition
     z = orientation_competition(z)
     image_size = size(z)
     image_type = typeof(z)
-    @debug "Stage 5: Orientation Competition: Size = $image_size, Type = $image_type"
-    @debug "Stage 5: Done"
+    @debug "Stage 5 Complete: Orientation Competition: Size = $image_size, Type = $image_type"
 
     # *Stage 6*: Compute patch vectors (orientation and color)
     O, C = patch_orientation_color(z, raw_image)
-    @debug "Stage 6: Done"
+    @debug "Stage 6 Complete"
 
     return O, C
 end # artscene_filter(raw_image::Array{T, 3} ;  distributed::Bool=true) where {T<:Real}

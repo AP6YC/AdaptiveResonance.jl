@@ -42,9 +42,10 @@ export
     get_data_shape,
     get_n_samples,
 
-    # DDVFA
+    # ART
     DDVFA, opts_DDVFA,
     GNFA, opts_GNFA,
+    DVFA, opts_DVFA,
 
     # ARTMAP
     FAM, opts_FAM,
