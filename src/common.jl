@@ -31,6 +31,9 @@ const IntegerMatrix{T<:Integer} = AbstractArray{T, 2}
 # Specifically floating-point aliases
 const RealFP = Union{Float32, Float64}
 
+# Acceptable iterators for ART module training and inference
+const ARTIterator = Union{UnitRange, ProgressBar}
+
 """
     DataConfig
 
@@ -52,8 +55,8 @@ Default constructor for a data configuration, not set up.
 function DataConfig()
     DataConfig(
         false,                      # setup
-        Array{Float64}(undef, 0),   # min
-        Array{Float64}(undef, 0),   # max
+        Array{RealFP}(undef, 0),   # min
+        Array{RealFP}(undef, 0),   # max
         0,                          # dim
         0                           # dim_comp
     )
@@ -186,7 +189,7 @@ function data_setup!(config::DataConfig, data::RealMatrix)
     end
 
     # Get the correct dimensionality and number of samples
-    config.dim, n_samples = get_data_shape(data)
+    config.dim, _ = get_data_shape(data)
     config.dim_comp = 2*config.dim
 
     # Compute the ranges of each feature
@@ -255,7 +258,7 @@ end # complement_code(data::RealArray ; config::DataConfig=DataConfig())
 """
     get_iterator(opts::ARTOpts, x::Array)
 """
-function get_iterator(opts::ARTOpts, x::Array)
+function get_iterator(opts::ARTOpts, x::RealArray)
     # Show a progbar only if the data is 2-D and the option is on
     dim, n_samples = get_data_shape(x)
     single_sample = n_samples == 1
@@ -269,12 +272,12 @@ function get_iterator(opts::ARTOpts, x::Array)
     iter = prog_bar ?  ProgressBar(iter_raw) : iter_raw
 
     return iter
-end # get_iterator(opts::ARTOpts, x::Array)
+end # get_iterator(opts::ARTOpts, x::RealArray)
 
 """
-    update_iter(art::ART, iter::Union{UnitRange, ProgressBar}, i::Int)
+    update_iter(art::ART, iter::ARTIterator, i::Integer)
 """
-function update_iter(art::ART, iter::Union{UnitRange, ProgressBar}, i::Int)
+function update_iter(art::ART, iter::ARTIterator, i::Integer)
     # Check explicitly for each, as the function definition restricts the types
     if iter isa ProgressBar
         set_description(iter, string(@sprintf("Ep: %i, ID: %i, Cat: %i", art.epoch, i, art.n_categories)))
