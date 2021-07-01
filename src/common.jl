@@ -1,3 +1,36 @@
+
+# -------------------------------------------
+# Document: common.jl
+# Author: Sasha Petrenko <sap625@mst.edu>
+# Description:
+#   Types and functions that are used throughout AdaptiveResonance.jl.
+# -------------------------------------------
+
+# -------------------------------------------
+# Aliases
+# -------------------------------------------
+#   **Taken from StatsBase.jl**
+#
+#  These types signficantly reduces the need of using
+#  type parameters in functions (which are often just
+#  for the purpose of restricting the arrays to real)
+#
+# These could be removed when the Base supports
+# covariant type notation, i.e. AbstractVector{<:Real}
+
+# Real-numbered aliases
+const RealArray{T<:Real, N} = AbstractArray{T, N}
+const RealVector{T<:Real} = AbstractArray{T, 1}
+const RealMatrix{T<:Real} = AbstractArray{T, 2}
+
+# Integered aliases
+const IntegerArray{T<:Integer, N} = AbstractArray{T, N}
+const IntegerVector{T<:Integer} = AbstractArray{T, 1}
+const IntegerMatrix{T<:Integer} = AbstractArray{T, 2}
+
+# Specifically floating-point aliases
+const RealFP = Union{Float32, Float64}
+
 """
     DataConfig
 
@@ -5,10 +38,10 @@ Conatiner to standardize training/testing data configuration.
 """
 mutable struct DataConfig
     setup::Bool
-    mins::Array{Float64, 1}
-    maxs::Array{Float64, 1}
-    dim::Int64
-    dim_comp::Int64
+    mins::RealVector
+    maxs::RealVector
+    dim::Integer
+    dim_comp::Integer
 end # DataConfig
 
 """
@@ -27,13 +60,13 @@ function DataConfig()
 end # DataConfig()
 
 """
-    DataConfig(mins::Array, maxs::Array)
+    DataConfig(mins::RealVector, maxs::RealVector)
 
 Convenience constructor for DataConfig, requiring only mins and maxs of the features.
 
 This constructor is used when the mins and maxs differ across features. The dimension is inferred by the length of the mins and maxs.
 """
-function DataConfig(mins::Array, maxs::Array)
+function DataConfig(mins::RealVector, maxs::RealVector)
     # Verify that the mins and maxs are the same length
     length(mins) != length(maxs) && error("Mins and maxs must be the same length.")
     # Get the dimension from one of the arrays
@@ -46,16 +79,16 @@ function DataConfig(mins::Array, maxs::Array)
         dim,    # dim
         dim*2   # dim_comp
     )
-end # DataConfig(mins::Array, maxs::Array)
+end # DataConfig(mins::RealVector, maxs::RealVector)
 
 """
-    DataConfig(min::Real, max::Real, dim::Int64)
+    DataConfig(min::Real, max::Real, dim::Integer)
 
 Convenience constructor for DataConfig, requiring only a global min, max, and dim.
 
 This constructor is used in the case that the feature mins and maxs are all the same respectively.
 """
-function DataConfig(min::Real, max::Real, dim::Int64)
+function DataConfig(min::Real, max::Real, dim::Integer)
     DataConfig(
         true,               # setup
         repeat([min], dim), # min
@@ -63,24 +96,24 @@ function DataConfig(min::Real, max::Real, dim::Int64)
         dim,                # dim
         dim*2               # dim_comp
     )
-end # DataConfig(min::Real, max::Real, dim::Int64)
+end # DataConfig(min::Real, max::Real, dim::Integer)
 
 """
-    element_min(x::Array, W::Array)
+    element_min(x::RealVector, W::RealVector)
 
 Returns the element-wise minimum between sample x and weight W.
 """
-function element_min(x::Array, W::Array)
+function element_min(x::RealVector, W::RealVector)
     # Compute the element-wise minimum of two vectors
     return minimum([x W], dims = 2)
-end # element_min(x::Array, W::Array)
+end # element_min(x::RealVector, W::RealVector)
 
 """
-    performance(y_hat::Array, y::Array)
+    performance(y_hat::IntegerVector, y::IntegerVector)
 
 Returns the categorization performance of y_hat against y.
 """
-function performance(y_hat::Array, y::Array)
+function performance(y_hat::IntegerVector, y::IntegerVector)
     # Check lengths
     if length(y_hat) != length(y)
         error("Label vectors must be the same length")
@@ -88,8 +121,8 @@ function performance(y_hat::Array, y::Array)
 
     # Clean up the vectors
     n_mismatch = 0
-    y_hat_local = Array{Int64}(undef, 0)
-    y_local = Array{Int64}(undef, 0)
+    y_hat_local = Integer[]
+    y_local = Integer[]
     for ix = 1:length(y_hat)
         if y_hat[ix] != -1
             push!(y_hat_local, y_hat[ix])
@@ -100,17 +133,16 @@ function performance(y_hat::Array, y::Array)
     end
 
     # Compute the confusion matrix and calculate performance as trace/sum
-    # conf = confusion_matrix(categorical(y_hat_local), categorical(y_local))
     conf = confusion_matrix(coerce(y_hat_local, OrderedFactor), coerce(y_local, OrderedFactor))
     return tr(conf.mat)/(sum(conf.mat) + n_mismatch)
-end # performance(y_hat::Array, y::Array)
+end # performance(y_hat::IntegerVector, y::IntegerVector)
 
 """
-    get_data_shape(data::Array)
+    get_data_shape(data::RealArray)
 
 Returns the correct feature dimension and number of samples.
 """
-function get_data_shape(data::Array)
+function get_data_shape(data::RealArray)
     # Get the correct dimensionality and number of samples
     if ndims(data) > 1
         dim, n_samples = size(data)
@@ -122,14 +154,14 @@ function get_data_shape(data::Array)
     end
 
     return dim, n_samples
-end # get_data_shape(data::Array)
+end # get_data_shape(data::RealArray)
 
 """
-    get_n_samples(data::Array)
+    get_n_samples(data::RealArray)
 
 Returns the number of samples, accounting for 1-D and 2-D arrays.
 """
-function get_n_samples(data::Array)
+function get_n_samples(data::RealArray)
     # Get the correct dimensionality and number of samples
     if ndims(data) > 1
         n_samples = size(data)[2]
@@ -139,14 +171,14 @@ function get_n_samples(data::Array)
     end
 
     return n_samples
-end # get_n_samples(data::Array)
+end # get_n_samples(data::RealArray)
 
 """
-    data_setup!(config::DataConfig, data::Array)
+    data_setup!(config::DataConfig, data::RealMatrix)
 
 Sets up the data config for the ART module before training.
 """
-function data_setup!(config::DataConfig, data::Array)
+function data_setup!(config::DataConfig, data::RealMatrix)
     if config.setup
         @warn "Data configuration already set up, overwriting config"
     else
@@ -160,16 +192,16 @@ function data_setup!(config::DataConfig, data::Array)
     # Compute the ranges of each feature
     config.mins = [minimum(data[i, :]) for i in 1:config.dim]
     config.maxs = [maximum(data[i, :]) for i in 1:config.dim]
-end # data_setup!(config::DataConfig, data::Array)
+end # data_setup!(config::DataConfig, data::RealMatrix)
 
 """
-    get_data_characteristics(data::Array ; config::DataConfig=DataConfig())
+    get_data_characteristics(data::RealArray ; config::DataConfig=DataConfig())
 
 Get the characteristics of the data, taking account if a data config is passed.
 
 If no DataConfig is passed, then the data characteristics come from the array itself. Otherwise, use the config for the statistics of the data and the data array for the number of samples.
 """
-function get_data_characteristics(data::Array ; config::DataConfig=DataConfig())
+function get_data_characteristics(data::RealArray ; config::DataConfig=DataConfig())
     # If the data is setup, use the config
     if config.setup
         n_samples = get_n_samples(data)
@@ -184,14 +216,14 @@ function get_data_characteristics(data::Array ; config::DataConfig=DataConfig())
         maxs = [maximum(data[i, :]) for i in 1:dim]
     end
     return dim, n_samples, mins, maxs
-end # get_data_characteristics(data::Array ; config::DataConfig=DataConfig())
+end # get_data_characteristics(data::RealArray ; config::DataConfig=DataConfig())
 
 """
-    linear_normalization(data::Array ; config::DataConfig=DataConfig())
+    linear_normalization(data::RealArray ; config::DataConfig=DataConfig())
 
 Normalize the data to the range [0, 1] along each feature.
 """
-function linear_normalization(data::Array ; config::DataConfig=DataConfig())
+function linear_normalization(data::RealArray ; config::DataConfig=DataConfig())
     # Get the data characteristics
     dim, n_samples, mins, maxs = get_data_characteristics(data, config=config)
 
@@ -205,25 +237,25 @@ function linear_normalization(data::Array ; config::DataConfig=DataConfig())
         end
     end
     return x_raw
-end # linear_normalization(data::Array ; config::DataConfig=DataConfig())
+end # linear_normalization(data::RealArray ; config::DataConfig=DataConfig())
 
 """
-    complement_code(data::Array ; config::DataConfig=DataConfig())
+    complement_code(data::RealArray ; config::DataConfig=DataConfig())
 
 Normalize the data x to [0, 1] and returns the augmented vector [x, 1 - x].
 """
-function complement_code(data::Array ; config::DataConfig=DataConfig())
+function complement_code(data::RealArray ; config::DataConfig=DataConfig())
     # Normalize the data
     x_raw = linear_normalization(data, config=config)
 
     # Complement code the data and return a concatenated matrix
     return vcat(x_raw, 1 .- x_raw)
-end # complement_code(data::Array ; config::DataConfig=DataConfig())
+end # complement_code(data::RealArray ; config::DataConfig=DataConfig())
 
 """
-    get_iterator(opts::O, x::Array) where {O<:AbstractARTOpts}
+    get_iterator(opts::ARTOpts, x::Array)
 """
-function get_iterator(opts::O, x::Array) where {O<:AbstractARTOpts}
+function get_iterator(opts::ARTOpts, x::Array)
     # Show a progbar only if the data is 2-D and the option is on
     dim, n_samples = get_data_shape(x)
     single_sample = n_samples == 1
@@ -237,26 +269,26 @@ function get_iterator(opts::O, x::Array) where {O<:AbstractARTOpts}
     iter = prog_bar ?  ProgressBar(iter_raw) : iter_raw
 
     return iter
-end # get_iterator(opts::O, x::Array) where {O<:AbstractARTOpts}
+end # get_iterator(opts::ARTOpts, x::Array)
 
 """
-    update_iter(art::A, iter::Union{UnitRange, ProgressBar}, i::Int) where {A<:AbstractART}
+    update_iter(art::ART, iter::Union{UnitRange, ProgressBar}, i::Int)
 """
-function update_iter(art::A, iter::Union{UnitRange, ProgressBar}, i::Int) where {A<:AbstractART}
+function update_iter(art::ART, iter::Union{UnitRange, ProgressBar}, i::Int)
     # Check explicitly for each, as the function definition restricts the types
     if iter isa ProgressBar
         set_description(iter, string(@sprintf("Ep: %i, ID: %i, Cat: %i", art.epoch, i, art.n_categories)))
     elseif iter isa UnitRange
         return
     end
-end # update_iter(art::A, iter::Union{UnitRange, ProgressBar}, i::Int) where {A<:AbstractART}
+end # update_iter(art::ART, iter::Union{UnitRange, ProgressBar}, i::Int)
 
 """
-    get_sample(x::Array, i::Int)
+    get_sample(x::RealArray, i::Integer)
 
 Returns a sample from data array x safely, accounting for 1-D and
 """
-function get_sample(x::Array, i::Int)
+function get_sample(x::RealArray, i::Integer)
     # Get the shape of the data, irrespective of data type
     dim, n_samples = get_data_shape(x)
     # Get the type shape of the array
@@ -273,4 +305,4 @@ function get_sample(x::Array, i::Int)
         sample = x[:, i]
     end
     return sample
-end # get_sample(x::Array, i::Int)
+end # get_sample(x::RealArray, i::Integer)

@@ -15,21 +15,21 @@ Implements a Fuzzy ARTMAP learner's options.
 julia> my_opts = opts_FAM()
 ```
 """
-@with_kw mutable struct opts_FAM <: AbstractARTOpts @deftype Float64
+@with_kw mutable struct opts_FAM <: ARTOpts @deftype RealFP
     # Vigilance parameter: [0, 1]
-    rho = 0.6; @assert rho >= 0 && rho <= 1
+    rho = 0.6; @assert rho >= 0.0 && rho <= 1.0
     # Choice parameter: alpha > 0
-    alpha = 1e-7; @assert alpha > 0
+    alpha = 1e-7; @assert alpha > 0.0
     # Match tracking parameter
-    epsilon = 1e-3; @assert epsilon > 0 && epsilon < 1
+    epsilon = 1e-3; @assert epsilon > 0.0 && epsilon < 1.0
     # Learning parameter: (0, 1]
-    beta = 1; @assert beta > 0 && beta <= 1
+    beta = 1.0; @assert beta > 0.0 && beta <= 1.0
     # Uncommitted node flag
     uncommitted::Bool = true
     # Display flag
     display::Bool = true
-
-    max_epochs = 1
+    # Maximum number of epochs during training
+    max_epochs::Integer = 1
 end # opts_FAM()
 
 """
@@ -37,15 +37,15 @@ end # opts_FAM()
 
 Fuzzy ARTMAP struct.
 """
-mutable struct FAM <: AbstractART
+mutable struct FAM <: ART
     opts::opts_FAM
     config::DataConfig
-    W::Array{Float64, 2}
-    W_old::Array{Float64, 2}
-    labels::Array{Int, 1}
-    y::Array{Int, 1}
-    n_categories::Int
-    epoch::Int
+    W::RealMatrix
+    W_old::RealMatrix
+    labels::IntegerVector
+    y::IntegerVector
+    n_categories::Integer
+    epoch::Integer
 end # FAM
 
 """
@@ -82,11 +82,11 @@ FAM
 """
 function FAM(opts::opts_FAM)
     FAM(opts,                       # opts_FAM
-        DataConfig(),                 # config
-        Array{Float64}(undef, 0,0), # W
-        Array{Float64}(undef, 0,0), # W_old
-        Array{Int}(undef, 0),       # labels
-        Array{Int}(undef, 0),       # y
+        DataConfig(),               # config
+        Array{RealFP}(undef, 0,0),  # W
+        Array{RealFP}(undef, 0,0),  # W_old
+        Array{Integer}(undef, 0),   # labels
+        Array{Integer}(undef, 0),   # y
         0,                          # n_categories
         0                           # epoch
     )

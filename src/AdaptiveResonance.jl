@@ -10,8 +10,8 @@ using LinearAlgebra: tr, norm
 using Statistics: median, mean
 
 # Abstract types
-abstract type AbstractARTOpts end
-abstract type AbstractART end
+abstract type ARTOpts end
+abstract type ART end
 
 # Include all files
 include("common.jl")        # Objects shared by all modules
@@ -23,8 +23,8 @@ include("ART/ART.jl")
 export
 
     # Abstract types
-    AbstractARTOpts,
-    AbstractART,
+    ARTOpts,
+    ART,
 
     # Algorithmic functions
     train!,

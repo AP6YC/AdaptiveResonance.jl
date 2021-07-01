@@ -21,6 +21,7 @@ Runs the artscene user-level functions on a random image.
     # Random image
     raw_image = rand(3, 5, 5)
 
+    # Process the image through the filters
     O, C = artscene_filter(raw_image)
 end # @testset "ARTSCENE Filter Porcelain"
 

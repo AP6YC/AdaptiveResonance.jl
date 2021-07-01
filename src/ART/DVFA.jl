@@ -1,4 +1,3 @@
-using Base: stop_reading
 """
     DVFA.jl
 
@@ -15,8 +14,6 @@ Vigilance Fuzzy ART," Neural Networks Letters. To appear.
 [2] G. Carpenter, S. Grossberg, and D. Rosen, "Fuzzy ART: Fast
 stable learning and categorization of analog patterns by an adaptive
 resonance system," Neural Networks, vol. 4, no. 6, pp. 759–771, 1991.
-Code written by Leonardo Enzo Brito da Silva
-Under the supervision of Dr. Donald C. Wunsch II
 """
 
 """
@@ -29,23 +26,23 @@ Dual Vigilance Fuzzy ART options struct.
 julia> my_opts = opts_DVFA()
 ```
 """
-@with_kw mutable struct opts_DVFA <: AbstractARTOpts @deftype Float64
+@with_kw mutable struct opts_DVFA <: ARTOpts @deftype RealFP
     # Lower-bound vigilance parameter: [0, 1]
-    rho_lb = 0.55; @assert rho_lb >= 0 && rho_lb <= 1
+    rho_lb = 0.55; @assert rho_lb >= 0.0 && rho_lb <= 1.0
     # Upper bound vigilance parameter: [0, 1]
-    rho_ub = 0.6; @assert rho_ub >= 0 && rho_ub <= 1
+    rho_ub = 0.6; @assert rho_ub >= 0.0 && rho_ub <= 1.0
     # Choice parameter: alpha > 0
-    alpha = 1e-3; @assert alpha > 0
+    alpha = 1e-3; @assert alpha > 0.0
     # Learning parameter: (0, 1]
-    beta = 1; @assert beta > 0 && beta <= 1
+    beta = 1.0; @assert beta > 0.0 && beta <= 1.0
     # Display flag
     display::Bool = true
-
-    max_epochs = 1
+    # Maximum number of epochs during training
+    max_epochs::Integer = 1
 end # opts_DVFA
 
 """
-    DVFA <: AbstractART
+    DVFA <: ART
 
 Dual Vigilance Fuzzy ARTMAP module struct.
 
@@ -57,21 +54,21 @@ DVFA
     ...
 ```
 """
-mutable struct DVFA <: AbstractART
+mutable struct DVFA <: ART
     # Get parameters
     opts::opts_DVFA
     config::DataConfig
 
     # Working variables
-    labels::Array{Int, 1}
-    W::Array{Float64, 2}
-    T::Array{Float64, 1}
-    M::Array{Float64, 1}
-    W_old::Array{Float64, 2}
-    map::Array{Int, 1}
-    n_categories::Int
-    n_clusters::Int
-    epoch::Int
+    labels::IntegerVector
+    W::RealMatrix
+    T::RealVector
+    M::RealVector
+    W_old::RealMatrix
+    map::IntegerVector
+    n_categories::Integer
+    n_clusters::Integer
+    epoch::Integer
 end # DVFA
 
 """
@@ -110,19 +107,22 @@ function DVFA(opts::opts_DVFA)
     DVFA(
         opts,                           # opts
         DataConfig(),                   # config
-        Array{Int}(undef, 0),           # labels
-        Array{Float64}(undef, 0, 0),    # W
-        Array{Float64}(undef, 0),       # M
-        Array{Float64}(undef, 0),       # T
-        Array{Float64}(undef, 0, 0),    # W_old
-        Array{Float64}(undef, 0),       # map
+        Array{Integer}(undef, 0),       # labels
+        Array{RealFP}(undef, 0, 0),     # W
+        Array{RealFP}(undef, 0),        # M
+        Array{RealFP}(undef, 0),        # T
+        Array{RealFP}(undef, 0, 0),     # W_old
+        Array{Integer}(undef, 0),       # map
         0,                              # n_categories
         0,                              # n_clusters
         0                               # epoch
     )
 end # DDVFA(opts::opts_DDVFA)
 
-function train!(art::DVFA, x::Array ; y::Array=[], preprocessed::Bool=false)
+"""
+    train!(art::DVFA, x::RealArray ; y::IntegerVector = [], preprocessed::Bool=false)
+"""
+function train!(art::DVFA, x::RealArray ; y::IntegerVector = Vector{Integer}(), preprocessed::Bool=false)
     # Show a message if display is on
     art.opts.display && @info "Training DVFA"
 
@@ -141,9 +141,9 @@ function train!(art::DVFA, x::Array ; y::Array=[], preprocessed::Bool=false)
     end
 
     if n_samples == 1
-        y_hat = zero(Int)
+        y_hat = zero(Integer)
     else
-        y_hat = zeros(Int, n_samples)
+        y_hat = zeros(Integer, n_samples)
     end
 
     # Initialization
@@ -246,14 +246,8 @@ function train!(art::DVFA, x::Array ; y::Array=[], preprocessed::Bool=false)
                 # Increment the number of categories and clusters
                 art.n_categories += 1
                 art.n_clusters += 1
-                # Update sample labels
-                # label = supervised ? y[i] : last(art.map)
-                # push!(art.labels, label)
-            # else
-            #     # Update sample labels
-            #     label = supervised ? y[i] : art.map[bmu]
             end
-            # push!(art.labels, label)
+
             if n_samples == 1
                 y_hat = label
             else
@@ -267,10 +261,10 @@ function train!(art::DVFA, x::Array ; y::Array=[], preprocessed::Bool=false)
     end
 
     return y_hat
-end
+end # train!(art::DVFA, x::RealArray ; y::IntegerVector = Vector{Integer}(), preprocessed::Bool=false)
 
 """
-    classify(art::DVFA, x::Array)
+    classify(art::DVFA, x::RealArray)
 
 Predict categories of 'x' using the DVFA model.
 
@@ -287,7 +281,7 @@ julia> train!(my_DVFA, x)
 julia> y_hat = classify(my_DVFA, y)
 ```
 """
-function classify(art::DVFA, x::Array ; preprocessed::Bool=false, get_bmu::Bool=false)
+function classify(art::DVFA, x::RealArray ; preprocessed::Bool=false, get_bmu::Bool=false)
     # Show a message if display is on
     art.opts.display && @info "Testing DVFA"
 
@@ -304,9 +298,9 @@ function classify(art::DVFA, x::Array ; preprocessed::Bool=false, get_bmu::Bool=
 
     # Initialize the output vector
     if n_samples == 1
-        y_hat = zero(Int)
+        y_hat = zero(Integer)
     else
-        y_hat = zeros(Int, n_samples)
+        y_hat = zeros(Integer, n_samples)
     end
 
     iter = get_iterator(art.opts, x)
@@ -356,38 +350,40 @@ function classify(art::DVFA, x::Array ; preprocessed::Bool=false, get_bmu::Bool=
     end
 
     return y_hat
-end # classify(art::DVFA, x::Array)
+end # classify(art::DVFA, x::RealArray ; preprocessed::Bool=false, get_bmu::Bool=false)
 
-
-function activation_match!(art::DVFA, x::Array)
+"""
+    activation_match!(art::DVFA, x::RealVector)
+"""
+function activation_match!(art::DVFA, x::RealVector)
     art.T = zeros(art.n_categories)
     art.M = zeros(art.n_categories)
     for jx = 1:art.n_categories
         numerator = norm(element_min(x, art.W[:, jx]), 1)
         art.T[jx] = numerator/(art.opts.alpha + norm(art.W[:, 1], 1))
         art.M[jx] = numerator
-    end # activation_match!(art::DVFA, x::Array)
+    end # activation_match!(art::DVFA, x::RealVector)
 end
 
 """
-    learn(art::DVFA, x::Array, W::Array)
+    learn(art::DVFA, x::RealVector, W::RealVector)
 
 Return the modified weight of the art module conditioned by sample x.
 """
-function learn(art::DVFA, x::Array, W::Array)
+function learn(art::DVFA, x::RealVector, W::RealVector)
     # Update W
     return art.opts.beta .* element_min(x, W) .+ W .* (1 - art.opts.beta)
-end # learn(art::DVFA, x::Array, W::Array)
+end # learn(art::DVFA, x::RealVector, W::RealVector)
 
 """
-    learn!(art::DVFA, x::Array, index::Int)
+    learn!(art::DVFA, x::RealVector, index::Integer)
 
 In place learning function.
 """
-function learn!(art::DVFA, x::Array, index::Int)
+function learn!(art::DVFA, x::RealVector, index::Integer)
     # Update W
     art.W[:, index] = learn(art, x, art.W[:, index])
-end # learn!(art::DVFA, x::Array, index::Int)
+end # learn!(art::DVFA, x::RealVector, index::Integer)
 
 """
     stopping_conditions(art::DVFA)

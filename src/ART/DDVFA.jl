@@ -16,29 +16,29 @@ julia> opts_GNFA()
 Initialized GNFA
 ```
 """
-@with_kw mutable struct opts_GNFA <: AbstractARTOpts @deftype Float64
+@with_kw mutable struct opts_GNFA <: ARTOpts @deftype RealFP
     # Vigilance parameter: [0, 1]
-    rho = 0.6; @assert rho >= 0 && rho <= 1
+    rho = 0.6; @assert rho >= 0.0 && rho <= 1.0
     # Choice parameter: alpha > 0
-    alpha = 1e-3; @assert alpha > 0
+    alpha = 1e-3; @assert alpha > 0.0
     # Learning parameter: (0, 1]
-    beta = 1; @assert beta > 0 && beta <= 1
+    beta = 1.0; @assert beta > 0.0 && beta <= 1.0
     # "Pseudo" kernel width: gamma >= 1
-    gamma = 3; @assert gamma >= 1
+    gamma = 3.0; @assert gamma >= 1.0
     # gamma = 784; @assert gamma >= 1
     # "Reference" gamma for normalization: 0 <= gamma_ref < gamma
-    gamma_ref = 1; @assert 0 <= gamma_ref && gamma_ref < gamma
+    gamma_ref = 1.0; @assert 0.0 <= gamma_ref && gamma_ref < gamma
     # Similarity method (activation and match):
     #   'single', 'average', 'complete', 'median', 'weighted', or 'centroid'
     method::String = "single"
     # Display flag
     display::Bool = true
-
-    max_epochs = 1
+    # Maximum number of epochs during training
+    max_epochs::Integer = 1
 end # opts_GNFA
 
 """
-    GNFA <: AbstractART
+    GNFA <: ART
 
 Gamma-Normalized Fuzzy ART learner struct
 
@@ -50,23 +50,23 @@ GNFA
     ...
 ```
 """
-mutable struct GNFA <: AbstractART
+mutable struct GNFA <: ART
     # Assign numerical parameters from options
     opts::opts_GNFA
     config::DataConfig
 
     # Working variables
-    threshold::Float64
-    labels::Array{Int, 1}
-    T::Array{Float64, 1}
-    M::Array{Float64, 1}
+    threshold::RealFP
+    labels::IntegerVector
+    T::RealVector
+    M::RealVector
 
     # "Private" working variables
-    W::Array{Float64, 2}
-    W_old::Array{Float64, 2}
-    n_instance::Array{Int, 1}
-    n_categories::Int
-    epoch::Int
+    W::RealMatrix
+    W_old::RealMatrix
+    n_instance::IntegerVector
+    n_categories::Integer
+    epoch::Integer
 end # GNFA
 
 """
@@ -103,28 +103,28 @@ GNFA
 function GNFA(opts::opts_GNFA)
     GNFA(opts,                          # opts
          DataConfig(),                  # config
-         0,                             # threshold
-         Array{Int}(undef,0),           # labels
-         Array{Float64}(undef, 0),      # T
-         Array{Float64}(undef, 0),      # M
-         Array{Float64}(undef, 0, 0),   # W
-         Array{Float64}(undef, 0, 0),   # W_old
-         Array{Int}(undef, 0),          # n_instance
+         0.0,                           # threshold
+         Array{Integer}(undef,0),       # labels
+         Array{RealFP}(undef, 0),       # T
+         Array{RealFP}(undef, 0),       # M
+         Array{RealFP}(undef, 0, 0),    # W
+         Array{RealFP}(undef, 0, 0),    # W_old
+         Array{Integer}(undef, 0),      # n_instance
          0,                             # n_categories
          0                              # epoch
     )
-end # GNFA(opts)
+end # GNFA(opts::opts_GNFA)
 
 """
-    GNFA(opts::opts_GNFA, sample::Array)
+    GNFA(opts::opts_GNFA, sample::RealArray)
 
 Create and initialize a GNFA with a single sample in one step.
 """
-function GNFA(opts::opts_GNFA, sample::Array)
+function GNFA(opts::opts_GNFA, sample::RealArray)
     art = GNFA(opts)
     initialize!(art, sample)
     return art
-end # GNFA(opts::opts_GNFA, sample::Array)
+end # GNFA(opts::opts_GNFA, sample::RealArray)
 
 """
     initialize!(art::GNFA, x::Array)
@@ -140,7 +140,7 @@ GNFA
 julia> initialize!(my_GNFA, [1 2 3 4])
 ```
 """
-function initialize!(art::GNFA, x::Array ; y::Int=0)
+function initialize!(art::GNFA, x::RealArray ; y::Integer=0)
     # Set up the data config
     if art.config.setup
         @warn "Data configuration already set up, overwriting config"
@@ -151,7 +151,7 @@ function initialize!(art::GNFA, x::Array ; y::Int=0)
     # IMPORTANT: Assuming that x is a sample, so each entry is a feature
     dim = length(x)
     art.config.dim_comp = dim
-    art.config.dim = Int(dim/2) # Assumes input is already complement coded
+    art.config.dim = Integer(dim/2) # Assumes input is already complement coded
 
     # Initialize the instance and categories counters
     art.n_instance = [1]
@@ -160,15 +160,15 @@ function initialize!(art::GNFA, x::Array ; y::Int=0)
     # Set the threshold
     art.threshold = art.opts.rho * (art.config.dim^art.opts.gamma_ref)
     # Fast commit the weight
-    art.W = Array{Float64}(undef, art.config.dim_comp, 1)
+    art.W = Array{RealFP}(undef, art.config.dim_comp, 1)
     # Assign the contents, valid this way for 1-D or 2-D arrays
     art.W[:, 1] = x
     label = y == 0 ? y : 1
     push!(art.labels, label)
-end # initialize!(art::GNFA, x::Array ; y::Int=0)
+end # initialize!(art::GNFA, x::RealArray ; y::Integer=0)
 
 """
-    train!(art::GNFA, x::Array ; y::Array=[])
+    train!(art::GNFA, x::RealArray ; y::IntegerVector=[])
 
 Trains a GNFA learner with dataset 'x' and optional labels 'y'
 
@@ -182,7 +182,7 @@ julia> x = load_data()
 julia> train!(my_GNFA, x)
 ```
 """
-function train!(art::GNFA, x::Array ; y::Array=[])
+function train!(art::GNFA, x::RealArray ; y::IntegerVector = Vector{Integer}())
     # Flag for if training in supervised mode
     supervised = !isempty(y)
     # Initialization if weights are empty; fast commit the first sample
@@ -247,8 +247,8 @@ function train!(art::GNFA, x::Array ; y::Array=[])
                 push!(art.labels, label)
             end
         end
-        # Start from the first index from now on
-        initial_sample = 1
+        # Make sure to start at first sample from now on
+        skip_first = false
         # Check for the stopping condition for the whole loop
         if stopping_conditions(art)
             break
@@ -256,10 +256,10 @@ function train!(art::GNFA, x::Array ; y::Array=[])
         # If we didn't break, deep copy the old weights
         art.W_old = deepcopy(art.W)
     end
-end # train!(art::GNFA, x::Array ; y::Array=[])
+end # train!(art::GNFA, x::RealArray ; y::IntegerVector = Vector{Integer}())
 
 """
-    classify(art::GNFA, x::Array)
+    classify(art::GNFA, x::RealArray)
 
 Predict categories of 'x' using the GNFA model.
 
@@ -276,12 +276,12 @@ julia> train!(my_GNFA, x)
 julia> y_hat = classify(my_GNFA, y)
 ```
 """
-function classify(art::GNFA, x::Array)
+function classify(art::GNFA, x::RealArray)
     # Get the number of samples to classify
     n_samples = get_n_samples(x)
 
     # Initialize the output vector and iterate across all data
-    y_hat = zeros(Int, n_samples)
+    y_hat = zeros(Integer, n_samples)
     iter = get_iterator(art.opts, x)
     for ix in iter
         # Update the iterator if necessary
@@ -308,10 +308,10 @@ function classify(art::GNFA, x::Array)
         end
     end
     return y_hat
-end # classify(art::GNFA, x::Array)
+end # classify(art::GNFA, x::RealArray)
 
 """
-    activation_match!(art::GNFA, x::Array)
+    activation_match!(art::GNFA, x::RealArray)
 
 Computes the activation and match functions of the art module against sample x.
 
@@ -327,7 +327,7 @@ julia> x_sample = x[:, 1]
 julia> activation_match!(my_GNFA, x_sample)
 ```
 """
-function activation_match!(art::GNFA, x::Array)
+function activation_match!(art::GNFA, x::RealArray)
     art.T = zeros(art.n_categories)
     art.M = zeros(art.n_categories)
     for i = 1:art.n_categories
@@ -335,28 +335,28 @@ function activation_match!(art::GNFA, x::Array)
         art.T[i] = (norm(element_min(x, art.W[:, i]), 1)/(art.opts.alpha + W_norm))^art.opts.gamma
         art.M[i] = (W_norm^art.opts.gamma_ref)*art.T[i]
     end
-end # activation_match!(art::GNFA, x::Array)
+end # activation_match!(art::GNFA, x::RealArray)
 
 """
-    learn(art::GNFA, x::Array, W::Array)
+    learn(art::GNFA, x::RealVector, W::RealVector)
 
 Return the modified weight of the art module conditioned by sample x.
 """
-function learn(art::GNFA, x::Array, W::Array)
+function learn(art::GNFA, x::RealVector, W::RealVector)
     # Update W
     return art.opts.beta .* element_min(x, W) .+ W .* (1 - art.opts.beta)
-end # learn(art::GNFA, x::Array, W::Array)
+end # learn(art::GNFA, x::RealVector, W::RealVector)
 
 """
-    learn!(art::GNFA, x::Array, index::Int)
+    learn!(art::GNFA, x::RealVector, index::Integer)
 
 In place learning function with instance counting.
 """
-function learn!(art::GNFA, x::Array, index::Int)
+function learn!(art::GNFA, x::RealVector, index::Integer)
     # Update W
     art.W[:, index] = learn(art, x, art.W[:, index])
     art.n_instance[index] += 1
-end # learn!(art::GNFA, x::Array, index::Int)
+end # learn!(art::GNFA, x::RealVector, index::Integer)
 
 """
     stopping_conditions(art::GNFA)
@@ -377,31 +377,31 @@ Distributed Dual Vigilance Fuzzy ART options struct.
 julia> my_opts = opts_DDVFA()
 ```
 """
-@with_kw mutable struct opts_DDVFA <: AbstractARTOpts @deftype Float64
+@with_kw mutable struct opts_DDVFA <: ARTOpts @deftype RealFP
     # Lower-bound vigilance parameter: [0, 1]
-    rho_lb = 0.80; @assert rho_lb >= 0 && rho_lb <= 1
+    rho_lb = 0.80; @assert rho_lb >= 0.0 && rho_lb <= 1.0
     rho = rho_lb
     # Upper bound vigilance parameter: [0, 1]
-    rho_ub = 0.85; @assert rho_ub >= 0 && rho_ub <= 1
+    rho_ub = 0.85; @assert rho_ub >= 0.0 && rho_ub <= 1.0
     # Choice parameter: alpha > 0
-    alpha = 1e-3; @assert alpha > 0
+    alpha = 1e-3; @assert alpha > 0.0
     # Learning parameter: (0, 1]
-    beta = 1; @assert beta > 0 && beta <= 1
+    beta = 1.0; @assert beta > 0.0 && beta <= 1.0
     # "Pseudo" kernel width: gamma >= 1
-    gamma = 3; @assert gamma >= 1
+    gamma = 3.0; @assert gamma >= 1.0
     # "Reference" gamma for normalization: 0 <= gamma_ref < gamma
-    gamma_ref = 1; @assert 0 <= gamma_ref && gamma_ref < gamma
+    gamma_ref = 1.0; @assert 0.0 <= gamma_ref && gamma_ref < gamma
     # Similarity method (activation and match):
     #   'single', 'average', 'complete', 'median', 'weighted', or 'centroid'
     method::String = "single"
     # Display flag
     display::Bool = true
-
-    max_epoch = 1
+    # Maximum number of epochs during training
+    max_epoch::Integer = 1
 end # opts_DDVFA
 
 """
-    DDVFA <: AbstractART
+    DDVFA <: ART
 
 Distributed Dual Vigilance Fuzzy ARTMAP module struct.
 
@@ -414,21 +414,20 @@ DDVFA
     ...
 ```
 """
-mutable struct DDVFA <: AbstractART
+mutable struct DDVFA <: ART
     # Get parameters
     opts::opts_DDVFA
     subopts::opts_GNFA
     config::DataConfig
 
     # Working variables
-    threshold::Float64
-    F2::Array{GNFA, 1}
-    labels::Array{Int, 1}
-    W::Array{Float64, 2}        # All F2 nodes' weight vectors
-    W_old::Array{Float64, 2}    # Old F2 node weight vectors (for stopping criterion)
-    # n_samples::Int
-    n_categories::Int
-    epoch::Int
+    threshold::RealFP
+    F2::Vector{GNFA}
+    labels::IntegerVector
+    W::RealMatrix        # All F2 nodes' weight vectors
+    W_old::RealMatrix    # Old F2 node weight vectors (for stopping criterion)
+    n_categories::Integer
+    epoch::Integer
 end # DDVFA
 
 """
@@ -473,22 +472,22 @@ function DDVFA(opts::opts_DDVFA)
     DDVFA(opts,
           subopts,
           DataConfig(),
-          0,
+          0.0,
           Array{GNFA}(undef, 0),
-          Array{Int}(undef, 0),
-          Array{Float64}(undef, 0, 0),
-          Array{Float64}(undef, 0, 0),
+          Array{Integer}(undef, 0),
+          Array{RealFP}(undef, 0, 0),
+          Array{RealFP}(undef, 0, 0),
           0,
           0
     )
 end # DDVFA(opts::opts_DDVFA)
 
 """
-    train!(art::DDVFA, x::Array ; y::Array=[], preprocessed=false)
+    train!(art::DDVFA, x::RealArray ; y::IntegerVector=[], preprocessed::Bool=false)
 
 Train the DDVFA model on the data.
 """
-function train!(art::DDVFA, x::Array ; y::Array=[], preprocessed=false)
+function train!(art::DDVFA, x::RealArray ; y::IntegerVector = Vector{Integer}(), preprocessed::Bool=false)
     # Show a message if display is on
     art.opts.display && @info "Training DDVFA"
 
@@ -508,9 +507,9 @@ function train!(art::DDVFA, x::Array ; y::Array=[], preprocessed=false)
 
     # art.labels = zeros(n_samples)
     if n_samples == 1
-        y_hat = zero(Int)
+        y_hat = zero(Integer)
     else
-        y_hat = zeros(Int, n_samples)
+        y_hat = zeros(Integer, n_samples)
     end
 
     # Initialization
@@ -532,7 +531,7 @@ function train!(art::DDVFA, x::Array ; y::Array=[], preprocessed=false)
     end
 
     # Initialize old weight vector for checking stopping conditions between epochs
-    art.W_old = Array{Float64}(undef, art.config.dim_comp, 1)
+    art.W_old = Array{RealFP}(undef, art.config.dim_comp, 1)
     art.W_old[:, 1] = get_sample(x, 1)
 
     # Set the learning threshold as a function of the data dimension
@@ -618,20 +617,20 @@ function train!(art::DDVFA, x::Array ; y::Array=[], preprocessed=false)
         art.W_old = deepcopy(art.W)
     end
     return y_hat
-end # train!(art::DDVFA, x::Array ; y::Array=[], preprocessed=false)
+end # train!(art::DDVFA, x::RealArray ; y::IntegerVector = Vector{Integer}(), preprocessed::Bool=false)
 
 """
-    create_category(art::DDVFA, sample::Array, label::Int)
+    create_category(art::DDVFA, sample::RealVector, label::Integer)
 
 Create a new category by appending and initializing a new GNFA node to F2.
 """
-function create_category(art::DDVFA, sample::Array, label::Int)
+function create_category(art::DDVFA, sample::RealVector, label::Integer)
     # Global Fuzzy ART
     art.n_categories += 1
     push!(art.labels, label)
     # Local Fuzzy ART
     push!(art.F2, GNFA(art.subopts, sample))
-end # create_category(art::DDVFA, sample::Array, label::Int)
+end # function create_category(art::DDVFA, sample::RealVector, label::Integer)
 
 """
     stopping_conditions(art::DDVFA)
@@ -646,12 +645,12 @@ function stopping_conditions(art::DDVFA)
 end # stopping_conditions(DDVFA)
 
 """
-    similarity(method::String, F2::GNFA, field_name::String, sample::Array, gamma_ref::Real)
+    similarity(method::String, F2::GNFA, field_name::String, sample::RealVector, gamma_ref::RealFP)
 
 Compute the similarity metric depending on method with explicit comparisons
 for the field name.
 """
-function similarity(method::String, F2::GNFA, field_name::String, sample::Array, gamma_ref::Real)
+function similarity(method::String, F2::GNFA, field_name::String, sample::RealVector, gamma_ref::RealFP)
     @debug "Computing similarity"
 
     if field_name != "T" && field_name != "M"
@@ -694,7 +693,8 @@ function similarity(method::String, F2::GNFA, field_name::String, sample::Array,
         end
     # Centroid linkage
     elseif method == "centroid"
-        Wc = minimum(F2.W, dims=2)
+        # Get the minimum of each weight element, cast to a 1-D vector
+        Wc = vec(minimum(F2.W, dims=2))
         T = norm(element_min(sample, Wc), 1) / (F2.opts.alpha + norm(Wc, 1))^F2.opts.gamma
         if field_name == "T"
             value = T
@@ -706,10 +706,10 @@ function similarity(method::String, F2::GNFA, field_name::String, sample::Array,
     end
 
     return value
-end # similarity(method::String, F2::GNFA, field_name::String, sample::Array, gamma_ref::Real)
+end # similarity(method::String, F2::GNFA, field_name::String, sample::RealVector, gamma_ref::RealFP)
 
 """
-    classify(art::DDVFA, x::Array ; preprocessed=false, bmu=false)
+    classify(art::DDVFA, x::RealArray ; preprocessed::Bool=false, get_bmu::Bool=false)
 
 Predict categories of 'x' using the DDVFA model.
 
@@ -726,7 +726,7 @@ julia> train!(my_DDVFA, x)
 julia> y_hat = classify(my_DDVFA, y)
 ```
 """
-function classify(art::DDVFA, x::Array ; preprocessed=false, get_bmu=false)
+function classify(art::DDVFA, x::RealArray ; preprocessed::Bool=false, get_bmu::Bool=false)
     # Show a message if display is on
     art.opts.display && @info "Testing DDVFA"
 
@@ -743,9 +743,9 @@ function classify(art::DDVFA, x::Array ; preprocessed=false, get_bmu=false)
 
     # Initialize the output vector
     if n_samples == 1
-        y_hat = zero(Int)
+        y_hat = zero(Integer)
     else
-        y_hat = zeros(Int, n_samples)
+        y_hat = zeros(Integer, n_samples)
     end
 
     # Get the iterator based on the module options and data shape
@@ -804,4 +804,4 @@ function classify(art::DDVFA, x::Array ; preprocessed=false, get_bmu=false)
     end
 
     return y_hat
-end # classify(art::DDVFA, x::Array ; preprocessed=false)
+end # classify(art::DDVFA, x::RealArray ; preprocessed::Bool=false, get_bmu::Bool=false)

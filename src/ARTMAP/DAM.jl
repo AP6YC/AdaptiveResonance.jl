@@ -15,35 +15,35 @@ Implements a Default ARTMAP learner's options.
 julia> my_opts = opts_DAM()
 ```
 """
-@with_kw mutable struct opts_DAM <: AbstractARTOpts @deftype Float64
+@with_kw mutable struct opts_DAM <: ARTOpts @deftype RealFP
     # Vigilance parameter: [0, 1]
-    rho = 0.6; @assert rho >= 0 && rho <= 1
+    rho = 0.6; @assert rho >= 0.0 && rho <= 1.0
     # Choice parameter: alpha > 0
-    alpha = 1e-7; @assert alpha > 0
+    alpha = 1e-7; @assert alpha > 0.0
     # Match tracking parameter
-    epsilon = -1e-3; @assert epsilon > -1 && epsilon < 1
+    epsilon = -1e-3; @assert epsilon > -1.0 && epsilon < 1.0
     # Learning parameter: (0, 1]
-    beta = 1; @assert beta > 0 && beta <= 1
+    beta = 1.0; @assert beta > 0.0 && beta <= 1.0
     # Display flag
     display::Bool = true
-
-    max_epochs = 1
+    # Maximum number of epochs during training
+    max_epochs::Integer = 1
 end # opts_DAM()
 
 """
-    DAM <: AbstractART
+    DAM <: ART
 
 Default ARTMAP struct.
 """
-mutable struct DAM <: AbstractART
+mutable struct DAM <: ART
     opts::opts_DAM
     config::DataConfig
-    W::Array{Float64, 2}
-    W_old::Array{Float64, 2}
-    labels::Array{Int, 1}
-    y::Array{Int, 1}
-    n_categories::Int
-    epoch::Int
+    W::RealMatrix
+    W_old::RealMatrix
+    labels::IntegerVector
+    y::IntegerVector
+    n_categories::Integer
+    epoch::Integer
 end # DAM
 
 """
@@ -81,17 +81,17 @@ DAM
 function DAM(opts::opts_DAM)
     DAM(opts,                       # opts_DAM
         DataConfig(),               # config
-        Array{Float64}(undef, 0,0), # W
-        Array{Float64}(undef, 0,0), # W_old
-        Array{Int}(undef, 0),       # labels
-        Array{Int}(undef, 0),       # y
+        Array{RealFP}(undef, 0,0), # W
+        Array{RealFP}(undef, 0,0), # W_old
+        Array{Integer}(undef, 0),       # labels
+        Array{Integer}(undef, 0),       # y
         0,                          # n_categories
         0                           # epoch
     )
 end # DAM(opts::opts_DAM)
 
 """
-    train!(art::DAM, x::Array, y::Array ; preprocessed=false)
+    train!(art::DAM, x::RealArray, y::RealArray ; preprocessed::Bool=false)
 
 Trains a Default ARTMAP learner in a supervised manner.
 
@@ -105,7 +105,7 @@ DAM
 julia> train!(art, x, y)
 ```
 """
-function train!(art::DAM, x::Array, y::Array ; preprocessed=false)
+function train!(art::DAM, x::RealArray, y::RealArray ; preprocessed::Bool=false)
     # Show a message if display is on
     art.opts.display && @info "Training DAM"
 
@@ -124,7 +124,7 @@ function train!(art::DAM, x::Array, y::Array ; preprocessed=false)
     # is_supervised = !isempty(y)
 
     # Initialize the internal categories
-    art.y = zeros(Int, n_samples)
+    art.y = zeros(Integer, n_samples)
 
     # Initialize the training loop, continue to convergence
     art.epoch = 0
@@ -195,10 +195,10 @@ function train!(art::DAM, x::Array, y::Array ; preprocessed=false)
         end
         art.W_old = deepcopy(art.W)
     end
-end # train!(art::DAM, x::Array, y::Array ; preprocessed=false)
+end # train!(art::DAM, x::RealArray, y::RealArray ; preprocessed::Bool=false)
 
 """
-    classify(art::DAM, x::Array ; preprocessed=false)
+    classify(art::DAM, x::RealArray ; preprocessed::Bool=false)
 
 Categorize data 'x' using a trained Default ARTMAP module 'art'.
 
@@ -214,7 +214,7 @@ julia> train!(art, x, y)
 julia> classify(art, x_test)
 ```
 """
-function classify(art::DAM, x::Array ; preprocessed=false)
+function classify(art::DAM, x::RealArray ; preprocessed::Bool=false)
     # Show a message if display is on
     art.opts.display && @info "Testing DAM"
 
@@ -231,9 +231,10 @@ function classify(art::DAM, x::Array ; preprocessed=false)
 
     # Initialize the output vector and iterate across all data
     y_hat = zeros(Int, n_samples)
-    iter = ProgressBar(1:n_samples)
+    iter = get_iterator(art.opts, x)
     for ix in iter
-        set_description(iter, string(@sprintf("ID: %i, Cat: %i", ix, art.n_categories)))
+        # Update the iterator if necessary
+        update_iter(art, iter, ix)
 
         # Compute activation function
         T = zeros(art.n_categories)
@@ -262,7 +263,7 @@ function classify(art::DAM, x::Array ; preprocessed=false)
         end
     end
     return y_hat
-end # classify(art::DAM, x::Array ; preprocessed=false)
+end # classify(art::DAM, x::RealArray ; preprocessed::Bool=false)
 
 """
     stopping_conditions(art::DAM)
@@ -275,34 +276,34 @@ function stopping_conditions(art::DAM)
 end # stopping_conditions(art::DAM)
 
 """
-    activation(art::DAM, x::Array, W::Array)
+    activation(art::DAM, x::RealVector, W::RealVector)
 
 Default ARTMAP's choice-by-difference activation function.
 """
-function activation(art::DAM, x::Array, W::Array)
+function activation(art::DAM, x::RealVector, W::RealVector)
     # Compute T and return
     return norm(element_min(x, W), 1) +
         (1-art.opts.alpha)*(art.config.dim - norm(W, 1))
-end # activation(art::DAM, x::Array, W::Array)
+end # activation(art::DAM, x::RealVector, W::RealVector)
 
 """
-    learn(art::DAM, x::Array, W::Array)
+    learn(art::DAM, x::RealVector, W::RealVector)
 
 Returns a single updated weight for the Simple Fuzzy ARTMAP module for weight
 vector W and sample x.
 """
-function learn(art::DAM, x::Array, W::Array)
+function learn(art::DAM, x::RealVector, W::RealVector)
     # Update W
     return art.opts.beta .* element_min(x, W) .+ W .* (1 - art.opts.beta)
-end # learn(art::DAM, x::Array, W::Array)
+end # learn(art::DAM, x::RealVector, W::RealVector)
 
 """
-    art_match(art::DAM, x::Array, W::Array)
+    art_match(art::DAM, x::RealVector, W::RealVector)
 
 Returns the match function for the Default ARTMAP module with weight W and
 sample x.
 """
-function art_match(art::DAM, x::Array, W::Array)
+function art_match(art::DAM, x::RealVector, W::RealVector)
     # Compute M and return
     return norm(element_min(x, W), 1) / art.config.dim
-end # art_match(art::DAM, x::Array, W::Array)
+end # art_match(art::DAM, x::RealVector, W::RealVector)
