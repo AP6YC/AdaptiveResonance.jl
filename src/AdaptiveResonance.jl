@@ -5,8 +5,7 @@ using Parameters    # ARTopts are parameters (@with_kw)
 using Logging       # Logging utils used as main method of terminal reporting
 using ProgressBars  # Provides progress bars for training and inference
 using Printf        # Used for printing formatted progress bars
-using MLJ: confusion_matrix, coerce, OrderedFactor
-using LinearAlgebra: tr, norm   # Trace and norms
+using LinearAlgebra: norm   # Trace and norms
 using Statistics: median, mean  # Medians and mean for linkage methods
 
 # Abstract types

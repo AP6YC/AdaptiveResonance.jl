@@ -160,19 +160,33 @@ end # @testset "DDVFA"
     # Compute the local activation and match
     AdaptiveResonance.activation_match!(my_gnfa, local_sample)
 
-    truth = Dict("single" => Dict("T" => 0.9988445088278305,
-                                  "M" => 2.591300556893253),
-                 "average" => Dict("T" => 0.41577750468594143,
-                                   "M" => 1.322517210029363),
-                 "complete" => Dict("T" => 0.04556971777638373,
-                                    "M" => 0.13166315262229716),
-                 "median" => Dict("T" => 0.3312241307874298,
-                                  "M" => 1.3248965231497192),
-                 "weighted" => Dict("T" => 0.533208585217186,
-                                    "M" => 1.3855766656866793),
-                 "centroid" => Dict("T" => 0.0,
-                                    "M" => 0.0)
-                )
+    # Declare the true activation and match magnitudes
+    truth = Dict(
+        "single" => Dict(
+            "T" => 0.9988445088278305,
+            "M" => 2.591300556893253
+        ),
+        "average" => Dict(
+            "T" => 0.41577750468594143,
+            "M" => 1.322517210029363
+        ),
+        "complete" => Dict(
+            "T" => 0.04556971777638373,
+            "M" => 0.13166315262229716
+        ),
+        "median" => Dict(
+            "T" => 0.3312241307874298,
+            "M" => 1.3248965231497192
+        ),
+        "weighted" => Dict(
+            "T" => 0.533208585217186,
+            "M" => 1.3855766656866793
+        ),
+        "centroid" => Dict(
+            "T" => 0.0,
+            "M" => 0.0
+        )
+    )
 
     # Test every method and field name
     for method in methods

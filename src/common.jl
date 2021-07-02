@@ -117,27 +117,23 @@ end # element_min(x::RealVector, W::RealVector)
 Returns the categorization performance of y_hat against y.
 """
 function performance(y_hat::IntegerVector, y::IntegerVector)
+    # Get the number of labels
+    n_y = length(y)
+
     # Check lengths
-    if length(y_hat) != length(y)
+    if length(y_hat) != n_y
         error("Label vectors must be the same length")
     end
 
-    # Clean up the vectors
-    n_mismatch = 0
-    y_hat_local = Integer[]
-    y_local = Integer[]
-    for ix = 1:length(y_hat)
-        if y_hat[ix] != -1
-            push!(y_hat_local, y_hat[ix])
-            push!(y_local, y[ix])
-        else
-            n_mismatch += 1
+    # Get the number of correct classifications
+    n_correct = 0
+    for ix = 1:n_y
+        if y_hat[ix] == y[ix]
+            n_correct += 1
         end
     end
 
-    # Compute the confusion matrix and calculate performance as trace/sum
-    conf = confusion_matrix(coerce(y_hat_local, OrderedFactor), coerce(y_local, OrderedFactor))
-    return tr(conf.mat)/(sum(conf.mat) + n_mismatch)
+    return n_correct/n_y
 end # performance(y_hat::IntegerVector, y::IntegerVector)
 
 """

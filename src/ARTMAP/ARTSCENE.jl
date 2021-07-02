@@ -178,7 +178,7 @@ function contrast_sensitive_oriented_filtering(image::RealArray, x::RealArray ; 
         y[:,:,:,k] = deepcopy(x)
     end
 
-    for i = 1:n_iterations
+    for _ = 1:n_iterations
         y += ddt_y(y, X_plus, X_minus, alpha, distributed)
     end
 
@@ -223,7 +223,7 @@ end # competition_kernel(l::Integer, k::Integer ; sign::String="plus")
 
 Time rate of change for ARTSCENE: Stage 5.
 """
-function ddt_z(z::RealArray ; distributed=true)
+function ddt_z(z::RealArray ; distributed::Bool=true)
     n_row, n_column, n_g, n_k = size(z)
     kernel_r = 5
 
@@ -266,8 +266,7 @@ function orientation_competition(z::RealArray)
     #     Z[:,:,:,k] = deepcopy(z)
     # end
 
-    for i = 1:n_iterations
-        # Z += ddt_z(z)
+    for _ = 1:n_iterations
         z += ddt_z(z)
     end
 
