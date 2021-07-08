@@ -140,7 +140,8 @@ GNFA
 julia> initialize!(my_GNFA, [1 2 3 4])
 ```
 """
-function initialize!(art::GNFA, x::RealArray ; y::Integer=0)
+# function initialize!(art::GNFA, x::RealArray ; y::Integer=0)
+function initialize!(art::GNFA, x::Vector{T} ; y::Integer=0) where {T<:RealFP}
     # Set up the data config
     if art.config.setup
         @warn "Data configuration already set up, overwriting config"
@@ -160,7 +161,7 @@ function initialize!(art::GNFA, x::RealArray ; y::Integer=0)
     # Set the threshold
     art.threshold = art.opts.rho * (art.config.dim^art.opts.gamma_ref)
     # Fast commit the weight
-    art.W = Array{RealFP}(undef, art.config.dim_comp, 1)
+    art.W = Array{T}(undef, art.config.dim_comp, 1)
     # Assign the contents, valid this way for 1-D or 2-D arrays
     art.W[:, 1] = x
     label = y == 0 ? y : 1
@@ -531,8 +532,7 @@ function train!(art::DDVFA, x::RealArray ; y::IntegerVector = Vector{Integer}(),
     end
 
     # Initialize old weight vector for checking stopping conditions between epochs
-    art.W_old = Array{RealFP}(undef, art.config.dim_comp, 1)
-    art.W_old[:, 1] = get_sample(x, 1)
+    art.W_old = deepcopy(art.W)
 
     # Set the learning threshold as a function of the data dimension
     art.threshold = art.opts.rho*(art.config.dim^art.opts.gamma_ref)
