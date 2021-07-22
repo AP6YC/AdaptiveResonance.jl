@@ -84,8 +84,8 @@ function SFAM(opts::opts_SFAM)
     SFAM(
         opts,                           # opts_SFAM
         DataConfig(),                   # config
-        Array{RealFP}(undef, 0,0),      # W
-        Array{RealFP}(undef, 0,0),      # W_old
+        Array{RealFP}(undef, 0, 0),     # W
+        Array{RealFP}(undef, 0, 0),     # W_old
         Array{Integer}(undef, 0),       # labels
         Array{Integer}(undef, 0),       # y
         0,                              # n_categories

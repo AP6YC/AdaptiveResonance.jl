@@ -6,4 +6,5 @@ Pages = ["lib/public.md"]
 
 ```@autodocs
 Modules = [AdaptiveResonance]
+Private = false
 ```

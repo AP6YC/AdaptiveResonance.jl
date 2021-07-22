@@ -57,6 +57,7 @@ Please read the [documentation](https://ap6yc.github.io/AdaptiveResonance.jl/dev
   - [Contents](#contents)
   - [Overview](#overview)
   - [Installation](#installation)
+  - [Implemented Modules](#implemented-modules)
   - [Structure](#structure)
   - [Contributing](#contributing)
   - [History](#history)
@@ -72,7 +73,7 @@ Adaptive Resonance Theory (ART) is a neurocognitive theory of how recurrent cell
 As a theory, it provides coherent and consistent explanations of how real neural networks learn patterns through competition, and it predicts the phenomena of attention and expectation as central to learning.
 In engineering, the theory has been applied to a myriad of algorithmic models for unsupervised machine learning, though it has been extended to supervised and reinforcement learning frameworks.
 This package provides implementations of many of these algorithms in Julia for both scientific research and engineering applications.
-A quickstart is provided in [Installation](#Installation), while detailed usage and examples are provided in the [documentation](https://ap6yc.github.io/AdaptiveResonance.jl/dev/).
+A quickstart is provided in [Installation](#installation), while detailed usage and examples are provided in the [documentation](https://ap6yc.github.io/AdaptiveResonance.jl/dev/).
 
 ## Installation
 
@@ -90,11 +91,32 @@ using Pkg
 Pkg.add("AdaptiveResonance")
 ```
 
-You may also add the package directly from GitHub to get the latest changes:
+You may also add the package directly from GitHub to get the latest changes between releases:
 
 ```julia
 ] add https://github.com/AP6YC/AdaptiveResonance.jl
 ```
+
+## Implemented Modules
+
+This project has implementations of the following ART (unsupervised) and ARTMAP (supervised) modules:
+
+- ART
+  - **DDVFA**: Distributed Dual Vigilance Fuzzy ART
+  - **DVFA**: Dual Vigilance Fuzzy ART
+  - **GNFA**: Gamma-Normalized Fuzzy ART
+- ARTMAP
+  - **SFAM**: Simplified Fuzzy ARTMAP
+  - **FAM**: Fuzzy ARTMAP
+  - **DAM**: Default ARTMAP
+
+In addition to these modules, this package contains the following accessory methods:
+
+- **ARTSCENE**: the ARTSCENE algorithm's multiple-stage filtering process is implemented as `artscene_filter`. Each filter stage is exported if further granularity is required.
+- **performance**: classification accuracy is implemented as `performance`
+- **complement_code**: complement coding is implemented with `complement_code`.
+However, training and classification methods complement code their inputs unless they are passed `preprocessed=true`.
+- **linear_normalization**: the first step to complement coding, `linear_normalization` normalizes input arrays within [0, 1].
 
 ## Structure
 
