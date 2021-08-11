@@ -429,6 +429,8 @@ mutable struct DDVFA <: ART
     W_old::RealMatrix    # Old F2 node weight vectors (for stopping criterion)
     n_categories::Integer
     epoch::Integer
+    T::RealFP
+    M::RealFP
 end # DDVFA
 
 """
@@ -479,7 +481,9 @@ function DDVFA(opts::opts_DDVFA)
           Array{RealFP}(undef, 0, 0),
           Array{RealFP}(undef, 0, 0),
           0,
-          0
+          0,
+          0.0,
+          0.0
     )
 end # DDVFA(opts::opts_DDVFA)
 
@@ -577,6 +581,9 @@ function train!(art::DDVFA, x::RealArray ; y::IntegerVector = Vector{Integer}(),
                 M = similarity(art.opts.method, art.F2[bmu], "M", sample, art.opts.gamma_ref)
                 # If we got a match, then learn (update the category)
                 if M >= art.threshold
+                    # Update the stored match and activation values
+                    art.M = M
+                    art.T = T[bmu]
                     # If supervised and the label differs, trigger mismatch
                     if supervised && art.labels[bmu] != y[i]
                         break
@@ -595,6 +602,11 @@ function train!(art::DDVFA, x::RealArray ; y::IntegerVector = Vector{Integer}(),
                 end
             end
             if mismatch_flag
+                # Update the stored match and activation values
+                bmu = index[1]
+                art.M = similarity(art.opts.method, art.F2[bmu], "M", sample, art.opts.gamma_ref)
+                art.T = T[bmu]
+                # Get the correct label
                 label = supervised ? y[i] : art.n_categories + 1
                 if n_samples == 1
                     y_hat = label
@@ -771,6 +783,9 @@ function classify(art::DDVFA, x::RealArray ; preprocessed::Bool=false, get_bmu::
             bmu = index[jx]
             M = similarity(art.opts.method, art.F2[bmu], "M", sample, art.opts.gamma_ref)
             if M >= art.threshold
+                # Update the stored match and activation values
+                art.M = M
+                art.T = T[bmu]
                 # Current winner
                 label = art.labels[bmu]
                 if n_samples == 1
@@ -784,6 +799,10 @@ function classify(art::DDVFA, x::RealArray ; preprocessed::Bool=false, get_bmu::
         end
         if mismatch_flag
             @debug "Mismatch"
+            # Update the stored match and activation values
+            bmu = index[1]
+            art.M = similarity(art.opts.method, art.F2[bmu], "M", sample, art.opts.gamma_ref)
+            art.T = T[bmu]
             # If falling back to the highest activated category, return that
             if get_bmu
                 label = art.labels[index[1]]
