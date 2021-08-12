@@ -22,9 +22,6 @@ end # tt_ddvfa(opts::opts_DDVFA, train_x::Array)
 @testset "DDVFA Sequential" begin
     @info "------- DDVFA Sequential -------"
 
-    # Load the data and test across all supervised modules
-    # data = load_iris("../data/Iris.csv")
-
     # Initialize the ART module
     art = DDVFA()
     # Turn off display for sequential training/testing
@@ -69,9 +66,6 @@ end
 @testset "DDVFA Supervised" begin
     @info "------- DDVFA Supervised -------"
 
-    # Load the data and test across all supervised modules
-    # data = load_iris("../data/Iris.csv")
-
     # Train and classify
     art = DDVFA()
     y_hat_train = train!(art, data.train_x, y=data.train_y)
@@ -114,9 +108,8 @@ end
     no_disp_art = tt_ddvfa(no_disp_opts, train_x)
     @info "DDVFA Testing: No Display Complete"
 
+    # Test that the resulting weights are equivalent
     @test default_art.W == no_disp_art.W
-    # # View the profile as a flamegraph
-    # ProfileVega.view()
 end # @testset "DDVFA"
 
 @testset "GNFA" begin
@@ -124,8 +117,6 @@ end # @testset "DDVFA"
 
     # GNFA train and test
     my_gnfa = GNFA()
-    # data = load_am_data(200, 50)
-    # data = load_iris("../data/Iris.csv")
     local_complement_code = AdaptiveResonance.complement_code(data.train_x)
     train!(my_gnfa, local_complement_code)
 

@@ -23,6 +23,9 @@ Runs the artscene user-level functions on a random image.
 
     # Process the image through the filters
     O, C = artscene_filter(raw_image)
+
+    # Set the logging level back to Info
+    LogLevel(Logging.Info)
 end # @testset "ARTSCENE Filter Porcelain"
 
 # Close the workers after testing

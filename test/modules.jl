@@ -3,13 +3,13 @@
     fam = FAM()
     dam = DAM()
     sfam = SFAM()
+    dvfa = DVFA()
     ddvfa = DDVFA()
 
     # Specify constructors
-    fam_opts = opts_FAM()
-    dam_opts = opts_DAM()
-    sfam_opts = opts_SFAM()
-    fam_2 = FAM(fam_opts)
-    dam_2 = DAM(dam_opts)
-    sfam_2 = SFAM(sfam_opts)
+    fam_2 = FAM(opts_FAM())
+    dam_2 = DAM(opts_DAM())
+    sfam_2 = SFAM(opts_SFAM())
+    dvfa_2 = DVFA(opts_DVFA())
+    ddvfa_2 = DDVFA(opts_DDVFA())
 end # @testset "Modules"

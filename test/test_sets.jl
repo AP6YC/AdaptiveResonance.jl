@@ -2,7 +2,6 @@ using AdaptiveResonance
 using Test
 using Logging
 using DelimitedFiles
-# using Random
 
 # Set the log level
 LogLevel(Logging.Info)
@@ -47,6 +46,12 @@ end # @testset "common.jl"
     @test AdaptiveResonance.DDVFA_METHODS == ddvfa_methods
 end # @testset "constants.jl"
 
+@testset "AdaptiveResonance.jl" begin
+    # Module loading
+    include("modules.jl")
+end # @testset "AdaptiveResonance.jl"
+
+
 @testset "DVFA.jl" begin
     @info "------- DVFA Unsupervised -------"
 
@@ -83,11 +88,6 @@ end
     # DDVFA training and testing
     include("test_ddvfa.jl")
 end # @testset "DDVFA.jl"
-
-@testset "AdaptiveResonance.jl" begin
-    # Module loading
-    include("modules.jl")
-end # @testset "AdaptiveResonance.jl"
 
 @testset "ARTMAP.jl" begin
     # Declare the baseline performance for all modules
