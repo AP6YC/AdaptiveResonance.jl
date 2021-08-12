@@ -3,14 +3,10 @@ using Logging
 
 # Set the log level
 LogLevel(Logging.Info)
+@info "GNFA Testing"
 
 # Auxiliary generic functions for loading data, etc.
 include("../../test/test_utils.jl")
-
-@info "GNFA Testing"
-
-# Standardize the seed
-Random.seed!(0)
 
 # GNFA train and test
 opts = opts_GNFA(rho=0.5)

@@ -2,7 +2,7 @@ using AdaptiveResonance
 using Test
 using Logging
 using DelimitedFiles
-using Random
+# using Random
 
 # Set the log level
 LogLevel(Logging.Info)
@@ -10,14 +10,11 @@ LogLevel(Logging.Info)
 # Auxiliary generic functions for loading data, etc.
 include("test_utils.jl")
 
+# Load the data and test across all supervised modules
+data = load_iris("../data/Iris.csv")
+
 @testset "common.jl" begin
-    # Set the logging level to Info and standardize the random seed
-    LogLevel(Logging.Info)
-    Random.seed!(0)
-
-    # Load the data and test across all supervised modules
-    data = load_iris("../data/Iris.csv")
-
+    @info "------- Common Code Tests -------"
     # Example arrays
     three_by_two = [1 2; 3 4; 5 6]
 
@@ -35,11 +32,10 @@ include("test_utils.jl")
     @test_logs (:warn,) AdaptiveResonance.data_setup!(dc3, three_by_two)
     bad_config =  DataConfig(1, 0, 3)
     @test_throws ErrorException linear_normalization(three_by_two, config=bad_config)
-
-end
+end # @testset "common.jl"
 
 @testset "constants.jl" begin
-    @info "Constants testing"
+    @info "------- Constants Tests -------"
     ddvfa_methods = [
         "single",
         "average",
@@ -49,16 +45,9 @@ end
         "centroid"
     ]
     @test AdaptiveResonance.DDVFA_METHODS == ddvfa_methods
-end
+end # @testset "constants.jl"
 
 @testset "DVFA.jl" begin
-    # Set the logging level to Info and standardize the random seed
-    LogLevel(Logging.Info)
-    Random.seed!(0)
-
-    # Load the data and test across all supervised modules
-    data = load_iris("../data/Iris.csv")
-
     @info "------- DVFA Unsupervised -------"
 
     # Train and classify
@@ -101,15 +90,13 @@ end # @testset "DDVFA.jl"
 end # @testset "AdaptiveResonance.jl"
 
 @testset "ARTMAP.jl" begin
-    # Set the logging level to Info and standardize the random seed
-    LogLevel(Logging.Info)
-    Random.seed!(0)
+    # Declare the baseline performance for all modules
+    perf_baseline = 0.7
 
-    # Load the data and test across all supervised modules
-    data = load_iris("../data/Iris.csv")
+    # Iterate over each artmap module
     for art in [SFAM, DAM]
         perf = tt_supervised(art(), data)
-        @test perf > 0.8
+        @test perf > perf_baseline
     end
 end # @testset "ARTMAP.jl"
 

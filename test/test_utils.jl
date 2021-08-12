@@ -1,4 +1,4 @@
-using Random
+# using Random
 using DelimitedFiles
 
 """
@@ -86,12 +86,8 @@ function load_iris(data_path::String ; split_ratio::Real = 0.8)
     # Julia is column-major, so use columns for features
     raw_x = permutedims(raw_x)
 
-    # Shuffle the data and targets
-    ind_shuffle = Random.randperm(n_samples)
-    x = raw_x[:, ind_shuffle]
-    y = raw_y[ind_shuffle]
-
-    data = DataSplit(x, y, split_ratio)
+    # Create the datasplit object
+    data = DataSplit(raw_x, raw_y, split_ratio)
 
     return data
 end # load_iris(data_path::String ; split_ratio::Real = 0.8)

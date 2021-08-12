@@ -8,9 +8,6 @@ Description:
 using Logging
 using DelimitedFiles
 using AdaptiveResonance
-using Random
-
-Random.seed!(0)
 
 # Set the log level
 LogLevel(Logging.Info)

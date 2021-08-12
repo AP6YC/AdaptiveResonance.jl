@@ -20,14 +20,10 @@ function tt_ddvfa(opts::opts_DDVFA, train_x::Array)
 end # tt_ddvfa(opts::opts_DDVFA, train_x::Array)
 
 @testset "DDVFA Sequential" begin
-    # Set the logging level to Info and standardize the random seed
-    LogLevel(Logging.Info)
-    Random.seed!(0)
-
     @info "------- DDVFA Sequential -------"
 
     # Load the data and test across all supervised modules
-    data = load_iris("../data/Iris.csv")
+    # data = load_iris("../data/Iris.csv")
 
     # Initialize the ART module
     art = DDVFA()
@@ -71,14 +67,10 @@ end # tt_ddvfa(opts::opts_DDVFA, train_x::Array)
 end
 
 @testset "DDVFA Supervised" begin
-    # Set the logging level to Info and standardize the random seed
-    LogLevel(Logging.Info)
-    Random.seed!(0)
-
     @info "------- DDVFA Supervised -------"
 
     # Load the data and test across all supervised modules
-    data = load_iris("../data/Iris.csv")
+    # data = load_iris("../data/Iris.csv")
 
     # Train and classify
     art = DDVFA()
@@ -104,9 +96,6 @@ end
 end
 
 @testset "DDVFA" begin
-    # Set the log level
-    LogLevel(Logging.Info)
-
     # Parse the data
     data_file = "../data/art_data_rng.csv"
     train_x = readdlm(data_file, ',')
@@ -132,12 +121,11 @@ end # @testset "DDVFA"
 
 @testset "GNFA" begin
     @info "------- GNFA Testing -------"
-    Random.seed!(0)
 
     # GNFA train and test
     my_gnfa = GNFA()
     # data = load_am_data(200, 50)
-    data = load_iris("../data/Iris.csv")
+    # data = load_iris("../data/Iris.csv")
     local_complement_code = AdaptiveResonance.complement_code(data.train_x)
     train!(my_gnfa, local_complement_code)
 
@@ -163,24 +151,24 @@ end # @testset "DDVFA"
     # Declare the true activation and match magnitudes
     truth = Dict(
         "single" => Dict(
-            "T" => 0.9988445088278305,
-            "M" => 2.591300556893253
+            "T" => 0.9988714513100155,
+            "M" => 2.6532834139109758
         ),
         "average" => Dict(
-            "T" => 0.41577750468594143,
-            "M" => 1.322517210029363
+            "T" => 0.33761483787933894,
+            "M" => 1.1148764060015297
         ),
         "complete" => Dict(
-            "T" => 0.04556971777638373,
-            "M" => 0.13166315262229716
+            "T" => 0.018234409874338647,
+            "M" => 0.07293763949735459
         ),
         "median" => Dict(
-            "T" => 0.3312241307874298,
-            "M" => 1.3248965231497192
+            "T" => 0.2089217851518073,
+            "M" => 0.835687140607229
         ),
         "weighted" => Dict(
-            "T" => 0.533208585217186,
-            "M" => 1.3855766656866793
+            "T" => 0.5374562506748786,
+            "M" => 1.4396083090159748
         ),
         "centroid" => Dict(
             "T" => 0.0,
@@ -199,7 +187,9 @@ end # @testset "DDVFA"
     end
 
     # Check the error handling of the similarity function
+    # Access the wrong similarity metric keyword ("asdf")
     @test_throws ErrorException AdaptiveResonance.similarity("asdf", my_gnfa, "T", local_sample, my_gnfa.opts.gamma_ref)
+    # Access the wrong output function ("A")
     @test_throws ErrorException AdaptiveResonance.similarity("centroid", my_gnfa, "A", local_sample, my_gnfa.opts.gamma_ref)
 
 end # @testset "GNFA"
