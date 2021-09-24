@@ -74,9 +74,10 @@ end # @testset "AdaptiveResonance.jl"
 
     # Test the performances are above a baseline
     perf_baseline = 0.8
-    @test perf_train > perf_baseline
-    @test perf_test > perf_baseline
-    @test perf_test_bmu > perf_baseline
+    @test perf_train >= perf_baseline
+    @test perf_test >= perf_baseline
+    @test perf_test_bmu >= perf_baseline
+    @info art.n_categories
 
     # Log the results
     @info "DVFA Training Perf: $perf_train"
@@ -96,7 +97,7 @@ end # @testset "DDVFA.jl"
     # Iterate over each artmap module
     for art in [SFAM, DAM]
         perf = tt_supervised(art(), data)
-        @test perf > perf_baseline
+        @test perf >= perf_baseline
     end
 end # @testset "ARTMAP.jl"
 

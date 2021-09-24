@@ -30,7 +30,7 @@ julia> my_opts = opts_DVFA()
     # Lower-bound vigilance parameter: [0, 1]
     rho_lb = 0.55; @assert rho_lb >= 0.0 && rho_lb <= 1.0
     # Upper bound vigilance parameter: [0, 1]
-    rho_ub = 0.6; @assert rho_ub >= 0.0 && rho_ub <= 1.0
+    rho_ub = 0.75; @assert rho_ub >= 0.0 && rho_ub <= 1.0
     # Choice parameter: alpha > 0
     alpha = 1e-3; @assert alpha > 0.0
     # Learning parameter: (0, 1]
@@ -121,6 +121,13 @@ end # DDVFA(opts::opts_DDVFA)
 
 """
     train!(art::DVFA, x::RealArray ; y::IntegerVector = [], preprocessed::Bool=false)
+
+Train the DVFA module on x with optional custom category labels y.
+
+# Arguments
+- `art::DVFA`: the dual-vigilance fuzzy art module to train.
+- `x::RealArray`: the data to train on, interpreted as a single sample if x is a vector.
+- `y::IntegerVector=[]`: optional custom labels to assign to the categories. If empty, ordinary incremental labels are prescribed.
 """
 function train!(art::DVFA, x::RealArray ; y::IntegerVector = Vector{Integer}(), preprocessed::Bool=false)
     # Show a message if display is on
@@ -160,7 +167,6 @@ function train!(art::DVFA, x::RealArray ; y::IntegerVector = Vector{Integer}(), 
         art.W = ones(art.config.dim_comp, 1)
         art.n_categories = 1
         art.n_clusters = 1
-        # push!(art.map, 1)
         push!(art.labels, local_label)
         # Skip the first training entry
         skip_first = true
@@ -214,8 +220,7 @@ function train!(art::DVFA, x::RealArray ; y::IntegerVector = Vector{Integer}(), 
                 if art.M[bmu] >= art.opts.rho_ub * art.config.dim
                     # Learn the sample
                     learn!(art, sample, bmu)
-                    # # Update sample labels
-                    # label = supervised ? y[i] : art.map[bmu]
+                    # Update sample label for output`
                     label = supervised ? y[i] : art.labels[bmu]
                     # push!(art.labels, label)
                     # No mismatch
@@ -354,21 +359,23 @@ end # classify(art::DVFA, x::RealArray ; preprocessed::Bool=false, get_bmu::Bool
 
 """
     activation_match!(art::DVFA, x::RealVector)
+
+Compute and store the activation and match values for the DVFA module.
 """
 function activation_match!(art::DVFA, x::RealVector)
     art.T = zeros(art.n_categories)
     art.M = zeros(art.n_categories)
     for jx = 1:art.n_categories
         numerator = norm(element_min(x, art.W[:, jx]), 1)
-        art.T[jx] = numerator/(art.opts.alpha + norm(art.W[:, 1], 1))
+        art.T[jx] = numerator/(art.opts.alpha + norm(art.W[:, jx], 1))
         art.M[jx] = numerator
     end # activation_match!(art::DVFA, x::RealVector)
-end
+end # activation_match!(art::DVFA, x::RealVector)
 
 """
     learn(art::DVFA, x::RealVector, W::RealVector)
 
-Return the modified weight of the art module conditioned by sample x.
+Return the modified weight of the DVFA module conditioned by sample x.
 """
 function learn(art::DVFA, x::RealVector, W::RealVector)
     # Update W

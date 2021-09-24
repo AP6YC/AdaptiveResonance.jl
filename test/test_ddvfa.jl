@@ -54,9 +54,9 @@ end # tt_ddvfa(opts::opts_DDVFA, train_x::Array)
 
     # Test the permance above a baseline number
     perf_baseline = 0.8
-    @test perf_train > perf_baseline
-    @test perf_test > perf_baseline
-    @test perf_test_bmu > perf_baseline
+    @test perf_train >= perf_baseline
+    @test perf_test >= perf_baseline
+    @test perf_test_bmu >= perf_baseline
 
     @info "DDVFA Training Perf: $perf_train"
     @info "DDVFA Testing Perf: $perf_test"
@@ -79,9 +79,9 @@ end
 
     # Test the performances with a baseline number
     perf_baseline = 0.8
-    @test perf_train > perf_baseline
-    @test perf_test > perf_baseline
-    @test perf_test_bmu > perf_baseline
+    @test perf_train >= perf_baseline
+    @test perf_test >= perf_baseline
+    @test perf_test_bmu >= perf_baseline
 
     # Log the results
     @info "DDVFA Training Perf: $perf_train"
