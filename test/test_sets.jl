@@ -61,13 +61,15 @@ end # @testset "AdaptiveResonance.jl"
 
     # All common ART options
     art_opts = [
-
+        (display = true,),
+        (display = false,),
     ]
+    n_art_opts = length(art_opts)
 
     # All test option permutations
     test_opts = [
-        (get_bmu=true,),
-        (get_bmu=false,)
+        (get_bmu = true,),
+        (get_bmu = false,)
     ]
     n_test_opts = length(test_opts)
 
@@ -79,11 +81,13 @@ end # @testset "AdaptiveResonance.jl"
     for ix = 1:n_arts
         # Iterate over all test options
         for jx = 1:n_test_opts
-            # Unsupervised
-            train_test_art(arts[ix](), data; test_opts=test_opts[jx])
+            for kx = 1:n_art_opts
+                # Unsupervised
+                train_test_art(arts[ix](;art_opts[kx]...), data; test_opts=test_opts[jx])
 
-            # Supervised
-            @test train_test_art(arts[ix](), data; supervised=true, test_opts=test_opts[jx]) >= perf_baseline
+                # Supervised
+                @test train_test_art(arts[ix](;art_opts[kx]...), data; supervised=true, test_opts=test_opts[jx]) >= perf_baseline
+            end
         end
     end
 

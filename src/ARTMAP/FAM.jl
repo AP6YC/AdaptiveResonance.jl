@@ -67,6 +67,24 @@ function FAM()
 end # FAM()
 
 """
+    FAM(;kwargs...)
+
+Implements a Fuzzy ARTMAP learner with keyword arguments.
+
+# Examples
+```julia-repl
+julia> FAM(rho=0.7)
+FAM
+    opts: opts_FAM
+    ...
+```
+"""
+function FAM(;kwargs...)
+    opts = opts_FAM(;kwargs...)
+    FAM(opts)
+end # FAM(;kwargs...)
+
+"""
     FAM(opts)
 
 Implements a Fuzzy ARTMAP learner with specified options.

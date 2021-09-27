@@ -88,6 +88,24 @@ function GNFA()
 end # GNFA()
 
 """
+    GNFA(;kwargs...)
+
+Implements a Gamma-Normalized Fuzzy ART learner with keyword arguments.
+
+# Examples
+```julia-repl
+julia> GNFA(rho=0.7)
+GNFA
+    opts: opts_GNFA
+    ...
+```
+"""
+function GNFA(;kwargs...)
+    opts = opts_GNFA(;kwargs...)
+    GNFA(opts)
+end # GNFA(;kwargs...)
+
+"""
     GNFA(opts::opts_GNFA)
 
 Implements a Gamma-Normalized Fuzzy ART learner with specified options.
@@ -451,6 +469,25 @@ function DDVFA()
     opts = opts_DDVFA()
     DDVFA(opts)
 end # DDVFA()
+
+"""
+    DDVFA(;kwargs...)
+
+Implements a DDVFA learner with keyword arguments.
+
+# Examples
+```julia-repl
+julia> DDVFA(rho=0.7)
+DDVFA
+    opts: opts_DDVFA
+    subopts: opts_GNFA
+    ...
+```
+"""
+function DDVFA(;kwargs...)
+    opts = opts_DDVFA(;kwargs...)
+    DDVFA(opts)
+end # DDVFA(;kwargs...)
 
 """
     DDVFA(opts::opts_DDVFA)

@@ -90,6 +90,24 @@ function DVFA()
 end # DVFA()
 
 """
+    DVFA(;kwargs...)
+
+Implements a DVFA learner with keyword arguments.
+
+# Examples
+```julia-repl
+julia> DVFA(rho=0.7)
+DVFA
+    opts: opts_DDVFA
+    ...
+```
+"""
+function DVFA(;kwargs...)
+    opts = opts_DVFA(;kwargs...)
+    DVFA(opts)
+end # DVFA(;kwargs...)
+
+"""
     DVFA(opts::opts_DVFA)
 
 Implements a DVFA learner with specified options.

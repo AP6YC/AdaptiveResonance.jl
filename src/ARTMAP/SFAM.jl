@@ -67,6 +67,24 @@ function SFAM()
 end # SFAM()
 
 """
+    SFAM(;kwargs...)
+
+Implements a Simple Fuzzy ARTMAP learner with keyword arguments.
+
+# Examples
+```julia-repl
+julia> SFAM()
+SFAM
+    opts: opts_SFAM
+    ...
+```
+"""
+function SFAM(;kwargs...)
+    opts = opts_SFAM(;kwargs...)
+    SFAM(opts)
+end # SFAM(;kwargs...)
+
+"""
     SFAM(opts)
 
 Implements a Simple Fuzzy ARTMAP learner with specified options.

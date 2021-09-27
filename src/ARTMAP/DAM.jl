@@ -65,6 +65,24 @@ function DAM()
 end # DAM()
 
 """
+    DAM(;kwargs...)
+
+Implements a Default ARTMAP learner with keyword arguments.
+
+# Examples
+```julia-repl
+julia> DAM()
+DAM
+    opts: opts_DAM
+    ...
+```
+"""
+function DAM(;kwargs...)
+    opts = opts_DAM(;kwargs...)
+    DAM(opts)
+end # DAM(;kwargs...)
+
+"""
     DAM(opts)
 
 Implements a Default ARTMAP learner with specified options
