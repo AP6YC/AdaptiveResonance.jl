@@ -179,6 +179,7 @@ The code in this repository is inspired the following repositories:
 - [Bernabé Linares-Barranco](http://www2.imse-cnm.csic.es/~bernabe)
 - [Marko Tscherepanow's LibTopoART](libtopoart.eu)
 - [National University of Singapore's Lei Meng](https://github.com/Lei-Meng)
+- [Daniel Tauritz's ART Clearinghouse](https://web.mst.edu/~tauritzd/art/)
 
 ### Datasets
 
