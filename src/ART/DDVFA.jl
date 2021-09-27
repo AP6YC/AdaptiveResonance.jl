@@ -67,7 +67,7 @@ mutable struct GNFA <: ART
     n_instance::IntegerVector
     n_categories::Integer
     epoch::Integer
-end # GNFA
+end # GNFA <: ART
 
 """
     GNFA()
@@ -431,7 +431,7 @@ mutable struct DDVFA <: ART
     epoch::Integer
     T::RealFP
     M::RealFP
-end # DDVFA
+end # DDVFA <: ART
 
 """
     DDVFA()

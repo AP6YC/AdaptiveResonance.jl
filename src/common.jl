@@ -271,16 +271,16 @@ function get_iterator(opts::ARTOpts, x::RealArray)
 end # get_iterator(opts::ARTOpts, x::RealArray)
 
 """
-    update_iter(art::ART, iter::ARTIterator, i::Integer)
+    update_iter(art::ARTModule, iter::ARTIterator, i::Integer)
 """
-function update_iter(art::ART, iter::ARTIterator, i::Integer)
+function update_iter(art::ARTModule, iter::ARTIterator, i::Integer)
     # Check explicitly for each, as the function definition restricts the types
     if iter isa ProgressBar
         set_description(iter, string(@sprintf("Ep: %i, ID: %i, Cat: %i", art.epoch, i, art.n_categories)))
     elseif iter isa UnitRange
         return
     end
-end # update_iter(art::ART, iter::Union{UnitRange, ProgressBar}, i::Int)
+end # update_iter(art::ARTModule, iter::Union{UnitRange, ProgressBar}, i::Int)
 
 """
     get_sample(x::RealArray, i::Integer)

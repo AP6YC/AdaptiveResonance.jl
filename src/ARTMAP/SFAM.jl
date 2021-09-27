@@ -33,11 +33,11 @@ julia> my_opts = opts_SFAM()
 end # opts_SFAM()
 
 """
-    SFAM
+    SFAM <: ARTMAP
 
 Simple Fuzzy ARTMAP struct.
 """
-mutable struct SFAM <: ART
+mutable struct SFAM <: ARTMAP
     opts::opts_SFAM
     config::DataConfig
     W::RealMatrix
@@ -46,7 +46,7 @@ mutable struct SFAM <: ART
     y::IntegerVector
     n_categories::Integer
     epoch::Integer
-end # SFAM <: ART
+end # SFAM <: ARTMAP
 
 """
     SFAM()

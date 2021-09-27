@@ -31,11 +31,11 @@ julia> my_opts = opts_DAM()
 end # opts_DAM()
 
 """
-    DAM <: ART
+    DAM <: ARTMAP
 
 Default ARTMAP struct.
 """
-mutable struct DAM <: ART
+mutable struct DAM <: ARTMAP
     opts::opts_DAM
     config::DataConfig
     W::RealMatrix
@@ -44,7 +44,7 @@ mutable struct DAM <: ART
     y::IntegerVector
     n_categories::Integer
     epoch::Integer
-end # DAM
+end # DAM <: ARTMAP
 
 """
     DAM()

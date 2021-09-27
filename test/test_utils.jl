@@ -31,11 +31,11 @@ function DataSplit(data_x::Array, data_y::Array, ratio::Real)
 end # DataSplit(data_x::Array, data_y::Array, ratio::Real)
 
 """
-    tt_supervised(art::T, data::DataSplit) where {T<:ART}
+    train_test_artmap(art::ARTMAP, data::DataSplit)
 
-Train and test an ART module in a supervised manner on the dataset.
+Train and test an ARTMAP module in a supervised manner on the dataset.
 """
-function tt_supervised(art::T, data::DataSplit) where {T<:ART}
+function train_test_artmap(art::ARTMAP, data::DataSplit)
     # Train and classify
     train!(art, data.train_x, data.train_y)
     y_hat = classify(art, data.test_x)
@@ -45,7 +45,46 @@ function tt_supervised(art::T, data::DataSplit) where {T<:ART}
     @info "Performance is $perf"
 
     return perf
-end # tt_supervised(art::T, data::DataSplit) where {T<:ART}
+end # train_test_artmap(art::ARTMAP, data::DataSplit)
+
+"""
+    train_test_art(art::ARTModule, data::DataSplit; supervised::Bool=false, art_opts...)
+
+Train and test an ART module.
+"""
+function train_test_art(art::ARTModule, data::DataSplit; supervised::Bool=false, train_opts::NamedTuple=NamedTuple(), test_opts::NamedTuple=NamedTuple())
+    # Default performance to undefined
+    perf = NaN
+    # If the module is unsupervised by default
+    if art isa ART
+        # Check if training with lazy supervision
+        if supervised
+            # Train with the supervised ART syntax
+            train!(art, data.train_x, y=data.train_y; train_opts...)
+            y_hat = classify(art, data.test_x; test_opts...)
+
+            # Calculate performance
+            perf = performance(y_hat, data.test_y)
+        # Otherwise, train in an unsupervised fashion
+        else
+            train!(art, data.train_x; train_opts...)
+        end
+    # Otherwise, necessarily train on a supervised model
+    elseif art isa ARTMAP
+        # Train and classify
+        train!(art, data.train_x, data.train_y; train_opts...)
+        y_hat = classify(art, data.test_x; test_opts...)
+
+        # Calculate performance
+        perf = performance(y_hat, data.test_y)
+    else
+        error("Incompatible ART module passed for testing")
+    end
+
+    @info "$(typeof(art)): performance is $perf"
+
+    return perf
+end
 
 """
     showtypetree(T, level=0)

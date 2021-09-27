@@ -33,11 +33,11 @@ julia> my_opts = opts_FAM()
 end # opts_FAM()
 
 """
-    FAM
+    FAM <: ARTMAP
 
 Fuzzy ARTMAP struct.
 """
-mutable struct FAM <: ART
+mutable struct FAM <: ARTMAP
     opts::opts_FAM
     config::DataConfig
     W::RealMatrix
@@ -46,7 +46,7 @@ mutable struct FAM <: ART
     y::IntegerVector
     n_categories::Integer
     epoch::Integer
-end # FAM
+end # FAM <: ARTMAP
 
 """
     FAM()

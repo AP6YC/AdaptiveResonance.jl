@@ -51,6 +51,44 @@ end # @testset "constants.jl"
     include("modules.jl")
 end # @testset "AdaptiveResonance.jl"
 
+@testset "Train Test" begin
+    # All ART modules
+    arts = [
+        DVFA,
+        DDVFA
+    ]
+    n_arts = length(arts)
+
+    # All common ART options
+    art_opts = [
+
+    ]
+
+    # All test option permutations
+    test_opts = [
+        (get_bmu=true,),
+        (get_bmu=false,)
+    ]
+    n_test_opts = length(test_opts)
+
+    @info "--------- TRAIN TEST ---------"
+    # ART
+    perf_baseline = 0.8
+
+    # Iterate over all ART modules
+    for ix = 1:n_arts
+        # Iterate over all test options
+        for jx = 1:n_test_opts
+            # Unsupervised
+            train_test_art(arts[ix](), data; test_opts=test_opts[jx])
+
+            # Supervised
+            @test train_test_art(arts[ix](), data; supervised=true, test_opts=test_opts[jx]) >= perf_baseline
+        end
+    end
+
+    @info "--------- END TRAIN TEST ---------"
+end
 
 @testset "DVFA.jl" begin
     @info "------- DVFA Unsupervised -------"
@@ -96,7 +134,7 @@ end # @testset "DDVFA.jl"
 
     # Iterate over each artmap module
     for art in [SFAM, DAM]
-        perf = tt_supervised(art(), data)
+        perf = train_test_artmap(art(), data)
         @test perf >= perf_baseline
     end
 end # @testset "ARTMAP.jl"

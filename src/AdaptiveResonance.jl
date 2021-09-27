@@ -9,8 +9,10 @@ using LinearAlgebra: norm   # Trace and norms
 using Statistics: median, mean  # Medians and mean for linkage methods
 
 # Abstract types
-abstract type ARTOpts end   # ART module options
-abstract type ART end       # ART modules
+abstract type ARTOpts end               # ART module options
+abstract type ARTModule end             # ART modules
+abstract type ART <: ARTModule end      # ART (unsupervised)
+abstract type ARTMAP <: ARTModule end   # ARTMAP (supervised)
 
 # Include all files
 include("common.jl")        # Objects shared by all modules
@@ -23,7 +25,9 @@ export
 
     # Abstract types
     ARTOpts,        # All module options are ARTOpts
-    ART,            # All modules are ART modules
+    ARTModule,      # All modules are ART modules
+    ART,            # ART modules (unsupervised)
+    ARTMAP,         # ARTMAP modules (supervised)
 
     # Algorithmic functions
     train!,         # Train models: train!(art, data, y=[])
