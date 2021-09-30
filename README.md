@@ -57,6 +57,7 @@ Please read the [documentation](https://ap6yc.github.io/AdaptiveResonance.jl/dev
   - [Contents](#contents)
   - [Overview](#overview)
   - [Installation](#installation)
+  - [Quickstart](#quickstart)
   - [Implemented Modules](#implemented-modules)
   - [Structure](#structure)
   - [Contributing](#contributing)
@@ -73,7 +74,8 @@ Adaptive Resonance Theory (ART) is a neurocognitive theory of how recurrent cell
 As a theory, it provides coherent and consistent explanations of how real neural networks learn patterns through competition, and it predicts the phenomena of attention and expectation as central to learning.
 In engineering, the theory has been applied to a myriad of algorithmic models for unsupervised machine learning, though it has been extended to supervised and reinforcement learning frameworks.
 This package provides implementations of many of these algorithms in Julia for both scientific research and engineering applications.
-A quickstart is provided in [Installation](#installation), while detailed usage and examples are provided in the [documentation](https://ap6yc.github.io/AdaptiveResonance.jl/dev/).
+Basic installation is outlined in [Installation](#installation), while a quickstart is provided in [Quickstart](#quickstart).
+Detailed usage and examples are provided in the [documentation](https://ap6yc.github.io/AdaptiveResonance.jl/dev/).
 
 ## Installation
 
@@ -95,6 +97,34 @@ You may also add the package directly from GitHub to get the latest changes betw
 
 ```julia
 ] add https://github.com/AP6YC/AdaptiveResonance.jl
+```
+
+## Quickstart
+
+Load the module with
+
+```julia
+using AdaptiveResonance
+```
+
+The stateful information of ART modules are structs with default constructures such as
+
+```julia
+art = DDVFA()
+```
+
+You can pass module-specific options during construction with keyword arguments such as
+
+```julia
+art = DDVFA(rho_ub=0.75, rho_lb=0.4)
+```
+
+For more advanced users, options for the modules are contained in `Parameters.jl` structs.
+These options can be passed keyword arguments before instantiating the model:
+
+```julia
+opts = opts_DDVFA(rho_ub=0.75, rho_lb=0.4)
+art = DDVFA(opts)
 ```
 
 ## Implemented Modules

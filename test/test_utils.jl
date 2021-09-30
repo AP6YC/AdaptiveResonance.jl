@@ -81,7 +81,10 @@ function train_test_art(art::ARTModule, data::DataSplit; supervised::Bool=false,
         error("Incompatible ART module passed for testing")
     end
 
-    @info "$(typeof(art)): performance is $perf"
+    # If the performance is not a NaN (potentially unsupervsied), then display perf
+    if !isnan(perf)
+        @info "$(typeof(art)): performance is $perf"
+    end
 
     return perf
 end

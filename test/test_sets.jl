@@ -94,6 +94,23 @@ end # @testset "AdaptiveResonance.jl"
     @info "--------- END TRAIN TEST ---------"
 end
 
+@testset "kwargs" begin
+    @info "--------- KWARGS TEST ---------"
+
+    arts = [
+        DVFA,
+        DDVFA,
+        SFAM,
+        DAM
+    ]
+
+    for art in arts
+        art_module = art(alpha=1e-3, display=false)
+    end
+
+    @info "--------- END KWARGS TEST ---------"
+end
+
 @testset "DVFA.jl" begin
     @info "------- DVFA Unsupervised -------"
 
