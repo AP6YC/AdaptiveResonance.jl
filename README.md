@@ -10,7 +10,6 @@ A Julia package for Adaptive Resonance Theory (ART) algorithms.
 | **Dependents** | **Date** | **Status** |
 |:--------------:|:--------:|:----------:|
 | [![deps][deps-img]][deps-url] | [![version][version-img]][version-url] | [![pkgeval][pkgeval-img]][pkgeval-url] |
-<!-- | [![Stable][docs-stable-img]][docs-stable-url] [![Dev][docs-dev-img]][docs-dev-url] | [![Build Status][travis-img]][travis-url] [![Build Status][appveyor-img]][appveyor-url] | [![Codecov][codecov-img]][codecov-url] [![Coveralls][coveralls-img]][coveralls-url] | -->
 
 [deps-img]: https://juliahub.com/docs/AdaptiveResonance/deps.svg
 [deps-url]: https://juliahub.com/ui/Packages/AdaptiveResonance/Sm0We?t=2
@@ -29,8 +28,6 @@ A Julia package for Adaptive Resonance Theory (ART) algorithms.
 
 [ci-img]: https://github.com/AP6YC/AdaptiveResonance.jl/workflows/CI/badge.svg
 [ci-url]: https://github.com/AP6YC/AdaptiveResonance.jl/actions?query=workflow%3ACI
-<!-- [travis-img]: https://travis-ci.com/AP6YC/AdaptiveResonance.jl.svg?branch=master -->
-<!-- [travis-url]: https://travis-ci.com/AP6YC/AdaptiveResonance.jl -->
 
 [appveyor-img]: https://ci.appveyor.com/api/projects/status/github/AP6YC/AdaptiveResonance.jl?svg=true
 [appveyor-url]: https://ci.appveyor.com/project/AP6YC/AdaptiveResonance-jl
@@ -42,12 +39,7 @@ A Julia package for Adaptive Resonance Theory (ART) algorithms.
 [coveralls-url]: https://coveralls.io/github/AP6YC/AdaptiveResonance.jl?branch=master
 
 [issues-url]: https://github.com/AP6YC/AdaptiveResonance.jl/issues
-[contrib-url]: https://juliadocs.github.io/Documenter.jl/dev/contributing/
-[discourse-tag-url]: https://discourse.julialang.org/tags/documenter
-[gitter-url]: https://gitter.im/juliadocs/users
-
-This package is developed and maintained by [Sasha Petrenko](https://github.com/AP6YC) with sponsorship by the [Applied Computational Intelligence Laboratory (ACIL)](https://acil.mst.edu/). This project is supported by grants from the [Night Vision Electronic Sensors Directorate](https://c5isr.ccdc.army.mil/inside_c5isr_center/nvesd/), the [DARPA Lifelong Learning Machines (L2M) program](https://www.darpa.mil/program/lifelong-learning-machines), [Teledyne Technologies](http://www.teledyne.com/), and the [National Science Foundation](https://www.nsf.gov/).
-The material, findings, and conclusions here do not necessarily reflect the views of these entities.
+[contrib-url]: https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/contributing/
 
 Please read the [documentation](https://ap6yc.github.io/AdaptiveResonance.jl/dev/) for detailed usage and tutorials.
 
@@ -56,11 +48,11 @@ Please read the [documentation](https://ap6yc.github.io/AdaptiveResonance.jl/dev
 - [AdaptiveResonance](#adaptiveresonance)
   - [Contents](#contents)
   - [Overview](#overview)
+  - [Contributing](#contributing)
   - [Installation](#installation)
   - [Quickstart](#quickstart)
   - [Implemented Modules](#implemented-modules)
   - [Structure](#structure)
-  - [Contributing](#contributing)
   - [History](#history)
   - [Credits](#credits)
     - [Authors](#authors)
@@ -76,6 +68,20 @@ In engineering, the theory has been applied to a myriad of algorithmic models fo
 This package provides implementations of many of these algorithms in Julia for both scientific research and engineering applications.
 Basic installation is outlined in [Installation](#installation), while a quickstart is provided in [Quickstart](#quickstart).
 Detailed usage and examples are provided in the [documentation](https://ap6yc.github.io/AdaptiveResonance.jl/dev/).
+
+## Contributing
+
+If you have a question or concern, please raise an [issue][issues-url].
+For more details on how to work with the project, propose changes, or even contribute code, please see the [Developer Notes][contrib-url] in the project's documentation.
+
+In summary:
+
+1. Questions and requested changes should all be made in the [issues][issues-url] page.
+These are preferred because they are publicly viewable and could assist or educate others with similar issues or questions.
+2. For changes, this project accepts pull requests (PRs) from `feature/<my-feature>` branches onto the `develop` branch using the [GitFlow](https://nvie.com/posts/a-successful-git-branching-model/) methodology.
+If unit tests pass and the changes are beneficial, these PRs are merged into `develop` and eventually folded into versioned releases.
+3. The project follows the [Semantic Versioning](https://semver.org/) convention of `major.minor.patch` incremental versioning numbers.
+Patch versions are for bug fixes, minor versions are for backward-compatible changes, and major versions are for new and incompatible usage changes.
 
 ## Installation
 
@@ -161,8 +167,7 @@ AdaptiveResonance
 ├── examples                // Source: example usage scripts.
 ├── src                     // Source: majority of source code.
 │   ├───ART                 //      ART-based unsupervised modules.
-│   ├───ARTMAP              //      ARTMAP-based supervised modules.
-│   └───CVI                 //      Cluster validity indices.
+│   └───ARTMAP              //      ARTMAP-based supervised modules.
 ├── test                    // Test: Unit, integration, and environment tests.
 ├── .appveyor               // Appveyor: Windows-specific coverage.
 ├── .gitignore              // Git: .gitignore for the whole project.
@@ -171,21 +176,21 @@ AdaptiveResonance
 └── README.md               // Doc: this document.
 ```
 
-## Contributing
-
-Please raise an [issue][issues-url].
-
 ## History
 
 - 7/10/2020 - Begin project.
 - 11/3/2020 - Complete baseline modules and tests.
 - 2/8/2021 - Formalize usage documentation.
+- 10/13/2021 - Initiate GitFlow contribution.
 
 ## Credits
 
 ### Authors
 
-- Sasha Petrenko <sap625@mst.edu>
+This package is developed and maintained by [Sasha Petrenko](https://github.com/AP6YC) with sponsorship by the [Applied Computational Intelligence Laboratory (ACIL)](https://acil.mst.edu/). This project is supported by grants from the [Night Vision Electronic Sensors Directorate](https://c5isr.ccdc.army.mil/inside_c5isr_center/nvesd/), the [DARPA Lifelong Learning Machines (L2M) program](https://www.darpa.mil/program/lifelong-learning-machines), [Teledyne Technologies](http://www.teledyne.com/), and the [National Science Foundation](https://www.nsf.gov/).
+The material, findings, and conclusions here do not necessarily reflect the views of these entities.
+
+The users [@aaronpeikert](https://github.com/aaronpeikert), [@hayesall](https://github.com/hayesall), and [@markNZed](https://github.com/markNZed) have graciously contributed their time with reviews and feedback that has greatly improved the project.
 
 ### Software
 
