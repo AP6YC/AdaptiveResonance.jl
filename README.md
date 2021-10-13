@@ -39,9 +39,7 @@ A Julia package for Adaptive Resonance Theory (ART) algorithms.
 [coveralls-url]: https://coveralls.io/github/AP6YC/AdaptiveResonance.jl?branch=master
 
 [issues-url]: https://github.com/AP6YC/AdaptiveResonance.jl/issues
-[contrib-url]: https://juliadocs.github.io/Documenter.jl/dev/contributing/
-[discourse-tag-url]: https://discourse.julialang.org/tags/documenter
-[gitter-url]: https://gitter.im/juliadocs/users
+[contrib-url]: https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/contributing/
 
 This package is developed and maintained by [Sasha Petrenko](https://github.com/AP6YC) with sponsorship by the [Applied Computational Intelligence Laboratory (ACIL)](https://acil.mst.edu/). This project is supported by grants from the [Night Vision Electronic Sensors Directorate](https://c5isr.ccdc.army.mil/inside_c5isr_center/nvesd/), the [DARPA Lifelong Learning Machines (L2M) program](https://www.darpa.mil/program/lifelong-learning-machines), [Teledyne Technologies](http://www.teledyne.com/), and the [National Science Foundation](https://www.nsf.gov/).
 The material, findings, and conclusions here do not necessarily reflect the views of these entities.
@@ -77,7 +75,7 @@ Detailed usage and examples are provided in the [documentation](https://ap6yc.gi
 ## Contributing
 
 If you have a simple question or concern, please raise an [issue][issues-url].
-For more details on how to work with the project, propose changes, or even contribute code, please see the [Developer Notes](https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/contributing/) in the project's documentation.
+For more details on how to work with the project, propose changes, or even contribute code, please see the [Developer Notes][contrib-url] in the project's documentation.
 
 ## Installation
 
