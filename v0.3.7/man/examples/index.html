@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Examples · AdaptiveResonance.jl</title><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.039/juliamono-regular.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.11/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../">AdaptiveResonance.jl</a></span></div><form class="docs-search" action="../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><span class="tocitem">Tutorial</span><ul><li><a class="tocitem" href="../guide/">Guide</a></li><li class="is-active"><a class="tocitem" href>Examples</a><ul class="internal"><li><a class="tocitem" href="#ART"><span>ART</span></a></li><li><a class="tocitem" href="#ARTMAP"><span>ARTMAP</span></a></li></ul></li><li><a class="tocitem" href="../contributing/">Contributing</a></li><li><a class="tocitem" href="../full-index/">Index</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorial</a></li><li class="is-active"><a href>Examples</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Examples</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/AP6YC/AdaptiveResonance.jl/blob/master/docs/src/man/examples.md#L" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Examples"><a class="docs-heading-anchor" href="#Examples">Examples</a><a id="Examples-1"></a><a class="docs-heading-anchor-permalink" href="#Examples" title="Permalink"></a></h1><p>There are examples for every structure in the package within the package&#39;s <code>examples/</code> folder. The code for several of these examples is provided here.</p><h2 id="ART"><a class="docs-heading-anchor" href="#ART">ART</a><a id="ART-1"></a><a class="docs-heading-anchor-permalink" href="#ART" title="Permalink"></a></h2><p>All ART modules learn in an unsupervised (i.e. clustering) mode by default, but they all can accept labels in the simplified ARTMAP fashion (see the <a href="../guide/#Package-Guide">Package Guide</a>).</p><h3 id="DDVFA-Unsupervised"><a class="docs-heading-anchor" href="#DDVFA-Unsupervised">DDVFA Unsupervised</a><a id="DDVFA-Unsupervised-1"></a><a class="docs-heading-anchor-permalink" href="#DDVFA-Unsupervised" title="Permalink"></a></h3><pre><code class="language-julia hljs"># Load the data from some source with a train/test split
+train_x, train_y, test_x, test_y = load_some_data()
+
+# Instantiate a DDVFA module
+art = DDVFA()
+
+# Train the module on the training data, getting the prescribed cluster labels
+y_hat_train = train!(art, train_x)
+
+# Conduct inference
+y_hat_test = classify(art, test_x)</code></pre><h3 id="DDVFA-Supervised"><a class="docs-heading-anchor" href="#DDVFA-Supervised">DDVFA Supervised</a><a id="DDVFA-Supervised-1"></a><a class="docs-heading-anchor-permalink" href="#DDVFA-Supervised" title="Permalink"></a></h3><pre><code class="language-julia hljs"># Load the data from some source with a train/test split
+train_x, train_y, test_x, test_y = load_some_data()
+
+# Instantiate a DDVFA module
+art = DDVFA()
+
+# Train the module on the training data, getting the prescribed cluster labels
+y_hat_train = train!(art, train_x, y=train_y)
+
+# Conduct inference
+y_hat_test = classify(art, test_x)
+
+# Verify that the training labels match
+perf_train = performance(y_hat_train, train_y)
+
+# Get the classification accuracy
+perf_test = performance(y_hat_test, test_y)</code></pre><h3 id="Incremental-DDVFA-With-Custom-Options-and-Data-Configuration"><a class="docs-heading-anchor" href="#Incremental-DDVFA-With-Custom-Options-and-Data-Configuration">Incremental DDVFA With Custom Options and Data Configuration</a><a id="Incremental-DDVFA-With-Custom-Options-and-Data-Configuration-1"></a><a class="docs-heading-anchor-permalink" href="#Incremental-DDVFA-With-Custom-Options-and-Data-Configuration" title="Permalink"></a></h3><pre><code class="language-julia hljs"># Load the data from some source with a train/test split
+train_x, train_y, test_x, test_y = load_some_data()
+
+# Create custom DDVFA options
+opts = opts_DDVFA(gamma=3)
+
+# Instantiate a DDVFA module with the specified options
+art = DDVFA(opts)
+
+# Change the options after instantiation for fun
+art.opts.rho_lb = 0.5
+
+# Customize the data configuration
+# Assume that we have prior knowledge that the features lie within [0, 1]
+# and that they have dimension 10
+art.config = DataConfig(0, 1, 10)
+
+# Create data containers for label results
+n_train = length(train_x)
+n_test = length(test_x)
+y_hat_train = zeros(Integer, n_train)
+y_hat_test = zeros(Integer, n_test)
+
+# Train the module on the training data incrementally, getting the prescribed cluster labels
+for i = 1:n_train
+    sample = train_x[:, i]
+    label = train_y[i]
+    y_hat_train[i] = train!(art, sample, y=label)
+end
+
+# Conduct inference incrementally
+for i = 1:n_test
+    sample = test_x[:, i]
+    y_hat_test[i] = classify(art, sample)
+end
+
+# Verify that the training labels match
+perf_train = performance(y_hat_train, train_y)
+
+# Get the classification accuracy
+perf_test = performance(y_hat_test, test_y)</code></pre><h2 id="ARTMAP"><a class="docs-heading-anchor" href="#ARTMAP">ARTMAP</a><a id="ARTMAP-1"></a><a class="docs-heading-anchor-permalink" href="#ARTMAP" title="Permalink"></a></h2><p>ARTMAP modules are supervised by definition, so the require supervised labels in the training stage.</p><h3 id="SFAM"><a class="docs-heading-anchor" href="#SFAM">SFAM</a><a id="SFAM-1"></a><a class="docs-heading-anchor-permalink" href="#SFAM" title="Permalink"></a></h3><pre><code class="language-julia hljs"># Load the data from some source with a train/test split
+train_x, train_y, test_x, test_y = load_some_data()
+
+# Create a Simplified Fuzzy ARTMAP module
+art = SFAM()
+
+# Train in batch
+y_hat_train = train!(art, train_x, train_y)
+
+# Test in batch
+y_hat_test = classify(art, test_x)
+
+# Verify that the training labels match
+perf_train = performance(y_hat_train, train_y)
+
+# Calculate testing performance
+perf_test = performance(y_hat_test, test_y)</code></pre><h3 id="Incremental-SFAM-With-Custom-Options-and-Data-Configuration"><a class="docs-heading-anchor" href="#Incremental-SFAM-With-Custom-Options-and-Data-Configuration">Incremental SFAM With Custom Options and Data Configuration</a><a id="Incremental-SFAM-With-Custom-Options-and-Data-Configuration-1"></a><a class="docs-heading-anchor-permalink" href="#Incremental-SFAM-With-Custom-Options-and-Data-Configuration" title="Permalink"></a></h3><pre><code class="language-julia hljs"># Load the data from some source with a train/test split
+train_x, train_y, test_x, test_y = load_some_data()
+
+# Create custom SFAM options
+opts = opts_SFAM(rho=0.5)
+
+# Instantiate a SFAM module with the specified options
+art = SFAM(opts)
+
+# Change the options after instantiation for fun
+art.opts.epsilon = 1e-2
+
+# Customize the data configuration
+# Assume that we have prior knowledge that the features lie within [0, 1]
+# and that they have dimension 10
+art.config = DataConfig(0, 1, 10)
+
+# Create data containers for label results
+n_train = length(train_x)
+n_test = length(test_x)
+y_hat_train = zeros(Integer, n_train)
+y_hat_test = zeros(Integer, n_test)
+
+# Train the module on the training data incrementally, getting the prescribed cluster labels
+for i = 1:n_train
+    sample = train_x[:, i]
+    label = train_y[i]
+    y_hat_train[i] = train!(art, sample, label)
+end
+
+# Conduct inference incrementally
+for i = 1:n_test
+    sample = test_x[:, i]
+    y_hat_test[i] = classify(art, sample)
+end
+
+# Verify that the training labels match
+perf_train = performance(y_hat_train, train_y)
+
+# Get the classification accuracy
+perf_test = performance(y_hat_test, test_y)</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../guide/">« Guide</a><a class="docs-footer-nextpage" href="../contributing/">Contributing »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.7 on <span class="colophon-date" title="Wednesday 13 October 2021 23:47">Wednesday 13 October 2021</span>. Using Julia version 1.4.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
