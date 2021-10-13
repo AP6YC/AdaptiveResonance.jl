@@ -10,7 +10,6 @@ A Julia package for Adaptive Resonance Theory (ART) algorithms.
 | **Dependents** | **Date** | **Status** |
 |:--------------:|:--------:|:----------:|
 | [![deps][deps-img]][deps-url] | [![version][version-img]][version-url] | [![pkgeval][pkgeval-img]][pkgeval-url] |
-<!-- | [![Stable][docs-stable-img]][docs-stable-url] [![Dev][docs-dev-img]][docs-dev-url] | [![Build Status][travis-img]][travis-url] [![Build Status][appveyor-img]][appveyor-url] | [![Codecov][codecov-img]][codecov-url] [![Coveralls][coveralls-img]][coveralls-url] | -->
 
 [deps-img]: https://juliahub.com/docs/AdaptiveResonance/deps.svg
 [deps-url]: https://juliahub.com/ui/Packages/AdaptiveResonance/Sm0We?t=2
@@ -29,8 +28,6 @@ A Julia package for Adaptive Resonance Theory (ART) algorithms.
 
 [ci-img]: https://github.com/AP6YC/AdaptiveResonance.jl/workflows/CI/badge.svg
 [ci-url]: https://github.com/AP6YC/AdaptiveResonance.jl/actions?query=workflow%3ACI
-<!-- [travis-img]: https://travis-ci.com/AP6YC/AdaptiveResonance.jl.svg?branch=master -->
-<!-- [travis-url]: https://travis-ci.com/AP6YC/AdaptiveResonance.jl -->
 
 [appveyor-img]: https://ci.appveyor.com/api/projects/status/github/AP6YC/AdaptiveResonance.jl?svg=true
 [appveyor-url]: https://ci.appveyor.com/project/AP6YC/AdaptiveResonance-jl
@@ -56,11 +53,11 @@ Please read the [documentation](https://ap6yc.github.io/AdaptiveResonance.jl/dev
 - [AdaptiveResonance](#adaptiveresonance)
   - [Contents](#contents)
   - [Overview](#overview)
+  - [Contributing](#contributing)
   - [Installation](#installation)
   - [Quickstart](#quickstart)
   - [Implemented Modules](#implemented-modules)
   - [Structure](#structure)
-  - [Contributing](#contributing)
   - [History](#history)
   - [Credits](#credits)
     - [Authors](#authors)
@@ -76,6 +73,11 @@ In engineering, the theory has been applied to a myriad of algorithmic models fo
 This package provides implementations of many of these algorithms in Julia for both scientific research and engineering applications.
 Basic installation is outlined in [Installation](#installation), while a quickstart is provided in [Quickstart](#quickstart).
 Detailed usage and examples are provided in the [documentation](https://ap6yc.github.io/AdaptiveResonance.jl/dev/).
+
+## Contributing
+
+If you have a simple question or concern, please raise an [issue][issues-url].
+For more details on how to work with the project, propose changes, or even contribute code, please see the [Developer Notes](https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/contributing/) in the project's documentation.
 
 ## Installation
 
@@ -171,15 +173,12 @@ AdaptiveResonance
 └── README.md               // Doc: this document.
 ```
 
-## Contributing
-
-Please raise an [issue][issues-url].
-
 ## History
 
 - 7/10/2020 - Begin project.
 - 11/3/2020 - Complete baseline modules and tests.
 - 2/8/2021 - Formalize usage documentation.
+- 10/13/2021 - Initiate GitFlow contribution.
 
 ## Credits
 
