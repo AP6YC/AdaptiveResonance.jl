@@ -74,8 +74,17 @@ Detailed usage and examples are provided in the [documentation](https://ap6yc.gi
 
 ## Contributing
 
-If you have a simple question or concern, please raise an [issue][issues-url].
+If you have a question or concern, please raise an [issue][issues-url].
 For more details on how to work with the project, propose changes, or even contribute code, please see the [Developer Notes][contrib-url] in the project's documentation.
+
+In summary:
+
+1. Questions and requested changes should all be made in the [issues][issues-url] page.
+These are preferred because they are publicly viewable and could assist or educate others with similar issues or questions.
+2. For changes, this project accepts pull requests (PRs) from `feature/<my-feature>` branches onto the `develop` branch using the [GitFlow](https://nvie.com/posts/a-successful-git-branching-model/) methodology.
+If unit tests pass and the changes are beneficial, these PRs are merged into `develop` and eventually folded into versioned releases.
+3. The project follows the [Semantic Versioning](https://semver.org/) convention of `major.minor.patch` incremental versioning numbers.
+Patch versions are for bug fixes, minor versions are for backward-compatible changes, and major versions are for new and incompatible usage changes.
 
 ## Installation
 
