@@ -161,8 +161,7 @@ AdaptiveResonance
 ├── examples                // Source: example usage scripts.
 ├── src                     // Source: majority of source code.
 │   ├───ART                 //      ART-based unsupervised modules.
-│   ├───ARTMAP              //      ARTMAP-based supervised modules.
-│   └───CVI                 //      Cluster validity indices.
+│   └───ARTMAP              //      ARTMAP-based supervised modules.
 ├── test                    // Test: Unit, integration, and environment tests.
 ├── .appveyor               // Appveyor: Windows-specific coverage.
 ├── .gitignore              // Git: .gitignore for the whole project.

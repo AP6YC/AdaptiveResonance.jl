@@ -78,7 +78,7 @@ function DataConfig(mins::RealVector, maxs::RealVector)
     DataConfig(
         true,   # setup
         mins,   # min
-        maxs,    # max
+        maxs,   # max
         dim,    # dim
         dim*2   # dim_comp
     )
