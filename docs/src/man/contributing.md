@@ -13,6 +13,7 @@ From top to bottom, the ways of contributing are:
 The main point of contact is the [GitHub issues](https://github.com/AP6YC/AdaptiveResonance.jl/issues) page for the project.
 This is the easiest way to contribute to the project, as any issue you find or request you have will be addressed there by the authors of the package.
 Depending on the issue, the authors will collaborate with you, and after making changes they will link a [pull request](@ref GitFlow) which addresses your concern or implements your proposed changes.
+
 ## Julia Development
 
 As a Julia package, development follows the usual procedure:
@@ -72,6 +73,11 @@ In summary:
 
 ## Development Details
 
+### Documentation
+
+These docs are currently hosted as a static site on the GitHub pages platform.
+They are setup to be built and served in a separate branch `gh-pages` from the master/development branch of the project.
+
 ### Package Structure
 
 The `AdaptiveResonance.jl` package has the following file structure:
@@ -125,6 +131,8 @@ This is reflected in the `DataConfig` struct in the common file `src/common.jl`.
 
 #### Type Aliases
 
+In the pursuit of an architecture-agnostic implementation (i.e., support for both 32- and 64-bit systems), type aliases and other special Julia types are used in this project.
+
 This module borrows a convention from the `StatsBase.jl` package by defining a variety of aliases for numerical types used throughout the package to standardize usage.
 This has the benefits of readability and speed by explicitly
 These are defined in `src/common.jl` and are currently as follows:
@@ -143,6 +151,11 @@ const IntegerMatrix{T<:Integer} = AbstractArray{T, 2}
 # Specifically floating-point aliases
 const RealFP = Union{Float32, Float64}
 ```
+
+In this package, data samples are always `Real`-valued (with the notable exception of [ART1](@ref DataConfig)), while class labels are integered.
+Furthermore, independent class labels are always `Int` because of the [Julia native support](https://docs.julialang.org/en/v1/manual/integers-and-floating-point-numbers/#Integers) for a given system's signed native integer type.
+
+This project does not currently test for the support of [arbitrary precision arithmetic](https://docs.julialang.org/en/v1/manual/integers-and-floating-point-numbers/#Arbitrary-Precision-Arithmetic) because learning algorithms *in general* do not have a significant need for precision beyond even 32-bit floats.
 
 ## Authors
 
