@@ -6,9 +6,7 @@ A Julia package for Adaptive Resonance Theory (ART) algorithms.
 |:------------------:|:----------------:|:------------:|
 | [![Stable][docs-stable-img]][docs-stable-url] | [![Build Status][ci-img]][ci-url] | [![Codecov][codecov-img]][codecov-url] |
 | [![Dev][docs-dev-img]][docs-dev-url] | [![Build Status][appveyor-img]][appveyor-url] | [![Coveralls][coveralls-img]][coveralls-url] |
-
 | **Dependents** | **Date** | **Status** |
-|:--------------:|:--------:|:----------:|
 | [![deps][deps-img]][deps-url] | [![version][version-img]][version-url] | [![pkgeval][pkgeval-img]][pkgeval-url] |
 
 [deps-img]: https://juliahub.com/docs/AdaptiveResonance/deps.svg
@@ -54,7 +52,7 @@ Please read the [documentation](https://ap6yc.github.io/AdaptiveResonance.jl/dev
   - [Implemented Modules](#implemented-modules)
   - [Structure](#structure)
   - [History](#history)
-  - [Credits](#credits)
+  - [Acknowledgements](#acknowledgements)
     - [Authors](#authors)
     - [Software](#software)
     - [Datasets](#datasets)
@@ -183,7 +181,7 @@ AdaptiveResonance
 - 2/8/2021 - Formalize usage documentation.
 - 10/13/2021 - Initiate GitFlow contribution.
 
-## Credits
+## Acknowledgements
 
 ### Authors
 
