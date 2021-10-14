@@ -1,3 +1,7 @@
+![header](assets/header.png)
+
+---
+
 # AdaptiveResonance.jl
 
 These pages serve as the official documentation for the AdaptiveResonance.jl Julia package.
