@@ -11,11 +11,15 @@ makedocs(
     ),
     pages=[
         "Home" => "index.md",
+        "Getting Started" => [
+            "getting-started/whatisart.md",
+            "getting-started/basic-example.md",
+        ],
         "Tutorial" => [
             "Guide" => "man/guide.md",
             "Examples" => "man/examples.md",
             "Contributing" => "man/contributing.md",
-            "Index" => "man/full-index.md"
+            "Index" => "man/full-index.md",
         ]
     ],
     repo="https://github.com/AP6YC/AdaptiveResonance.jl/blob/{commit}{path}#L{line}",
