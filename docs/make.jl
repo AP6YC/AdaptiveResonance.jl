@@ -20,7 +20,7 @@ makedocs(
             "Examples" => "man/examples.md",
             "Contributing" => "man/contributing.md",
             "Index" => "man/full-index.md",
-        ]
+        ],
     ],
     repo="https://github.com/AP6YC/AdaptiveResonance.jl/blob/{commit}{path}#L{line}",
     sitename="AdaptiveResonance.jl",

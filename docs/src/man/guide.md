@@ -191,6 +191,13 @@ The options are objects from the [Parameters.jl](https://github.com/mauro3/Param
 my_art_opts = opts_DDVFA(gamma = 3)
 ```
 
+!!! note "Note"
+    As of version `0.3.6`, you can pass these keyword arguments directly to the ART model when constructing it with
+
+    ```julia
+    my_art = DDVFA(gamma = 3)
+    ```
+
 You can even modify the parameters on the fly after the ART module has been instantiated by directly modifying the options within the module:
 
 ```julia
