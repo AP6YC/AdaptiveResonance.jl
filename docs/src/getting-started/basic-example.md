@@ -1,5 +1,7 @@
 # Basic Example
 
+In the example below, we create a dataset generated from two multivariate Gaussian distributions in two dimensions, showing how an ART module can be used in unsupervised or simple supervised modes alongside an ARTMAP module that is explicitly supervised-only.
+
 ```@example
 # Copyright © 2021 Alexander L. Hayes
 # MIT License
