@@ -1,11 +1,12 @@
-using Documenter, AdaptiveResonance
+using Documenter
+using AdaptiveResonance
 
 makedocs(
     modules=[AdaptiveResonance],
     format=Documenter.HTML(
         prettyurls = get(ENV, "CI", nothing) == "true",
         assets = [
-            joinpath("assets", "favicon.ico"),
+            joinpath("assets", "favicon.ico")
         ]
     ),
     # format=Documenter.HTML(),
