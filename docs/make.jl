@@ -9,7 +9,6 @@ makedocs(
             joinpath("assets", "favicon.ico")
         ]
     ),
-    # format=Documenter.HTML(),
     pages=[
         "Home" => "index.md",
         "Tutorial" => [
