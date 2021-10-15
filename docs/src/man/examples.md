@@ -9,6 +9,8 @@ All ART modules learn in an unsupervised (i.e. clustering) mode by default, but 
 
 ### DDVFA Unsupervised
 
+DDVFA is an unsupervised clustering algorithm by definition, so it can be used to cluster a set of samples all at once in batch mode.
+
 ```julia
 # Load the data from some source with a train/test split
 train_x, train_y, test_x, test_y = load_some_data()
@@ -24,6 +26,8 @@ y_hat_test = classify(art, test_x)
 ```
 
 ### DDVFA Supervised
+
+ART modules such as DDVFA can also be used in simple supervised mode where provided labels are used in place of internal incremental labels for the clusters, providing a method of assessing the clustering performance when labels are available.
 
 ```julia
 # Load the data from some source with a train/test split
@@ -46,6 +50,9 @@ perf_test = performance(y_hat_test, test_y)
 ```
 
 ### Incremental DDVFA With Custom Options and Data Configuration
+
+Even more advanced, DDVFA can be run incrementally (i.e. with one sample at a time) with custom algorithmic options and a predetermined data configuration.
+It is necessary to provide a data configuration if the model is not pretrained because the model has no knowledge of the boundaries and dimensionality of the data, which are necessary in the complement coding step.
 
 ```julia
 # Load the data from some source with a train/test split
@@ -97,6 +104,8 @@ ARTMAP modules are supervised by definition, so the require supervised labels in
 
 ### SFAM
 
+A Simplified FuzzyARTMAP can be used to learn supervised mappings on features directly and in batch mode.
+
 ```julia
 # Load the data from some source with a train/test split
 train_x, train_y, test_x, test_y = load_some_data()
@@ -116,7 +125,10 @@ perf_train = performance(y_hat_train, train_y)
 # Calculate testing performance
 perf_test = performance(y_hat_test, test_y)
 ```
+
 ### Incremental SFAM With Custom Options and Data Configuration
+
+A simplified FuzzyARTMAP can also be run iteratively, assuming that we know the statistics of the features ahead of time and reflect that in the module's `config` with a `DataConfig` object.
 
 ```julia
 # Load the data from some source with a train/test split
