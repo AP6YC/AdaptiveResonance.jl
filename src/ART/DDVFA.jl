@@ -16,7 +16,7 @@ julia> opts_GNFA()
 Initialized GNFA
 ```
 """
-@with_kw mutable struct opts_GNFA <: ARTOpts @deftype RealFP
+@with_kw mutable struct opts_GNFA <: ARTOpts @deftype Float
     # Vigilance parameter: [0, 1]
     rho = 0.6; @assert rho >= 0.0 && rho <= 1.0
     # Choice parameter: alpha > 0
@@ -34,7 +34,7 @@ Initialized GNFA
     # Display flag
     display::Bool = true
     # Maximum number of epochs during training
-    max_epochs::Integer = 1
+    max_epochs::Int = 1
 end # opts_GNFA
 
 """
@@ -56,7 +56,7 @@ mutable struct GNFA <: ART
     config::DataConfig
 
     # Working variables
-    threshold::RealFP
+    threshold::Float
     labels::IntegerVector
     T::RealVector
     M::RealVector
@@ -65,8 +65,8 @@ mutable struct GNFA <: ART
     W::RealMatrix
     W_old::RealMatrix
     n_instance::IntegerVector
-    n_categories::Integer
-    epoch::Integer
+    n_categories::Int
+    epoch::Int
 end # GNFA <: ART
 
 """
@@ -122,12 +122,12 @@ function GNFA(opts::opts_GNFA)
     GNFA(opts,                          # opts
          DataConfig(),                  # config
          0.0,                           # threshold
-         Array{Integer}(undef,0),       # labels
-         Array{RealFP}(undef, 0),       # T
-         Array{RealFP}(undef, 0),       # M
-         Array{RealFP}(undef, 0, 0),    # W
-         Array{RealFP}(undef, 0, 0),    # W_old
-         Array{Integer}(undef, 0),      # n_instance
+         Array{Int}(undef,0),       # labels
+         Array{Float}(undef, 0),       # T
+         Array{Float}(undef, 0),       # M
+         Array{Float}(undef, 0, 0),    # W
+         Array{Float}(undef, 0, 0),    # W_old
+         Array{Int}(undef, 0),      # n_instance
          0,                             # n_categories
          0                              # epoch
     )
@@ -170,7 +170,7 @@ function initialize!(art::GNFA, x::Vector{T} ; y::Integer=0) where {T<:RealFP}
     # IMPORTANT: Assuming that x is a sample, so each entry is a feature
     dim = length(x)
     art.config.dim_comp = dim
-    art.config.dim = Integer(dim/2) # Assumes input is already complement coded
+    art.config.dim = Int(dim/2) # Assumes input is already complement coded
 
     # Initialize the instance and categories counters
     art.n_instance = [1]
@@ -201,7 +201,7 @@ julia> x = load_data()
 julia> train!(my_GNFA, x)
 ```
 """
-function train!(art::GNFA, x::RealArray ; y::IntegerVector = Vector{Integer}())
+function train!(art::GNFA, x::RealArray ; y::IntegerVector = Vector{Int}())
     # Flag for if training in supervised mode
     supervised = !isempty(y)
     # Initialization if weights are empty; fast commit the first sample
@@ -275,7 +275,7 @@ function train!(art::GNFA, x::RealArray ; y::IntegerVector = Vector{Integer}())
         # If we didn't break, deep copy the old weights
         art.W_old = deepcopy(art.W)
     end
-end # train!(art::GNFA, x::RealArray ; y::IntegerVector = Vector{Integer}())
+end # train!(art::GNFA, x::RealArray ; y::IntegerVector = Vector{Int}())
 
 """
     classify(art::GNFA, x::RealArray)
@@ -300,7 +300,7 @@ function classify(art::GNFA, x::RealArray)
     n_samples = get_n_samples(x)
 
     # Initialize the output vector and iterate across all data
-    y_hat = zeros(Integer, n_samples)
+    y_hat = zeros(Int, n_samples)
     iter = get_iterator(art.opts, x)
     for ix in iter
         # Update the iterator if necessary
@@ -396,7 +396,7 @@ Distributed Dual Vigilance Fuzzy ART options struct.
 julia> my_opts = opts_DDVFA()
 ```
 """
-@with_kw mutable struct opts_DDVFA <: ARTOpts @deftype RealFP
+@with_kw mutable struct opts_DDVFA <: ARTOpts @deftype Float
     # Lower-bound vigilance parameter: [0, 1]
     rho_lb = 0.80; @assert rho_lb >= 0.0 && rho_lb <= 1.0
     rho = rho_lb
@@ -416,7 +416,7 @@ julia> my_opts = opts_DDVFA()
     # Display flag
     display::Bool = true
     # Maximum number of epochs during training
-    max_epoch::Integer = 1
+    max_epoch::Int = 1
 end # opts_DDVFA
 
 """
@@ -440,15 +440,15 @@ mutable struct DDVFA <: ART
     config::DataConfig
 
     # Working variables
-    threshold::RealFP
+    threshold::Float
     F2::Vector{GNFA}
     labels::IntegerVector
     W::RealMatrix        # All F2 nodes' weight vectors
     W_old::RealMatrix    # Old F2 node weight vectors (for stopping criterion)
-    n_categories::Integer
-    epoch::Integer
-    T::RealFP
-    M::RealFP
+    n_categories::Int
+    epoch::Int
+    T::Float
+    M::Float
 end # DDVFA <: ART
 
 """
@@ -514,9 +514,9 @@ function DDVFA(opts::opts_DDVFA)
           DataConfig(),
           0.0,
           Array{GNFA}(undef, 0),
-          Array{Integer}(undef, 0),
-          Array{RealFP}(undef, 0, 0),
-          Array{RealFP}(undef, 0, 0),
+          Array{Int}(undef, 0),
+          Array{Float}(undef, 0, 0),
+          Array{Float}(undef, 0, 0),
           0,
           0,
           0.0,
@@ -525,11 +525,11 @@ function DDVFA(opts::opts_DDVFA)
 end # DDVFA(opts::opts_DDVFA)
 
 """
-    train!(art::DDVFA, x::RealArray ; y::IntegerVector=[], preprocessed::Bool=false)
+    train!(art::DDVFA, x::RealArray ; y::IntegerVector=Vector{Int}(), preprocessed::Bool=false)
 
 Train the DDVFA model on the data.
 """
-function train!(art::DDVFA, x::RealArray ; y::IntegerVector = Vector{Integer}(), preprocessed::Bool=false)
+function train!(art::DDVFA, x::RealArray ; y::IntegerVector = Vector{Int}(), preprocessed::Bool=false)
     # Show a message if display is on
     art.opts.display && @info "Training DDVFA"
 
@@ -549,9 +549,9 @@ function train!(art::DDVFA, x::RealArray ; y::IntegerVector = Vector{Integer}(),
 
     # art.labels = zeros(n_samples)
     if n_samples == 1
-        y_hat = zero(Integer)
+        y_hat = zero(Int)
     else
-        y_hat = zeros(Integer, n_samples)
+        y_hat = zeros(Int, n_samples)
     end
 
     # Initialization
@@ -666,7 +666,7 @@ function train!(art::DDVFA, x::RealArray ; y::IntegerVector = Vector{Integer}(),
         art.W_old = deepcopy(art.W)
     end
     return y_hat
-end # train!(art::DDVFA, x::RealArray ; y::IntegerVector = Vector{Integer}(), preprocessed::Bool=false)
+end # train!(art::DDVFA, x::RealArray ; y::IntegerVector = Vector{Int}(), preprocessed::Bool=false)
 
 """
     create_category(art::DDVFA, sample::RealVector, label::Integer)
@@ -792,9 +792,9 @@ function classify(art::DDVFA, x::RealArray ; preprocessed::Bool=false, get_bmu::
 
     # Initialize the output vector
     if n_samples == 1
-        y_hat = zero(Integer)
+        y_hat = zero(Int)
     else
-        y_hat = zeros(Integer, n_samples)
+        y_hat = zeros(Int, n_samples)
     end
 
     # Get the iterator based on the module options and data shape

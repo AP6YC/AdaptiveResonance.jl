@@ -284,7 +284,7 @@ function get_iterator(opts::ARTOpts, x::RealArray)
 
     # Construct the iterator
     iter_raw = 1:n_samples
-    iter = prog_bar ?  ProgressBar(iter_raw) : iter_raw
+    iter = prog_bar ? ProgressBar(iter_raw) : iter_raw
 
     return iter
 end # get_iterator(opts::ARTOpts, x::RealArray)
