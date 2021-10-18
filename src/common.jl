@@ -31,6 +31,9 @@ const IntegerMatrix{T<:Integer} = AbstractArray{T, 2}
 # Specifically floating-point aliases
 const RealFP = Union{Float32, Float64}
 
+# System's largest native floating point variable
+const Float = (Sys.WORD_SIZE == 64 ? Float64 : Float32)
+
 # Acceptable iterators for ART module training and inference
 const ARTIterator = Union{UnitRange, ProgressBar}
 
@@ -55,8 +58,8 @@ Default constructor for a data configuration, not set up.
 function DataConfig()
     DataConfig(
         false,                      # setup
-        Array{RealFP}(undef, 0),   # min
-        Array{RealFP}(undef, 0),   # max
+        Array{Float}(undef, 0),    # min
+        Array{Float}(undef, 0),    # max
         0,                          # dim
         0                           # dim_comp
     )
