@@ -46,8 +46,8 @@ mutable struct DataConfig
     setup::Bool
     mins::RealVector
     maxs::RealVector
-    dim::Integer
-    dim_comp::Integer
+    dim::Int
+    dim_comp::Int
 end # DataConfig
 
 """
@@ -88,13 +88,13 @@ function DataConfig(mins::RealVector, maxs::RealVector)
 end # DataConfig(mins::RealVector, maxs::RealVector)
 
 """
-    DataConfig(min::Real, max::Real, dim::Integer)
+    DataConfig(min::Real, max::Real, dim::Int)
 
 Convenience constructor for DataConfig, requiring only a global min, max, and dim.
 
 This constructor is used in the case that the feature mins and maxs are all the same respectively.
 """
-function DataConfig(min::Real, max::Real, dim::Integer)
+function DataConfig(min::Real, max::Real, dim::Int)
     DataConfig(
         true,               # setup
         repeat([min], dim), # min
@@ -102,7 +102,7 @@ function DataConfig(min::Real, max::Real, dim::Integer)
         dim,                # dim
         dim*2               # dim_comp
     )
-end # DataConfig(min::Real, max::Real, dim::Integer)
+end # DataConfig(min::Real, max::Real, dim::Int)
 
 """
     element_min(x::RealVector, W::RealVector)
@@ -210,7 +210,7 @@ function DataConfig(data::RealMatrix)
 
     # Return the constructed DataConfig
     return config
-end # DataConfig(min::Real, max::Real, dim::Integer)
+end # DataConfig(min::Real, max::Real, dim::Int)
 
 """
     get_data_characteristics(data::RealArray ; config::DataConfig=DataConfig())
@@ -290,9 +290,9 @@ function get_iterator(opts::ARTOpts, x::RealArray)
 end # get_iterator(opts::ARTOpts, x::RealArray)
 
 """
-    update_iter(art::ARTModule, iter::ARTIterator, i::Integer)
+    update_iter(art::ARTModule, iter::ARTIterator, i::Int)
 """
-function update_iter(art::ARTModule, iter::ARTIterator, i::Integer)
+function update_iter(art::ARTModule, iter::ARTIterator, i::Int)
     # Check explicitly for each, as the function definition restricts the types
     if iter isa ProgressBar
         set_description(iter, string(@sprintf("Ep: %i, ID: %i, Cat: %i", art.epoch, i, art.n_categories)))
@@ -302,11 +302,11 @@ function update_iter(art::ARTModule, iter::ARTIterator, i::Integer)
 end # update_iter(art::ARTModule, iter::Union{UnitRange, ProgressBar}, i::Int)
 
 """
-    get_sample(x::RealArray, i::Integer)
+    get_sample(x::RealArray, i::Int)
 
 Returns a sample from data array x safely, accounting for 1-D and
 """
-function get_sample(x::RealArray, i::Integer)
+function get_sample(x::RealArray, i::Int)
     # Get the shape of the data, irrespective of data type
     dim, n_samples = get_data_shape(x)
     # Get the type shape of the array
@@ -323,4 +323,4 @@ function get_sample(x::RealArray, i::Integer)
         sample = x[:, i]
     end
     return sample
-end # get_sample(x::RealArray, i::Integer)
+end # get_sample(x::RealArray, i::Int)
