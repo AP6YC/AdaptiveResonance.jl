@@ -15,7 +15,7 @@ Implements a Simple Fuzzy ARTMAP learner's options.
 julia> my_opts = opts_SFAM()
 ```
 """
-@with_kw mutable struct opts_SFAM <: ARTOpts @deftype RealFP
+@with_kw mutable struct opts_SFAM <: ARTOpts @deftype Float
     # Vigilance parameter: [0, 1]
     rho = 0.75; @assert rho >= 0.0 && rho <= 1.0
     # Choice parameter: alpha > 0
@@ -29,7 +29,7 @@ julia> my_opts = opts_SFAM()
     # Display flag
     display::Bool = true
     # Maximum number of epochs during training
-    max_epochs::Integer = 1
+    max_epochs::Int = 1
 end # opts_SFAM()
 
 """
@@ -44,8 +44,8 @@ mutable struct SFAM <: ARTMAP
     W_old::RealMatrix
     labels::IntegerVector
     y::IntegerVector
-    n_categories::Integer
-    epoch::Integer
+    n_categories::Int
+    epoch::Int
 end # SFAM <: ARTMAP
 
 """
@@ -102,10 +102,10 @@ function SFAM(opts::opts_SFAM)
     SFAM(
         opts,                           # opts_SFAM
         DataConfig(),                   # config
-        Array{RealFP}(undef, 0, 0),     # W
-        Array{RealFP}(undef, 0, 0),     # W_old
-        Array{Integer}(undef, 0),       # labels
-        Array{Integer}(undef, 0),       # y
+        Array{Float}(undef, 0, 0),      # W
+        Array{Float}(undef, 0, 0),      # W_old
+        Array{Int}(undef, 0),           # labels
+        Array{Int}(undef, 0),           # y
         0,                              # n_categories
         0                               # epoch
     )

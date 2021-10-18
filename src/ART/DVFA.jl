@@ -26,7 +26,7 @@ Dual Vigilance Fuzzy ART options struct.
 julia> my_opts = opts_DVFA()
 ```
 """
-@with_kw mutable struct opts_DVFA <: ARTOpts @deftype RealFP
+@with_kw mutable struct opts_DVFA <: ARTOpts @deftype Float
     # Lower-bound vigilance parameter: [0, 1]
     rho_lb = 0.55; @assert rho_lb >= 0.0 && rho_lb <= 1.0
     # Upper bound vigilance parameter: [0, 1]
@@ -38,7 +38,7 @@ julia> my_opts = opts_DVFA()
     # Display flag
     display::Bool = true
     # Maximum number of epochs during training
-    max_epochs::Integer = 1
+    max_epochs::Int = 1
 end # opts_DVFA
 
 """
@@ -66,9 +66,9 @@ mutable struct DVFA <: ART
     M::RealVector
     W_old::RealMatrix
     map::IntegerVector
-    n_categories::Integer
-    n_clusters::Integer
-    epoch::Integer
+    n_categories::Int
+    n_clusters::Int
+    epoch::Int
 end # DVFA
 
 """
@@ -125,12 +125,12 @@ function DVFA(opts::opts_DVFA)
     DVFA(
         opts,                           # opts
         DataConfig(),                   # config
-        Array{Integer}(undef, 0),       # labels
-        Array{RealFP}(undef, 0, 0),     # W
-        Array{RealFP}(undef, 0),        # M
-        Array{RealFP}(undef, 0),        # T
-        Array{RealFP}(undef, 0, 0),     # W_old
-        Array{Integer}(undef, 0),       # map
+        Array{Int}(undef, 0),           # labels
+        Array{Float}(undef, 0, 0),      # W
+        Array{Float}(undef, 0),         # M
+        Array{Float}(undef, 0),         # T
+        Array{Float}(undef, 0, 0),      # W_old
+        Array{Int}(undef, 0),           # map
         0,                              # n_categories
         0,                              # n_clusters
         0                               # epoch
@@ -138,7 +138,7 @@ function DVFA(opts::opts_DVFA)
 end # DDVFA(opts::opts_DDVFA)
 
 """
-    train!(art::DVFA, x::RealArray ; y::IntegerVector = [], preprocessed::Bool=false)
+    train!(art::DVFA, x::RealArray ; y::IntegerVector = Vector{Int}(), preprocessed::Bool=false)
 
 Train the DVFA module on x with optional custom category labels y.
 
@@ -147,7 +147,7 @@ Train the DVFA module on x with optional custom category labels y.
 - `x::RealArray`: the data to train on, interpreted as a single sample if x is a vector.
 - `y::IntegerVector=[]`: optional custom labels to assign to the categories. If empty, ordinary incremental labels are prescribed.
 """
-function train!(art::DVFA, x::RealArray ; y::IntegerVector = Vector{Integer}(), preprocessed::Bool=false)
+function train!(art::DVFA, x::RealArray ; y::IntegerVector = Vector{Int}(), preprocessed::Bool=false)
     # Show a message if display is on
     art.opts.display && @info "Training DVFA"
 
@@ -166,9 +166,9 @@ function train!(art::DVFA, x::RealArray ; y::IntegerVector = Vector{Integer}(), 
     end
 
     if n_samples == 1
-        y_hat = zero(Integer)
+        y_hat = zero(Int)
     else
-        y_hat = zeros(Integer, n_samples)
+        y_hat = zeros(Int, n_samples)
     end
 
     # Initialization
@@ -284,7 +284,7 @@ function train!(art::DVFA, x::RealArray ; y::IntegerVector = Vector{Integer}(), 
     end
 
     return y_hat
-end # train!(art::DVFA, x::RealArray ; y::IntegerVector = Vector{Integer}(), preprocessed::Bool=false)
+end # train!(art::DVFA, x::RealArray ; y::IntegerVector = Vector{Int}(), preprocessed::Bool=false)
 
 """
     classify(art::DVFA, x::RealArray)
@@ -321,9 +321,9 @@ function classify(art::DVFA, x::RealArray ; preprocessed::Bool=false, get_bmu::B
 
     # Initialize the output vector
     if n_samples == 1
-        y_hat = zero(Integer)
+        y_hat = zero(Int)
     else
-        y_hat = zeros(Integer, n_samples)
+        y_hat = zeros(Int, n_samples)
     end
 
     iter = get_iterator(art.opts, x)

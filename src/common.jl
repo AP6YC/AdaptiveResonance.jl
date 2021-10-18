@@ -31,6 +31,9 @@ const IntegerMatrix{T<:Integer} = AbstractArray{T, 2}
 # Specifically floating-point aliases
 const RealFP = Union{Float32, Float64}
 
+# System's largest native floating point variable
+const Float = (Sys.WORD_SIZE == 64 ? Float64 : Float32)
+
 # Acceptable iterators for ART module training and inference
 const ARTIterator = Union{UnitRange, ProgressBar}
 
@@ -43,8 +46,8 @@ mutable struct DataConfig
     setup::Bool
     mins::RealVector
     maxs::RealVector
-    dim::Integer
-    dim_comp::Integer
+    dim::Int
+    dim_comp::Int
 end # DataConfig
 
 """
@@ -55,8 +58,8 @@ Default constructor for a data configuration, not set up.
 function DataConfig()
     DataConfig(
         false,                      # setup
-        Array{RealFP}(undef, 0),   # min
-        Array{RealFP}(undef, 0),   # max
+        Array{Float}(undef, 0),    # min
+        Array{Float}(undef, 0),    # max
         0,                          # dim
         0                           # dim_comp
     )
@@ -85,13 +88,13 @@ function DataConfig(mins::RealVector, maxs::RealVector)
 end # DataConfig(mins::RealVector, maxs::RealVector)
 
 """
-    DataConfig(min::Real, max::Real, dim::Integer)
+    DataConfig(min::Real, max::Real, dim::Int)
 
 Convenience constructor for DataConfig, requiring only a global min, max, and dim.
 
 This constructor is used in the case that the feature mins and maxs are all the same respectively.
 """
-function DataConfig(min::Real, max::Real, dim::Integer)
+function DataConfig(min::Real, max::Real, dim::Int)
     DataConfig(
         true,               # setup
         repeat([min], dim), # min
@@ -99,7 +102,7 @@ function DataConfig(min::Real, max::Real, dim::Integer)
         dim,                # dim
         dim*2               # dim_comp
     )
-end # DataConfig(min::Real, max::Real, dim::Integer)
+end # DataConfig(min::Real, max::Real, dim::Int)
 
 """
     element_min(x::RealVector, W::RealVector)
@@ -194,6 +197,22 @@ function data_setup!(config::DataConfig, data::RealMatrix)
 end # data_setup!(config::DataConfig, data::RealMatrix)
 
 """
+    DataConfig(data::RealMatrix)
+
+Convenience constructor for DataConfig, requiring only the data matrix.
+"""
+function DataConfig(data::RealMatrix)
+    # Create an empty dataconfig
+    config = DataConfig()
+
+    # Runthe setup upon the config using the data matrix for reference
+    data_setup!(config, data)
+
+    # Return the constructed DataConfig
+    return config
+end # DataConfig(min::Real, max::Real, dim::Int)
+
+"""
     get_data_characteristics(data::RealArray ; config::DataConfig=DataConfig())
 
 Get the characteristics of the data, taking account if a data config is passed.
@@ -265,15 +284,15 @@ function get_iterator(opts::ARTOpts, x::RealArray)
 
     # Construct the iterator
     iter_raw = 1:n_samples
-    iter = prog_bar ?  ProgressBar(iter_raw) : iter_raw
+    iter = prog_bar ? ProgressBar(iter_raw) : iter_raw
 
     return iter
 end # get_iterator(opts::ARTOpts, x::RealArray)
 
 """
-    update_iter(art::ARTModule, iter::ARTIterator, i::Integer)
+    update_iter(art::ARTModule, iter::ARTIterator, i::Int)
 """
-function update_iter(art::ARTModule, iter::ARTIterator, i::Integer)
+function update_iter(art::ARTModule, iter::ARTIterator, i::Int)
     # Check explicitly for each, as the function definition restricts the types
     if iter isa ProgressBar
         set_description(iter, string(@sprintf("Ep: %i, ID: %i, Cat: %i", art.epoch, i, art.n_categories)))
@@ -283,11 +302,11 @@ function update_iter(art::ARTModule, iter::ARTIterator, i::Integer)
 end # update_iter(art::ARTModule, iter::Union{UnitRange, ProgressBar}, i::Int)
 
 """
-    get_sample(x::RealArray, i::Integer)
+    get_sample(x::RealArray, i::Int)
 
 Returns a sample from data array x safely, accounting for 1-D and
 """
-function get_sample(x::RealArray, i::Integer)
+function get_sample(x::RealArray, i::Int)
     # Get the shape of the data, irrespective of data type
     dim, n_samples = get_data_shape(x)
     # Get the type shape of the array
@@ -304,4 +323,4 @@ function get_sample(x::RealArray, i::Integer)
         sample = x[:, i]
     end
     return sample
-end # get_sample(x::RealArray, i::Integer)
+end # get_sample(x::RealArray, i::Int)

@@ -15,7 +15,7 @@ Implements a Default ARTMAP learner's options.
 julia> my_opts = opts_DAM()
 ```
 """
-@with_kw mutable struct opts_DAM <: ARTOpts @deftype RealFP
+@with_kw mutable struct opts_DAM <: ARTOpts @deftype Float
     # Vigilance parameter: [0, 1]
     rho = 0.6; @assert rho >= 0.0 && rho <= 1.0
     # Choice parameter: alpha > 0
@@ -27,7 +27,7 @@ julia> my_opts = opts_DAM()
     # Display flag
     display::Bool = true
     # Maximum number of epochs during training
-    max_epochs::Integer = 1
+    max_epochs::Int = 1
 end # opts_DAM()
 
 """
@@ -42,8 +42,8 @@ mutable struct DAM <: ARTMAP
     W_old::RealMatrix
     labels::IntegerVector
     y::IntegerVector
-    n_categories::Integer
-    epoch::Integer
+    n_categories::Int
+    epoch::Int
 end # DAM <: ARTMAP
 
 """
@@ -99,17 +99,17 @@ DAM
 function DAM(opts::opts_DAM)
     DAM(opts,                       # opts_DAM
         DataConfig(),               # config
-        Array{RealFP}(undef, 0,0), # W
-        Array{RealFP}(undef, 0,0), # W_old
-        Array{Integer}(undef, 0),       # labels
-        Array{Integer}(undef, 0),       # y
+        Array{Float}(undef, 0,0),   # W
+        Array{Float}(undef, 0,0),   # W_old
+        Array{Int}(undef, 0),       # labels
+        Array{Int}(undef, 0),       # y
         0,                          # n_categories
         0                           # epoch
     )
 end # DAM(opts::opts_DAM)
 
 """
-    train!(art::DAM, x::RealArray, y::RealArray ; preprocessed::Bool=false)
+    train!(art::DAM, x::RealMatrix, y::IntegerVector ; preprocessed::Bool=false)
 
 Trains a Default ARTMAP learner in a supervised manner.
 
@@ -123,7 +123,7 @@ DAM
 julia> train!(art, x, y)
 ```
 """
-function train!(art::DAM, x::RealArray, y::RealArray ; preprocessed::Bool=false)
+function train!(art::DAM, x::RealMatrix, y::IntegerVector ; preprocessed::Bool=false)
     # Show a message if display is on
     art.opts.display && @info "Training DAM"
 
@@ -138,11 +138,8 @@ function train!(art::DAM, x::RealArray, y::RealArray ; preprocessed::Bool=false)
         x = complement_code(x, config=art.config)
     end
 
-    # Convenient semantic flag
-    # is_supervised = !isempty(y)
-
     # Initialize the internal categories
-    art.y = zeros(Integer, n_samples)
+    art.y = zeros(Int, n_samples)
 
     # Initialize the training loop, continue to convergence
     art.epoch = 0
@@ -156,8 +153,8 @@ function train!(art::DAM, x::RealArray, y::RealArray ; preprocessed::Bool=false)
             if !(y[ix] in art.labels)
                 # Initialize W and labels
                 if isempty(art.W)
-                    art.W = Array{Float64}(undef, art.config.dim_comp, 1)
-                    art.W_old = Array{Float64}(undef, art.config.dim_comp, 1)
+                    art.W = Array{Float}(undef, art.config.dim_comp, 1)
+                    art.W_old = Array{Float}(undef, art.config.dim_comp, 1)
                     art.W[:, ix] = x[:, ix]
                 else
                     art.W = [art.W x[:, ix]]
@@ -213,10 +210,10 @@ function train!(art::DAM, x::RealArray, y::RealArray ; preprocessed::Bool=false)
         end
         art.W_old = deepcopy(art.W)
     end
-end # train!(art::DAM, x::RealArray, y::RealArray ; preprocessed::Bool=false)
+end # train!(art::DAM, x::RealMatrix, y::IntegerVector ; preprocessed::Bool=false)
 
 """
-    classify(art::DAM, x::RealArray ; preprocessed::Bool=false)
+    classify(art::DAM, x::RealMatrix ; preprocessed::Bool=false)
 
 Categorize data 'x' using a trained Default ARTMAP module 'art'.
 
@@ -232,7 +229,7 @@ julia> train!(art, x, y)
 julia> classify(art, x_test)
 ```
 """
-function classify(art::DAM, x::RealArray ; preprocessed::Bool=false)
+function classify(art::DAM, x::RealMatrix ; preprocessed::Bool=false)
     # Show a message if display is on
     art.opts.display && @info "Testing DAM"
 
@@ -281,7 +278,7 @@ function classify(art::DAM, x::RealArray ; preprocessed::Bool=false)
         end
     end
     return y_hat
-end # classify(art::DAM, x::RealArray ; preprocessed::Bool=false)
+end # classify(art::DAM, x::RealMatrix ; preprocessed::Bool=false)
 
 """
     stopping_conditions(art::DAM)
