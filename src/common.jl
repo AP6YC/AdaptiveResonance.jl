@@ -197,6 +197,22 @@ function data_setup!(config::DataConfig, data::RealMatrix)
 end # data_setup!(config::DataConfig, data::RealMatrix)
 
 """
+    DataConfig(data::RealMatrix)
+
+Convenience constructor for DataConfig, requiring only the data matrix.
+"""
+function DataConfig(data::RealMatrix)
+    # Create an empty dataconfig
+    config = DataConfig()
+
+    # Runthe setup upon the config using the data matrix for reference
+    data_setup!(config, data)
+
+    # Return the constructed DataConfig
+    return config
+end # DataConfig(min::Real, max::Real, dim::Integer)
+
+"""
     get_data_characteristics(data::RealArray ; config::DataConfig=DataConfig())
 
 Get the characteristics of the data, taking account if a data config is passed.
