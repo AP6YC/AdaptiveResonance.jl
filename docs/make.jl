@@ -30,4 +30,5 @@ makedocs(
 
 deploydocs(
     repo="github.com/AP6YC/AdaptiveResonance.jl.git",
+    devbranch="develop",
 )
