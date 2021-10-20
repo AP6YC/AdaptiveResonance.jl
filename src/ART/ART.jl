@@ -5,6 +5,7 @@ Description:
     Includes all of the unsupervised ART modules definitions.
 """
 
+include("FuzzyART.jl")  # FuzzyART
 include("GNFA.jl")      # GNFA
-include("DDVFA.jl")     # DDVFA and GNFA
+include("DDVFA.jl")     # DDVFA
 include("DVFA.jl")      # DVFA
