@@ -58,8 +58,8 @@ Default constructor for a data configuration, not set up.
 function DataConfig()
     DataConfig(
         false,                      # setup
-        Array{Float}(undef, 0),    # min
-        Array{Float}(undef, 0),    # max
+        Array{Float}(undef, 0),     # min
+        Array{Float}(undef, 0),     # max
         0,                          # dim
         0                           # dim_comp
     )
@@ -237,21 +237,59 @@ function get_data_characteristics(data::RealArray ; config::DataConfig=DataConfi
 end # get_data_characteristics(data::RealArray ; config::DataConfig=DataConfig())
 
 """
-    linear_normalization(data::RealArray ; config::DataConfig=DataConfig())
+    linear_normalization(data::RealMatrix ; config::DataConfig=DataConfig())
 
 Normalize the data to the range [0, 1] along each feature.
 """
-function linear_normalization(data::RealArray ; config::DataConfig=DataConfig())
+function linear_normalization(data::RealMatrix ; config::DataConfig=DataConfig())
     # Get the data characteristics
     dim, n_samples, mins, maxs = get_data_characteristics(data, config=config)
 
     # Populate a new array with normalized values.
     x_raw = zeros(dim, n_samples)
+
+    # Verify that all maxs are strictly greater than mins
+    if !all(mins .< maxs)
+        error("Got a data max index that is smaller than the corresonding min")
+    end
+
+    # Iterate over each dimension
     for i = 1:dim
-        if maxs[i] < mins[i]
-            error("Got a data max index that is smaller than the corresonding min")
-        elseif maxs[i] - mins[i] != 0
-            x_raw[i, :] = (data[i, :] .- mins[i]) ./ (maxs[i] - mins[i])
+        denominator = maxs[i] - mins[i]
+        if denominator != 0
+            # If the denominator is not zero, normalize
+            x_raw[i, :] = (data[i, :] .- mins[i]) ./ denominator
+        else
+            # Otherwise, the feature is zeroed because it contains no useful information
+            x_raw[i, :] = zeros(length(x_raw[i, :]))
+        end
+    end
+    return x_raw
+end # linear_normalization(data::RealMatrix ; config::DataConfig=DataConfig())
+
+"""
+    linear_normalization(data::RealVector ; config::DataConfig=DataConfig())
+
+Normalize the data to the range [0, 1] along each feature.
+"""
+function linear_normalization(data::RealVector ; config::DataConfig=DataConfig())
+    # Vector normalization requires a setup DataConfig
+    if !config.setup
+        error("Attempting to complement code a vector without a setup DataConfig")
+    end
+
+    # Populate a new array with normalized values.
+    x_raw = zeros(config.dim)
+
+    # Iterate over each dimension
+    for i = 1:config.dim
+        denominator = config.maxs[i] - config.mins[i]
+        if denominator != 0
+            # If the denominator is not zero, normalize
+            x_raw[i] = (data[i] .- config.mins[i]) ./ denominator
+        else
+            # Otherwise, the feature is zeroed because it contains no useful information
+            x_raw[i] = zero(Int)
         end
     end
     return x_raw
@@ -324,3 +362,36 @@ function get_sample(x::RealArray, i::Int)
     end
     return sample
 end # get_sample(x::RealArray, i::Int)
+
+function init_train!(x::RealVector, art::ART, preprocessed::Bool)
+    # If the data is not preprocessed
+    if !preprocessed
+        # If the data config is not setup, not enough information to preprocess
+        if !art.config.setup
+            error("$(typeof(art)): cannot preprocess data before being setup.")
+        end
+        x = complement_code(x, config=art.config)
+    # If it is preprocessed and we are not setup
+    elseif !art.config.setup
+        # Get the dimension of the vector
+        dim_comp = length(x)
+        # If the complemented dimension is not even, error
+        if !iseven(dim_comp)
+            error("Declare that the vector is preprocessed, but it is not even")
+        end
+        # Half the complemented dimension and setup the DataConfig with that
+        dim = Int(dim_comp/2)
+        art.config = DataConfig(0, 1, dim)
+    end
+    return x
+end
+
+function init_train!(x::RealMatrix, art::ART, preprocessed::Bool)
+    # If the data is not preprocessed, then complement code it
+    if !preprocessed
+        # Set up the data config if training for the first time
+        !art.config.setup && data_setup!(art.config, x)
+        x = complement_code(x, config=art.config)
+    end
+    return x
+end

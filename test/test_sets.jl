@@ -99,6 +99,7 @@ end # @testset "Train Test"
     @info "--------- KWARGS TEST ---------"
 
     arts = [
+        GNFA,
         DVFA,
         DDVFA,
         SFAM,

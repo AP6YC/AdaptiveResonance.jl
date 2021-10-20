@@ -136,8 +136,9 @@ end # GNFA(opts::opts_GNFA)
 
 Create and initialize a GNFA with a single sample in one step.
 """
-function GNFA(opts::opts_GNFA, sample::RealVector)
+function GNFA(opts::opts_GNFA, sample::RealVector ; preprocessed::Bool=false)
     art = GNFA(opts)
+    init_train!(sample, art, preprocessed)
     initialize!(art, sample)
     return art
 end # GNFA(opts::opts_GNFA, sample::RealVector)
@@ -158,16 +159,16 @@ julia> initialize!(my_GNFA, [1 2 3 4])
 """
 function initialize!(art::GNFA, x::Vector{T} ; y::Integer=0) where {T<:RealFP}
     # Set up the data config
-    if art.config.setup
-        @warn "Data configuration already set up, overwriting config"
-    else
-        art.config.setup = true
-    end
+    # if art.config.setup
+    #     @warn "Data configuration already set up, overwriting config"
+    # else
+    #     art.config.setup = true
+    # end
 
-    # IMPORTANT: Assuming that x is a sample, so each entry is a feature
-    dim = length(x)
-    art.config.dim_comp = dim
-    art.config.dim = Int(dim/2) # Assumes input is already complement coded
+    # # IMPORTANT: Assuming that x is a sample, so each entry is a feature
+    # dim = length(x)
+    # art.config.dim_comp = dim
+    # art.config.dim = Int(dim/2) # Assumes input is already complement coded
 
     # Initialize the instance and categories counters
     art.n_instance = [1]
@@ -179,12 +180,85 @@ function initialize!(art::GNFA, x::Vector{T} ; y::Integer=0) where {T<:RealFP}
     art.W = Array{T}(undef, art.config.dim_comp, 1)
     # Assign the contents, valid this way for 1-D or 2-D arrays
     art.W[:, 1] = x
-    label = y == 0 ? y : 1
+    label = iszero(y) ? y : 1
     push!(art.labels, label)
 end # initialize!(art::GNFA, x::Vector{T} ; y::Integer=0) where {T<:RealFP}
 
+function train!(art::GNFA, x::RealVector ; y::Integer = 0, preprocessed::Bool=false)
+    # Flag for if training in supervised mode
+    supervised = !iszero(y)
+
+    # # If the data is not preprocessed
+    # if !preprocessed
+    #     # If the data config is not setup, not enough information to preprocess
+    #     if !art.config.setup
+    #         error("$(typeof(art)): cannot preprocess data before being setup.")
+    #     else
+    #         x = complement_code(x, config=art.config)
+    #     end
+    # end
+
+    # Run the sequential initialization procedure
+    x = init_train!(x, art, preprocessed)
+    @info art.config
+    # # Set up the data config if training for the first time
+    # !art.config.setup && data_setup!(art.config, x)
+
+    # # If the data is not preprocessed, then complement code it
+    # if !preprocessed
+    #     x = complement_code(x, config=art.config)
+    # end
+
+    # Initialization if weights are empty; fast commit the first sample
+    if isempty(art.W)
+        label = supervised ? y : 1
+        # label = !isempty(y) ? y : 1
+        push!(art.labels, label)
+        initialize!(art, x)
+        return
+    end
+
+    # Compute activation/match functions
+    activation_match!(art, x)
+    # Sort activation function values in descending order
+    index = sortperm(art.T, rev=true)
+    # Initialize mismatch as true
+    mismatch_flag = true
+    # Loop over all categories
+    for j = 1:art.n_categories
+        # Best matching unit
+        bmu = index[j]
+        # Vigilance check - pass
+        if art.M[bmu] >= art.threshold
+            # Learn the sample
+            learn!(art, x, bmu)
+            # Update sample labels
+            label = supervised ? y : bmu
+            push!(art.labels, label)
+            # No mismatch
+            mismatch_flag = false
+            break
+        end
+    end
+    # If there was no resonant category, make a new one
+    if mismatch_flag
+        # Increment the number of categories
+        art.n_categories += 1
+        # Fast commit
+        # art.W = [art.W x[:, i]]
+        art.W = hcat(art.W, x)
+        # Increment number of samples associated with new category
+        push!(art.n_instance, 1)
+        # Update sample labels
+        label = supervised ? y : art.n_categories
+        push!(art.labels, label)
+    end
+
+    return
+end
+
 """
-    train!(art::GNFA, x::RealArray ; y::IntegerVector = Vector{Int}())
+    train!(art::GNFA, x::RealMatrix ; y::IntegerVector = Vector{Int}())
 
 Trains a GNFA learner with dataset 'x' and optional labels 'y'
 
@@ -198,18 +272,32 @@ julia> x = load_data()
 julia> train!(my_GNFA, x)
 ```
 """
-function train!(art::GNFA, x::RealArray ; y::IntegerVector = Vector{Int}())
+function train!(art::GNFA, x::RealMatrix ; y::IntegerVector = Vector{Int}(), preprocessed::Bool=false)
     # Flag for if training in supervised mode
     supervised = !isempty(y)
-    # Initialization if weights are empty; fast commit the first sample
-    if isempty(art.W)
-        label = supervised ? y[1] : 1
-        push!(art.labels, label)
-        initialize!(art, x[:, 1])
-        skip_first = true
-    else
-        skip_first = false
-    end
+    # # Initialization if weights are empty; fast commit the first sample
+    # if isempty(art.W)
+    #     label = supervised ? y[1] : 1
+    #     push!(art.labels, label)
+    #     initialize!(art, x[:, 1])
+    #     skip_first = true
+    # else
+    #     skip_first = false
+    # end
+
+    # Set up the data config if training for the first time
+    # !art.config.setup && data_setup!(art.config, x)
+
+    # Complement code the data according to the data configuration
+    # x = complement_code(x, config=art.config)
+
+    # # If the data is not preprocessed, then complement code it
+    # if !preprocessed
+    #     # Set up the data config if training for the first time
+    #     !art.config.setup && data_setup!(art.config, x)
+    #     x = complement_code(x, config=art.config)
+    # end
+    x = init_train!(x, art, preprocessed)
 
     # Learning
     art.epoch = 0
@@ -222,53 +310,21 @@ function train!(art::GNFA, x::RealArray ; y::IntegerVector = Vector{Int}())
             # Update the iterator if necessary
             update_iter(art, iter, i)
             # Skip the first sample if we just initialized
-            (i == 1 && skip_first) && continue
+            # (i == 1 && skip_first) && continue
             # Grab the sample slice
             sample = get_sample(x, i)
-            # Compute activation/match functions
-            activation_match!(art, sample)
-            # Sort activation function values in descending order
-            index = sortperm(art.T, rev=true)
-            # Initialize mismatch as true
-            mismatch_flag = true
-            # Loop over all categories
-            for j = 1:art.n_categories
-                # Best matching unit
-                bmu = index[j]
-                # Vigilance check - pass
-                if art.M[bmu] >= art.threshold
-                    # Learn the sample
-                    learn!(art, sample, bmu)
-                    # Update sample labels
-                    label = supervised ? y[i] : bmu
-                    push!(art.labels, label)
-                    # No mismatch
-                    mismatch_flag = false
-                    break
-                end
-            end
-            # If there was no resonant category, make a new one
-            if mismatch_flag
-                # Increment the number of categories
-                art.n_categories += 1
-                # Fast commit
-                # art.W = [art.W x[:, i]]
-                art.W = hcat(art.W, sample)
-                # Increment number of samples associated with new category
-                push!(art.n_instance, 1)
-                # Update sample labels
-                label = supervised ? y[i] : art.n_categories
-                push!(art.labels, label)
-            end
+            # Train on the sample
+            local_y = supervised ? y[i] : 0
+            train!(art, sample, y=local_y, preprocessed=true)
         end
         # Make sure to start at first sample from now on
-        skip_first = false
+        # skip_first = false
         # Check for the stopping condition for the whole loop
         if stopping_conditions(art)
             break
         end
     end
-end # train!(art::GNFA, x::RealArray ; y::IntegerVector = Vector{Int}())
+end # train!(art::GNFA, x::RealMatrix ; y::IntegerVector = Vector{Int}())
 
 """
     classify(art::GNFA, x::RealArray)

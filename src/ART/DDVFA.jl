@@ -238,7 +238,7 @@ function train!(art::DDVFA, x::RealArray ; y::IntegerVector = Vector{Int}(), pre
                         break
                     end
                     # Update the weights with the sample
-                    train!(art.F2[bmu], sample)
+                    train!(art.F2[bmu], sample, preprocessed=true)
                     # Save the output label for the sample
                     label = art.labels[bmu]
                     if n_samples == 1
@@ -296,8 +296,8 @@ function create_category(art::DDVFA, sample::RealVector, label::Integer)
     # Global Fuzzy ART
     art.n_categories += 1
     push!(art.labels, label)
-    # Local Fuzzy ART
-    push!(art.F2, GNFA(art.subopts, sample))
+    # Local Gamma-Normalized Fuzzy ART
+    push!(art.F2, GNFA(art.subopts, sample, preprocessed=true))
 end # function create_category(art::DDVFA, sample::RealVector, label::Integer)
 
 """

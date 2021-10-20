@@ -117,8 +117,9 @@ end # @testset "DDVFA"
 
     # GNFA train and test
     my_gnfa = GNFA()
-    local_complement_code = AdaptiveResonance.complement_code(data.train_x)
-    train!(my_gnfa, local_complement_code)
+    # local_complement_code = AdaptiveResonance.complement_code(data.train_x)
+    # train!(my_gnfa, local_complement_code, preprocessed=true)
+    train!(my_gnfa, data.train_x)
 
     # Similarity methods
     methods = [
@@ -134,7 +135,10 @@ end # @testset "DDVFA"
     field_names = ["T", "M"]
 
     # Compute a local sample for GNFA similarity method testing
-    local_sample = local_complement_code[:, 1]
+    # local_sample = local_complement_code[:, 1]
+    # local_complement_code = AdaptiveResonance.complement_code(data.train_x)
+    # local_sample = data.train_x[:, 1]
+    local_sample = AdaptiveResonance.complement_code(data.train_x[:, 1], config=my_gnfa.config)
 
     # Compute the local activation and match
     AdaptiveResonance.activation_match!(my_gnfa, local_sample)
