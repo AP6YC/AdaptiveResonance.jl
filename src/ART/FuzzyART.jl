@@ -134,15 +134,15 @@ function FuzzyART(opts::opts_FuzzyART)
 end # FuzzyART(opts::opts_FuzzyART)
 
 """
-    FuzzyART(opts::opts_FuzzyART, sample::RealArray)
+    FuzzyART(opts::opts_FuzzyART, sample::RealVector)
 
 Create and initialize a FuzzyART with a single sample in one step.
 """
-function FuzzyART(opts::opts_FuzzyART, sample::RealArray)
+function FuzzyART(opts::opts_FuzzyART, sample::RealVector)
     art = FuzzyART(opts)
     initialize!(art, sample)
     return art
-end # FuzzyART(opts::opts_FuzzyART, sample::RealArray)
+end # FuzzyART(opts::opts_FuzzyART, sample::RealVector)
 
 """
     initialize!(art::FuzzyART, x::Vector{T} ; y::Integer=0) where {T<:RealFP}

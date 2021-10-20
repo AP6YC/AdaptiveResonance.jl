@@ -134,15 +134,15 @@ function GNFA(opts::opts_GNFA)
 end # GNFA(opts::opts_GNFA)
 
 """
-    GNFA(opts::opts_GNFA, sample::RealArray)
+    GNFA(opts::opts_GNFA, sample::RealVector)
 
 Create and initialize a GNFA with a single sample in one step.
 """
-function GNFA(opts::opts_GNFA, sample::RealArray)
+function GNFA(opts::opts_GNFA, sample::RealVector)
     art = GNFA(opts)
     initialize!(art, sample)
     return art
-end # GNFA(opts::opts_GNFA, sample::RealArray)
+end # GNFA(opts::opts_GNFA, sample::RealVector)
 
 """
     initialize!(art::GNFA, x::Vector{T} ; y::Integer=0) where {T<:RealFP}
