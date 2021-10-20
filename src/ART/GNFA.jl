@@ -158,18 +158,6 @@ julia> initialize!(my_GNFA, [1 2 3 4])
 ```
 """
 function initialize!(art::GNFA, x::Vector{T} ; y::Integer=0) where {T<:RealFP}
-    # Set up the data config
-    # if art.config.setup
-    #     @warn "Data configuration already set up, overwriting config"
-    # else
-    #     art.config.setup = true
-    # end
-
-    # # IMPORTANT: Assuming that x is a sample, so each entry is a feature
-    # dim = length(x)
-    # art.config.dim_comp = dim
-    # art.config.dim = Int(dim/2) # Assumes input is already complement coded
-
     # Initialize the instance and categories counters
     art.n_instance = [1]
     art.n_categories = 1
@@ -184,35 +172,19 @@ function initialize!(art::GNFA, x::Vector{T} ; y::Integer=0) where {T<:RealFP}
     push!(art.labels, label)
 end # initialize!(art::GNFA, x::Vector{T} ; y::Integer=0) where {T<:RealFP}
 
+"""
+    train!(art::GNFA, x::RealVector ; y::Integer = 0, preprocessed::Bool=false)
+"""
 function train!(art::GNFA, x::RealVector ; y::Integer = 0, preprocessed::Bool=false)
     # Flag for if training in supervised mode
     supervised = !iszero(y)
 
-    # # If the data is not preprocessed
-    # if !preprocessed
-    #     # If the data config is not setup, not enough information to preprocess
-    #     if !art.config.setup
-    #         error("$(typeof(art)): cannot preprocess data before being setup.")
-    #     else
-    #         x = complement_code(x, config=art.config)
-    #     end
-    # end
-
     # Run the sequential initialization procedure
     x = init_train!(x, art, preprocessed)
-    @info art.config
-    # # Set up the data config if training for the first time
-    # !art.config.setup && data_setup!(art.config, x)
-
-    # # If the data is not preprocessed, then complement code it
-    # if !preprocessed
-    #     x = complement_code(x, config=art.config)
-    # end
 
     # Initialization if weights are empty; fast commit the first sample
     if isempty(art.W)
         label = supervised ? y : 1
-        # label = !isempty(y) ? y : 1
         push!(art.labels, label)
         initialize!(art, x)
         return
@@ -245,7 +217,6 @@ function train!(art::GNFA, x::RealVector ; y::Integer = 0, preprocessed::Bool=fa
         # Increment the number of categories
         art.n_categories += 1
         # Fast commit
-        # art.W = [art.W x[:, i]]
         art.W = hcat(art.W, x)
         # Increment number of samples associated with new category
         push!(art.n_instance, 1)
@@ -255,7 +226,7 @@ function train!(art::GNFA, x::RealVector ; y::Integer = 0, preprocessed::Bool=fa
     end
 
     return
-end
+end # train!(art::GNFA, x::RealVector ; y::Integer = 0, preprocessed::Bool=false)
 
 """
     train!(art::GNFA, x::RealMatrix ; y::IntegerVector = Vector{Int}())
@@ -275,28 +246,8 @@ julia> train!(my_GNFA, x)
 function train!(art::GNFA, x::RealMatrix ; y::IntegerVector = Vector{Int}(), preprocessed::Bool=false)
     # Flag for if training in supervised mode
     supervised = !isempty(y)
-    # # Initialization if weights are empty; fast commit the first sample
-    # if isempty(art.W)
-    #     label = supervised ? y[1] : 1
-    #     push!(art.labels, label)
-    #     initialize!(art, x[:, 1])
-    #     skip_first = true
-    # else
-    #     skip_first = false
-    # end
 
-    # Set up the data config if training for the first time
-    # !art.config.setup && data_setup!(art.config, x)
-
-    # Complement code the data according to the data configuration
-    # x = complement_code(x, config=art.config)
-
-    # # If the data is not preprocessed, then complement code it
-    # if !preprocessed
-    #     # Set up the data config if training for the first time
-    #     !art.config.setup && data_setup!(art.config, x)
-    #     x = complement_code(x, config=art.config)
-    # end
+    # Run the batch initialization procedure
     x = init_train!(x, art, preprocessed)
 
     # Learning
@@ -309,16 +260,12 @@ function train!(art::GNFA, x::RealMatrix ; y::IntegerVector = Vector{Int}(), pre
         for i = iter
             # Update the iterator if necessary
             update_iter(art, iter, i)
-            # Skip the first sample if we just initialized
-            # (i == 1 && skip_first) && continue
             # Grab the sample slice
             sample = get_sample(x, i)
             # Train on the sample
             local_y = supervised ? y[i] : 0
             train!(art, sample, y=local_y, preprocessed=true)
         end
-        # Make sure to start at first sample from now on
-        # skip_first = false
         # Check for the stopping condition for the whole loop
         if stopping_conditions(art)
             break
