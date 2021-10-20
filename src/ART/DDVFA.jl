@@ -62,8 +62,6 @@ mutable struct DDVFA <: ART
     threshold::Float
     F2::Vector{GNFA}
     labels::IntegerVector
-    W::RealMatrix        # All F2 nodes' weight vectors
-    W_old::RealMatrix    # Old F2 node weight vectors (for stopping criterion)
     n_categories::Int
     epoch::Int
     T::Float
@@ -134,8 +132,6 @@ function DDVFA(opts::opts_DDVFA)
           0.0,
           Array{GNFA}(undef, 0),
           Array{Int}(undef, 0),
-          Array{Float}(undef, 0, 0),
-          Array{Float}(undef, 0, 0),
           0,
           0,
           0.0,
@@ -190,9 +186,6 @@ function train!(art::DDVFA, x::RealArray ; y::IntegerVector = Vector{Int}(), pre
     else
         skip_first = false
     end
-
-    # Initialize old weight vector for checking stopping conditions between epochs
-    art.W_old = deepcopy(art.W)
 
     # Set the learning threshold as a function of the data dimension
     art.threshold = art.opts.rho*(art.config.dim^art.opts.gamma_ref)
@@ -272,20 +265,26 @@ function train!(art::DDVFA, x::RealArray ; y::IntegerVector = Vector{Int}(), pre
                 create_category(art, sample, label)
             end
         end
+
         # Make sure to start at first sample from now on
         skip_first = false
-        # Deep copy all of the weights for stopping condition check
-        art.W = art.F2[1].W
-        for kx = 2:art.n_categories
-            art.W = [art.W art.F2[kx].W]
-        end
+
+        # Check stopping conditions
         if stopping_conditions(art)
             break
         end
-        art.W_old = deepcopy(art.W)
     end
     return y_hat
 end # train!(art::DDVFA, x::RealArray ; y::IntegerVector = Vector{Int}(), preprocessed::Bool=false)
+
+function get_W(art::DDVFA)
+    # Deep copy all of the weights for stopping condition check
+    # art.W = art.F2[1].W
+    # for kx = 2:art.n_categories
+    #     art.W = [art.W art.F2[kx].W]
+    # end
+    return [art.F2[kx].W for kx = 1:art.n_categories]
+end
 
 """
     create_category(art::DDVFA, sample::RealVector, label::Integer)
@@ -309,7 +308,7 @@ Returns true if there is no change in weights during the epoch or the maxmimum e
 """
 function stopping_conditions(art::DDVFA)
     # Compute the stopping condition, return a bool
-    return art.W == art.W_old || art.epoch >= art.opts.max_epoch
+    return art.epoch >= art.opts.max_epoch
 end # stopping_conditions(DDVFA)
 
 """

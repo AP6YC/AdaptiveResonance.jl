@@ -98,18 +98,18 @@ end
     # Create the ART module, train, and classify
     @info " ------- DDVFA Testing: Default Training -------"
     default_opts = opts_DDVFA()
-    default_art = tt_ddvfa(default_opts, train_x)
+    default_ddvfa = tt_ddvfa(default_opts, train_x)
     @info "DDVFA Testing: Default Complete"
 
     # Create the ART module, train, and classify with no display
     @info "------- DDVFA Testing: No Display Training -------"
     no_disp_opts = opts_DDVFA()
     no_disp_opts.display = false
-    no_disp_art = tt_ddvfa(no_disp_opts, train_x)
+    no_disp_ddvfa = tt_ddvfa(no_disp_opts, train_x)
     @info "DDVFA Testing: No Display Complete"
 
     # Test that the resulting weights are equivalent
-    @test default_art.W == no_disp_art.W
+    @test get_W(default_ddvfa) == get_W(no_disp_ddvfa)
 end # @testset "DDVFA"
 
 @testset "GNFA" begin

@@ -48,7 +48,7 @@ export
     # ART (unsupervised)
     FuzzyART, opts_FuzzyART,
     GNFA, opts_GNFA,
-    DDVFA, opts_DDVFA,
+    DDVFA, opts_DDVFA, get_W,
     DVFA, opts_DVFA,
 
     # ARTMAP (supervised)
