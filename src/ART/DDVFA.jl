@@ -277,14 +277,15 @@ function train!(art::DDVFA, x::RealArray ; y::IntegerVector = Vector{Int}(), pre
     return y_hat
 end # train!(art::DDVFA, x::RealArray ; y::IntegerVector = Vector{Int}(), preprocessed::Bool=false)
 
+"""
+    get_W(art::DDVFA)
+
+Return a concatednated array of all DDVFA weights.
+"""
 function get_W(art::DDVFA)
-    # Deep copy all of the weights for stopping condition check
-    # art.W = art.F2[1].W
-    # for kx = 2:art.n_categories
-    #     art.W = [art.W art.F2[kx].W]
-    # end
+    # Return a concatenated array of the weights
     return [art.F2[kx].W for kx = 1:art.n_categories]
-end
+end # get_W(art::DDVFA)
 
 """
     create_category(art::DDVFA, sample::RealVector, label::Integer)

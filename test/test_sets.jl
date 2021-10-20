@@ -93,7 +93,7 @@ end # @testset "AdaptiveResonance.jl"
     end
 
     @info "--------- END TRAIN TEST ---------"
-end
+end # @testset "Train Test"
 
 @testset "kwargs" begin
     @info "--------- KWARGS TEST ---------"
@@ -110,7 +110,7 @@ end
     end
 
     @info "--------- END KWARGS TEST ---------"
-end
+end # @testset "kwargs"
 
 @testset "DVFA.jl" begin
     @info "------- DVFA Unsupervised -------"
@@ -143,7 +143,7 @@ end
     @info "DVFA Training Perf: $perf_train"
     @info "DVFA Testing Perf: $perf_test"
     @info "DVFA Testing BMU Perf: $perf_test_bmu"
-end
+end # @testset "DVFA.jl"
 
 @testset "DDVFA.jl" begin
     # DDVFA training and testing

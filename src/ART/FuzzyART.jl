@@ -63,7 +63,6 @@ mutable struct FuzzyART <: ART
 
     # "Private" working variables
     W::RealMatrix
-    W_old::RealMatrix
     n_instance::IntegerVector
     n_categories::Int
     epoch::Int
@@ -126,7 +125,6 @@ function FuzzyART(opts::opts_FuzzyART)
         Array{Float}(undef, 0),         # T
         Array{Float}(undef, 0),         # M
         Array{Float}(undef, 0, 0),      # W
-        Array{Float}(undef, 0, 0),      # W_old
         Array{Int}(undef, 0),           # n_instance
         0,                              # n_categories
         0                               # epoch
@@ -214,8 +212,6 @@ function train!(art::FuzzyART, x::RealArray ; y::IntegerVector = Vector{Int}())
         skip_first = false
     end
 
-    art.W_old = deepcopy(art.W)
-
     # Learning
     art.epoch = 0
     while true
@@ -272,8 +268,6 @@ function train!(art::FuzzyART, x::RealArray ; y::IntegerVector = Vector{Int}())
         if stopping_conditions(art)
             break
         end
-        # If we didn't break, deep copy the old weights
-        art.W_old = deepcopy(art.W)
     end
 end # train!(art::FuzzyART, x::RealArray ; y::IntegerVector = Vector{Int}())
 
@@ -383,5 +377,5 @@ end # learn!(art::FuzzyART, x::RealVector, index::Integer)
 Stopping conditions for a FuzzyART module.
 """
 function stopping_conditions(art::FuzzyART)
-    return isequal(art.W, art.W_old) || art.epoch >= art.opts.max_epochs
+    return art.epoch >= art.opts.max_epochs
 end # stopping_conditions(art::FuzzyART)
