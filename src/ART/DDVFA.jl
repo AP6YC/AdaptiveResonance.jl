@@ -5,6 +5,10 @@ Description:
     Includes all of the structures and logic for running a Distributed Dual-Vigilance Fuzzy ART (DDVFA) module.
 """
 
+# --------------------------------------------------------------------------- #
+# OPTIONS
+# --------------------------------------------------------------------------- #
+
 """
     opts_DDVFA()
 
@@ -18,7 +22,7 @@ julia> my_opts = opts_DDVFA()
 @with_kw mutable struct opts_DDVFA <: ARTOpts @deftype Float
     # Lower-bound vigilance parameter: [0, 1]
     rho_lb = 0.80; @assert rho_lb >= 0.0 && rho_lb <= 1.0
-    rho = rho_lb
+    # rho = rho_lb
     # Upper bound vigilance parameter: [0, 1]
     rho_ub = 0.85; @assert rho_ub >= 0.0 && rho_ub <= 1.0
     # Choice parameter: alpha > 0
@@ -37,6 +41,10 @@ julia> my_opts = opts_DDVFA()
     # Maximum number of epochs during training
     max_epoch::Int = 1
 end # opts_DDVFA
+
+# --------------------------------------------------------------------------- #
+# STRUCTS
+# --------------------------------------------------------------------------- #
 
 """
     DDVFA <: ART
@@ -68,6 +76,10 @@ mutable struct DDVFA <: ART
     M::Float
 end # DDVFA <: ART
 
+# --------------------------------------------------------------------------- #
+# CONSTRUCTORS
+# --------------------------------------------------------------------------- #
+
 """
     DDVFA()
 
@@ -94,7 +106,7 @@ Implements a DDVFA learner with keyword arguments.
 
 # Examples
 ```julia-repl
-julia> DDVFA(rho=0.7)
+julia> DDVFA(rho_lb=0.4, rho_ub = 0.75)
 DDVFA
     opts: opts_DDVFA
     subopts: opts_GNFA
@@ -138,6 +150,10 @@ function DDVFA(opts::opts_DDVFA)
           0.0
     )
 end # DDVFA(opts::opts_DDVFA)
+
+# --------------------------------------------------------------------------- #
+# ALGORITHMIC METHODS
+# --------------------------------------------------------------------------- #
 
 """
     train!(art::DDVFA, x::RealArray ; y::IntegerVector=Vector{Int}(), preprocessed::Bool=false)
@@ -188,7 +204,7 @@ function train!(art::DDVFA, x::RealArray ; y::IntegerVector = Vector{Int}(), pre
     end
 
     # Set the learning threshold as a function of the data dimension
-    art.threshold = art.opts.rho*(art.config.dim^art.opts.gamma_ref)
+    art.threshold = art.opts.rho_lb*(art.config.dim^art.opts.gamma_ref)
 
     # Learn until the stopping conditions
     art.epoch = 0
@@ -276,16 +292,6 @@ function train!(art::DDVFA, x::RealArray ; y::IntegerVector = Vector{Int}(), pre
     end
     return y_hat
 end # train!(art::DDVFA, x::RealArray ; y::IntegerVector = Vector{Int}(), preprocessed::Bool=false)
-
-"""
-    get_W(art::DDVFA)
-
-Return a concatednated array of all DDVFA weights.
-"""
-function get_W(art::DDVFA)
-    # Return a concatenated array of the weights
-    return [art.F2[kx].W for kx = 1:art.n_categories]
-end # get_W(art::DDVFA)
 
 """
     create_category(art::DDVFA, sample::RealVector, label::Integer)
@@ -480,3 +486,36 @@ function classify(art::DDVFA, x::RealArray ; preprocessed::Bool=false, get_bmu::
 
     return y_hat
 end # classify(art::DDVFA, x::RealArray ; preprocessed::Bool=false, get_bmu::Bool=false)
+
+# --------------------------------------------------------------------------- #
+# CONVENIENCE METHODS
+# --------------------------------------------------------------------------- #
+
+"""
+    get_W(art::DDVFA)
+
+Convenience functio; return a concatenated array of all DDVFA weights.
+"""
+function get_W(art::DDVFA)
+    # Return a concatenated array of the weights
+    return [art.F2[kx].W for kx = 1:art.n_categories]
+end # get_W(art::DDVFA)
+
+"""
+    get_n_weights_vec(art::DDVFA)
+
+Convenience function; return the number of weights in each category as a vector.
+"""
+function get_n_weights_vec(art::DDVFA)
+    return [art.F2[i].n_categories for i = 1:art.n_categories]
+end # get_n_weights_vec(art::DDVFA)
+
+"""
+    get_n_weights(art::DDVFA)
+
+Convenience function; return the sum total number of weights in the DDVFA module.
+"""
+function get_n_weights(art::DDVFA)
+    # Return the number of weights across all categories
+    return sum(get_n_weights_vec(art))
+end # get_n_weights(art::DDVFA)

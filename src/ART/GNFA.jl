@@ -25,12 +25,8 @@ Initialized GNFA
     beta = 1.0; @assert beta > 0.0 && beta <= 1.0
     # "Pseudo" kernel width: gamma >= 1
     gamma = 3.0; @assert gamma >= 1.0
-    # gamma = 784; @assert gamma >= 1
     # "Reference" gamma for normalization: 0 <= gamma_ref < gamma
     gamma_ref = 1.0; @assert 0.0 <= gamma_ref && gamma_ref <= gamma
-    # Similarity method (activation and match):
-    #   'single', 'average', 'complete', 'median', 'weighted', or 'centroid'
-    method::String = "single"
     # Display flag
     display::Bool = true
     # Maximum number of epochs during training
@@ -213,9 +209,6 @@ function train!(art::GNFA, x::RealVector ; y::Integer = 0, preprocessed::Bool=fa
             end
             # Learn the sample
             learn!(art, x, bmu)
-            # Update sample labels
-            # label = supervised ? y : bmu
-            # push!(art.labels, label)
             # No mismatch
             mismatch_flag = false
             break
