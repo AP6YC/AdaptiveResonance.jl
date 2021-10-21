@@ -35,6 +35,8 @@ Initialized GNFA
     display::Bool = true
     # Maximum number of epochs during training
     max_epochs::Int = 1
+    # Normalize the threshold by the feature dimension
+    threshold_normalization::Bool = true
 end # opts_GNFA
 
 # --------------------------------------------------------------------------- #
@@ -155,6 +157,14 @@ end # GNFA(opts::opts_GNFA, sample::RealVector)
 # ALGORITHMIC METHODS
 # --------------------------------------------------------------------------- #
 
+function set_threshold!(art::GNFA)
+    if art.opts.threshold_normalization
+        art.threshold = art.opts.rho*(art.config.dim^art.opts.gamma_ref)
+    else
+        art.threshold = art.opts.rho
+    end
+end # set_threshold!(art::GNFA)
+
 """
     initialize!(art::GNFA, x::Vector{T} ; y::Integer=0) where {T<:RealFP}
 
@@ -175,7 +185,10 @@ function initialize!(art::GNFA, x::Vector{T} ; y::Integer=0) where {T<:RealFP}
     art.n_categories = 1
 
     # Set the threshold
-    art.threshold = art.opts.rho * (art.config.dim^art.opts.gamma_ref)
+    # art.threshold = art.opts.rho * (art.config.dim^art.opts.gamma_ref)
+    # art.threshold = art.opts.rho
+    set_threshold!(art)
+
     # Fast commit the weight
     art.W = Array{T}(undef, art.config.dim_comp, 1)
     # Assign the contents, valid this way for 1-D or 2-D arrays
@@ -399,8 +412,11 @@ function activation_match!(art::GNFA, x::RealVector)
     for i = 1:art.n_categories
         W_norm = norm(art.W[:, i], 1)
         art.T[i] = (norm(element_min(x, art.W[:, i]), 1)/(art.opts.alpha + W_norm))^art.opts.gamma
-        art.M[i] = (W_norm^art.opts.gamma_ref)*art.T[i]
-        # art.M[i] = ((W_norm/norm(x, 1))^art.opts.gamma_ref)*art.T[i]
+        if art.opts.threshold_normalization
+            art.M[i] = (W_norm^art.opts.gamma_ref)*art.T[i]
+        else
+            art.M[i] = ((W_norm/norm(x, 1))^art.opts.gamma_ref)*art.T[i]
+        end
     end
 end # activation_match!(art::GNFA, x::RealVector)
 

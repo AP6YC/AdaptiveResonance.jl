@@ -40,6 +40,8 @@ julia> my_opts = opts_DDVFA()
     display::Bool = true
     # Maximum number of epochs during training
     max_epoch::Int = 1
+    # Normalize the threshold by the feature dimension
+    threshold_normalization::Bool = false
 end # opts_DDVFA
 
 # --------------------------------------------------------------------------- #
@@ -136,6 +138,7 @@ DDVFA
 function DDVFA(opts::opts_DDVFA)
     subopts = opts_GNFA(
         rho=opts.rho_ub,
+        threshold_normalization=opts.threshold_normalization,
         display=false
     )
     DDVFA(opts,
@@ -154,6 +157,14 @@ end # DDVFA(opts::opts_DDVFA)
 # --------------------------------------------------------------------------- #
 # ALGORITHMIC METHODS
 # --------------------------------------------------------------------------- #
+
+function set_threshold!(art::DDVFA)
+    if art.opts.threshold_normalization
+        art.threshold = art.opts.rho_lb*(art.config.dim^art.opts.gamma_ref)
+    else
+        art.threshold = art.opts.rho_lb
+    end
+end # set_threshold!(art::DDVFA)
 
 """
     train!(art::DDVFA, x::RealArray ; y::IntegerVector=Vector{Int}(), preprocessed::Bool=false)
@@ -204,7 +215,9 @@ function train!(art::DDVFA, x::RealArray ; y::IntegerVector = Vector{Int}(), pre
     end
 
     # Set the learning threshold as a function of the data dimension
-    art.threshold = art.opts.rho_lb*(art.config.dim^art.opts.gamma_ref)
+    # art.threshold = art.opts.rho_lb*(art.config.dim^art.opts.gamma_ref)
+    # art.threshold = art.opts.rho_lb
+    set_threshold!(art)
 
     # Learn until the stopping conditions
     art.epoch = 0
