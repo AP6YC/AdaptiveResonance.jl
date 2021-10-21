@@ -9,5 +9,5 @@ data = load_iris("data/Iris.csv")
 # Iterate over several ARTMAP modules
 for art in [SFAM, DAM]
     # Train and classify, returning the performance
-    perf = train_test_artmap(art(), data)
+    perf = train_test_art(art(), data)
 end

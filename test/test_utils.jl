@@ -30,23 +30,6 @@ function DataSplit(data_x::Array, data_y::Array, ratio::Real)
     return DataSplit(train_x, test_x, train_y, test_y)
 end # DataSplit(data_x::Array, data_y::Array, ratio::Real)
 
-# """
-#     train_test_artmap(art::ARTMAP, data::DataSplit)
-
-# Train and test an ARTMAP module in a supervised manner on the dataset.
-# """
-# function train_test_artmap(art::ARTMAP, data::DataSplit)
-#     # Train and classify
-#     train!(art, data.train_x, data.train_y)
-#     y_hat = classify(art, data.test_x)
-
-#     # Calculate performance
-#     perf = performance(y_hat, data.test_y)
-#     @info "Performance is $perf"
-
-#     return perf
-# end # train_test_artmap(art::ARTMAP, data::DataSplit)
-
 """
     train_test_art(art::ARTModule, data::DataSplit; supervised::Bool=false, art_opts...)
 

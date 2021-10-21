@@ -263,7 +263,6 @@ function classify(art::DAM, x::RealMatrix ; preprocessed::Bool=false, get_bmu::B
         for jx in 1:art.n_categories
             # Compute match function
             M = art_match(art, x[:, ix], art.W[:, index[jx]])
-            @debug M
             # Current winner
             if M >= art.opts.rho
                 y_hat[ix] = art.labels[index[jx]]
