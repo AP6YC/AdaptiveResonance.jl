@@ -57,7 +57,9 @@ end # @testset "AdaptiveResonance.jl"
     arts = [
         GNFA,
         DVFA,
-        DDVFA
+        DDVFA,
+        SFAM,
+        DAM,
     ]
     n_arts = length(arts)
 
@@ -75,7 +77,7 @@ end # @testset "AdaptiveResonance.jl"
     ]
     n_test_opts = length(test_opts)
 
-    @info "--------- TRAIN TEST ---------"
+    @info "-------------- BEGIN TRAIN TEST --------------"
     # ART
     perf_baseline = 0.7
 
@@ -84,8 +86,11 @@ end # @testset "AdaptiveResonance.jl"
         # Iterate over all test options
         for jx = 1:n_test_opts
             for kx = 1:n_art_opts
-                # Unsupervised
-                train_test_art(arts[ix](;art_opts[kx]...), data; test_opts=test_opts[jx])
+                # Only do the unsupervised method if we have an ART module (not ARTMAP)
+                if arts[ix] isa ART
+                    # Unsupervised
+                    train_test_art(arts[ix](;art_opts[kx]...), data; test_opts=test_opts[jx])
+                end
 
                 # Supervised
                 @test train_test_art(arts[ix](;art_opts[kx]...), data; supervised=true, test_opts=test_opts[jx]) >= perf_baseline
@@ -93,7 +98,7 @@ end # @testset "AdaptiveResonance.jl"
         end
     end
 
-    @info "--------- END TRAIN TEST ---------"
+    @info "-------------- END TRAIN TEST --------------"
 end # @testset "Train Test"
 
 @testset "kwargs" begin
@@ -114,54 +119,82 @@ end # @testset "Train Test"
     @info "--------- END KWARGS TEST ---------"
 end # @testset "kwargs"
 
-@testset "DVFA.jl" begin
-    @info "------- DVFA Unsupervised -------"
+@testset "GNFA" begin
+    @info "------- GNFA Testing -------"
 
-    # Train and classify
-    art = DVFA()
-    y_hat_train = train!(art, data.train_x)
+    # GNFA train and test
+    my_gnfa = GNFA()
+    # local_complement_code = AdaptiveResonance.complement_code(data.train_x)
+    # train!(my_gnfa, local_complement_code, preprocessed=true)
+    train!(my_gnfa, data.train_x)
 
-    @info "------- DVFA Supervised -------"
+    # Similarity methods
+    methods = [
+        "single",
+        "average",
+        "complete",
+        "median",
+        "weighted",
+        "centroid"
+    ]
 
-    # Train and classify
-    art = DVFA()
-    y_hat_train = train!(art, data.train_x, y=data.train_y)
-    y_hat = classify(art, data.test_x)
-    y_hat_bmu = classify(art, data.test_x, get_bmu=true)
+    # Both field names
+    field_names = ["T", "M"]
 
-    # Calculate performance
-    perf_train = performance(y_hat_train, data.train_y)
-    perf_test = performance(y_hat, data.test_y)
-    perf_test_bmu = performance(y_hat_bmu, data.test_y)
+    # Compute a local sample for GNFA similarity method testing
+    # local_sample = local_complement_code[:, 1]
+    # local_complement_code = AdaptiveResonance.complement_code(data.train_x)
+    # local_sample = data.train_x[:, 1]
+    local_sample = AdaptiveResonance.complement_code(data.train_x[:, 1], config=my_gnfa.config)
 
-    # Test the performances are above a baseline
-    perf_baseline = 0.8
-    @test perf_train >= perf_baseline
-    @test perf_test >= perf_baseline
-    @test perf_test_bmu >= perf_baseline
-    @info art.n_categories
+    # Compute the local activation and match
+    # AdaptiveResonance.activation_match!(my_gnfa, local_sample)
 
-    # Log the results
-    @info "DVFA Training Perf: $perf_train"
-    @info "DVFA Testing Perf: $perf_test"
-    @info "DVFA Testing BMU Perf: $perf_test_bmu"
-end # @testset "DVFA.jl"
+    # # Declare the true activation and match magnitudes
+    # truth = Dict(
+    #     "single" => Dict(
+    #         "T" => 0.9988714513100155,
+    #         "M" => 2.6532834139109758
+    #     ),
+    #     "average" => Dict(
+    #         "T" => 0.33761483787933894,
+    #         "M" => 1.1148764060015297
+    #     ),
+    #     "complete" => Dict(
+    #         "T" => 0.018234409874338647,
+    #         "M" => 0.07293763949735459
+    #     ),
+    #     "median" => Dict(
+    #         "T" => 0.2089217851518073,
+    #         "M" => 0.835687140607229
+    #     ),
+    #     "weighted" => Dict(
+    #         "T" => 0.5374562506748786,
+    #         "M" => 1.4396083090159748
+    #     ),
+    #     "centroid" => Dict(
+    #         "T" => 0.0,
+    #         "M" => 0.0
+    #     )
+    # )
 
-@testset "DDVFA.jl" begin
-    # DDVFA training and testing
-    include("test_ddvfa.jl")
-end # @testset "DDVFA.jl"
+    # # Test every method and field name
+    # for method in methods
+    #     results = Dict()
+    #     for field_name in field_names
+    #         results[field_name] = AdaptiveResonance.similarity(method, my_gnfa, field_name, local_sample, my_gnfa.opts.gamma_ref)
+    #         @test isapprox(truth[method][field_name], results[field_name])
+    #     end
+    #     @info "Method: $method" results
+    # end
 
-@testset "ARTMAP.jl" begin
-    # Declare the baseline performance for all modules
-    perf_baseline = 0.7
+    # Check the error handling of the similarity function
+    # Access the wrong similarity metric keyword ("asdf")
+    @test_throws ErrorException AdaptiveResonance.similarity("asdf", my_gnfa, "T", local_sample, my_gnfa.opts.gamma_ref)
+    # Access the wrong output function ("A")
+    @test_throws ErrorException AdaptiveResonance.similarity("centroid", my_gnfa, "A", local_sample, my_gnfa.opts.gamma_ref)
 
-    # Iterate over each artmap module
-    for art in [SFAM, DAM]
-        perf = train_test_artmap(art(), data)
-        @test perf >= perf_baseline
-    end
-end # @testset "ARTMAP.jl"
+end # @testset "GNFA"
 
 @testset "ARTSCENE.jl" begin
     # ARTSCENE training and testing

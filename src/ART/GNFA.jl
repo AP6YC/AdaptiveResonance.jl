@@ -5,6 +5,10 @@ Description:
     Includes all of the structures and logic for running a Gamma-Normalized Fuzzy ART module.
 """
 
+# --------------------------------------------------------------------------- #
+# OPTIONS
+# --------------------------------------------------------------------------- #
+
 """
     opts_GNFA()
 
@@ -32,6 +36,10 @@ Initialized GNFA
     # Maximum number of epochs during training
     max_epochs::Int = 1
 end # opts_GNFA
+
+# --------------------------------------------------------------------------- #
+# STRUCTS
+# --------------------------------------------------------------------------- #
 
 """
     GNFA <: ART
@@ -63,6 +71,10 @@ mutable struct GNFA <: ART
     n_categories::Int
     epoch::Int
 end # GNFA <: ART
+
+# --------------------------------------------------------------------------- #
+# CONSTRUCTORS
+# --------------------------------------------------------------------------- #
 
 """
     GNFA()
@@ -138,6 +150,10 @@ function GNFA(opts::opts_GNFA, sample::RealVector ; preprocessed::Bool=false)
     initialize!(art, sample)
     return art
 end # GNFA(opts::opts_GNFA, sample::RealVector)
+
+# --------------------------------------------------------------------------- #
+# ALGORITHMIC METHODS
+# --------------------------------------------------------------------------- #
 
 """
     initialize!(art::GNFA, x::Vector{T} ; y::Integer=0) where {T<:RealFP}
@@ -325,9 +341,9 @@ function classify(art::GNFA, x::RealVector ; preprocessed::Bool=false, get_bmu::
 end
 
 """
-    classify(art::GNFA, x::RealArray)
+    classify(art::GNFA, x::RealMatrix ; preprocessed::Bool=false, get_bmu::Bool=false)
 
-Predict categories of 'x' using the GNFA model.
+Batch predict categories of 'x' using the GNFA model.
 
 Returns predicted categories 'y_hat'
 
@@ -342,7 +358,7 @@ julia> train!(my_GNFA, x)
 julia> y_hat = classify(my_GNFA, y)
 ```
 """
-function classify(art::GNFA, x::RealArray ; preprocessed::Bool=false, get_bmu::Bool=false)
+function classify(art::GNFA, x::RealMatrix ; preprocessed::Bool=false, get_bmu::Bool=false)
     # Preprocess the data
     x = init_classify!(x, art, preprocessed)
     # Get the number of samples to classify
@@ -358,7 +374,7 @@ function classify(art::GNFA, x::RealArray ; preprocessed::Bool=false, get_bmu::B
         y_hat[ix] = classify(art, sample, preprocessed=true, get_bmu=get_bmu)
     end
     return y_hat
-end # classify(art::GNFA, x::RealArray)
+end # classify(art::GNFA, x::RealMatrix ; preprocessed::Bool=false, get_bmu::Bool=false)
 
 """
     activation_match!(art::GNFA, x::RealVector)
