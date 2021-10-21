@@ -234,7 +234,7 @@ function train!(art::DDVFA, x::RealArray ; y::IntegerVector = Vector{Int}(), pre
                     art.M = M
                     art.T = T[bmu]
                     # If supervised and the label differs, trigger mismatch
-                    if supervised && art.labels[bmu] != y[i]
+                    if supervised && (art.labels[bmu] != y[i])
                         break
                     end
                     # Update the weights with the sample

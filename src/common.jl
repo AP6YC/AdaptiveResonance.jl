@@ -1,4 +1,3 @@
-
 # -------------------------------------------
 # Document: common.jl
 # Author: Sasha Petrenko <sap625@mst.edu>
@@ -237,6 +236,34 @@ function get_data_characteristics(data::RealArray ; config::DataConfig=DataConfi
 end # get_data_characteristics(data::RealArray ; config::DataConfig=DataConfig())
 
 """
+    linear_normalization(data::RealVector ; config::DataConfig=DataConfig())
+
+Normalize the data to the range [0, 1] along each feature.
+"""
+function linear_normalization(data::RealVector ; config::DataConfig=DataConfig())
+    # Vector normalization requires a setup DataConfig
+    if !config.setup
+        error("Attempting to complement code a vector without a setup DataConfig")
+    end
+
+    # Populate a new array with normalized values.
+    x_raw = zeros(config.dim)
+
+    # Iterate over each dimension
+    for i = 1:config.dim
+        denominator = config.maxs[i] - config.mins[i]
+        if denominator != 0
+            # If the denominator is not zero, normalize
+            x_raw[i] = (data[i] .- config.mins[i]) ./ denominator
+        else
+            # Otherwise, the feature is zeroed because it contains no useful information
+            x_raw[i] = zero(Int)
+        end
+    end
+    return x_raw
+end # linear_normalization(data::RealArray ; config::DataConfig=DataConfig())
+
+"""
     linear_normalization(data::RealMatrix ; config::DataConfig=DataConfig())
 
 Normalize the data to the range [0, 1] along each feature.
@@ -266,34 +293,6 @@ function linear_normalization(data::RealMatrix ; config::DataConfig=DataConfig()
     end
     return x_raw
 end # linear_normalization(data::RealMatrix ; config::DataConfig=DataConfig())
-
-"""
-    linear_normalization(data::RealVector ; config::DataConfig=DataConfig())
-
-Normalize the data to the range [0, 1] along each feature.
-"""
-function linear_normalization(data::RealVector ; config::DataConfig=DataConfig())
-    # Vector normalization requires a setup DataConfig
-    if !config.setup
-        error("Attempting to complement code a vector without a setup DataConfig")
-    end
-
-    # Populate a new array with normalized values.
-    x_raw = zeros(config.dim)
-
-    # Iterate over each dimension
-    for i = 1:config.dim
-        denominator = config.maxs[i] - config.mins[i]
-        if denominator != 0
-            # If the denominator is not zero, normalize
-            x_raw[i] = (data[i] .- config.mins[i]) ./ denominator
-        else
-            # Otherwise, the feature is zeroed because it contains no useful information
-            x_raw[i] = zero(Int)
-        end
-    end
-    return x_raw
-end # linear_normalization(data::RealArray ; config::DataConfig=DataConfig())
 
 """
     complement_code(data::RealArray ; config::DataConfig=DataConfig())
@@ -386,6 +385,9 @@ function init_train!(x::RealVector, art::ART, preprocessed::Bool)
     return x
 end
 
+"""
+    init_train!(x::RealMatrix, art::ART, preprocessed::Bool)
+"""
 function init_train!(x::RealMatrix, art::ART, preprocessed::Bool)
     # If the data is not preprocessed, then complement code it
     if !preprocessed
@@ -394,4 +396,20 @@ function init_train!(x::RealMatrix, art::ART, preprocessed::Bool)
         x = complement_code(x, config=art.config)
     end
     return x
-end
+end # init_train!(x::RealMatrix, art::ART, preprocessed::Bool)
+
+"""
+    init_classify!(x::RealArray, art::ART, preprocessed::Bool)
+"""
+function init_classify!(x::RealArray, art::ART, preprocessed::Bool)
+    # If the data is not preprocessed
+    if !preprocessed
+        # If the data config is not setup, not enough information to preprocess
+        if !art.config.setup
+            error("$(typeof(art)): cannot preprocess data before being setup.")
+        end
+        # Dispatch to the correct complement code method (vector or matrix)
+        x = complement_code(x, config=art.config)
+    end
+    return x
+end # init_classify!(x::RealArray, art::ART, preprocessed::Bool)
