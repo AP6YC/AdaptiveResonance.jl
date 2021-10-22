@@ -28,8 +28,10 @@ These variants are:
 
 ### Gamma-Normalized FuzzyART
 
-A Gamma-Normalized FuzzyART is a FuzzyART module where the kernel width parameter is set to $$\gamma = \gamma_{ref} = 1.0$$ ($$\gamma_{ref}$$ is 1.0 by default):
+A Gamma-Normalized FuzzyART is a FuzzyART module where the gamma normalization option is set on `gamma_normalization=true` and the kernel width parameter is set to $$\gamma >= 1.0$$ ($$\gamma_{ref}$$ is 1.0 by default):
 
 ```julia
-my_gnfa = FuzzyART(gamma=1)
+my_gnfa = FuzzyART(gamma_normalization=true, gamma=5.0)
 ```
+
+The `gamma_normalization` flag must be set high here because it also changes the thresholding value and match function of the module.

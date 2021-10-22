@@ -36,7 +36,7 @@ Initialized FuzzyART
     # Maximum number of epochs during training
     max_epochs::Int = 1
     # Normalize the threshold by the feature dimension
-    threshold_normalization::Bool = true
+    gamma_normalization::Bool = false
 end # opts_FuzzyART
 
 # --------------------------------------------------------------------------- #
@@ -158,7 +158,7 @@ end # FuzzyART(opts::opts_FuzzyART, sample::RealVector)
 # --------------------------------------------------------------------------- #
 
 function set_threshold!(art::FuzzyART)
-    if art.opts.threshold_normalization
+    if art.opts.gamma_normalization
         art.threshold = art.opts.rho*(art.config.dim^art.opts.gamma_ref)
     else
         art.threshold = art.opts.rho
@@ -229,6 +229,7 @@ function train!(art::FuzzyART, x::RealVector ; y::Integer = 0, preprocessed::Boo
         create_category(art, x, y)
         return y
     end
+
     # Loop over all categories
     for j = 1:art.n_categories
         # Best matching unit
@@ -246,6 +247,7 @@ function train!(art::FuzzyART, x::RealVector ; y::Integer = 0, preprocessed::Boo
             break
         end
     end
+
     # If there was no resonant category, make a new one
     if mismatch_flag
         # Get the correct label for the new category
@@ -409,11 +411,12 @@ function activation_match!(art::FuzzyART, x::RealVector)
     art.M = zeros(art.n_categories)
     for i = 1:art.n_categories
         W_norm = norm(art.W[:, i], 1)
-        art.T[i] = (norm(element_min(x, art.W[:, i]), 1)/(art.opts.alpha + W_norm))^art.opts.gamma
-        if art.opts.threshold_normalization
+        numerator = norm(element_min(x, art.W[:, i]), 1)
+        art.T[i] = (numerator/(art.opts.alpha + W_norm))^art.opts.gamma
+        if art.opts.gamma_normalization
             art.M[i] = (W_norm^art.opts.gamma_ref)*art.T[i]
         else
-            art.M[i] = ((W_norm/norm(x, 1))^art.opts.gamma_ref)*art.T[i]
+            art.M[i] = numerator/norm(x, 1)
         end
     end
 end # activation_match!(art::FuzzyART, x::RealVector)

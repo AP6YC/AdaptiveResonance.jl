@@ -72,12 +72,12 @@ end # @testset "AdaptiveResonance.jl"
     # Specific ART options
     art_specifics = Dict(
         DDVFA => [
-            (threshold_normalization=true,),
-            (threshold_normalization=false,),
+            (gamma_normalization=true,),
+            (gamma_normalization=false,),
         ],
         FuzzyART => [
-            (threshold_normalization=true,),
-            (threshold_normalization=false,),
+            (gamma_normalization=true,),
+            (gamma_normalization=false,),
         ],
     )
 

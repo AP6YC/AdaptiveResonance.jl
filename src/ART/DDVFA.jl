@@ -41,7 +41,7 @@ julia> my_opts = opts_DDVFA()
     # Maximum number of epochs during training
     max_epoch::Int = 1
     # Normalize the threshold by the feature dimension
-    threshold_normalization::Bool = false
+    gamma_normalization::Bool = true
 end # opts_DDVFA
 
 # --------------------------------------------------------------------------- #
@@ -136,11 +136,16 @@ DDVFA
 ```
 """
 function DDVFA(opts::opts_DDVFA)
+    # Set the options used for all F2 FuzzyART modules
     subopts = opts_FuzzyART(
         rho=opts.rho_ub,
-        threshold_normalization=opts.threshold_normalization,
+        gamma=opts.gamma,
+        gamma_ref=opts.gamma_ref,
+        gamma_normalization=opts.gamma_normalization,
         display=false
     )
+
+    # Construct the DDVFA module
     DDVFA(opts,
           subopts,
           DataConfig(),
@@ -158,8 +163,13 @@ end # DDVFA(opts::opts_DDVFA)
 # ALGORITHMIC METHODS
 # --------------------------------------------------------------------------- #
 
+"""
+    set_threshold!(art::DDVFA)
+
+Sets the vigilance threshold of the DDVFA module as a function of several flags and hyperparameters.
+"""
 function set_threshold!(art::DDVFA)
-    if art.opts.threshold_normalization
+    if art.opts.gamma_normalization
         art.threshold = art.opts.rho_lb*(art.config.dim^art.opts.gamma_ref)
     else
         art.threshold = art.opts.rho_lb
