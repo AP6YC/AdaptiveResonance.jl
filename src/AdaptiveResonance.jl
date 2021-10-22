@@ -46,7 +46,6 @@ export
     get_n_samples,              # Get the number of samples (1-D interpreted as one sample)
 
     # ART (unsupervised)
-    FuzzyART, opts_FuzzyART,
     GNFA, opts_GNFA,
     DDVFA, opts_DDVFA, get_W,
     DVFA, opts_DVFA,

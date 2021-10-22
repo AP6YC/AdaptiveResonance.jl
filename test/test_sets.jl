@@ -89,7 +89,7 @@ end # @testset "AdaptiveResonance.jl"
     n_test_opts = length(test_opts)
 
     @info "-------------- BEGIN TRAIN TEST --------------"
-    # ART
+    # Performance baseline for all algorithms
     perf_baseline = 0.7
 
     # Iterate over all ART modules
