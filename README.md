@@ -136,9 +136,9 @@ art = DDVFA(opts)
 This project has implementations of the following ART (unsupervised) and ARTMAP (supervised) modules:
 
 - ART
-  - **DDVFA**: Distributed Dual Vigilance Fuzzy ART
+  - **FuzzyART**: Fuzzy ART
   - **DVFA**: Dual Vigilance Fuzzy ART
-  - **GNFA**: Gamma-Normalized Fuzzy ART
+  - **DDVFA**: Distributed Dual Vigilance Fuzzy ART
 - ARTMAP
   - **SFAM**: Simplified Fuzzy ARTMAP
   - **FAM**: Fuzzy ARTMAP

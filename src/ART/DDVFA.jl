@@ -58,19 +58,19 @@ Distributed Dual Vigilance Fuzzy ARTMAP module struct.
 julia> DDVFA()
 DDVFA
     opts: opts_DDVFA
-    subopts::opts_GNFA
+    subopts::opts_FuzzyART
     ...
 ```
 """
 mutable struct DDVFA <: ART
     # Get parameters
     opts::opts_DDVFA
-    subopts::opts_GNFA
+    subopts::opts_FuzzyART
     config::DataConfig
 
     # Working variables
     threshold::Float
-    F2::Vector{GNFA}
+    F2::Vector{FuzzyART}
     labels::IntegerVector
     n_categories::Int
     epoch::Int
@@ -92,7 +92,7 @@ Implements a DDVFA learner with default options.
 julia> DDVFA()
 DDVFA
     opts: opts_DDVFA
-    subopts: opts_GNFA
+    subopts: opts_FuzzyART
     ...
 ```
 """
@@ -111,7 +111,7 @@ Implements a DDVFA learner with keyword arguments.
 julia> DDVFA(rho_lb=0.4, rho_ub = 0.75)
 DDVFA
     opts: opts_DDVFA
-    subopts: opts_GNFA
+    subopts: opts_FuzzyART
     ...
 ```
 """
@@ -131,12 +131,12 @@ julia> my_opts = opts_DDVFA()
 julia> DDVFA(my_opts)
 DDVFA
     opts: opts_DDVFA
-    subopts: opts_GNFA
+    subopts: opts_FuzzyART
     ...
 ```
 """
 function DDVFA(opts::opts_DDVFA)
-    subopts = opts_GNFA(
+    subopts = opts_FuzzyART(
         rho=opts.rho_ub,
         threshold_normalization=opts.threshold_normalization,
         display=false
@@ -145,7 +145,7 @@ function DDVFA(opts::opts_DDVFA)
           subopts,
           DataConfig(),
           0.0,
-          Array{GNFA}(undef, 0),
+          Array{FuzzyART}(undef, 0),
           Array{Int}(undef, 0),
           0,
           0,
@@ -309,14 +309,14 @@ end # train!(art::DDVFA, x::RealArray ; y::IntegerVector = Vector{Int}(), prepro
 """
     create_category(art::DDVFA, sample::RealVector, label::Integer)
 
-Create a new category by appending and initializing a new GNFA node to F2.
+Create a new category by appending and initializing a new FuzzyART node to F2.
 """
 function create_category(art::DDVFA, sample::RealVector, label::Integer)
     # Global Fuzzy ART
     art.n_categories += 1
     push!(art.labels, label)
     # Local Gamma-Normalized Fuzzy ART
-    push!(art.F2, GNFA(art.subopts, sample, preprocessed=true))
+    push!(art.F2, FuzzyART(art.subopts, sample, preprocessed=true))
 end # function create_category(art::DDVFA, sample::RealVector, label::Integer)
 
 """
@@ -332,12 +332,12 @@ function stopping_conditions(art::DDVFA)
 end # stopping_conditions(DDVFA)
 
 """
-    similarity(method::String, F2::GNFA, field_name::String, sample::RealVector, gamma_ref::RealFP)
+    similarity(method::String, F2::FuzzyART, field_name::String, sample::RealVector, gamma_ref::RealFP)
 
 Compute the similarity metric depending on method with explicit comparisons
 for the field name.
 """
-function similarity(method::String, F2::GNFA, field_name::String, sample::RealVector, gamma_ref::RealFP)
+function similarity(method::String, F2::FuzzyART, field_name::String, sample::RealVector, gamma_ref::RealFP)
     @debug "Computing similarity"
 
     if field_name != "T" && field_name != "M"
@@ -393,7 +393,7 @@ function similarity(method::String, F2::GNFA, field_name::String, sample::RealVe
     end
 
     return value
-end # similarity(method::String, F2::GNFA, field_name::String, sample::RealVector, gamma_ref::RealFP)
+end # similarity(method::String, F2::FuzzyART, field_name::String, sample::RealVector, gamma_ref::RealFP)
 
 """
     classify(art::DDVFA, x::RealArray ; preprocessed::Bool=false, get_bmu::Bool=false)

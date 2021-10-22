@@ -1,5 +1,5 @@
 """
-    GNFA.jl
+    FuzzyART.jl
 
 Description:
     Includes all of the structures and logic for running a Gamma-Normalized Fuzzy ART module.
@@ -10,17 +10,17 @@ Description:
 # --------------------------------------------------------------------------- #
 
 """
-    opts_GNFA()
+    opts_FuzzyART()
 
 Gamma-Normalized Fuzzy ART options struct.
 
 # Examples
 ```julia-repl
-julia> opts_GNFA()
-Initialized GNFA
+julia> opts_FuzzyART()
+Initialized FuzzyART
 ```
 """
-@with_kw mutable struct opts_GNFA <: ARTOpts @deftype Float
+@with_kw mutable struct opts_FuzzyART <: ARTOpts @deftype Float
     # Vigilance parameter: [0, 1]
     rho = 0.6; @assert rho >= 0.0 && rho <= 1.0
     # Choice parameter: alpha > 0
@@ -37,28 +37,28 @@ Initialized GNFA
     max_epochs::Int = 1
     # Normalize the threshold by the feature dimension
     threshold_normalization::Bool = true
-end # opts_GNFA
+end # opts_FuzzyART
 
 # --------------------------------------------------------------------------- #
 # STRUCTS
 # --------------------------------------------------------------------------- #
 
 """
-    GNFA <: ART
+    FuzzyART <: ART
 
 Gamma-Normalized Fuzzy ART learner struct
 
 # Examples
 ```julia-repl
-julia> GNFA()
-GNFA
-    opts: opts_GNFA
+julia> FuzzyART()
+FuzzyART
+    opts: opts_FuzzyART
     ...
 ```
 """
-mutable struct GNFA <: ART
+mutable struct FuzzyART <: ART
     # Assign numerical parameters from options
-    opts::opts_GNFA
+    opts::opts_FuzzyART
     config::DataConfig
 
     # Working variables
@@ -72,63 +72,63 @@ mutable struct GNFA <: ART
     n_instance::IntegerVector
     n_categories::Int
     epoch::Int
-end # GNFA <: ART
+end # FuzzyART <: ART
 
 # --------------------------------------------------------------------------- #
 # CONSTRUCTORS
 # --------------------------------------------------------------------------- #
 
 """
-    GNFA()
+    FuzzyART()
 
 Implements a Gamma-Normalized Fuzzy ART learner.
 
 # Examples
 ```julia-repl
-julia> GNFA()
-GNFA
-    opts: opts_GNFA
+julia> FuzzyART()
+FuzzyART
+    opts: opts_FuzzyART
     ...
 ```
 """
-function GNFA()
-    opts = opts_GNFA()
-    GNFA(opts)
-end # GNFA()
+function FuzzyART()
+    opts = opts_FuzzyART()
+    FuzzyART(opts)
+end # FuzzyART()
 
 """
-    GNFA(;kwargs...)
+    FuzzyART(;kwargs...)
 
 Implements a Gamma-Normalized Fuzzy ART learner with keyword arguments.
 
 # Examples
 ```julia-repl
-julia> GNFA(rho=0.7)
-GNFA
-    opts: opts_GNFA
+julia> FuzzyART(rho=0.7)
+FuzzyART
+    opts: opts_FuzzyART
     ...
 ```
 """
-function GNFA(;kwargs...)
-    opts = opts_GNFA(;kwargs...)
-    GNFA(opts)
-end # GNFA(;kwargs...)
+function FuzzyART(;kwargs...)
+    opts = opts_FuzzyART(;kwargs...)
+    FuzzyART(opts)
+end # FuzzyART(;kwargs...)
 
 """
-    GNFA(opts::opts_GNFA)
+    FuzzyART(opts::opts_FuzzyART)
 
 Implements a Gamma-Normalized Fuzzy ART learner with specified options.
 
 # Examples
 ```julia-repl
-julia> GNFA(opts)
-GNFA
-    opts: opts_GNFA
+julia> FuzzyART(opts)
+FuzzyART
+    opts: opts_FuzzyART
     ...
 ```
 """
-function GNFA(opts::opts_GNFA)
-    GNFA(opts,                          # opts
+function FuzzyART(opts::opts_FuzzyART)
+    FuzzyART(opts,                          # opts
         DataConfig(),                   # config
         0.0,                            # threshold
         Array{Int}(undef,0),            # labels
@@ -139,47 +139,47 @@ function GNFA(opts::opts_GNFA)
         0,                              # n_categories
         0                               # epoch
     )
-end # GNFA(opts::opts_GNFA)
+end # FuzzyART(opts::opts_FuzzyART)
 
 """
-    GNFA(opts::opts_GNFA, sample::RealVector)
+    FuzzyART(opts::opts_FuzzyART, sample::RealVector)
 
-Create and initialize a GNFA with a single sample in one step.
+Create and initialize a FuzzyART with a single sample in one step.
 """
-function GNFA(opts::opts_GNFA, sample::RealVector ; preprocessed::Bool=false)
-    art = GNFA(opts)
+function FuzzyART(opts::opts_FuzzyART, sample::RealVector ; preprocessed::Bool=false)
+    art = FuzzyART(opts)
     init_train!(sample, art, preprocessed)
     initialize!(art, sample)
     return art
-end # GNFA(opts::opts_GNFA, sample::RealVector)
+end # FuzzyART(opts::opts_FuzzyART, sample::RealVector)
 
 # --------------------------------------------------------------------------- #
 # ALGORITHMIC METHODS
 # --------------------------------------------------------------------------- #
 
-function set_threshold!(art::GNFA)
+function set_threshold!(art::FuzzyART)
     if art.opts.threshold_normalization
         art.threshold = art.opts.rho*(art.config.dim^art.opts.gamma_ref)
     else
         art.threshold = art.opts.rho
     end
-end # set_threshold!(art::GNFA)
+end # set_threshold!(art::FuzzyART)
 
 """
-    initialize!(art::GNFA, x::Vector{T} ; y::Integer=0) where {T<:RealFP}
+    initialize!(art::FuzzyART, x::Vector{T} ; y::Integer=0) where {T<:RealFP}
 
-Initializes a GNFA learner with an intial sample 'x'.
+Initializes a FuzzyART learner with an intial sample 'x'.
 
 # Examples
 ```julia-repl
-julia> my_GNFA = GNFA()
-GNFA
-    opts: opts_GNFA
+julia> my_FuzzyART = FuzzyART()
+FuzzyART
+    opts: opts_FuzzyART
     ...
-julia> initialize!(my_GNFA, [1 2 3 4])
+julia> initialize!(my_FuzzyART, [1 2 3 4])
 ```
 """
-function initialize!(art::GNFA, x::Vector{T} ; y::Integer=0) where {T<:RealFP}
+function initialize!(art::FuzzyART, x::Vector{T} ; y::Integer=0) where {T<:RealFP}
     # Initialize the instance and categories counters
     art.n_instance = [1]
     art.n_categories = 1
@@ -195,12 +195,12 @@ function initialize!(art::GNFA, x::Vector{T} ; y::Integer=0) where {T<:RealFP}
     art.W[:, 1] = x
     label = !iszero(y) ? y : 1
     push!(art.labels, label)
-end # initialize!(art::GNFA, x::Vector{T} ; y::Integer=0) where {T<:RealFP}
+end # initialize!(art::FuzzyART, x::Vector{T} ; y::Integer=0) where {T<:RealFP}
 
 """
-    train!(art::GNFA, x::RealVector ; y::Integer = 0, preprocessed::Bool=false)
+    train!(art::FuzzyART, x::RealVector ; y::Integer = 0, preprocessed::Bool=false)
 """
-function train!(art::GNFA, x::RealVector ; y::Integer = 0, preprocessed::Bool=false)
+function train!(art::FuzzyART, x::RealVector ; y::Integer = 0, preprocessed::Bool=false)
     # Flag for if training in supervised mode
     supervised = !iszero(y)
 
@@ -252,12 +252,12 @@ function train!(art::GNFA, x::RealVector ; y::Integer = 0, preprocessed::Bool=fa
     end
 
     return y
-end # train!(art::GNFA, x::RealVector ; y::Integer = 0, preprocessed::Bool=false)
+end # train!(art::FuzzyART, x::RealVector ; y::Integer = 0, preprocessed::Bool=false)
 
 """
-    create_category(art::GNFA, x::RealVector, y::Integer)
+    create_category(art::FuzzyART, x::RealVector, y::Integer)
 """
-function create_category(art::GNFA, x::RealVector, y::Integer)
+function create_category(art::FuzzyART, x::RealVector, y::Integer)
     # Increment the number of categories
     art.n_categories += 1
     # Fast commit
@@ -266,24 +266,24 @@ function create_category(art::GNFA, x::RealVector, y::Integer)
     push!(art.n_instance, 1)
     # Add the label for the ategory
     push!(art.labels, y)
-end # create_category(art::GNFA, x::RealVector, y::Integer)
+end # create_category(art::FuzzyART, x::RealVector, y::Integer)
 
 """
-    train!(art::GNFA, x::RealMatrix ; y::IntegerVector = Vector{Int}())
+    train!(art::FuzzyART, x::RealMatrix ; y::IntegerVector = Vector{Int}())
 
-Trains a GNFA learner with dataset 'x' and optional labels 'y'
+Trains a FuzzyART learner with dataset 'x' and optional labels 'y'
 
 # Examples
 ```julia-repl
-julia> my_GNFA = GNFA()
-GNFA
-    opts: opts_GNFA
+julia> my_FuzzyART = FuzzyART()
+FuzzyART
+    opts: opts_FuzzyART
     ...
 julia> x = load_data()
-julia> train!(my_GNFA, x)
+julia> train!(my_FuzzyART, x)
 ```
 """
-function train!(art::GNFA, x::RealMatrix ; y::IntegerVector = Vector{Int}(), preprocessed::Bool=false)
+function train!(art::FuzzyART, x::RealMatrix ; y::IntegerVector = Vector{Int}(), preprocessed::Bool=false)
     # Flag for if training in supervised mode
     supervised = !isempty(y)
 
@@ -312,12 +312,12 @@ function train!(art::GNFA, x::RealMatrix ; y::IntegerVector = Vector{Int}(), pre
             break
         end
     end
-end # train!(art::GNFA, x::RealMatrix ; y::IntegerVector = Vector{Int}())
+end # train!(art::FuzzyART, x::RealMatrix ; y::IntegerVector = Vector{Int}())
 
 """
-    classify(art::GNFA, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
+    classify(art::FuzzyART, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
 """
-function classify(art::GNFA, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
+function classify(art::FuzzyART, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
     # Preprocess the data
     x = init_classify!(x, art, preprocessed)
 
@@ -354,24 +354,24 @@ function classify(art::GNFA, x::RealVector ; preprocessed::Bool=false, get_bmu::
 end
 
 """
-    classify(art::GNFA, x::RealMatrix ; preprocessed::Bool=false, get_bmu::Bool=false)
+    classify(art::FuzzyART, x::RealMatrix ; preprocessed::Bool=false, get_bmu::Bool=false)
 
-Batch predict categories of 'x' using the GNFA model.
+Batch predict categories of 'x' using the FuzzyART model.
 
 Returns predicted categories 'y_hat'
 
 # Examples
 ```julia-repl
-julia> my_GNFA = GNFA()
-GNFA
-    opts: opts_GNFA
+julia> my_FuzzyART = FuzzyART()
+FuzzyART
+    opts: opts_FuzzyART
     ...
 julia> x, y = load_data()
-julia> train!(my_GNFA, x)
-julia> y_hat = classify(my_GNFA, y)
+julia> train!(my_FuzzyART, x)
+julia> y_hat = classify(my_FuzzyART, y)
 ```
 """
-function classify(art::GNFA, x::RealMatrix ; preprocessed::Bool=false, get_bmu::Bool=false)
+function classify(art::FuzzyART, x::RealMatrix ; preprocessed::Bool=false, get_bmu::Bool=false)
     # Preprocess the data
     x = init_classify!(x, art, preprocessed)
     # Get the number of samples to classify
@@ -387,26 +387,26 @@ function classify(art::GNFA, x::RealMatrix ; preprocessed::Bool=false, get_bmu::
         y_hat[ix] = classify(art, sample, preprocessed=true, get_bmu=get_bmu)
     end
     return y_hat
-end # classify(art::GNFA, x::RealMatrix ; preprocessed::Bool=false, get_bmu::Bool=false)
+end # classify(art::FuzzyART, x::RealMatrix ; preprocessed::Bool=false, get_bmu::Bool=false)
 
 """
-    activation_match!(art::GNFA, x::RealVector)
+    activation_match!(art::FuzzyART, x::RealVector)
 
 Computes the activation and match functions of the art module against sample x.
 
 # Examples
 ```julia-repl
-julia> my_GNFA = GNFA()
-GNFA
-    opts: opts_GNFA
+julia> my_FuzzyART = FuzzyART()
+FuzzyART
+    opts: opts_FuzzyART
     ...
 julia> x, y = load_data()
-julia> train!(my_GNFA, x)
+julia> train!(my_FuzzyART, x)
 julia> x_sample = x[:, 1]
-julia> activation_match!(my_GNFA, x_sample)
+julia> activation_match!(my_FuzzyART, x_sample)
 ```
 """
-function activation_match!(art::GNFA, x::RealVector)
+function activation_match!(art::FuzzyART, x::RealVector)
     art.T = zeros(art.n_categories)
     art.M = zeros(art.n_categories)
     for i = 1:art.n_categories
@@ -418,34 +418,34 @@ function activation_match!(art::GNFA, x::RealVector)
             art.M[i] = ((W_norm/norm(x, 1))^art.opts.gamma_ref)*art.T[i]
         end
     end
-end # activation_match!(art::GNFA, x::RealVector)
+end # activation_match!(art::FuzzyART, x::RealVector)
 
 """
-    learn(art::GNFA, x::RealVector, W::RealVector)
+    learn(art::FuzzyART, x::RealVector, W::RealVector)
 
 Return the modified weight of the art module conditioned by sample x.
 """
-function learn(art::GNFA, x::RealVector, W::RealVector)
+function learn(art::FuzzyART, x::RealVector, W::RealVector)
     # Update W
     return art.opts.beta .* element_min(x, W) .+ W .* (1 - art.opts.beta)
-end # learn(art::GNFA, x::RealVector, W::RealVector)
+end # learn(art::FuzzyART, x::RealVector, W::RealVector)
 
 """
-    learn!(art::GNFA, x::RealVector, index::Integer)
+    learn!(art::FuzzyART, x::RealVector, index::Integer)
 
 In place learning function with instance counting.
 """
-function learn!(art::GNFA, x::RealVector, index::Integer)
+function learn!(art::FuzzyART, x::RealVector, index::Integer)
     # Update W
     art.W[:, index] = learn(art, x, art.W[:, index])
     art.n_instance[index] += 1
-end # learn!(art::GNFA, x::RealVector, index::Integer)
+end # learn!(art::FuzzyART, x::RealVector, index::Integer)
 
 """
-    stopping_conditions(art::GNFA)
+    stopping_conditions(art::FuzzyART)
 
-Stopping conditions for a GNFA module.
+Stopping conditions for a FuzzyART module.
 """
-function stopping_conditions(art::GNFA)
+function stopping_conditions(art::FuzzyART)
     return art.epoch >= art.opts.max_epochs
-end # stopping_conditions(art::GNFA)
+end # stopping_conditions(art::FuzzyART)

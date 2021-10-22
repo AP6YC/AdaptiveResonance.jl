@@ -55,7 +55,7 @@ end # @testset "AdaptiveResonance.jl"
 @testset "Train Test" begin
     # All ART modules
     arts = [
-        GNFA,
+        FuzzyART,
         DVFA,
         DDVFA,
         SFAM,
@@ -75,7 +75,7 @@ end # @testset "AdaptiveResonance.jl"
             (threshold_normalization=true,),
             (threshold_normalization=false,),
         ],
-        GNFA => [
+        FuzzyART => [
             (threshold_normalization=true,),
             (threshold_normalization=false,),
         ],
@@ -122,7 +122,7 @@ end # @testset "Train Test"
     @info "--------- KWARGS TEST ---------"
 
     arts = [
-        GNFA,
+        FuzzyART,
         DVFA,
         DDVFA,
         SFAM,
@@ -136,14 +136,14 @@ end # @testset "Train Test"
     @info "--------- END KWARGS TEST ---------"
 end # @testset "kwargs"
 
-@testset "GNFA" begin
-    @info "------- GNFA Testing -------"
+@testset "FuzzyART" begin
+    @info "------- FuzzyART Testing -------"
 
-    # GNFA train and test
-    my_gnfa = GNFA()
+    # FuzzyART train and test
+    my_FuzzyART = FuzzyART()
     # local_complement_code = AdaptiveResonance.complement_code(data.train_x)
-    # train!(my_gnfa, local_complement_code, preprocessed=true)
-    train!(my_gnfa, data.train_x)
+    # train!(my_FuzzyART, local_complement_code, preprocessed=true)
+    train!(my_FuzzyART, data.train_x)
 
     # Similarity methods
     methods = [
@@ -158,14 +158,14 @@ end # @testset "kwargs"
     # Both field names
     field_names = ["T", "M"]
 
-    # Compute a local sample for GNFA similarity method testing
+    # Compute a local sample for FuzzyART similarity method testing
     # local_sample = local_complement_code[:, 1]
     # local_complement_code = AdaptiveResonance.complement_code(data.train_x)
     # local_sample = data.train_x[:, 1]
-    local_sample = AdaptiveResonance.complement_code(data.train_x[:, 1], config=my_gnfa.config)
+    local_sample = AdaptiveResonance.complement_code(data.train_x[:, 1], config=my_FuzzyART.config)
 
     # Compute the local activation and match
-    # AdaptiveResonance.activation_match!(my_gnfa, local_sample)
+    # AdaptiveResonance.activation_match!(my_FuzzyART, local_sample)
 
     # # Declare the true activation and match magnitudes
     # truth = Dict(
@@ -199,7 +199,7 @@ end # @testset "kwargs"
     # for method in methods
     #     results = Dict()
     #     for field_name in field_names
-    #         results[field_name] = AdaptiveResonance.similarity(method, my_gnfa, field_name, local_sample, my_gnfa.opts.gamma_ref)
+    #         results[field_name] = AdaptiveResonance.similarity(method, my_FuzzyART, field_name, local_sample, my_FuzzyART.opts.gamma_ref)
     #         @test isapprox(truth[method][field_name], results[field_name])
     #     end
     #     @info "Method: $method" results
@@ -207,11 +207,11 @@ end # @testset "kwargs"
 
     # Check the error handling of the similarity function
     # Access the wrong similarity metric keyword ("asdf")
-    @test_throws ErrorException AdaptiveResonance.similarity("asdf", my_gnfa, "T", local_sample, my_gnfa.opts.gamma_ref)
+    @test_throws ErrorException AdaptiveResonance.similarity("asdf", my_FuzzyART, "T", local_sample, my_FuzzyART.opts.gamma_ref)
     # Access the wrong output function ("A")
-    @test_throws ErrorException AdaptiveResonance.similarity("centroid", my_gnfa, "A", local_sample, my_gnfa.opts.gamma_ref)
+    @test_throws ErrorException AdaptiveResonance.similarity("centroid", my_FuzzyART, "A", local_sample, my_FuzzyART.opts.gamma_ref)
 
-end # @testset "GNFA"
+end # @testset "FuzzyART"
 
 @testset "ARTSCENE.jl" begin
     # ARTSCENE training and testing
