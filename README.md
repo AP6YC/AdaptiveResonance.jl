@@ -144,6 +144,8 @@ This project has implementations of the following ART (unsupervised) and ARTMAP 
   - **FAM**: Fuzzy ARTMAP
   - **DAM**: Default ARTMAP
 
+Because each of these modules is a framework for many variants in the literature, this project also implements these [variants](https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/modules/) by changing their module [options](https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/guide/#art_options).
+
 In addition to these modules, this package contains the following accessory methods:
 
 - **ARTSCENE**: the ARTSCENE algorithm's multiple-stage filtering process is implemented as `artscene_filter`. Each filter stage is exported if further granularity is required.

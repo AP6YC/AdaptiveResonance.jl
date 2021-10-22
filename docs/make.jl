@@ -18,6 +18,7 @@ makedocs(
         "Tutorial" => [
             "Guide" => "man/guide.md",
             "Examples" => "man/examples.md",
+            "Modules" => "man/modules.md",
             "Contributing" => "man/contributing.md",
             "Index" => "man/full-index.md",
         ],

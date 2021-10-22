@@ -185,15 +185,18 @@ function initialize!(art::FuzzyART, x::Vector{T} ; y::Integer=0) where {T<:RealF
     art.n_categories = 1
 
     # Set the threshold
-    # art.threshold = art.opts.rho * (art.config.dim^art.opts.gamma_ref)
-    # art.threshold = art.opts.rho
     set_threshold!(art)
 
     # Fast commit the weight
     art.W = Array{T}(undef, art.config.dim_comp, 1)
+
     # Assign the contents, valid this way for 1-D or 2-D arrays
     art.W[:, 1] = x
+
+    # Set the label to either the supervised label or 1 if unsupervised
     label = !iszero(y) ? y : 1
+
+    # Add the label to the label list
     push!(art.labels, label)
 end # initialize!(art::FuzzyART, x::Vector{T} ; y::Integer=0) where {T<:RealFP}
 
@@ -342,13 +345,8 @@ function classify(art::FuzzyART, x::RealVector ; preprocessed::Bool=false, get_b
     if mismatch_flag
         # Create new weight vector
         @debug "Mismatch"
-        # If we mismatched and want the best matching unit
-        if get_bmu
-            y_hat = art.labels[index[1]]
-        # Otherwise, report the mismatch label -1
-        else
-            y_hat = -1
-        end
+        # Report either the best matching unit or the mismatch label -1
+        y_hat = get_bmu ? art.labels[index[1]] : -1
     end
     return y_hat
 end
