@@ -229,7 +229,7 @@ julia> train!(art, x, y)
 julia> classify(art, x_test)
 ```
 """
-function classify(art::DAM, x::RealMatrix ; preprocessed::Bool=false)
+function classify(art::DAM, x::RealMatrix ; preprocessed::Bool=false, get_bmu::Bool=false)
     # Show a message if display is on
     art.opts.display && @info "Testing DAM"
 
@@ -263,7 +263,6 @@ function classify(art::DAM, x::RealMatrix ; preprocessed::Bool=false)
         for jx in 1:art.n_categories
             # Compute match function
             M = art_match(art, x[:, ix], art.W[:, index[jx]])
-            @debug M
             # Current winner
             if M >= art.opts.rho
                 y_hat[ix] = art.labels[index[jx]]
@@ -274,7 +273,13 @@ function classify(art::DAM, x::RealMatrix ; preprocessed::Bool=false)
         if mismatch_flag
             # Create new weight vector
             @debug "Mismatch"
-            y_hat[ix] = -1
+            # If we mismatched and want the best matching unit
+            if get_bmu
+                y_hat = art.labels[index[1]]
+            # Otherwise, report the mismatch label -1
+            else
+                y_hat[ix] = -1
+            end
         end
     end
     return y_hat
