@@ -197,12 +197,6 @@ function train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fal
         return y_hat
     end
 
-    # # If we have a new supervised category, create a new category
-    # if supervised && !(y in art.labels)
-    #     create_category(art, sample, y)
-    #     return y
-    # end
-
     # Default to mismatch
     mismatch_flag = true
 
@@ -285,7 +279,9 @@ function train!(art::DDVFA, x::RealMatrix ; y::IntegerVector = Vector{Int}(), pr
             update_iter(art, iter, i)
             # Grab the sample slice
             sample = get_sample(x, i)
+            # Select the label to pass to the incremental method
             local_y = supervised ? y[i] : 0
+            # Train upon the sample and label
             y_hat[i] = train!(art, sample, y=local_y, preprocessed=true)
         end
 
@@ -386,8 +382,62 @@ function similarity(method::String, F2::FuzzyART, field_name::String, sample::Re
     return value
 end # similarity(method::String, F2::FuzzyART, field_name::String, sample::RealVector, gamma_ref::RealFP)
 
+function classify(art::DDVFA, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
+    # Preprocess the data
+    sample = init_classify!(x, art, preprocessed)
+
+    # Calculate all global activations
+    T = zeros(art.n_categories)
+    for jx = 1:art.n_categories
+        activation_match!(art.F2[jx], sample)
+        T[jx] = similarity(art.opts.method, art.F2[jx], "T", sample, art.opts.gamma_ref)
+    end
+
+    # Sort by highest activation
+    index = sortperm(T, rev=true)
+
+    # Default to mismatch
+    mismatch_flag = true
+
+    # Iterate over the list of activations
+    for jx = 1:art.n_categories
+        # Get the best-matching unit
+        bmu = index[jx]
+        # Get the match value of this activation
+        M = similarity(art.opts.method, art.F2[bmu], "M", sample, art.opts.gamma_ref)
+        # If the match satisfies the threshold criterion, then report that label
+        if M >= art.threshold
+            # Update the stored match and activation values
+            art.M = M
+            art.T = T[bmu]
+            # Current winner
+            y_hat = art.labels[bmu]
+            mismatch_flag = false
+            break
+        end
+    end
+
+    # If we did not find a resonant category
+    if mismatch_flag
+        @debug "Mismatch"
+        # Update the stored match and activation values of the best matching unit
+        bmu = index[1]
+        art.M = similarity(art.opts.method, art.F2[bmu], "M", sample, art.opts.gamma_ref)
+        art.T = T[bmu]
+        # If falling back to the highest activated category, return that
+        if get_bmu
+            y_hat = art.labels[bmu]
+        # Otherwise, return a mismatch
+        else
+            y_hat = -1
+        end
+    end
+
+    return y_hat
+end
+
 """
-    classify(art::DDVFA, x::RealArray ; preprocessed::Bool=false, get_bmu::Bool=false)
+    classify(art::DDVFA, x::RealMatrix ; preprocessed::Bool=false, get_bmu::Bool=false)
 
 Predict categories of 'x' using the DDVFA model.
 
@@ -404,27 +454,18 @@ julia> train!(my_DDVFA, x)
 julia> y_hat = classify(my_DDVFA, y)
 ```
 """
-function classify(art::DDVFA, x::RealArray ; preprocessed::Bool=false, get_bmu::Bool=false)
+function classify(art::DDVFA, x::RealMatrix ; preprocessed::Bool=false, get_bmu::Bool=false)
     # Show a message if display is on
     art.opts.display && @info "Testing DDVFA"
+
+    # Preprocess the data
+    x = init_classify!(x, art, preprocessed)
 
     # Data information and setup
     n_samples = get_n_samples(x)
 
-    # Verify that the data is setup before classifying
-    !art.config.setup && @error "Attempting to classify data before setup"
-
-    # If the data is not preprocessed, then complement code it
-    if !preprocessed
-        x = complement_code(x, config=art.config)
-    end
-
     # Initialize the output vector
-    if n_samples == 1
-        y_hat = zero(Int)
-    else
-        y_hat = zeros(Int, n_samples)
-    end
+    y_hat = zeros(Int, n_samples)
 
     # Get the iterator based on the module options and data shape
     iter = get_iterator(art.opts, x)
@@ -435,61 +476,12 @@ function classify(art::DDVFA, x::RealArray ; preprocessed::Bool=false, get_bmu::
         # Grab the sample slice
         sample = get_sample(x, ix)
 
-        # Calculate all global activations
-        T = zeros(art.n_categories)
-        for jx = 1:art.n_categories
-            activation_match!(art.F2[jx], sample)
-            T[jx] = similarity(art.opts.method, art.F2[jx], "T", sample, art.opts.gamma_ref)
-        end
-        # Sort by highest activation
-        index = sortperm(T, rev=true)
-
-        mismatch_flag = true
-        for jx = 1:art.n_categories
-            bmu = index[jx]
-            M = similarity(art.opts.method, art.F2[bmu], "M", sample, art.opts.gamma_ref)
-            if M >= art.threshold
-                # Update the stored match and activation values
-                art.M = M
-                art.T = T[bmu]
-                # Current winner
-                label = art.labels[bmu]
-                if n_samples == 1
-                    y_hat = label
-                else
-                    y_hat[ix] = label
-                end
-                mismatch_flag = false
-                break
-            end
-        end
-        if mismatch_flag
-            @debug "Mismatch"
-            # Update the stored match and activation values
-            bmu = index[1]
-            art.M = similarity(art.opts.method, art.F2[bmu], "M", sample, art.opts.gamma_ref)
-            art.T = T[bmu]
-            # If falling back to the highest activated category, return that
-            if get_bmu
-                label = art.labels[index[1]]
-                if n_samples == 1
-                    y_hat = label
-                else
-                    y_hat[ix] = label
-                end
-            # Otherwise, return a mismatch
-            else
-                if n_samples == 1
-                    y_hat = -1
-                else
-                    y_hat[ix] = -1
-                end
-            end
-        end
+        # Get the classification
+        y_hat[ix] = classify(art, sample, preprocessed=true, get_bmu=get_bmu)
     end
 
     return y_hat
-end # classify(art::DDVFA, x::RealArray ; preprocessed::Bool=false, get_bmu::Bool=false)
+end # classify(art::DDVFA, x::RealMatrix ; preprocessed::Bool=false, get_bmu::Bool=false)
 
 # --------------------------------------------------------------------------- #
 # CONVENIENCE METHODS
