@@ -317,8 +317,8 @@ function train!(art::FuzzyART, x::RealMatrix ; y::IntegerVector = Vector{Int}(),
             # Update the iterator if necessary
             update_iter(art, iter, i)
             # Grab the sample slice
-            sample = get_sample(x, i)
-            # sample = x[:, i]
+            # sample = get_sample(x, i)
+            sample = x[:, i]
             # Train on the sample
             local_y = supervised ? y[i] : 0
             y_hat[i] = train!(art, sample, y=local_y, preprocessed=true)

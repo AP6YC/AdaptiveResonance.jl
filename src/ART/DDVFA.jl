@@ -179,6 +179,12 @@ function set_threshold!(art::DDVFA)
 end # set_threshold!(art::DDVFA)
 
 """
+    train!(art::DDVFA, x::RealMatrix ; y::IntegerVector=Vector{Int}(), preprocessed::Bool=false)
+
+Train the DDVFA model on the data.
+"""
+
+"""
     train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=false)
 """
 function train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=false)
@@ -190,6 +196,8 @@ function train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fal
 
     # Initialization
     if isempty(art.F2)
+        # Set the threshold
+        set_threshold!(art)
         # Set the first label as either 1 or the first provided label
         y_hat = supervised ? y : 1
         # Create a new category
@@ -244,54 +252,6 @@ function train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fal
 
     return y_hat
 end # train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=false)
-
-"""
-    train!(art::DDVFA, x::RealMatrix ; y::IntegerVector=Vector{Int}(), preprocessed::Bool=false)
-
-Train the DDVFA model on the data.
-"""
-function train!(art::DDVFA, x::RealMatrix ; y::IntegerVector = Vector{Int}(), preprocessed::Bool=false)
-    # Show a message if display is on
-    art.opts.display && @info "Training DDVFA"
-
-    # Flag for if training in supervised mode
-    supervised = !isempty(y)
-
-    # Data information and setup
-    n_samples = get_n_samples(x)
-
-    # Run the batch initialization procedure
-    x = init_train!(x, art, preprocessed)
-
-    # Set the learning threshold
-    set_threshold!(art)
-
-    # Initialize the output vector
-    y_hat = zeros(Int, n_samples)
-    # Learn until the stopping conditions
-    art.epoch = 0
-    while true
-        # Increment the epoch and get the iterator
-        art.epoch += 1
-        iter = get_iterator(art.opts, x)
-        for i = iter
-            # Update the iterator if necessary
-            update_iter(art, iter, i)
-            # Grab the sample slice
-            sample = get_sample(x, i)
-            # Select the label to pass to the incremental method
-            local_y = supervised ? y[i] : 0
-            # Train upon the sample and label
-            y_hat[i] = train!(art, sample, y=local_y, preprocessed=true)
-        end
-
-        # Check stopping conditions
-        if stopping_conditions(art)
-            break
-        end
-    end
-    return y_hat
-end # train!(art::DDVFA, x::RealMatrix ; y::IntegerVector = Vector{Int}(), preprocessed::Bool=false)
 
 """
     create_category(art::DDVFA, sample::RealVector, label::Integer)
@@ -382,6 +342,24 @@ function similarity(method::String, F2::FuzzyART, field_name::String, sample::Re
     return value
 end # similarity(method::String, F2::FuzzyART, field_name::String, sample::RealVector, gamma_ref::RealFP)
 
+"""
+    classify(art::DDVFA, x::RealMatrix ; preprocessed::Bool=false, get_bmu::Bool=false)
+
+Predict categories of 'x' using the DDVFA model.
+
+Returns predicted categories 'y_hat.'
+
+# Examples
+```julia-repl
+julia> my_DDVFA = DDVFA()
+DDVFA
+    opts: opts_DDVFA
+    ...
+julia> x, y = load_data()
+julia> train!(my_DDVFA, x)
+julia> y_hat = classify(my_DDVFA, y)
+```
+"""
 function classify(art::DDVFA, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
     # Preprocess the data
     sample = init_classify!(x, art, preprocessed)
@@ -424,64 +402,12 @@ function classify(art::DDVFA, x::RealVector ; preprocessed::Bool=false, get_bmu:
         bmu = index[1]
         art.M = similarity(art.opts.method, art.F2[bmu], "M", sample, art.opts.gamma_ref)
         art.T = T[bmu]
-        # If falling back to the highest activated category, return that
-        if get_bmu
-            y_hat = art.labels[bmu]
-        # Otherwise, return a mismatch
-        else
-            y_hat = -1
-        end
+        # Report either the best matching unit or the mismatch label -1
+        y_hat = get_bmu ? art.labels[bmu] : -1
     end
 
     return y_hat
 end
-
-"""
-    classify(art::DDVFA, x::RealMatrix ; preprocessed::Bool=false, get_bmu::Bool=false)
-
-Predict categories of 'x' using the DDVFA model.
-
-Returns predicted categories 'y_hat.'
-
-# Examples
-```julia-repl
-julia> my_DDVFA = DDVFA()
-DDVFA
-    opts: opts_DDVFA
-    ...
-julia> x, y = load_data()
-julia> train!(my_DDVFA, x)
-julia> y_hat = classify(my_DDVFA, y)
-```
-"""
-function classify(art::DDVFA, x::RealMatrix ; preprocessed::Bool=false, get_bmu::Bool=false)
-    # Show a message if display is on
-    art.opts.display && @info "Testing DDVFA"
-
-    # Preprocess the data
-    x = init_classify!(x, art, preprocessed)
-
-    # Data information and setup
-    n_samples = get_n_samples(x)
-
-    # Initialize the output vector
-    y_hat = zeros(Int, n_samples)
-
-    # Get the iterator based on the module options and data shape
-    iter = get_iterator(art.opts, x)
-    for ix = iter
-        # Update the iterator if necessary
-        update_iter(art, iter, ix)
-
-        # Grab the sample slice
-        sample = get_sample(x, ix)
-
-        # Get the classification
-        y_hat[ix] = classify(art, sample, preprocessed=true, get_bmu=get_bmu)
-    end
-
-    return y_hat
-end # classify(art::DDVFA, x::RealMatrix ; preprocessed::Bool=false, get_bmu::Bool=false)
 
 # --------------------------------------------------------------------------- #
 # CONVENIENCE METHODS
