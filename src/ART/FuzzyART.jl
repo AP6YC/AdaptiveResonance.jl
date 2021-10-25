@@ -201,34 +201,35 @@ function initialize!(art::FuzzyART, x::Vector{T} ; y::Integer=0) where {T<:RealF
 end # initialize!(art::FuzzyART, x::Vector{T} ; y::Integer=0) where {T<:RealFP}
 
 """
-    train!(art::FuzzyART, x::RealVector ; y::Integer = 0, preprocessed::Bool=false)
+    train!(art::FuzzyART, x::RealVector ; y::Integer=0, preprocessed::Bool=false)
 """
-function train!(art::FuzzyART, x::RealVector ; y::Integer = 0, preprocessed::Bool=false)
+function train!(art::FuzzyART, x::RealVector ; y::Integer=0, preprocessed::Bool=false)
     # Flag for if training in supervised mode
     supervised = !iszero(y)
 
     # Run the sequential initialization procedure
-    x = init_train!(x, art, preprocessed)
+    sample = init_train!(x, art, preprocessed)
 
     # Initialization if weights are empty; fast commit the first sample
     if isempty(art.W)
-        label = supervised ? y : 1
-        initialize!(art, x, y=label)
-        return
+        y_hat = supervised ? y : 1
+        initialize!(art, sample, y=y_hat)
+        return y_hat
+    end
+
+    # If we have a new supervised category, create a new category
+    if supervised && !(y in art.labels)
+        create_category(art, sample, y)
+        return y
     end
 
     # Compute activation/match functions
-    activation_match!(art, x)
+    activation_match!(art, sample)
     # Sort activation function values in descending order
     index = sortperm(art.T, rev=true)
     # Initialize mismatch as true
     mismatch_flag = true
 
-    # If we have a new supervised category, create a new category
-    if supervised && !(y in art.labels)
-        create_category(art, x, y)
-        return y
-    end
 
     # Loop over all categories
     for j = 1:art.n_categories
@@ -241,7 +242,9 @@ function train!(art::FuzzyART, x::RealVector ; y::Integer = 0, preprocessed::Boo
                 break
             end
             # Learn the sample
-            learn!(art, x, bmu)
+            learn!(art, sample, bmu)
+            # Save the output label for the sample
+            y_hat = art.labels[bmu]
             # No mismatch
             mismatch_flag = false
             break
@@ -251,13 +254,13 @@ function train!(art::FuzzyART, x::RealVector ; y::Integer = 0, preprocessed::Boo
     # If there was no resonant category, make a new one
     if mismatch_flag
         # Get the correct label for the new category
-        label = supervised ? y : art.n_categories + 1
+        y_hat = supervised ? y : art.n_categories + 1
         # Create a new category
-        create_category(art, x, label)
+        create_category(art, sample, y_hat)
     end
 
-    return y
-end # train!(art::FuzzyART, x::RealVector ; y::Integer = 0, preprocessed::Bool=false)
+    return y_hat
+end # train!(art::FuzzyART, x::RealVector ; y::Integer=0, preprocessed::Bool=false)
 
 """
     create_category(art::FuzzyART, x::RealVector, y::Integer)
@@ -274,7 +277,7 @@ function create_category(art::FuzzyART, x::RealVector, y::Integer)
 end # create_category(art::FuzzyART, x::RealVector, y::Integer)
 
 """
-    train!(art::FuzzyART, x::RealMatrix ; y::IntegerVector = Vector{Int}())
+    train!(art::FuzzyART, x::RealMatrix ; y::IntegerVector = Vector{Int}(), preprocessed::Bool=false)
 
 Trains a FuzzyART learner with dataset 'x' and optional labels 'y'
 
@@ -289,12 +292,20 @@ julia> train!(my_FuzzyART, x)
 ```
 """
 function train!(art::FuzzyART, x::RealMatrix ; y::IntegerVector = Vector{Int}(), preprocessed::Bool=false)
+    # Show a message if display is on
+    art.opts.display && @info "Training FuzzyART"
+
     # Flag for if training in supervised mode
     supervised = !isempty(y)
+
+    # Data information and setup
+    n_samples = get_n_samples(x)
 
     # Run the batch initialization procedure
     x = init_train!(x, art, preprocessed)
 
+    # Initialize the output vector
+    y_hat = zeros(Int, n_samples)
     # Learning
     art.epoch = 0
     while true
@@ -306,18 +317,18 @@ function train!(art::FuzzyART, x::RealMatrix ; y::IntegerVector = Vector{Int}(),
             # Update the iterator if necessary
             update_iter(art, iter, i)
             # Grab the sample slice
-            sample = get_sample(x, i)
-            # sample = x[:, i]
+            # sample = get_sample(x, i)
+            sample = x[:, i]
             # Train on the sample
             local_y = supervised ? y[i] : 0
-            train!(art, sample, y=local_y, preprocessed=true)
+            y_hat[i] = train!(art, sample, y=local_y, preprocessed=true)
         end
         # Check for the stopping condition for the whole loop
         if stopping_conditions(art)
             break
         end
     end
-end # train!(art::FuzzyART, x::RealMatrix ; y::IntegerVector = Vector{Int}())
+end # train!(art::FuzzyART, x::RealMatrix ; y::IntegerVector = Vector{Int}(), preprocessed::Bool=false)
 
 """
     classify(art::FuzzyART, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
@@ -351,7 +362,7 @@ function classify(art::FuzzyART, x::RealVector ; preprocessed::Bool=false, get_b
         y_hat = get_bmu ? art.labels[index[1]] : -1
     end
     return y_hat
-end
+end # classify(art::FuzzyART, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
 
 """
     classify(art::FuzzyART, x::RealMatrix ; preprocessed::Bool=false, get_bmu::Bool=false)

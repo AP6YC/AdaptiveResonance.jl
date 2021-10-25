@@ -21,8 +21,7 @@ julia> my_opts = opts_DDVFA()
 """
 @with_kw mutable struct opts_DDVFA <: ARTOpts @deftype Float
     # Lower-bound vigilance parameter: [0, 1]
-    rho_lb = 0.80; @assert rho_lb >= 0.0 && rho_lb <= 1.0
-    # rho = rho_lb
+    rho_lb = 0.7; @assert rho_lb >= 0.0 && rho_lb <= 1.0
     # Upper bound vigilance parameter: [0, 1]
     rho_ub = 0.85; @assert rho_ub >= 0.0 && rho_ub <= 1.0
     # Choice parameter: alpha > 0
@@ -169,152 +168,90 @@ end # DDVFA(opts::opts_DDVFA)
 Sets the vigilance threshold of the DDVFA module as a function of several flags and hyperparameters.
 """
 function set_threshold!(art::DDVFA)
+    # Gamma match normalization
     if art.opts.gamma_normalization
+        # Set the learning threshold as a function of the data dimension
         art.threshold = art.opts.rho_lb*(art.config.dim^art.opts.gamma_ref)
     else
+        # Set the learning threshold as simply the vigilance parameter
         art.threshold = art.opts.rho_lb
     end
 end # set_threshold!(art::DDVFA)
 
 """
-    train!(art::DDVFA, x::RealArray ; y::IntegerVector=Vector{Int}(), preprocessed::Bool=false)
+    train!(art::DDVFA, x::RealMatrix ; y::IntegerVector=Vector{Int}(), preprocessed::Bool=false)
 
 Train the DDVFA model on the data.
 """
-function train!(art::DDVFA, x::RealArray ; y::IntegerVector = Vector{Int}(), preprocessed::Bool=false)
-    # Show a message if display is on
-    art.opts.display && @info "Training DDVFA"
 
-    # Simple supervised flag
-    supervised = !isempty(y)
+"""
+    train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=false)
+"""
+function train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=false)
+    # Flag for if training in supervised mode
+    supervised = !iszero(y)
 
-    # Data information and setup
-    n_samples = get_n_samples(x)
-
-    # Set up the data config if training for the first time
-    !art.config.setup && data_setup!(art.config, x)
-
-    # If the data is not preprocessed, then complement code it
-    if !preprocessed
-        x = complement_code(x, config=art.config)
-    end
-
-    # art.labels = zeros(n_samples)
-    if n_samples == 1
-        y_hat = zero(Int)
-    else
-        y_hat = zeros(Int, n_samples)
-    end
+    # Run the sequential initialization procedure
+    sample = init_train!(x, art, preprocessed)
 
     # Initialization
     if isempty(art.F2)
+        # Set the threshold
+        set_threshold!(art)
         # Set the first label as either 1 or the first provided label
-        local_label = supervised ? y[1] : 1
-        # Add the local label to the output vector
-        if n_samples == 1
-            y_hat = local_label
-        else
-            y_hat[1] = local_label
-        end
+        y_hat = supervised ? y : 1
         # Create a new category
-        create_category(art, get_sample(x, 1), local_label)
-        # Skip the first training entry
-        skip_first = true
-    else
-        skip_first = false
+        create_category(art, sample, y_hat)
+        return y_hat
     end
 
-    # Set the learning threshold as a function of the data dimension
-    # art.threshold = art.opts.rho_lb*(art.config.dim^art.opts.gamma_ref)
-    # art.threshold = art.opts.rho_lb
-    set_threshold!(art)
+    # Default to mismatch
+    mismatch_flag = true
 
-    # Learn until the stopping conditions
-    art.epoch = 0
-    while true
-        # Increment the epoch and get the iterator
-        art.epoch += 1
-        iter = get_iterator(art.opts, x)
-        for i = iter
-            # Update the iterator if necessary
-            update_iter(art, iter, i)
-            # Skip the first sample if we just initialized
-            (i == 1 && skip_first) && continue
-            # Grab the sample slice
-            sample = get_sample(x, i)
+    # Compute the activation for all categories
+    T = zeros(art.n_categories)
+    for jx = 1:art.n_categories
+        activation_match!(art.F2[jx], sample)
+        T[jx] = similarity(art.opts.method, art.F2[jx], "T", sample, art.opts.gamma_ref)
+    end
 
-            # Default to mismatch
-            mismatch_flag = true
-            # If label is new, break to make new category
-            if supervised && !(y[i] in art.labels)
-                if n_samples == 1
-                    y_hat = y[i]
-                else
-                    y_hat[i] = y[i]
-                end
-                create_category(art, sample, y[i])
-                continue
+    # Compute the match for each category in the order of greatest activation
+    index = sortperm(T, rev=true)
+    for jx = 1:art.n_categories
+        bmu = index[jx]
+        M = similarity(art.opts.method, art.F2[bmu], "M", sample, art.opts.gamma_ref)
+        # If we got a match, then learn (update the category)
+        if M >= art.threshold
+            # Update the stored match and activation values
+            art.M = M
+            art.T = T[bmu]
+            # If supervised and the label differs, trigger mismatch
+            if supervised && (art.labels[bmu] != y)
+                break
             end
-            # Otherwise, check for match
-            # Compute the activation for all categories
-            T = zeros(art.n_categories)
-            for jx = 1:art.n_categories
-                activation_match!(art.F2[jx], sample)
-                T[jx] = similarity(art.opts.method, art.F2[jx], "T", sample, art.opts.gamma_ref)
-            end
-            # Compute the match for each category in the order of greatest activation
-            index = sortperm(T, rev=true)
-            for jx = 1:art.n_categories
-                bmu = index[jx]
-                M = similarity(art.opts.method, art.F2[bmu], "M", sample, art.opts.gamma_ref)
-                # If we got a match, then learn (update the category)
-                if M >= art.threshold
-                    # Update the stored match and activation values
-                    art.M = M
-                    art.T = T[bmu]
-                    # If supervised and the label differs, trigger mismatch
-                    if supervised && (art.labels[bmu] != y[i])
-                        break
-                    end
-                    # Update the weights with the sample
-                    train!(art.F2[bmu], sample, preprocessed=true)
-                    # Save the output label for the sample
-                    label = art.labels[bmu]
-                    if n_samples == 1
-                        y_hat = label
-                    else
-                        y_hat[i] = label
-                    end
-                    mismatch_flag = false
-                    break
-                end
-            end
-            if mismatch_flag
-                # Update the stored match and activation values
-                bmu = index[1]
-                art.M = similarity(art.opts.method, art.F2[bmu], "M", sample, art.opts.gamma_ref)
-                art.T = T[bmu]
-                # Get the correct label
-                label = supervised ? y[i] : art.n_categories + 1
-                if n_samples == 1
-                    y_hat = label
-                else
-                    y_hat[i]  = label
-                end
-                create_category(art, sample, label)
-            end
-        end
-
-        # Make sure to start at first sample from now on
-        skip_first = false
-
-        # Check stopping conditions
-        if stopping_conditions(art)
+            # Update the weights with the sample
+            train!(art.F2[bmu], sample, preprocessed=true)
+            # Save the output label for the sample
+            y_hat = art.labels[bmu]
+            # No mismatch
+            mismatch_flag = false
             break
         end
     end
+
+    # If we triggered a mismatch
+    if mismatch_flag
+        # Update the stored match and activation values
+        bmu = index[1]
+        art.M = similarity(art.opts.method, art.F2[bmu], "M", sample, art.opts.gamma_ref)
+        art.T = T[bmu]
+        # Get the correct label
+        y_hat = supervised ? y : art.n_categories + 1
+        create_category(art, sample, y_hat)
+    end
+
     return y_hat
-end # train!(art::DDVFA, x::RealArray ; y::IntegerVector = Vector{Int}(), preprocessed::Bool=false)
+end # train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=false)
 
 """
     create_category(art::DDVFA, sample::RealVector, label::Integer)
@@ -406,7 +343,7 @@ function similarity(method::String, F2::FuzzyART, field_name::String, sample::Re
 end # similarity(method::String, F2::FuzzyART, field_name::String, sample::RealVector, gamma_ref::RealFP)
 
 """
-    classify(art::DDVFA, x::RealArray ; preprocessed::Bool=false, get_bmu::Bool=false)
+    classify(art::DDVFA, x::RealMatrix ; preprocessed::Bool=false, get_bmu::Bool=false)
 
 Predict categories of 'x' using the DDVFA model.
 
@@ -423,92 +360,54 @@ julia> train!(my_DDVFA, x)
 julia> y_hat = classify(my_DDVFA, y)
 ```
 """
-function classify(art::DDVFA, x::RealArray ; preprocessed::Bool=false, get_bmu::Bool=false)
-    # Show a message if display is on
-    art.opts.display && @info "Testing DDVFA"
+function classify(art::DDVFA, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
+    # Preprocess the data
+    sample = init_classify!(x, art, preprocessed)
 
-    # Data information and setup
-    n_samples = get_n_samples(x)
-
-    # Verify that the data is setup before classifying
-    !art.config.setup && @error "Attempting to classify data before setup"
-
-    # If the data is not preprocessed, then complement code it
-    if !preprocessed
-        x = complement_code(x, config=art.config)
+    # Calculate all global activations
+    T = zeros(art.n_categories)
+    for jx = 1:art.n_categories
+        activation_match!(art.F2[jx], sample)
+        T[jx] = similarity(art.opts.method, art.F2[jx], "T", sample, art.opts.gamma_ref)
     end
 
-    # Initialize the output vector
-    if n_samples == 1
-        y_hat = zero(Int)
-    else
-        y_hat = zeros(Int, n_samples)
-    end
+    # Sort by highest activation
+    index = sortperm(T, rev=true)
 
-    # Get the iterator based on the module options and data shape
-    iter = get_iterator(art.opts, x)
-    for ix = iter
-        # Update the iterator if necessary
-        update_iter(art, iter, ix)
+    # Default to mismatch
+    mismatch_flag = true
 
-        # Grab the sample slice
-        sample = get_sample(x, ix)
-
-        # Calculate all global activations
-        T = zeros(art.n_categories)
-        for jx = 1:art.n_categories
-            activation_match!(art.F2[jx], sample)
-            T[jx] = similarity(art.opts.method, art.F2[jx], "T", sample, art.opts.gamma_ref)
-        end
-        # Sort by highest activation
-        index = sortperm(T, rev=true)
-
-        mismatch_flag = true
-        for jx = 1:art.n_categories
-            bmu = index[jx]
-            M = similarity(art.opts.method, art.F2[bmu], "M", sample, art.opts.gamma_ref)
-            if M >= art.threshold
-                # Update the stored match and activation values
-                art.M = M
-                art.T = T[bmu]
-                # Current winner
-                label = art.labels[bmu]
-                if n_samples == 1
-                    y_hat = label
-                else
-                    y_hat[ix] = label
-                end
-                mismatch_flag = false
-                break
-            end
-        end
-        if mismatch_flag
-            @debug "Mismatch"
+    # Iterate over the list of activations
+    for jx = 1:art.n_categories
+        # Get the best-matching unit
+        bmu = index[jx]
+        # Get the match value of this activation
+        M = similarity(art.opts.method, art.F2[bmu], "M", sample, art.opts.gamma_ref)
+        # If the match satisfies the threshold criterion, then report that label
+        if M >= art.threshold
             # Update the stored match and activation values
-            bmu = index[1]
-            art.M = similarity(art.opts.method, art.F2[bmu], "M", sample, art.opts.gamma_ref)
+            art.M = M
             art.T = T[bmu]
-            # If falling back to the highest activated category, return that
-            if get_bmu
-                label = art.labels[index[1]]
-                if n_samples == 1
-                    y_hat = label
-                else
-                    y_hat[ix] = label
-                end
-            # Otherwise, return a mismatch
-            else
-                if n_samples == 1
-                    y_hat = -1
-                else
-                    y_hat[ix] = -1
-                end
-            end
+            # Current winner
+            y_hat = art.labels[bmu]
+            mismatch_flag = false
+            break
         end
+    end
+
+    # If we did not find a resonant category
+    if mismatch_flag
+        @debug "Mismatch"
+        # Update the stored match and activation values of the best matching unit
+        bmu = index[1]
+        art.M = similarity(art.opts.method, art.F2[bmu], "M", sample, art.opts.gamma_ref)
+        art.T = T[bmu]
+        # Report either the best matching unit or the mismatch label -1
+        y_hat = get_bmu ? art.labels[bmu] : -1
     end
 
     return y_hat
-end # classify(art::DDVFA, x::RealArray ; preprocessed::Bool=false, get_bmu::Bool=false)
+end
 
 # --------------------------------------------------------------------------- #
 # CONVENIENCE METHODS
