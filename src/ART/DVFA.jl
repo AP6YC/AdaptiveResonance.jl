@@ -139,14 +139,19 @@ function DVFA(opts::opts_DVFA)
     )
 end # DDVFA(opts::opts_DDVFA)
 
+"""
+    set_threshold!(art::DVFA)
+
+Configure the threshold values of the DVFA module.
+"""
 function set_threshold!(art::DVFA)
     # DVFA thresholds
     art.threshold_ub = art.opts.rho_ub * art.config.dim
     art.threshold_lb = art.opts.rho_lb * art.config.dim
-end
+end # set_threshold!(art::DVFA)
 
 """
-    train!(art::DVFA, x::RealMatrix ; y::IntegerVector=Vector{Int}(), preprocessed::Bool=false)
+    train!(art::DVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=false)
 
 Train the DVFA module on x with optional custom category labels y.
 
@@ -156,7 +161,6 @@ Train the DVFA module on x with optional custom category labels y.
 - `y::IntegerVector=[]`: optional custom labels to assign to the categories. If empty, ordinary incremental labels are prescribed.
 """
 function train!(art::DVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=false)
-
     # Flag for if training in supervised mode
     supervised = !iszero(y)
 
@@ -201,7 +205,6 @@ function train!(art::DVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fals
         # Best matching unit
         bmu = index[j]
         # Vigilance test upper bound
-        # if art.M[bmu] >= art.opts.rho_ub * art.config.dim
         if art.M[bmu] >= art.threshold_ub
             # If supervised and the label differs, trigger mismatch
             if supervised && (art.labels[bmu] != y)
@@ -216,7 +219,6 @@ function train!(art::DVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fals
             mismatch_flag = false
             break
         # Vigilance test lower bound
-        # elseif art.M[bmu] >= art.opts.rho_lb * art.config.dim
         elseif art.M[bmu] >= art.threshold_lb
             # If supervised and the label differs, trigger mismatch
             if supervised && (art.labels[bmu] != y)
@@ -247,10 +249,10 @@ function train!(art::DVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fals
     end
 
     return y_hat
-end
+end # train!(art::DVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=false)
 
 """
-    classify(art::DVFA, x::RealArray)
+    classify(art::DVFA, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
 
 Predict categories of 'x' using the DVFA model.
 
@@ -268,7 +270,6 @@ julia> y_hat = classify(my_DVFA, y)
 ```
 """
 function classify(art::DVFA, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
-
     # Preprocess the data
     sample = init_classify!(x, art, preprocessed)
 
@@ -280,7 +281,6 @@ function classify(art::DVFA, x::RealVector ; preprocessed::Bool=false, get_bmu::
     for jx in 1:art.n_categories
         bmu = index[jx]
         # Vigilance check - pass
-        # if art.M[bmu] >= art.opts.rho_ub * art.config.dim
         if art.M[bmu] >= art.threshold_ub
             # Current winner
             y_hat = art.labels[bmu]
@@ -298,7 +298,7 @@ function classify(art::DVFA, x::RealVector ; preprocessed::Bool=false, get_bmu::
     end
 
     return y_hat
-end
+end # classify(art::DVFA, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
 
 """
     activation_match!(art::DVFA, x::RealVector)
@@ -312,7 +312,7 @@ function activation_match!(art::DVFA, x::RealVector)
         numerator = norm(element_min(x, art.W[:, jx]), 1)
         art.T[jx] = numerator/(art.opts.alpha + norm(art.W[:, jx], 1))
         art.M[jx] = numerator
-    end # activation_match!(art::DVFA, x::RealVector)
+    end
 end # activation_match!(art::DVFA, x::RealVector)
 
 """
