@@ -41,9 +41,7 @@ mutable struct FAM <: ARTMAP
     opts::opts_FAM
     config::DataConfig
     W::RealMatrix
-    W_old::RealMatrix
     labels::IntegerVector
-    y::IntegerVector
     n_categories::Int
     epoch::Int
 end # FAM <: ARTMAP
@@ -102,9 +100,7 @@ function FAM(opts::opts_FAM)
     FAM(opts,                       # opts_FAM
         DataConfig(),               # config
         Array{Float}(undef, 0,0),   # W
-        Array{Float}(undef, 0,0),   # W_old
         Array{Int}(undef, 0),       # labels
-        Array{Int}(undef, 0),       # y
         0,                          # n_categories
         0                           # epoch
     )

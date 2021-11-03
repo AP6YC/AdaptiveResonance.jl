@@ -123,7 +123,6 @@ julia> train!(art, x, y)
 ```
 """
 function train!(art::SFAM, x::RealVector, y::Integer ; preprocessed::Bool=false)
-
     # Run the sequential initialization procedure
     sample = init_train!(x, art, preprocessed)
 
@@ -276,5 +275,4 @@ sample x.
 function art_match(art::SFAM, x::RealVector, W::RealVector)
     # Compute M and return
     return norm(element_min(x, W), 1) / art.config.dim
-    # return norm(element_min(x, W), 1) / art.config.dim_comp
 end # art_match(art::SFAM, x::RealVector, W::RealVector)
