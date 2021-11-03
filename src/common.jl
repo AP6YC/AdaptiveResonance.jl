@@ -362,7 +362,10 @@ function get_sample(x::RealArray, i::Int)
     return sample
 end # get_sample(x::RealArray, i::Int)
 
-function init_train!(x::RealVector, art::ART, preprocessed::Bool)
+"""
+    init_train!(x::RealVector, art::ARTModule, preprocessed::Bool)
+"""
+function init_train!(x::RealVector, art::ARTModule, preprocessed::Bool)
     # If the data is not preprocessed
     if !preprocessed
         # If the data config is not setup, not enough information to preprocess
@@ -383,12 +386,12 @@ function init_train!(x::RealVector, art::ART, preprocessed::Bool)
         art.config = DataConfig(0, 1, dim)
     end
     return x
-end
+end # init_train!(x::RealVector, art::ARTModule, preprocessed::Bool)
 
 """
-    init_train!(x::RealMatrix, art::ART, preprocessed::Bool)
+    init_train!(x::RealMatrix, art::ARTModule, preprocessed::Bool)
 """
-function init_train!(x::RealMatrix, art::ART, preprocessed::Bool)
+function init_train!(x::RealMatrix, art::ARTModule, preprocessed::Bool)
     # If the data is not preprocessed, then complement code it
     if !preprocessed
         # Set up the data config if training for the first time
@@ -399,9 +402,9 @@ function init_train!(x::RealMatrix, art::ART, preprocessed::Bool)
 end # init_train!(x::RealMatrix, art::ART, preprocessed::Bool)
 
 """
-    init_classify!(x::RealArray, art::ART, preprocessed::Bool)
+    init_classify!(x::RealArray, art::ARTModule, preprocessed::Bool)
 """
-function init_classify!(x::RealArray, art::ART, preprocessed::Bool)
+function init_classify!(x::RealArray, art::ARTModule, preprocessed::Bool)
     # If the data is not preprocessed
     if !preprocessed
         # If the data config is not setup, not enough information to preprocess
@@ -413,3 +416,57 @@ function init_classify!(x::RealArray, art::ART, preprocessed::Bool)
     end
     return x
 end # init_classify!(x::RealArray, art::ART, preprocessed::Bool)
+
+
+"""
+    classify(art::ARTModule, x::RealMatrix ; preprocessed::Bool=false, get_bmu::Bool=false)
+
+Predict categories of 'x' using the ART model.
+
+Returns predicted categories 'y_hat.'
+
+# Arguments
+- `art::ARTModule`: ART or ARTMAP module to use for batch inference.
+- `x::RealMatrix`: the 2-D dataset containing columns of samples with rows of features.
+- `preprocessed::Bool=false`: flag, if the data has already been complement coded or not.
+- `get_bmu::Bool=false`, flag, if the model should return the best-matching-unit label in the case of total mismatch.
+
+# Examples
+```julia-repl
+julia> my_DDVFA = DDVFA()
+DDVFA
+    opts: opts_DDVFA
+    ...
+julia> x, y = load_data()
+julia> train!(my_DDVFA, x)
+julia> y_hat = classify(my_DDVFA, y)
+```
+"""
+function classify(art::ARTModule, x::RealMatrix ; preprocessed::Bool=false, get_bmu::Bool=false)
+    # Show a message if display is on
+    art.opts.display && @info "Testing $(typeof(art))"
+
+    # Preprocess the data
+    x = init_classify!(x, art, preprocessed)
+
+    # Data information and setup
+    n_samples = get_n_samples(x)
+
+    # Initialize the output vector
+    y_hat = zeros(Int, n_samples)
+
+    # Get the iterator based on the module options and data shape
+    iter = get_iterator(art.opts, x)
+    for ix = iter
+        # Update the iterator if necessary
+        update_iter(art, iter, ix)
+
+        # Grab the sample slice
+        sample = get_sample(x, ix)
+
+        # Get the classification
+        y_hat[ix] = classify(art, sample, preprocessed=true, get_bmu=get_bmu)
+    end
+
+    return y_hat
+end # classify(art::ARTModule, x::RealMatrix ; preprocessed::Bool=false, get_bmu::Bool=false)

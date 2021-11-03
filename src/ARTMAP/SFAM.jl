@@ -41,9 +41,7 @@ mutable struct SFAM <: ARTMAP
     opts::opts_SFAM
     config::DataConfig
     W::RealMatrix
-    W_old::RealMatrix
     labels::IntegerVector
-    y::IntegerVector
     n_categories::Int
     epoch::Int
 end # SFAM <: ARTMAP
@@ -103,9 +101,7 @@ function SFAM(opts::opts_SFAM)
         opts,                           # opts_SFAM
         DataConfig(),                   # config
         Array{Float}(undef, 0, 0),      # W
-        Array{Float}(undef, 0, 0),      # W_old
         Array{Int}(undef, 0),           # labels
-        Array{Int}(undef, 0),           # y
         0,                              # n_categories
         0                               # epoch
     )
@@ -126,92 +122,67 @@ SFAM
 julia> train!(art, x, y)
 ```
 """
-function train!(art::SFAM, x::RealArray, y::RealArray ; preprocessed::Bool=false)
-    # Show a message if display is on
-    art.opts.display && @info "Training SFAM"
+function train!(art::SFAM, x::RealVector, y::Integer ; preprocessed::Bool=false)
 
-    # Data information and setup
-    n_samples = get_n_samples(x)
+    # Run the sequential initialization procedure
+    sample = init_train!(x, art, preprocessed)
 
-    # Set up the data config if it is not already
-    !art.config.setup && data_setup!(art.config, x)
+    # Initialization
+    if !(y in art.labels)
+        # Initialize W and labels
+        if isempty(art.W)
+            art.W = Array{Float64}(undef, art.config.dim_comp, 1)
+            art.W[:, 1] = sample
+        else
+            art.W = [art.W sample]
+        end
+        push!(art.labels, y)
+        art.n_categories += 1
+    else
+        # Baseline vigilance parameter
+        rho_baseline = art.opts.rho
 
-    # If the data is not preprocessed, then complement code it
-    if !preprocessed
-        x = complement_code(x, config=art.config)
-    end
+        # Compute activation function
+        T = zeros(art.n_categories)
+        for jx in 1:art.n_categories
+            T[jx] = activation(art, sample, art.W[:, jx])
+        end
 
-    # Initialize the internal categories
-    art.y = zeros(Int, n_samples)
-
-    # Initialize the training loop, continue to convergence
-    art.epoch = 0
-    while true
-        art.epoch += 1
-        iter = get_iterator(art.opts, x)
-        for ix in iter
-            # Update the iterator if necessary
-            update_iter(art, iter, ix)
-            if !(y[ix] in art.labels)
-                # Initialize W and labels
-                if isempty(art.W)
-                    art.W = Array{Float64}(undef, art.config.dim_comp, 1)
-                    art.W_old = Array{Float64}(undef, art.config.dim_comp, 1)
-                    art.W[:, ix] = x[:, ix]
+        # Sort activation function values in descending order
+        index = sortperm(T, rev=true)
+        mismatch_flag = true
+        for jx in 1:art.n_categories
+            # Compute match function
+            M = art_match(art, sample, art.W[:, index[jx]])
+            # Current winner
+            if M >= rho_baseline
+                if y == art.labels[index[jx]]
+                    # Learn
+                    @debug "Learning"
+                    art.W[:, index[jx]] = learn(art, sample, art.W[:, index[jx]])
+                    mismatch_flag = false
+                    break
                 else
-                    art.W = [art.W x[:, ix]]
-                end
-                push!(art.labels, y[ix])
-                art.n_categories += 1
-                art.y[ix] = y[ix]
-            else
-                # Baseline vigilance parameter
-                rho_baseline = art.opts.rho
-
-                # Compute activation function
-                T = zeros(art.n_categories)
-                for jx in 1:art.n_categories
-                    T[jx] = activation(art, x[:, ix], art.W[:, jx])
-                end
-
-                # Sort activation function values in descending order
-                index = sortperm(T, rev=true)
-                mismatch_flag = true
-                for jx in 1:art.n_categories
-                    # Compute match function
-                    M = art_match(art, x[:, ix], art.W[:, index[jx]])
-                    # Current winner
-                    if M >= rho_baseline
-                        if y[ix] == art.labels[index[jx]]
-                            # Learn
-                            @debug "Learning"
-                            art.W[:, index[jx]] = learn(art, x[:, ix], art.W[:, index[jx]])
-                            art.y[ix] = art.labels[index[jx]]
-                            mismatch_flag = false
-                            break
-                        else
-                            # Match tracking
-                            @debug "Match tracking"
-                            rho_baseline = M + art.opts.epsilon
-                        end
-                    end
-                end
-                if mismatch_flag
-                    # Create new weight vector
-                    @debug "Mismatch"
-                    art.W = hcat(art.W, x[:, ix])
-                    push!(art.labels, y[ix])
-                    art.n_categories += 1
-                    art.y[ix] = y[ix]
+                    # Match tracking
+                    @debug "Match tracking"
+                    rho_baseline = M + art.opts.epsilon
                 end
             end
         end
-        if stopping_conditions(art)
-            break
+
+        # If we triggered a mismatch
+        if mismatch_flag
+            # Create new weight vector
+            @debug "Mismatch"
+            art.W = hcat(art.W, sample)
+            push!(art.labels, y)
+            art.n_categories += 1
         end
-        art.W_old = deepcopy(art.W)
     end
-end # train!(art::SFAM, x::RealArray, y::RealArray ; preprocessed::Bool=false)
+
+    # ARTMAP guarantees correct training classification, so just return the label
+    return y
+end
 
 """
     classify(art::SFAM, x::RealArray ; preprocessed::Bool=false)
@@ -230,60 +201,39 @@ julia> train!(art, x, y)
 julia> classify(art, x_test)
 ```
 """
-function classify(art::SFAM, x::RealArray ; preprocessed::Bool=false, get_bmu::Bool=false)
-    # Show a message if display is on
-    art.opts.display && @info "Testing SFAM"
+function classify(art::SFAM, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
+    # Run the sequential initialization procedure
+    sample = init_classify!(x, art, preprocessed)
 
-    # Data information and setup
-    n_samples = get_n_samples(x)
-
-    # Throw an soft error if classifying before setup
-    !art.config.setup && @error "Attempting to classify data before setup"
-
-    # If the data is not preprocessed, then complement code it
-    if !preprocessed
-        x = complement_code(x, config=art.config)
+    # Compute activation function
+    T = zeros(art.n_categories)
+    for jx in 1:art.n_categories
+        T[jx] = activation(art, sample, art.W[:, jx])
     end
 
-    # Initialize the output vector and iterate across all data
-    y_hat = zeros(Int, n_samples)
-    iter = ProgressBar(1:n_samples)
-    for ix in iter
-        set_description(iter, string(@sprintf("ID: %i, Cat: %i", ix, art.n_categories)))
-
-        # Compute activation function
-        T = zeros(art.n_categories)
-        for jx in 1:art.n_categories
-            T[jx] = activation(art, x[:, ix], art.W[:, jx])
-        end
-
-        # Sort activation function values in descending order
-        index = sortperm(T, rev=true)
-        mismatch_flag = true
-        for jx in 1:art.n_categories
-            # Compute match function
-            M = art_match(art, x[:, ix], art.W[:, index[jx]])
-            # Current winner
-            if M >= art.opts.rho
-                y_hat[ix] = art.labels[index[jx]]
-                mismatch_flag = false
-                break
-            end
-        end
-        if mismatch_flag
-            # Label as -1 if mismatched
-            @debug "Mismatch"
-            # If we mismatched and want the best matching unit
-            if get_bmu
-                y_hat = art.labels[index[1]]
-            # Otherwise, report the mismatch label -1
-            else
-                y_hat[ix] = -1
-            end
+    # Sort activation function values in descending order
+    index = sortperm(T, rev=true)
+    mismatch_flag = true
+    for jx in 1:art.n_categories
+        # Compute match function
+        M = art_match(art, sample, art.W[:, index[jx]])
+        # Current winner
+        if M >= art.opts.rho
+            y_hat = art.labels[index[jx]]
+            mismatch_flag = false
+            break
         end
     end
+
+    # If we did not find a resonant category
+    if mismatch_flag
+        @debug "Mismatch"
+        # Report either the best matching unit or the mismatch label -1
+        y_hat = get_bmu ? art.labels[index[1]] : -1
+    end
+
     return y_hat
-end # classify(art::SFAM, x::RealArray ; preprocessed::Bool=false)
+end
 
 """
     stopping_conditions(art::SFAM)
@@ -292,7 +242,7 @@ Stopping conditions for Simple Fuzzy ARTMAP, checked at the end of every epoch.
 """
 function stopping_conditions(art::SFAM)
     # Compute the stopping condition, return a bool
-    return art.W == art.W_old || art.epoch >= art.opts.max_epochs
+    return art.epoch >= art.opts.max_epochs
 end # stopping_conditions(art::SFAM)
 
 """
