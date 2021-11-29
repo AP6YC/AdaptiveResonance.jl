@@ -131,6 +131,44 @@ opts = opts_DDVFA(rho_ub=0.75, rho_lb=0.4)
 art = DDVFA(opts)
 ```
 
+Train and test the models with `train!` and `classify`:
+
+```julia
+# Unsupervised ART module
+art = DDVFA()
+
+# Supervised ARTMAP module
+artmap = SFAM()
+
+# Load some data
+train_x, train_y, test_x, test_y = load_your_data()
+
+# Unsupervised training and testing
+train!(art, train_x)
+y_hat_art = classify(art, test_x)
+
+# Supervised training and testing
+train!(artmap, train_x, train_y)
+y_hat_artmap = classify(art, test_x)
+```
+
+`train!` and `classify` can accept incremental or batch data, where rows are features and columns are samples.
+
+Unsupervised ART modules can also accommodate simple supervised learning where internal categories are mapped to supervised labels with the keyword argument `y`:
+
+```julia
+# Unsupervised ART module
+art = DDVFA()
+train!(art, train_x, y=train_y)
+```
+
+These modules also support retrieving the "best-matching unit" in the case of complete mismatch (i.e., the next-best category if the presented sample is completely unrecognized) with the keyword argument `get_bmu`:
+
+```julia
+# Get the best-matching unit in the case of complete mismatch
+y_hat_bmu = classify(art, test_x, get_bmu=true)
+```
+
 ## Implemented Modules
 
 This project has implementations of the following ART (unsupervised) and ARTMAP (supervised) modules:
