@@ -19,7 +19,7 @@ Stephen Grossberg's has recently released a book summarizing the work of him, hi
 
 ### ART Dynamics
 
-These are the basics of almost every ART model:
+Nearly every ART model shares a basic set of dynamics:
 
 1. ART models typically have two layers/fields denoted F1 and F2.
 2. The F1 field is the feature representation field.
@@ -29,7 +29,7 @@ These are the basics of almost every ART model:
     This is most easily understood as a weight vector representing a prototype for a class or centroid of a cluster.
 4. An activation function is used to find the order of categories "most activated" for a given sample in F1.
 5. In order of highest activation, a match function is used to compute the agreement between the sample and the categories.
-6. If the match function evaluates to above a threshold value known as the vigilance parameter ($$\rho$$), the weights may be updated according to a learning rule.
+6. If the match function for a category evaluates to a value above a threshold known as the vigilance parameter ($$\rho$$), the weights of that category may be updated according to a learning rule.
 7. If there is complete mismatch across all categories, then a new categories is created according to some instantiation rule.
 
 ### ART Considerations
