@@ -1,3 +1,7 @@
+![header](assets/header.png)
+
+---
+
 # AdaptiveResonance.jl
 
 These pages serve as the official documentation for the AdaptiveResonance.jl Julia package.
@@ -17,6 +21,7 @@ This documentation is split into the following sections:
 Pages = [
     "man/guide.md",
     "man/examples.md",
+    "man/modules.md",
     "man/contributing.md",
     "man/full-index.md",
 ]
@@ -24,5 +29,6 @@ Depth = 1
 ```
 
 The [Package Guide](@ref) provides a tutorial to the full usage of the package, while [Examples](@ref) gives sample workflows using a variety of ART modules.
+A list of the implemented ART modules is included in [Modules](@ref), where different options are also listed for creating variants of these modules that exist in the literature.
 
 Instructions on how to contribute to the package are found in [Contributing](@ref), and docstrings for every element of the package is listed in the [Index](@ref main-index).

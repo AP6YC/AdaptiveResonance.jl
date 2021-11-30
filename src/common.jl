@@ -1,4 +1,3 @@
-
 # -------------------------------------------
 # Document: common.jl
 # Author: Sasha Petrenko <sap625@mst.edu>
@@ -31,6 +30,9 @@ const IntegerMatrix{T<:Integer} = AbstractArray{T, 2}
 # Specifically floating-point aliases
 const RealFP = Union{Float32, Float64}
 
+# System's largest native floating point variable
+const Float = (Sys.WORD_SIZE == 64 ? Float64 : Float32)
+
 # Acceptable iterators for ART module training and inference
 const ARTIterator = Union{UnitRange, ProgressBar}
 
@@ -43,8 +45,8 @@ mutable struct DataConfig
     setup::Bool
     mins::RealVector
     maxs::RealVector
-    dim::Integer
-    dim_comp::Integer
+    dim::Int
+    dim_comp::Int
 end # DataConfig
 
 """
@@ -55,8 +57,8 @@ Default constructor for a data configuration, not set up.
 function DataConfig()
     DataConfig(
         false,                      # setup
-        Array{RealFP}(undef, 0),   # min
-        Array{RealFP}(undef, 0),   # max
+        Array{Float}(undef, 0),     # min
+        Array{Float}(undef, 0),     # max
         0,                          # dim
         0                           # dim_comp
     )
@@ -85,13 +87,13 @@ function DataConfig(mins::RealVector, maxs::RealVector)
 end # DataConfig(mins::RealVector, maxs::RealVector)
 
 """
-    DataConfig(min::Real, max::Real, dim::Integer)
+    DataConfig(min::Real, max::Real, dim::Int)
 
 Convenience constructor for DataConfig, requiring only a global min, max, and dim.
 
 This constructor is used in the case that the feature mins and maxs are all the same respectively.
 """
-function DataConfig(min::Real, max::Real, dim::Integer)
+function DataConfig(min::Real, max::Real, dim::Int)
     DataConfig(
         true,               # setup
         repeat([min], dim), # min
@@ -99,7 +101,7 @@ function DataConfig(min::Real, max::Real, dim::Integer)
         dim,                # dim
         dim*2               # dim_comp
     )
-end # DataConfig(min::Real, max::Real, dim::Integer)
+end # DataConfig(min::Real, max::Real, dim::Int)
 
 """
     element_min(x::RealVector, W::RealVector)
@@ -194,6 +196,22 @@ function data_setup!(config::DataConfig, data::RealMatrix)
 end # data_setup!(config::DataConfig, data::RealMatrix)
 
 """
+    DataConfig(data::RealMatrix)
+
+Convenience constructor for DataConfig, requiring only the data matrix.
+"""
+function DataConfig(data::RealMatrix)
+    # Create an empty dataconfig
+    config = DataConfig()
+
+    # Runthe setup upon the config using the data matrix for reference
+    data_setup!(config, data)
+
+    # Return the constructed DataConfig
+    return config
+end # DataConfig(min::Real, max::Real, dim::Int)
+
+"""
     get_data_characteristics(data::RealArray ; config::DataConfig=DataConfig())
 
 Get the characteristics of the data, taking account if a data config is passed.
@@ -218,25 +236,63 @@ function get_data_characteristics(data::RealArray ; config::DataConfig=DataConfi
 end # get_data_characteristics(data::RealArray ; config::DataConfig=DataConfig())
 
 """
-    linear_normalization(data::RealArray ; config::DataConfig=DataConfig())
+    linear_normalization(data::RealVector ; config::DataConfig=DataConfig())
 
 Normalize the data to the range [0, 1] along each feature.
 """
-function linear_normalization(data::RealArray ; config::DataConfig=DataConfig())
+function linear_normalization(data::RealVector ; config::DataConfig=DataConfig())
+    # Vector normalization requires a setup DataConfig
+    if !config.setup
+        error("Attempting to complement code a vector without a setup DataConfig")
+    end
+
+    # Populate a new array with normalized values.
+    x_raw = zeros(config.dim)
+
+    # Iterate over each dimension
+    for i = 1:config.dim
+        denominator = config.maxs[i] - config.mins[i]
+        if denominator != 0
+            # If the denominator is not zero, normalize
+            x_raw[i] = (data[i] .- config.mins[i]) ./ denominator
+        else
+            # Otherwise, the feature is zeroed because it contains no useful information
+            x_raw[i] = zero(Int)
+        end
+    end
+    return x_raw
+end # linear_normalization(data::RealArray ; config::DataConfig=DataConfig())
+
+"""
+    linear_normalization(data::RealMatrix ; config::DataConfig=DataConfig())
+
+Normalize the data to the range [0, 1] along each feature.
+"""
+function linear_normalization(data::RealMatrix ; config::DataConfig=DataConfig())
     # Get the data characteristics
     dim, n_samples, mins, maxs = get_data_characteristics(data, config=config)
 
     # Populate a new array with normalized values.
     x_raw = zeros(dim, n_samples)
+
+    # Verify that all maxs are strictly greater than mins
+    if !all(mins .< maxs)
+        error("Got a data max index that is smaller than the corresonding min")
+    end
+
+    # Iterate over each dimension
     for i = 1:dim
-        if maxs[i] < mins[i]
-            error("Got a data max index that is smaller than the corresonding min")
-        elseif maxs[i] - mins[i] != 0
-            x_raw[i, :] = (data[i, :] .- mins[i]) ./ (maxs[i] - mins[i])
+        denominator = maxs[i] - mins[i]
+        if denominator != 0
+            # If the denominator is not zero, normalize
+            x_raw[i, :] = (data[i, :] .- mins[i]) ./ denominator
+        else
+            # Otherwise, the feature is zeroed because it contains no useful information
+            x_raw[i, :] = zeros(length(x_raw[i, :]))
         end
     end
     return x_raw
-end # linear_normalization(data::RealArray ; config::DataConfig=DataConfig())
+end # linear_normalization(data::RealMatrix ; config::DataConfig=DataConfig())
 
 """
     complement_code(data::RealArray ; config::DataConfig=DataConfig())
@@ -265,15 +321,15 @@ function get_iterator(opts::ARTOpts, x::RealArray)
 
     # Construct the iterator
     iter_raw = 1:n_samples
-    iter = prog_bar ?  ProgressBar(iter_raw) : iter_raw
+    iter = prog_bar ? ProgressBar(iter_raw) : iter_raw
 
     return iter
 end # get_iterator(opts::ARTOpts, x::RealArray)
 
 """
-    update_iter(art::ARTModule, iter::ARTIterator, i::Integer)
+    update_iter(art::ARTModule, iter::ARTIterator, i::Int)
 """
-function update_iter(art::ARTModule, iter::ARTIterator, i::Integer)
+function update_iter(art::ARTModule, iter::ARTIterator, i::Int)
     # Check explicitly for each, as the function definition restricts the types
     if iter isa ProgressBar
         set_description(iter, string(@sprintf("Ep: %i, ID: %i, Cat: %i", art.epoch, i, art.n_categories)))
@@ -283,11 +339,11 @@ function update_iter(art::ARTModule, iter::ARTIterator, i::Integer)
 end # update_iter(art::ARTModule, iter::Union{UnitRange, ProgressBar}, i::Int)
 
 """
-    get_sample(x::RealArray, i::Integer)
+    get_sample(x::RealArray, i::Int)
 
 Returns a sample from data array x safely, accounting for 1-D and
 """
-function get_sample(x::RealArray, i::Integer)
+function get_sample(x::RealArray, i::Int)
     # Get the shape of the data, irrespective of data type
     dim, n_samples = get_data_shape(x)
     # Get the type shape of the array
@@ -304,4 +360,113 @@ function get_sample(x::RealArray, i::Integer)
         sample = x[:, i]
     end
     return sample
-end # get_sample(x::RealArray, i::Integer)
+end # get_sample(x::RealArray, i::Int)
+
+"""
+    init_train!(x::RealVector, art::ARTModule, preprocessed::Bool)
+"""
+function init_train!(x::RealVector, art::ARTModule, preprocessed::Bool)
+    # If the data is not preprocessed
+    if !preprocessed
+        # If the data config is not setup, not enough information to preprocess
+        if !art.config.setup
+            error("$(typeof(art)): cannot preprocess data before being setup.")
+        end
+        x = complement_code(x, config=art.config)
+    # If it is preprocessed and we are not setup
+    elseif !art.config.setup
+        # Get the dimension of the vector
+        dim_comp = length(x)
+        # If the complemented dimension is not even, error
+        if !iseven(dim_comp)
+            error("Declare that the vector is preprocessed, but it is not even")
+        end
+        # Half the complemented dimension and setup the DataConfig with that
+        dim = Int(dim_comp/2)
+        art.config = DataConfig(0, 1, dim)
+    end
+    return x
+end # init_train!(x::RealVector, art::ARTModule, preprocessed::Bool)
+
+"""
+    init_train!(x::RealMatrix, art::ARTModule, preprocessed::Bool)
+"""
+function init_train!(x::RealMatrix, art::ARTModule, preprocessed::Bool)
+    # If the data is not preprocessed, then complement code it
+    if !preprocessed
+        # Set up the data config if training for the first time
+        !art.config.setup && data_setup!(art.config, x)
+        x = complement_code(x, config=art.config)
+    end
+    return x
+end # init_train!(x::RealMatrix, art::ART, preprocessed::Bool)
+
+"""
+    init_classify!(x::RealArray, art::ARTModule, preprocessed::Bool)
+"""
+function init_classify!(x::RealArray, art::ARTModule, preprocessed::Bool)
+    # If the data is not preprocessed
+    if !preprocessed
+        # If the data config is not setup, not enough information to preprocess
+        if !art.config.setup
+            error("$(typeof(art)): cannot preprocess data before being setup.")
+        end
+        # Dispatch to the correct complement code method (vector or matrix)
+        x = complement_code(x, config=art.config)
+    end
+    return x
+end # init_classify!(x::RealArray, art::ART, preprocessed::Bool)
+
+
+"""
+    classify(art::ARTModule, x::RealMatrix ; preprocessed::Bool=false, get_bmu::Bool=false)
+
+Predict categories of 'x' using the ART model.
+
+Returns predicted categories 'y_hat.'
+
+# Arguments
+- `art::ARTModule`: ART or ARTMAP module to use for batch inference.
+- `x::RealMatrix`: the 2-D dataset containing columns of samples with rows of features.
+- `preprocessed::Bool=false`: flag, if the data has already been complement coded or not.
+- `get_bmu::Bool=false`, flag, if the model should return the best-matching-unit label in the case of total mismatch.
+
+# Examples
+```julia-repl
+julia> my_DDVFA = DDVFA()
+DDVFA
+    opts: opts_DDVFA
+    ...
+julia> x, y = load_data()
+julia> train!(my_DDVFA, x)
+julia> y_hat = classify(my_DDVFA, y)
+```
+"""
+function classify(art::ARTModule, x::RealMatrix ; preprocessed::Bool=false, get_bmu::Bool=false)
+    # Show a message if display is on
+    art.opts.display && @info "Testing $(typeof(art))"
+
+    # Preprocess the data
+    x = init_classify!(x, art, preprocessed)
+
+    # Data information and setup
+    n_samples = get_n_samples(x)
+
+    # Initialize the output vector
+    y_hat = zeros(Int, n_samples)
+
+    # Get the iterator based on the module options and data shape
+    iter = get_iterator(art.opts, x)
+    for ix = iter
+        # Update the iterator if necessary
+        update_iter(art, iter, ix)
+
+        # Grab the sample slice
+        sample = get_sample(x, ix)
+
+        # Get the classification
+        y_hat[ix] = classify(art, sample, preprocessed=true, get_bmu=get_bmu)
+    end
+
+    return y_hat
+end # classify(art::ARTModule, x::RealMatrix ; preprocessed::Bool=false, get_bmu::Bool=false)

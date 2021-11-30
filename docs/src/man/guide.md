@@ -39,6 +39,7 @@ To work with ART modules, you should know:
 - [Their basic methods](@ref methods)
 - [Incremental vs. batch modes](@ref incremental_vs_batch)
 - [Supervised vs. unsupervised learning modes](@ref supervised_vs_unsupervised)
+- [Mismatch vs. Best-Matching-Unit](@ref mismatch-bmu)
 
 ### [Methods](@id methods)
 
@@ -163,6 +164,19 @@ perf_test = performance(y_hat_test, test_y)
 
 However, many ART modules, though unsupervised by definition, can also be trained in a supervised way by naively mapping categories to labels (more in [ART vs. ARTMAP](@ref art_vs_artmap)).
 
+### [Mismatch vs. Best-Matching-Unit](@id mismatch-bmu)
+
+During inference, ART algorithms report the category that satisfies the match/vigilance criterion (see [Background](@ref)).
+By default, in the case that no category satisfies this criterion the module reports a *mismatch* as -1.
+In modules that support it, a keyword argument `get_bmu` (default is `false`) can be used in the `classify` method to get the "best-matching unit", which is the category that maximizes the activation.
+This can be interpreted as the "next-best guess" of the model in the case that the sample is sufficiently different from anything that the model has seen.
+For example,
+
+```julia
+# Conduct inference, getting the best-matching unit in case of complete mismatch
+y_hat_bmu = classify(my_art, test_x, get_bmu=true)
+```
+
 ## [ART Options](@id art_options)
 
 The AdaptiveResonance package is designed for maximum flexibility for scientific research, even though this may come at the cost of learning instability if misused.
@@ -190,6 +204,13 @@ The options are objects from the [Parameters.jl](https://github.com/mauro3/Param
 ```julia
 my_art_opts = opts_DDVFA(gamma = 3)
 ```
+
+!!! note "Note"
+    As of version `0.3.6`, you can pass these keyword arguments directly to the ART model when constructing it with
+
+    ```julia
+    my_art = DDVFA(gamma = 3)
+    ```
 
 You can even modify the parameters on the fly after the ART module has been instantiated by directly modifying the options within the module:
 

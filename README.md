@@ -6,9 +6,7 @@ A Julia package for Adaptive Resonance Theory (ART) algorithms.
 |:------------------:|:----------------:|:------------:|
 | [![Stable][docs-stable-img]][docs-stable-url] | [![Build Status][ci-img]][ci-url] | [![Codecov][codecov-img]][codecov-url] |
 | [![Dev][docs-dev-img]][docs-dev-url] | [![Build Status][appveyor-img]][appveyor-url] | [![Coveralls][coveralls-img]][coveralls-url] |
-
 | **Dependents** | **Date** | **Status** |
-|:--------------:|:--------:|:----------:|
 | [![deps][deps-img]][deps-url] | [![version][version-img]][version-url] | [![pkgeval][pkgeval-img]][pkgeval-url] |
 
 [deps-img]: https://juliahub.com/docs/AdaptiveResonance/deps.svg
@@ -54,7 +52,7 @@ Please read the [documentation](https://ap6yc.github.io/AdaptiveResonance.jl/dev
   - [Implemented Modules](#implemented-modules)
   - [Structure](#structure)
   - [History](#history)
-  - [Credits](#credits)
+  - [Acknowledgements](#acknowledgements)
     - [Authors](#authors)
     - [Software](#software)
     - [Datasets](#datasets)
@@ -133,18 +131,58 @@ opts = opts_DDVFA(rho_ub=0.75, rho_lb=0.4)
 art = DDVFA(opts)
 ```
 
+Train and test the models with `train!` and `classify`:
+
+```julia
+# Unsupervised ART module
+art = DDVFA()
+
+# Supervised ARTMAP module
+artmap = SFAM()
+
+# Load some data
+train_x, train_y, test_x, test_y = load_your_data()
+
+# Unsupervised training and testing
+train!(art, train_x)
+y_hat_art = classify(art, test_x)
+
+# Supervised training and testing
+train!(artmap, train_x, train_y)
+y_hat_artmap = classify(art, test_x)
+```
+
+`train!` and `classify` can accept incremental or batch data, where rows are features and columns are samples.
+
+Unsupervised ART modules can also accommodate simple supervised learning where internal categories are mapped to supervised labels with the keyword argument `y`:
+
+```julia
+# Unsupervised ART module
+art = DDVFA()
+train!(art, train_x, y=train_y)
+```
+
+These modules also support retrieving the "best-matching unit" in the case of complete mismatch (i.e., the next-best category if the presented sample is completely unrecognized) with the keyword argument `get_bmu`:
+
+```julia
+# Get the best-matching unit in the case of complete mismatch
+y_hat_bmu = classify(art, test_x, get_bmu=true)
+```
+
 ## Implemented Modules
 
 This project has implementations of the following ART (unsupervised) and ARTMAP (supervised) modules:
 
 - ART
-  - **DDVFA**: Distributed Dual Vigilance Fuzzy ART
+  - **FuzzyART**: Fuzzy ART
   - **DVFA**: Dual Vigilance Fuzzy ART
-  - **GNFA**: Gamma-Normalized Fuzzy ART
+  - **DDVFA**: Distributed Dual Vigilance Fuzzy ART
 - ARTMAP
   - **SFAM**: Simplified Fuzzy ARTMAP
   - **FAM**: Fuzzy ARTMAP
   - **DAM**: Default ARTMAP
+
+Because each of these modules is a framework for many variants in the literature, this project also implements these [variants](https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/modules/) by changing their module [options](https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/guide/#art_options).
 
 In addition to these modules, this package contains the following accessory methods:
 
@@ -183,7 +221,7 @@ AdaptiveResonance
 - 2/8/2021 - Formalize usage documentation.
 - 10/13/2021 - Initiate GitFlow contribution.
 
-## Credits
+## Acknowledgements
 
 ### Authors
 

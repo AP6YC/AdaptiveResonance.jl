@@ -26,7 +26,7 @@ Dual Vigilance Fuzzy ART options struct.
 julia> my_opts = opts_DVFA()
 ```
 """
-@with_kw mutable struct opts_DVFA <: ARTOpts @deftype RealFP
+@with_kw mutable struct opts_DVFA <: ARTOpts @deftype Float
     # Lower-bound vigilance parameter: [0, 1]
     rho_lb = 0.55; @assert rho_lb >= 0.0 && rho_lb <= 1.0
     # Upper bound vigilance parameter: [0, 1]
@@ -38,7 +38,7 @@ julia> my_opts = opts_DVFA()
     # Display flag
     display::Bool = true
     # Maximum number of epochs during training
-    max_epochs::Integer = 1
+    max_epochs::Int = 1
 end # opts_DVFA
 
 """
@@ -60,15 +60,16 @@ mutable struct DVFA <: ART
     config::DataConfig
 
     # Working variables
+    threshold_ub::Float
+    threshold_lb::Float
     labels::IntegerVector
     W::RealMatrix
     T::RealVector
     M::RealVector
-    W_old::RealMatrix
     map::IntegerVector
-    n_categories::Integer
-    n_clusters::Integer
-    epoch::Integer
+    n_categories::Int
+    n_clusters::Int
+    epoch::Int
 end # DVFA
 
 """
@@ -125,12 +126,13 @@ function DVFA(opts::opts_DVFA)
     DVFA(
         opts,                           # opts
         DataConfig(),                   # config
-        Array{Integer}(undef, 0),       # labels
-        Array{RealFP}(undef, 0, 0),     # W
-        Array{RealFP}(undef, 0),        # M
-        Array{RealFP}(undef, 0),        # T
-        Array{RealFP}(undef, 0, 0),     # W_old
-        Array{Integer}(undef, 0),       # map
+        0.0,                            # threshold_ub
+        0.0,                            # threshold_lb
+        Array{Int}(undef, 0),           # labels
+        Array{Float}(undef, 0, 0),      # W
+        Array{Float}(undef, 0),         # M
+        Array{Float}(undef, 0),         # T
+        Array{Int}(undef, 0),           # map
         0,                              # n_categories
         0,                              # n_clusters
         0                               # epoch
@@ -138,7 +140,18 @@ function DVFA(opts::opts_DVFA)
 end # DDVFA(opts::opts_DDVFA)
 
 """
-    train!(art::DVFA, x::RealArray ; y::IntegerVector = [], preprocessed::Bool=false)
+    set_threshold!(art::DVFA)
+
+Configure the threshold values of the DVFA module.
+"""
+function set_threshold!(art::DVFA)
+    # DVFA thresholds
+    art.threshold_ub = art.opts.rho_ub * art.config.dim
+    art.threshold_lb = art.opts.rho_lb * art.config.dim
+end # set_threshold!(art::DVFA)
+
+"""
+    train!(art::DVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=false)
 
 Train the DVFA module on x with optional custom category labels y.
 
@@ -147,147 +160,99 @@ Train the DVFA module on x with optional custom category labels y.
 - `x::RealArray`: the data to train on, interpreted as a single sample if x is a vector.
 - `y::IntegerVector=[]`: optional custom labels to assign to the categories. If empty, ordinary incremental labels are prescribed.
 """
-function train!(art::DVFA, x::RealArray ; y::IntegerVector = Vector{Integer}(), preprocessed::Bool=false)
-    # Show a message if display is on
-    art.opts.display && @info "Training DVFA"
+function train!(art::DVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=false)
+    # Flag for if training in supervised mode
+    supervised = !iszero(y)
 
-    # Simple supervised flag
-    supervised = !isempty(y)
-
-    # Data information and setup
-    n_samples = get_n_samples(x)
-
-    # Set up the data config if training for the first time
-    !art.config.setup && data_setup!(art.config, x)
-
-    # If the data is not preprocessed, then complement code it
-    if !preprocessed
-        x = complement_code(x, config=art.config)
-    end
-
-    if n_samples == 1
-        y_hat = zero(Integer)
-    else
-        y_hat = zeros(Integer, n_samples)
-    end
+    # Run the sequential initialization procedure
+    sample = init_train!(x, art, preprocessed)
 
     # Initialization
     if isempty(art.W)
+        # Set the threshold
+        set_threshold!(art)
         # Set the first label as either 1 or the first provided label
-        local_label = supervised ? y[1] : 1
-        # Add the local label to the output vector
-        if n_samples == 1
-            y_hat = local_label
-        else
-            y_hat[1] = local_label
-        end
+        y_hat = supervised ? y : 1
         # Create a new category and cluster
         art.W = ones(art.config.dim_comp, 1)
         art.n_categories = 1
         art.n_clusters = 1
-        push!(art.labels, local_label)
-        # Skip the first training entry
-        skip_first = true
-    else
-        skip_first = false
+        push!(art.labels, y_hat)
+        return y_hat
     end
-    art.W_old = art.W
 
-    # Learn until the stopping conditions
-    art.epoch = 0
-    while true
-        # Increment the epoch and get the iterator
-        art.epoch += 1
-        iter = get_iterator(art.opts, x)
-        for i = iter
-            # Update the iterator if necessary
-            update_iter(art, iter, i)
-            # Skip the first sample if we just initialized
-            (i == 1 && skip_first) && continue
+    # If label is new, break to make new category
+    if supervised && !(y in art.labels)
+        y_hat = y
+        # Update sample labels
+        push!(art.labels, y)
+        # Fast commit the sample
+        art.W = hcat(art.W, sample)
+        art.n_categories += 1
+        art.n_clusters += 1
+        return y_hat
+    end
 
-            # Grab the sample slice
-            sample = get_sample(x, i)
+    # Compute the activation and match for all categories
+    activation_match!(art, sample)
+    # Sort activation function values in descending order
+    index = sortperm(art.T, rev=true)
 
-            # If label is new, break to make new category
-            if supervised && !(y[i] in art.labels)
-                if n_samples == 1
-                    y_hat = y[i]
-                else
-                    y_hat[i] = y[i]
-                end
-                # Update sample labels
-                push!(art.labels, y[i])
-                # Fast commit the sample
-                art.W = hcat(art.W, sample)
-                art.n_categories += 1
-                art.n_clusters += 1
-                continue
+    # Default to mismatch
+    mismatch_flag = true
+    # Loop over all categories
+    for j = 1:art.n_categories
+        # Best matching unit
+        bmu = index[j]
+        # Vigilance test upper bound
+        if art.M[bmu] >= art.threshold_ub
+            # If supervised and the label differs, trigger mismatch
+            if supervised && (art.labels[bmu] != y)
+                break
             end
-
-            # Compute the activation and match for all categories
-            activation_match!(art, sample)
-            # Sort activation function values in descending order
-            index = sortperm(art.T, rev=true)
-            # Default to mismatch
-            mismatch_flag = true
-            # Loop over all categories
-            for j = 1:art.n_categories
-                # Best matching unit
-                bmu = index[j]
-                # Vigilance test upper bound
-                if art.M[bmu] >= art.opts.rho_ub * art.config.dim
-                    # Learn the sample
-                    learn!(art, sample, bmu)
-                    # Update sample label for output`
-                    label = supervised ? y[i] : art.labels[bmu]
-                    # push!(art.labels, label)
-                    # No mismatch
-                    mismatch_flag = false
-                    break
-                # Vigilance test lower bound
-                elseif art.M[bmu] >= art.opts.rho_lb * art.config.dim
-                    # # Update sample labels
-                    # label = supervised ? y[i] : art.map[bmu]
-                    label = supervised ? y[i] : art.labels[bmu]
-                    push!(art.labels, label)
-                    # Fast commit the sample
-                    art.W = hcat(art.W, sample)
-                    art.n_categories += 1
-                    # No mismatch
-                    mismatch_flag = false
-                    break
-                end
+            # Learn the sample
+            learn!(art, sample, bmu)
+            # Update sample label for output
+            # y_hat = supervised ? y : art.labels[bmu]
+            y_hat = art.labels[bmu]
+            # No mismatch
+            mismatch_flag = false
+            break
+        # Vigilance test lower bound
+        elseif art.M[bmu] >= art.threshold_lb
+            # If supervised and the label differs, trigger mismatch
+            if supervised && (art.labels[bmu] != y)
+                break
             end
-            # If there was no resonant category, make a new one
-            if mismatch_flag
-                # Create a new category-to-cluster label
-                # push!(art.map, last(art.map) + 1)
-                label = supervised ? y[i] : art.n_clusters + 1
-                push!(art.labels, label)
-                # Fast commit the sample
-                art.W = hcat(art.W, sample)
-                # Increment the number of categories and clusters
-                art.n_categories += 1
-                art.n_clusters += 1
-            end
-
-            if n_samples == 1
-                y_hat = label
-            else
-                y_hat[i] = label
-            end
-        end
-        # Check for the stopping condition for the whole loop
-        if stopping_conditions(art)
+            # Update sample labels
+            y_hat = supervised ? y : art.labels[bmu]
+            push!(art.labels, y_hat)
+            # Fast commit the sample
+            art.W = hcat(art.W, sample)
+            art.n_categories += 1
+            # No mismatch
+            mismatch_flag = false
             break
         end
     end
 
+    # If there was no resonant category, make a new one
+    if mismatch_flag
+        # Create a new category-to-cluster label
+        y_hat = supervised ? y : art.n_clusters + 1
+        push!(art.labels, y_hat)
+        # Fast commit the sample
+        art.W = hcat(art.W, sample)
+        # Increment the number of categories and clusters
+        art.n_categories += 1
+        art.n_clusters += 1
+    end
+
     return y_hat
-end # train!(art::DVFA, x::RealArray ; y::IntegerVector = Vector{Integer}(), preprocessed::Bool=false)
+end # train!(art::DVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=false)
 
 """
-    classify(art::DVFA, x::RealArray)
+    classify(art::DVFA, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
 
 Predict categories of 'x' using the DVFA model.
 
@@ -304,76 +269,36 @@ julia> train!(my_DVFA, x)
 julia> y_hat = classify(my_DVFA, y)
 ```
 """
-function classify(art::DVFA, x::RealArray ; preprocessed::Bool=false, get_bmu::Bool=false)
-    # Show a message if display is on
-    art.opts.display && @info "Testing DVFA"
+function classify(art::DVFA, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
+    # Preprocess the data
+    sample = init_classify!(x, art, preprocessed)
 
-    # Data information and setup
-    n_samples = get_n_samples(x)
-
-    # Verify that the data is setup before classifying
-    !art.config.setup && @error "Attempting to classify data before setup"
-
-    # If the data is not preprocessed, then complement code it
-    if !preprocessed
-        x = complement_code(x, config=art.config)
+    # Compute activation and match functions
+    activation_match!(art, sample)
+    # Sort activation function values in descending order
+    index = sortperm(art.T, rev=true)
+    mismatch_flag = true
+    for jx in 1:art.n_categories
+        bmu = index[jx]
+        # Vigilance check - pass
+        if art.M[bmu] >= art.threshold_ub
+            # Current winner
+            y_hat = art.labels[bmu]
+            mismatch_flag = false
+            break
+        end
     end
 
-    # Initialize the output vector
-    if n_samples == 1
-        y_hat = zero(Integer)
-    else
-        y_hat = zeros(Integer, n_samples)
-    end
-
-    iter = get_iterator(art.opts, x)
-    for ix in iter
-        # Update the iterator if necessary
-        update_iter(art, iter, ix)
-        # Compute activation and match functions
-        activation_match!(art, x[:, ix])
-        # Sort activation function values in descending order
-        index = sortperm(art.T, rev=true)
-        mismatch_flag = true
-        for jx in 1:art.n_categories
-            bmu = index[jx]
-            # Vigilance check - pass
-            if art.M[bmu] >= art.opts.rho_ub * art.config.dim
-                # Current winner
-                label = art.labels[bmu]
-                if n_samples == 1
-                    y_hat = label
-                else
-                    y_hat[ix] = label
-                end
-                mismatch_flag = false
-                break
-            end
-        end
-        if mismatch_flag
-            # Create new weight vector
-            @debug "Mismatch"
-            # If falling back to the highest activated category, return that
-            if get_bmu
-                label = art.labels[index[1]]
-                if n_samples == 1
-                    y_hat = label
-                else
-                    y_hat[ix] = label
-                end
-            # Otherwise, return a mismatch
-            else
-                if n_samples == 1
-                    y_hat = -1
-                else
-                    y_hat[ix] = -1
-                end
-            end
-        end
+    # If we did not find a resonant category
+    if mismatch_flag
+        # Create new weight vector
+        @debug "Mismatch"
+        # Report either the best matching unit or the mismatch label -1
+        y_hat = get_bmu ? art.labels[index[1]] : -1
     end
 
     return y_hat
-end # classify(art::DVFA, x::RealArray ; preprocessed::Bool=false, get_bmu::Bool=false)
+end # classify(art::DVFA, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
 
 """
     activation_match!(art::DVFA, x::RealVector)
@@ -387,7 +312,7 @@ function activation_match!(art::DVFA, x::RealVector)
         numerator = norm(element_min(x, art.W[:, jx]), 1)
         art.T[jx] = numerator/(art.opts.alpha + norm(art.W[:, jx], 1))
         art.M[jx] = numerator
-    end # activation_match!(art::DVFA, x::RealVector)
+    end
 end # activation_match!(art::DVFA, x::RealVector)
 
 """
@@ -416,5 +341,5 @@ end # learn!(art::DVFA, x::RealVector, index::Integer)
 Stopping conditions for a DVFA module.
 """
 function stopping_conditions(art::DVFA)
-    return isequal(art.W, art.W_old) || art.epoch >= art.opts.max_epochs
+    return art.epoch >= art.opts.max_epochs
 end # stopping_conditions(art::DVFA)
