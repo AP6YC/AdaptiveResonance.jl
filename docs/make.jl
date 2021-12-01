@@ -4,7 +4,7 @@ using DemoCards
 
 # Generate the demo files
 # this is the relative path to docs/
-demopage, postprocess_cb, demo_assets = makedemos("demos")
+demopage, postprocess_cb, demo_assets = makedemos("examples")
 
 assets = [
     joinpath("assets", "favicon.ico")
@@ -30,7 +30,7 @@ makedocs(
         "Tutorial" => [
             "Guide" => "man/guide.md",
             demopage,
-            "Examples" => "man/examples.md",
+            # "Examples" => "man/examples.md",
             "Modules" => "man/modules.md",
             "Contributing" => "man/contributing.md",
             "Index" => "man/full-index.md",

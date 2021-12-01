@@ -1,4 +1,4 @@
-# [Example Cards](@id examplecards)
+# [Examples](@id examples)
 
 This section describes how you can set up your demos easily in _five lines of codes_.
 
