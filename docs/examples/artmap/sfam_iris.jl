@@ -1,7 +1,7 @@
 # ---
 # title: Supervised Simplified FuzzyARTMAP (SFAM) Example
 # id: sfam_iris
-# cover: ../assets/art.png
+# cover: ../assets/artmap.png
 # date: 2021-11-30
 # author: "[Sasha Petrenko](https://github.com/AP6YC)"
 # julia: 1.6
