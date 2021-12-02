@@ -1,6 +1,7 @@
 {
     "theme": "grid",
     "order": [
+        "adaptiveresonance",
         "art",
         "artmap"
       ]
