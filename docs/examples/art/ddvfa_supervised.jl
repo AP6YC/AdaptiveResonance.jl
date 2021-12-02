@@ -9,6 +9,7 @@
 # ---
 
 # DDVFA is an unsupervised clustering algorithm by definition, but it can be adaptived for supervised learning by mapping the module's internal categories to the true labels.
+# ART modules such as DDVFA can also be used in simple supervised mode where provided labels are used in place of internal incremental labels for the clusters, providing a method of assessing the clustering performance when labels are available.
 
 # We begin with importing AdaptiveResonance for the ART modules and MLDatasets for some data utilities.
 using AdaptiveResonance # ART

@@ -11,6 +11,10 @@
 # All modules in `AdaptiveResonance.jl` are designed to handle incremental and batch training.
 # In fact, ART modules are generally incremental in their implementation, so their batch methods wrap the incremental ones and handle preprocessing, etc.
 
+# For example, DDVFA can be run incrementally (i.e. with one sample at a time) with custom algorithmic options and a predetermined data configuration.
+# !!! note
+#   In this case, it is necessary to provide a data configuration if the model is not pretrained because the model has no knowledge of the boundaries and dimensionality of the data, which are necessary in the complement coding step.
+
 # We begin with importing AdaptiveResonance for the ART modules and MLDatasets for some data utilities.
 using AdaptiveResonance # ART
 using MLDatasets        # Iris dataset
@@ -36,9 +40,18 @@ opts = opts_DDVFA(rho_lb=0.6, rho_ub=0.75)
 art_batch = DDVFA(opts)
 art_incremental = DDVFA(opts)
 
+# For the incremental version, we must setup the data configuration in advance.
+# In batch mode, this is done automatically based upon the provided data, but the incremental variant has not way of knowing the bounds of the individual features.
+# We *could* preprocess the data and set the data configuration with `art.config = DataConfig(0, 1, 4)`, which translates to the data containing four features  that *all* range from 0 to 1.
+# This would be done in scenarios where we have either done some preprocessing on the data or have prior knowledge about the bounds of individual features.
+# However, in this example we will let the module determine the bounds with the convenience method `data_setup!`:
+
+## Setup the data config on all of the features.
+data_setup!(art_incremental.config, features)
+
 # We can train in batch with a simple supervised mode by passing the labels as a keyword argument.
 y_hat_batch_train = train!(art_batch, X_train, y=y_train)
-println("Training labels: ",  size(y_hat_batch_train), " ", typeof(y_hat__batch_train))
+println("Training labels: ",  size(y_hat_batch_train), " ", typeof(y_hat_batch_train))
 
 # We can also train incrementally with the same method, being careful that we pass a vector features and a single integer as the labels
 
@@ -64,6 +77,7 @@ y_hat_incremental = AdaptiveResonance.classify(art_incremental, X_test, get_bmu=
 println("Batch testing labels: ",  size(y_hat_batch), " ", typeof(y_hat_batch))
 println("Incremental testing labels: ",  size(y_hat_incremental), " ", typeof(y_hat_incremental))
 
+# Finally, we check the performance (number of correct classifications over total number of test samples) for both models, verifying that they produce the same results.
 
 ## Calculate performance on training data, testing data, and with get_bmu
 perf_train_batch = performance(y_hat_batch_train, y_train)
