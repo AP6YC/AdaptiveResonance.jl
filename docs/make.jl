@@ -1,6 +1,7 @@
 using Documenter
 using AdaptiveResonance
 using DemoCards
+using JSON
 
 # Generate the demo files
 # this is the relative path to docs/
