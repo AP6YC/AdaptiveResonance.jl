@@ -74,6 +74,10 @@ my_fuzzyart = FuzzyART(
     gamma_normalization=true
 )
 
+# Before training, we can also instantiate the model and alter the options afterward:
+my_fuzzyart = FuzzyART()
+my_fuzzyart.opts.rho=0.6
+
 # !!! note
 #     All ART modules are designed to use this options struct internally when the parameters are needed.
 #     It is possible to change these parameters in the middle of training and evaluation, but some algorithmic instability may occur.

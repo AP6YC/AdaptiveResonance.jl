@@ -1,16 +1,11 @@
 # [Examples](@id examples)
 
-This section describes how you can set up your demos easily in _five lines of codes_.
+This section contains some examples using the `AdaptiveResonance.jl` package with topics ranging from how to the internals of package work to practical examples on different datasets.
 
-## Manage your demo files
-
-The rules of demo management are super simple:
-
-* you need one demo page (folder) to hold all the demo files
-* a demo page has several demo sections (subfolders)
-* a demo section either
-    * has other demo sections as nested subsections, or,
-    * has the demo files (`.md`, `.jl`)
+These examples are separated into the following sections:
+1. **AdaptiveResonance**: examples exploring the various components of the package, such as how the options structs work and how to train incremental vs batch modes.
+2. **ART**: examples using ART modules in unsupervised and simple supervised modes.
+3. **ARTMAP**: examples using ARTMAP modules for supervised learning.
 
 ---
 

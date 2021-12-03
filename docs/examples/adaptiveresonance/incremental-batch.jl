@@ -82,9 +82,15 @@ end
 # We can then classify both networks and check that their performances are equivalent.
 # For both, we will use the best-matching unit in the case of complete mismatch (see the docs on [Mismatch vs. BMU](@ref mismatch-bmu))
 
-## Classify both ways
+## Classify one model in batch mode
 y_hat_batch = AdaptiveResonance.classify(art_batch, X_test, get_bmu=true)
-y_hat_incremental = AdaptiveResonance.classify(art_incremental, X_test, get_bmu=true)
+
+## Classify one model incrementally
+n_test = length(y_test)
+y_hat_incremental = zeros(Int, n_test)
+for ix = 1:n_test
+    y_hat_incremental[ix] = AdaptiveResonance.classify(art_incremental, X_test[:, ix], get_bmu=true)
+end
 
 ## Check the shape and type of the output labels
 println("Batch testing labels: ",  size(y_hat_batch), " ", typeof(y_hat_batch))
