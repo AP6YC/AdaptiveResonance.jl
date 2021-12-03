@@ -157,8 +157,8 @@ Train the DVFA module on x with optional custom category labels y.
 
 # Arguments
 - `art::DVFA`: the dual-vigilance fuzzy art module to train.
-- `x::RealArray`: the data to train on, interpreted as a single sample if x is a vector.
-- `y::IntegerVector=[]`: optional custom labels to assign to the categories. If empty, ordinary incremental labels are prescribed.
+- `x::RealVector`: the data to train on, interpreted as a single sample if x is a vector.
+- `y::Integer=0`: optional custom label to assign to the categories. If zero, ordinary incremental labels are prescribed.
 """
 function train!(art::DVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=false)
     # Flag for if training in supervised mode

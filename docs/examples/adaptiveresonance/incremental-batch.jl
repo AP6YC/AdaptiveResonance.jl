@@ -10,10 +10,11 @@
 
 # All modules in `AdaptiveResonance.jl` are designed to handle incremental and batch training.
 # In fact, ART modules are generally incremental in their implementation, so their batch methods wrap the incremental ones and handle preprocessing, etc.
-
 # For example, DDVFA can be run incrementally (i.e. with one sample at a time) with custom algorithmic options and a predetermined data configuration.
+
 # !!! note
-#     In this case, it is necessary to provide a data configuration if the model is not pretrained because the model has no knowledge of the boundaries and dimensionality of the data, which are necessary in the complement coding step.
+#     In the incremental case, it is necessary to provide a data configuration if the model is not pretrained because the model has no knowledge of the boundaries and dimensionality of the data, which are necessary in the complement coding step.
+#     For more info, see the guide in the docs on [incremental vs. batch](@ref incremental_vs_batch).
 
 # We begin with importing AdaptiveResonance for the ART modules and MLDatasets for some data utilities.
 using AdaptiveResonance # ART
