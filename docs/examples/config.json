@@ -1,8 +1,8 @@
 {
     "theme": "grid",
     "order": [
-        "AdaptiveResonance",
-        "ART",
-        "ARTMAP"
+        "adaptiveresonance",
+        "art",
+        "artmap"
       ]
 }

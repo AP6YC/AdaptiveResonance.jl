@@ -1,3 +1,4 @@
 {
+    "title": "ART",
     "description": "All ART modules learn in an unsupervised (i.e. clustering) mode by default, but they all can accept labels in the simplified ARTMAP fashion (see the [Package Guide](@ref))."
 }

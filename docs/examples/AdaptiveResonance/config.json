@@ -1,3 +1,4 @@
 {
+    "title": "AdaptiveResonance",
     "description": "These examples demonstrate different aspects of usage that are common to all modules in the package, such as incremental vs. batch learning and how to use module options."
 }
