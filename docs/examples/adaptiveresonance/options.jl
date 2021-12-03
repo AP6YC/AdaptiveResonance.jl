@@ -8,17 +8,26 @@
 # description: This demo illustrates how to use options and modify the options for all ART and ARTMAP modules.
 # ---
 
+# ## Overview
+
 # The `AdaptiveResonance.jl` package has several ways of handling options for ART modules.
 # These methods are meant to give maximum flexibility to the user for sharing and interpreting options, which themselves vary between each module.
 
 # !!! note
 #     For more info on options in ART modules, see the guide in the docs on [ART options](@ref art_options).
 
-# First, we load our libraries
+# ## ART Options
+
+# To get a feel for the ART options system, we will inspect different options and their instantiation methods.
+
+# ### Inspection
+
+# First, we load `AdaptiveResonance`:
 using AdaptiveResonance
 
 # Every ART module has a default constructor, which can be instantiated in the usual way:
 
+## Create a FuzzyART module with default options
 my_fuzzyart = FuzzyART()
 typeof(my_fuzzyart)
 
@@ -46,6 +55,8 @@ my_fuzzyart_opts = opts_FuzzyART()
 my_fuzzyart = FuzzyART(my_fuzzyart_opts)
 my_other_fuzzyart = FuzzyART(my_fuzzyart_opts)
 
+# ### Specifying Options
+
 # Now to the good stuff: because of the behavior of the `Parameters.jl` type, each option has a default value that we can modify during instantiation with keyword arguments:
 
 ## Change some of the default FuzzyART options
@@ -66,6 +77,8 @@ my_fuzzyart = FuzzyART(
 # !!! note
 #     All ART modules are designed to use this options struct internally when the parameters are needed.
 #     It is possible to change these parameters in the middle of training and evaluation, but some algorithmic instability may occur.
+
+# ## Comparison
 
 # To see the effect that changing these parameters has on the modules, we can train and test them side-by-side.
 
@@ -123,6 +136,8 @@ perf_test_2 = performance(y_hat_2, y_test)
 @printf "Number of categories rho=%.1f: %i\n" rho_2 my_fuzzyart_2.n_categories
 
 # The variation between vigilance parameter, number of categories created during learning, and testing performance/generalization is a central theme in ART-based algorithms.
+
+# ## Visualization
 
 # Now, to visualize how the two models differ in how they partition the data, we can use principal component analysis (PCA) to compress to two plotting dimensions.
 # PCA is a method to represent a dataset in a different number of dimensions while preserving the relative separation between datapoints.

@@ -8,6 +8,8 @@
 # description: This demo illustrates how to use incremental training methods vs. batch training for all ART modules.
 # ---
 
+# ## Overview
+
 # All modules in `AdaptiveResonance.jl` are designed to handle incremental and batch training.
 # In fact, ART modules are generally incremental in their implementation, so their batch methods wrap the incremental ones and handle preprocessing, etc.
 # For example, DDVFA can be run incrementally (i.e. with one sample at a time) with custom algorithmic options and a predetermined data configuration.
@@ -15,6 +17,8 @@
 # !!! note
 #     In the incremental case, it is necessary to provide a data configuration if the model is not pretrained because the model has no knowledge of the boundaries and dimensionality of the data, which are necessary in the complement coding step.
 #     For more info, see the guide in the docs on [incremental vs. batch](@ref incremental_vs_batch).
+
+# ## Data Setup
 
 # We begin with importing AdaptiveResonance for the ART modules and MLDatasets for some data utilities.
 using AdaptiveResonance # ART
@@ -33,6 +37,10 @@ unique(labels)
 # Next, we will create a train/test split with the `MLDataUtils.stratifiedobs` utility:
 (X_train, y_train), (X_test, y_test) = stratifiedobs((features, labels))
 
+# ## Incremental vs. Batch
+
+# ### Setup
+
 # Now, we can create several modules to illustrate training one in batch and one incrementaly.
 
 ## Create several modules for batch and incremental training.
@@ -50,6 +58,8 @@ art_incremental = DDVFA(opts)
 ## Setup the data config on all of the features.
 data_setup!(art_incremental.config, features)
 
+# ### Training
+
 # We can train in batch with a simple supervised mode by passing the labels as a keyword argument.
 y_hat_batch_train = train!(art_batch, X_train, y=y_train)
 println("Training labels: ",  size(y_hat_batch_train), " ", typeof(y_hat_batch_train))
@@ -66,6 +76,8 @@ for ix = 1:length(y_train)
     label = y_train[ix]
     y_hat_incremental_train[ix] = train!(art_incremental, sample, y=label)
 end
+
+# ### Testing
 
 # We can then classify both networks and check that their performances are equivalent.
 # For both, we will use the best-matching unit in the case of complete mismatch (see the docs on [Mismatch vs. BMU](@ref mismatch-bmu))
