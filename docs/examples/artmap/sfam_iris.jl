@@ -29,8 +29,13 @@ unique(labels)
 (X_train, y_train), (X_test, y_test) = stratifiedobs((features, labels))
 
 # Now, we can create our SFAM module.
-# We'll do so with the default contstructor, though the module itself has many options that you can alter during instantiation.
+# We'll do so with the default contstructor, though the module itself has many options that can be altered during instantiation.
+
+## Create the SFAM module
 art = SFAM()
+
+## Change the match tracking parameter after instantiation
+art.opts.epsilon = 1e-2
 
 # We can train the model in batch mode upon the data and supervisory labels.
 # We do so by directly passing the integer vector of labels to the training method.
