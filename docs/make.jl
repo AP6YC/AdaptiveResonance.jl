@@ -59,5 +59,5 @@ postprocess_cb()
 deploydocs(
     repo="github.com/AP6YC/AdaptiveResonance.jl.git",
     devbranch="develop",
-    push_preview = should_push_preview(),
+    # push_preview = should_push_preview(),
 )
