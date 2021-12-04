@@ -201,11 +201,11 @@ AdaptiveResonance
 ├── .github/workflows       // GitHub: workflows for testing and documentation.
 ├── data                    // Data: CI data location.
 ├── docs                    // Docs: documentation for the module.
-│   └───src                 //      Documentation source files.
-├── examples                // Source: example usage scripts.
+│   ├─── examples          //      DemoCards documentation examples.
+│   └─── src               //      Documentation source files.
 ├── src                     // Source: majority of source code.
-│   ├───ART                 //      ART-based unsupervised modules.
-│   └───ARTMAP              //      ARTMAP-based supervised modules.
+│   ├─── ART               //      ART-based unsupervised modules.
+│   └─── ARTMAP            //      ARTMAP-based supervised modules.
 ├── test                    // Test: Unit, integration, and environment tests.
 ├── .appveyor               // Appveyor: Windows-specific coverage.
 ├── .gitignore              // Git: .gitignore for the whole project.

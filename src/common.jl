@@ -196,6 +196,16 @@ function data_setup!(config::DataConfig, data::RealMatrix)
 end # data_setup!(config::DataConfig, data::RealMatrix)
 
 """
+    data_setup!(art::ART, data::RealMatrix)
+
+Convenience method for setting up the DataConfig of an ART module in advance.
+"""
+function data_setup!(art::ART, data::RealMatrix)
+    # Modify the DataConfig of the ART module directly
+    data_setup!(art.config, data)
+end # data_setup!(art::ART, data::RealMatrix)
+
+"""
     DataConfig(data::RealMatrix)
 
 Convenience constructor for DataConfig, requiring only the data matrix.
