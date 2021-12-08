@@ -117,7 +117,7 @@ To write an ART module for this project, it will require the following:
    2. A keyword argument constructor (passing the kwargs to the options struct defined above).
    3. A constructor with the options struct passed itself.
 4. Use of [common type aliases](@ref Type-Aliases) in method definitions.
-5. An internal [`DataConfig`](@ref DataConfig) for setting up the data configuration, especially with `data_setup!` (`src/common.jl`).
+5. An internal [`DataConfig`](@ref incremental_vs_batch) for setting up the data configuration, especially with `data_setup!` (`src/common.jl`).
 6. An `update_iter` evaluation for each iteration (`src/common.jl`).
 7. Inclusion to the correct ART index file (i.e., `src/ART/ART.jl`).
 8. Exports of the names for the options and module constructors in the module definition (`src/AdaptiveResonance.jl`).
@@ -152,7 +152,7 @@ const IntegerMatrix{T<:Integer} = AbstractArray{T, 2}
 const RealFP = Union{Float32, Float64}
 ```
 
-In this package, data samples are always `Real`-valued (with the notable exception of [ART1](@ref DataConfig)), while class labels are integered.
+In this package, data samples are always `Real`-valued (with the notable exception of [ART1](@ref incremental_vs_batch)), while class labels are integered.
 Furthermore, independent class labels are always `Int` because of the [Julia native support](https://docs.julialang.org/en/v1/manual/integers-and-floating-point-numbers/#Integers) for a given system's signed native integer type.
 
 This project does not currently test for the support of [arbitrary precision arithmetic](https://docs.julialang.org/en/v1/manual/integers-and-floating-point-numbers/#Arbitrary-Precision-Arithmetic) because learning algorithms *in general* do not have a significant need for precision beyond even 32-bit floats.

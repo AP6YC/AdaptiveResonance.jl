@@ -230,7 +230,6 @@ function train!(art::FuzzyART, x::RealVector ; y::Integer=0, preprocessed::Bool=
     # Initialize mismatch as true
     mismatch_flag = true
 
-
     # Loop over all categories
     for j = 1:art.n_categories
         # Best matching unit
