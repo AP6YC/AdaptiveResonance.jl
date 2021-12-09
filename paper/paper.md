@@ -1,5 +1,5 @@
 ---
-title: 'AdaptiveResonance.jl: A Julia implementation of Adaptive Resonance Theory (ART) algorithms'
+title: 'AdaptiveResonance.jl: A Julia Implementation of Adaptive Resonance Theory (ART) Algorithms'
 tags:
   - Julia
   - ART
@@ -10,6 +10,9 @@ tags:
 authors:
   - name: Sasha Petrenko
     orcid: 0000-0003-2442-8901
+    affiliation: 1
+  - name: Donald C. Wunsch II
+    orcid: 0000-0002-9726-9051
     affiliation: 1
 affiliations:
   - name: Missouri University of Science and Technology
