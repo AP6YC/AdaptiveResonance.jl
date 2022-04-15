@@ -39,6 +39,11 @@ This package is principally intended as a resource for researchers in machine le
 However, implementing these algorithms in the Julia language brings all of the benefits of the Julia itself, such as the speed of being implemented in a low-level language such as C while having the transparency of a high-level language such as MATLAB.
 Being implemented in Julia allows the package to be understood and expanded upon by research scientists while still being able to be used in resource-demanding production environments.
 
+## Existing Implementations
+
+There exist a myriad of open implementations of ART algorithms that are the result of reproducibility efforts in the ART literature.
+The Boston University Department of Cognitive and Neural Systems (CNS) Technology Lab [@CNS_Software] contains many implementations of algorithms and utilities related to ART, principally in MATLAB, from  demonstrations of the learning laws of ART to implementations of ART and ARTMAP modules.
+
 # Adaptive Resonance Theory
 
 ART is originally a theory of how competitive fields of neurons interact to form stable representations without supervision, and ART algorithms draw from this theory as biological inspiration for their design.
