@@ -39,10 +39,25 @@ This package is principally intended as a resource for researchers in machine le
 However, implementing these algorithms in the Julia language brings all of the benefits of the Julia itself, such as the speed of being implemented in a low-level language such as C while having the transparency of a high-level language such as MATLAB.
 Being implemented in Julia allows the package to be understood and expanded upon by research scientists while still being able to be used in resource-demanding production environments.
 
-## Existing Implementations
+## Comparison to Existing Implementations
 
 There exist a myriad of open implementations of ART algorithms that are the result of reproducibility efforts in the ART literature.
-The Boston University Department of Cognitive and Neural Systems (CNS) Technology Lab [@CNS_Software] contains many implementations of algorithms and utilities related to ART, principally in MATLAB, from  demonstrations of the learning laws of ART to implementations of ART and ARTMAP modules.
+The Boston University Department of Cognitive and Neural Systems (CNS) Technology Laboratory software repository contains many one of the largest collections of algorithms and utilities related to ART, principally implemented in the MATLAB and C++ programming languages, from demonstrations of the learning laws of ART to implementations of ART and ARTMAP modules [@CNS_Software].
+However, this repository serves as a codebase for the reproducibility of the software's associated CNS papers rather than as a single unified framework for ART implementations.
+
+The Missouri University of Science and Technology Applied Computational Intelligence Laboratory (ACIL) hosts a myriad of individual ART algorithm implementations on its public GitHub group repository page [@ACIL_GitHub], chiefly implemented in the MATLAB and Python programming languages.
+Though these ART algorithms are designed for open use, so too do they principally serve the reproducibility of their associated ACIL papers.
+
+The ACIL group GitHub page additionally contains the NuART-Py library, which organizes a suite of clustering and biclustering ART algorithms as a distributable package in the Python language [@NuART-Py].
+A similar package exists in the Java programming language in a separate repository containing fundamental ART algorithms [@JavaART], and a new package in the R statistical programming language has begun development close to the time of this writing [@R_FuzzyART].
+
+Though each of these ART software projects (and the nearly innumerable and disparate implementations of individual algorithms in the literature) combined may implement the majority of ART algorithms relevant to modern research and engineering, together they lack cohesion in programming language and usage.
+When considering ease of use and barrier to entry, many of these projects may be difficult to utilize for those less versed in the ART literature who might still significantly benefit from their use.
+
+Lastly, very many ART implementations exist in the MATLAB programming language due to its popularity amongst the research scientists that have been the theory's primary clientele, which is at the detriment to those without private MATLAB licenses in research and industry.
+
+<!-- This Julia ART package aims to ameliorate each concern above by creating a cohesive repository of  -->
+The Julia programming language is selected for this open-source ART package implementation due to its syntactic ease of use without comprimising computational efficiency due to the language's just-in-time compilation.
 
 # Adaptive Resonance Theory
 
