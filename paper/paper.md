@@ -44,7 +44,7 @@ Being implemented in Julia allows the package to be understood and expanded upon
 
 There exist a myriad of open implementations of ART algorithms that are the result of reproducibility efforts in the ART literature.
 The Boston University Department of Cognitive and Neural Systems (CNS) Technology Laboratory software repository contains many one of the largest collections of algorithms and utilities related to ART, principally implemented in the MATLAB and C++ programming languages, from demonstrations of the learning laws of ART to implementations of ART and ARTMAP modules [@CNS_Software].
-However, this repository serves as a codebase for the reproducibility of the software's associated CNS papers rather than as a single unified framework for ART implementations.
+However, this repository serves as a codebase for the reproducibility of the software associated CNS papers rather than as a single unified framework for ART implementations.
 
 The Missouri University of Science and Technology Applied Computational Intelligence Laboratory (ACIL) hosts a myriad of individual ART algorithm implementations on its public GitHub group repository page [@ACIL_GitHub], chiefly implemented in the MATLAB and Python programming languages.
 Though these ART algorithms are designed for open use, so too do they principally serve the reproducibility of their associated ACIL papers.
@@ -55,7 +55,7 @@ A similar package exists in the Java programming language in a separate reposito
 Though each of these ART software projects (and the very many and disparate implementations of individual algorithms in the literature) combined may implement the majority of ART algorithms relevant to modern research and engineering, together they lack cohesion in programming language and usage.
 When considering ease of use and barrier to entry, many of these projects may be difficult to utilize for those less versed in the ART literature who might still significantly benefit from their use and understanding.
 
-Lastly, very many ART implementations exist in the MATLAB programming language due to its popularity amongst the research scientists that have been the theory's primary clientele, which is at the detriment to those without private MATLAB licenses in research and industry.
+Lastly, many ART implementations exist in the MATLAB programming language due to its popularity amongst the research scientists that have been the theory's primary clientele, which is at the detriment to those without private MATLAB licenses in research and industry.
 The Julia programming language is selected for this open-source ART package implementation due to its syntactic ease of use and speed of development without comprimising computational efficiency due to the language's just-in-time compilation.
 
 # Adaptive Resonance Theory
