@@ -23,15 +23,16 @@ bibliography: paper.bib
 
 # Summary
 
-AdaptiveResonance.jl is a Julia package for machine learning with Adaptive Resonance Theory (ART) algorithms, written in the numerical computing language Julia.
+AdaptiveResonance.jl is a Julia package for machine learning with adaptive resonance theory (ART) algorithms, written in the numerical computing language Julia.
 ART is a neurocognitive theory of how competitive cellular networks can learn distributed patterns without supervision through recurrent field connections, eliciting the mechanisms of perception, expectation, and recognition [@Grossberg2013; @Grossberg1980].
+Engineering algorithms base upon ART are principally in the class of competitive, incremental, single-layer, neurogenesis clustering algorithms, but they have been adapted for multimodal learning in diverse applications.
 
 # Statement of Need
 
 There exist many variations of algorithms built upon ART [@DaSilva2019].
 Each variation is related by utilizing recurrent connections of fields, driven by learning through match and mismatch of distributed patterns, and though they all differ in the details of their implementations, their algorithmic and programmatic requirements are often very similar.
 Despite the relevance and successes of this class of algorithms in the literature, there does not exist to date a unified repository of their implementations in Julia.
-The purpose of this package is to create a unified framework and repository of ART algorithms in Julia.
+Therefore, the purpose of this package is to create a unified framework and repository of ART algorithms in Julia.
 
 ## Target Audience
 
