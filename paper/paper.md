@@ -25,7 +25,7 @@ bibliography: paper.bib
 
 AdaptiveResonance.jl is a Julia package for machine learning with adaptive resonance theory (ART) algorithms, written in the numerical computing language Julia.
 ART is a neurocognitive theory of how competitive cellular networks can learn distributed patterns without supervision through recurrent field connections, eliciting the mechanisms of perception, expectation, and recognition [@Grossberg2013; @Grossberg1980].
-Engineering algorithms base upon ART are principally in the class of competitive, incremental, single-layer, neurogenesis clustering algorithms, but they have been adapted for multimodal learning in diverse applications.
+Engineering algorithms based upon ART are principally in the class of competitive, incremental, single-layer, neurogenesis clustering algorithms, but they have been adapted for multimodal learning in diverse applications.
 
 # Statement of Need
 
@@ -60,7 +60,7 @@ The Julia programming language is selected for this open-source ART package impl
 
 # Adaptive Resonance Theory
 
-ART is originally a theory of how competitive fields of neurons interact to form stable representations without supervision, and ART algorithms draw from this theory as biological inspiration for their design.
+ART is originally a theory of how competitive fields of neurons interact to form stable representations without supervision, and ART algorithms draw from this theory as a biological inspiration for their design.
 It is not strictly necessary to have an understanding of the theory to understand the use of the algorithms, but they share a common nomenclature that makes knowledge of the former useful for the latter.
 
 ## Theory
