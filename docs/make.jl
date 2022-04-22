@@ -1,3 +1,10 @@
+"""
+    make.jl
+
+This file builds the documentation for the AdaptiveResonance.jl package
+using Documenter.jl and other tools.
+"""
+
 using Documenter
 using AdaptiveResonance
 using DemoCards
