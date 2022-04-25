@@ -107,21 +107,7 @@ function DAM(opts::opts_DAM)
     )
 end # DAM(opts::opts_DAM)
 
-"""
-    train!(art::DAM, x::RealArray, y::RealArray ; preprocessed::Bool=false)
-
-Trains a Default ARTMAP learner in a supervised manner.
-
-# Examples
-```julia-repl
-julia> x, y = load_data()
-julia> art = DAM()
-DAM
-    opts: opts_DAM
-    ...
-julia> train!(art, x, y)
-```
-"""
+# Incremental DAM training method
 function train!(art::DAM, x::RealVector, y::Integer ; preprocessed::Bool=false)
     # Run the sequential initialization procedure
     sample = init_train!(x, art, preprocessed)
@@ -183,23 +169,7 @@ function train!(art::DAM, x::RealVector, y::Integer ; preprocessed::Bool=false)
     return y
 end
 
-"""
-    classify(art::DAM, x::RealArray ; preprocessed::Bool=false)
-
-Categorize data 'x' using a trained Default ARTMAP module 'art'.
-
-# Examples
-```julia-repl
-julia> x, y = load_data()
-julia> x_test, y_test = load_test_data()
-julia> art = DAM()
-DAM
-    opts: opts_DAM
-    ...
-julia> train!(art, x, y)
-julia> classify(art, x_test)
-```
-"""
+# DAM incremental classification method
 function classify(art::DAM, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
     # Run the sequential initialization procedure
     sample = init_classify!(x, art, preprocessed)

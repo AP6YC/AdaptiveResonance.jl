@@ -72,7 +72,7 @@ Train the ART model on a single sample of features 'x' with an optional supervis
 
 # Arguments
 - `art::ART`: the unsupervised ART model to train.
-- `x::RealVector`: the single sample feature vector.
+- `x::RealVector`: the single sample feature vector to train upon.
 - `y::Integer=0`: optional, a label for simple supervisory training.
 - `preprocessed::Bool=false`: optional, flag if the data has already been complement coded or not.
 """

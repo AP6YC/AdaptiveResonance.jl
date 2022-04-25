@@ -480,3 +480,21 @@ function classify(art::ARTModule, x::RealMatrix ; preprocessed::Bool=false, get_
 
     return y_hat
 end # classify(art::ARTModule, x::RealMatrix ; preprocessed::Bool=false, get_bmu::Bool=false)
+
+# -------------------------------------------
+# Common Documentation
+# -------------------------------------------
+
+@doc raw"""
+    classify(art::ARTModule, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
+
+Predict categories of a single sample of features 'x' using the ART model.
+
+Returns predicted category 'y_hat.'
+
+# Arguments
+- `art::ART`: ART module to use for batch inference.
+- `x::RealVector`: the single sample of features to classify.
+- `preprocessed::Bool=false`: optional, flag if the data has already been complement coded or not.
+- `get_bmu::Bool=false`: optional, flag if the model should return the best-matching-unit label in the case of total mismatch.
+"""

@@ -107,21 +107,7 @@ function SFAM(opts::opts_SFAM)
     )
 end # SFAM(opts::opts_SFAM)
 
-"""
-    train!(art::SFAM, x::RealArray, y::RealArray ; preprocessed::Bool=false)
-
-Trains a Simple Fuzzy ARTMAP learner in a supervised manner.
-
-# Examples
-```julia-repl
-julia> x, y = load_data()
-julia> art = SFAM()
-SFAM
-    opts: opts_SFAM
-    ...
-julia> train!(art, x, y)
-```
-"""
+# SFAM incremental training method
 function train!(art::SFAM, x::RealVector, y::Integer ; preprocessed::Bool=false)
     # Run the sequential initialization procedure
     sample = init_train!(x, art, preprocessed)
@@ -183,23 +169,7 @@ function train!(art::SFAM, x::RealVector, y::Integer ; preprocessed::Bool=false)
     return y
 end
 
-"""
-    classify(art::SFAM, x::RealArray ; preprocessed::Bool=false)
-
-Categorize data 'x' using a trained Simple Fuzzy ARTMAP module 'art'.
-
-# Examples
-```julia-repl
-julia> x, y = load_data()
-julia> x_test, y_test = load_test_data()
-julia> art = SFAM()
-SFAM
-    opts: opts_SFAM
-    ...
-julia> train!(art, x, y)
-julia> classify(art, x_test)
-```
-"""
+# SFAM incremental classification method
 function classify(art::SFAM, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
     # Run the sequential initialization procedure
     sample = init_classify!(x, art, preprocessed)
