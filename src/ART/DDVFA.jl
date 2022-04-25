@@ -178,15 +178,7 @@ function set_threshold!(art::DDVFA)
     end
 end # set_threshold!(art::DDVFA)
 
-"""
-    train!(art::DDVFA, x::RealMatrix ; y::IntegerVector=Vector{Int}(), preprocessed::Bool=false)
-
-Train the DDVFA model on the data.
-"""
-
-"""
-    train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=false)
-"""
+# DDVFA incremental training method
 function train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=false)
     # Flag for if training in supervised mode
     supervised = !iszero(y)
@@ -342,24 +334,7 @@ function similarity(method::String, F2::FuzzyART, field_name::String, sample::Re
     return value
 end # similarity(method::String, F2::FuzzyART, field_name::String, sample::RealVector, gamma_ref::RealFP)
 
-"""
-    classify(art::DDVFA, x::RealMatrix ; preprocessed::Bool=false, get_bmu::Bool=false)
-
-Predict categories of 'x' using the DDVFA model.
-
-Returns predicted categories 'y_hat.'
-
-# Examples
-```julia-repl
-julia> my_DDVFA = DDVFA()
-DDVFA
-    opts: opts_DDVFA
-    ...
-julia> x, y = load_data()
-julia> train!(my_DDVFA, x)
-julia> y_hat = classify(my_DDVFA, y)
-```
-"""
+# DDVFA incremental classification method
 function classify(art::DDVFA, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
     # Preprocess the data
     sample = init_classify!(x, art, preprocessed)
