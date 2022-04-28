@@ -498,3 +498,4 @@ Returns predicted category 'y_hat.'
 - `preprocessed::Bool=false`: optional, flag if the data has already been complement coded or not.
 - `get_bmu::Bool=false`: optional, flag if the model should return the best-matching-unit label in the case of total mismatch.
 """
+classify(art::ARTModule, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)

@@ -72,3 +72,4 @@ Train the supervised ARTMAP model on a single sample of features 'x' with superv
 - `y::Integer`: the label for supervisory training.
 - `preprocessed::Bool=false`: optional, flag if the data has already been complement coded or not.
 """
+train!(art::ARTMAP, x::RealVector, y::Integer ; preprocessed::Bool=false)

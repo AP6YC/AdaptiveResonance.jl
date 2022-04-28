@@ -76,3 +76,4 @@ Train the ART model on a single sample of features 'x' with an optional supervis
 - `y::Integer=0`: optional, a label for simple supervisory training.
 - `preprocessed::Bool=false`: optional, flag if the data has already been complement coded or not.
 """
+train!(art::ART, x::RealVector ; y::Integer=0, preprocessed::Bool=false)
