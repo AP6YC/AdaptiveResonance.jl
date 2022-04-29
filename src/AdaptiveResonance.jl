@@ -20,9 +20,33 @@ using LinearAlgebra: norm   # Trace and norms
 using Statistics: median, mean  # Medians and mean for linkage methods
 
 # Abstract types
+
+"""
+    ARTOpts
+
+Abstract supertype for all ART module options.
+"""
 abstract type ARTOpts end               # ART module options
+
+"""
+    ARTModule
+
+Abstract supertype for both ART (unsupervised) and ARTMAP (supervised) modules.
+"""
 abstract type ARTModule end             # ART modules
+
+"""
+    ART <: ARTModule
+
+Abstract supertype for all default unsupervised ART modules.
+"""
 abstract type ART <: ARTModule end      # ART (unsupervised)
+
+"""
+    ARTMAP <: ARTModule
+
+Abstract supertype for all supervised ARTMAP modules.
+"""
 abstract type ARTMAP <: ARTModule end   # ARTMAP (supervised)
 
 # Include all files

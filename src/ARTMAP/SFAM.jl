@@ -3,6 +3,9 @@
 
 Description:
     Options, structures, and logic for the Simplified Fuzzy ARTMAP (SFAM) module.
+
+References:
+    [1] G. A. Carpenter, S. Grossberg, N. Markuzon, J. H. Reynolds, and D. B. Rosen, “Fuzzy ARTMAP: A Neural Network Architecture for Incremental Supervised Learning of Analog Multidimensional Maps,” IEEE Trans. Neural Networks, vol. 3, no. 5, pp. 698-713, 1992, doi: 10.1109/72.159059.
 """
 
 """
@@ -10,10 +13,14 @@ Description:
 
 Implements a Simple Fuzzy ARTMAP learner's options.
 
-# Examples
-```julia-repl
-julia> my_opts = opts_SFAM()
-```
+# Keyword Arguments
+- `rho::Float`: vigilance value, [0, 1], default 0.75.
+- `alpha::Float`: choice parameter, alpha > 0, default 1e-7.
+- `epsilon::Float`: match tracking parameter, (0, 1), default 1e-3
+- `beta::Float`: learning parameter, (0, 1], default 1.0.
+- `uncommitted::Bool`: uncommitted node flag, default true.
+- `display::Bool`: display flag, default true.
+- `max_epoch::Int`: maximum number of epochs during training, default 1.
 """
 @with_kw mutable struct opts_SFAM <: ARTOpts @deftype Float
     # Vigilance parameter: [0, 1]
@@ -36,6 +43,11 @@ end # opts_SFAM()
     SFAM <: ARTMAP
 
 Simple Fuzzy ARTMAP struct.
+
+For module options, see [`AdaptiveResonance.opts_SFAM`](@ref).
+
+# References
+1. G. A. Carpenter, S. Grossberg, N. Markuzon, J. H. Reynolds, and D. B. Rosen, “Fuzzy ARTMAP: A Neural Network Architecture for Incremental Supervised Learning of Analog Multidimensional Maps,” IEEE Trans. Neural Networks, vol. 3, no. 5, pp. 698-713, 1992, doi: 10.1109/72.159059.
 """
 mutable struct SFAM <: ARTMAP
     opts::opts_SFAM

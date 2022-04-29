@@ -39,7 +39,14 @@ const ARTIterator = Union{UnitRange, ProgressBar}
 """
     DataConfig
 
-Conatiner to standardize training/testing data configuration.
+Container to standardize training/testing data configuration.
+
+# Parameters
+- `setup::Bool`: flag if data has been setup yet or not.
+- `mins::RealVector`: list of minimum values for each feature.
+- `maxs::RealVector`: list of maximum values for each feature.
+- `dim::Int`: dimensionality of the feature vectors (i.e., number of features).
+- `dim_comp::Int` complement coded feature dimensionality, twice the size of `dim`.
 """
 mutable struct DataConfig
     setup::Bool
@@ -196,11 +203,11 @@ function data_setup!(config::DataConfig, data::RealMatrix)
 end # data_setup!(config::DataConfig, data::RealMatrix)
 
 """
-    data_setup!(art::ART, data::RealMatrix)
+    data_setup!(art::ARTModule, data::RealMatrix)
 
 Convenience method for setting up the DataConfig of an ART module in advance.
 """
-function data_setup!(art::ART, data::RealMatrix)
+function data_setup!(art::ARTModule, data::RealMatrix)
     # Modify the DataConfig of the ART module directly
     data_setup!(art.config, data)
 end # data_setup!(art::ART, data::RealMatrix)
@@ -493,7 +500,7 @@ Predict categories of a single sample of features 'x' using the ART model.
 Returns predicted category 'y_hat.'
 
 # Arguments
-- `art::ART`: ART module to use for batch inference.
+- `art::ARTModule`: ART or ARTMAP module to use for batch inference.
 - `x::RealVector`: the single sample of features to classify.
 - `preprocessed::Bool=false`: optional, flag if the data has already been complement coded or not.
 - `get_bmu::Bool=false`: optional, flag if the model should return the best-matching-unit label in the case of total mismatch.

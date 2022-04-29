@@ -3,6 +3,9 @@
 
 Description:
     Options, structures, and logic for the Default ARTMAP (DAM) module.
+
+References:
+[1] G. P. Amis and G. A. Carpenter, “Default ARTMAP 2,” IEEE Int. Conf. Neural Networks - Conf. Proc., vol. 2, no. September 2007, pp. 777-782, Mar. 2007, doi: 10.1109/IJCNN.2007.4371056.
 """
 
 """
@@ -10,17 +13,21 @@ Description:
 
 Implements a Default ARTMAP learner's options.
 
-# Examples
-```julia-repl
-julia> my_opts = opts_DAM()
-```
+# Keyword Arguments
+- `rho::Float`: vigilance value, [0, 1], default 0.75.
+- `alpha::Float`: choice parameter, alpha > 0, default 1e-7.
+- `epsilon::Float`: match tracking parameter, (0, 1), default 1e-3
+- `beta::Float`: learning parameter, (0, 1], default 1.0.
+- `uncommitted::Bool`: uncommitted node flag, default true.
+- `display::Bool`: display flag, default true.
+- `max_epoch::Int`: maximum number of epochs during training, default 1.
 """
 @with_kw mutable struct opts_DAM <: ARTOpts @deftype Float
     # Vigilance parameter: [0, 1]
     rho = 0.75; @assert rho >= 0.0 && rho <= 1.0
     # Choice parameter: alpha > 0
     alpha = 1e-7; @assert alpha > 0.0
-    # Match tracking parameter
+    # Match tracking parameter: (0, 1)
     epsilon = 1e-3; @assert epsilon > 0.0 && epsilon < 1.0
     # Learning parameter: (0, 1]
     beta = 1.0; @assert beta > 0.0 && beta <= 1.0
@@ -36,6 +43,11 @@ end # opts_DAM()
     DAM <: ARTMAP
 
 Default ARTMAP struct.
+
+For module options, see [`AdaptiveResonance.opts_DAM`](@ref).
+
+# References
+1. G. P. Amis and G. A. Carpenter, “Default ARTMAP 2,” IEEE Int. Conf. Neural Networks - Conf. Proc., vol. 2, no. September 2007, pp. 777-782, Mar. 2007, doi: 10.1109/IJCNN.2007.4371056.
 """
 mutable struct DAM <: ARTMAP
     opts::opts_DAM

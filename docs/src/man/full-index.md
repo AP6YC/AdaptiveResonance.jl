@@ -38,4 +38,11 @@ opts_FuzzyART
 opts_DAM
 opts_FAM
 opts_SFAM
+DataConfig
+data_setup!
+performance
+ARTModule
+ART
+ARTMAP
+ARTOpts
 ```
