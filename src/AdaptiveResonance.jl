@@ -1,6 +1,17 @@
+"""
+Main module for `AdaptiveResonance.jl`, a Julia package of adaptive resonance theory algorithms.
+
+This module exports all of the ART modules, options, and utilities used by the `AdaptiveResonance.jl package.`
+
+# Exports
+
+$(EXPORTS)
+
+"""
 module AdaptiveResonance
 
 # Usings/imports for the whole package declared once
+using DocStringExtensions   # Docstring utilities
 using Parameters    # ARTopts are parameters (@with_kw)
 using Logging       # Logging utils used as main method of terminal reporting
 using ProgressBars  # Provides progress bars for training and inference

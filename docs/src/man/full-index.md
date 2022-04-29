@@ -23,6 +23,7 @@ Public = true
 ## [Docs](@id index-docs)
 
 ```@docs
+AdaptiveResonance
 train!
 classify
 DDVFA
