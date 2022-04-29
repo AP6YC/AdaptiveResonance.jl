@@ -46,6 +46,16 @@ Fuzzy ARTMAP struct.
 
 For module options, see [`AdaptiveResonance.opts_FAM`](@ref).
 
+# Option Parameters
+- `opts::opts_FAM`: Fuzzy ARTMAP options struct.
+- `config::DataConfig`: data configuration struct.
+
+# Working Parameters
+- `W::RealMatrix`: category weight matrix.
+- `labels::IntegerVector`: incremental list of labels corresponding to each F2 node, self-prescribed or supervised.
+- `n_categories::Int`: number of category weights (F2 nodes).
+- `epoch::Int`: current training epoch.
+
 # References
 1. G. A. Carpenter, S. Grossberg, N. Markuzon, J. H. Reynolds, and D. B. Rosen, “Fuzzy ARTMAP: A Neural Network Architecture for Incremental Supervised Learning of Analog Multidimensional Maps,” IEEE Trans. Neural Networks, vol. 3, no. 5, pp. 698-713, 1992, doi: 10.1109/72.159059.
 """

@@ -51,6 +51,21 @@ Dual Vigilance Fuzzy ARTMAP module struct.
 
 For module options, see [`AdaptiveResonance.opts_DVFA`](@ref).
 
+# Option Parameters
+- `opts::opts_DVFA`: DVFA options struct.
+- `config::DataConfig`: data configuration struct.
+
+# Working Parameters
+- `threshold_ub::Float`: operating upper bound module threshold value, a function of the upper bound vigilance parameter.
+- `threshold_lb::Float`: operating lower bound module threshold value, a function of the lower bound vigilance parameter.
+- `labels::IntegerVector`: incremental list of labels corresponding to each F2 node, self-prescribed or supervised.
+- `W::RealMatrix`: category weight matrix.
+- `T::RealVector`: activation values for every weight for a given sample.
+- `M::RealVector`: match values for every weight for a given sample.
+- `n_categories::Int`: number of category weights (F2 nodes).
+- `n_clusters::Int`: number of labeled clusters, may be lower than `n_categories`
+- `epoch::Int`: current training epoch.
+
 # References:
 1. L. E. Brito da Silva, I. Elnabarawy and D. C. Wunsch II, "Dual Vigilance Fuzzy ART," Neural Networks Letters. To appear.
 2. G. Carpenter, S. Grossberg, and D. Rosen, "Fuzzy ART: Fast stable learning and categorization of analog patterns by an adaptive resonance system," Neural Networks, vol. 4, no. 6, pp. 759-771, 1991.
@@ -67,7 +82,6 @@ mutable struct DVFA <: ART
     W::RealMatrix
     T::RealVector
     M::RealVector
-    map::IntegerVector
     n_categories::Int
     n_clusters::Int
     epoch::Int
@@ -133,7 +147,6 @@ function DVFA(opts::opts_DVFA)
         Array{Float}(undef, 0, 0),      # W
         Array{Float}(undef, 0),         # M
         Array{Float}(undef, 0),         # T
-        Array{Int}(undef, 0),           # map
         0,                              # n_categories
         0,                              # n_clusters
         0                               # epoch

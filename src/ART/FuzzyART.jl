@@ -59,6 +59,20 @@ Gamma-Normalized Fuzzy ART learner struct
 
 For module options, see [`AdaptiveResonance.opts_FuzzyART`](@ref).
 
+# Option Parameters
+- `opts::opts_FuzzyART`: FuzzyART options struct.
+- `config::DataConfig`: data configuration struct.
+
+# Working Parameters
+- `threshold::Float`: operating module threshold value, a function of the vigilance parameter.
+- `labels::IntegerVector`: incremental list of labels corresponding to each F2 node, self-prescribed or supervised.
+- `T::RealVector`: activation values for every weight for a given sample.
+- `M::RealVector`: match values for every weight for a given sample.
+- `W::RealMatrix`: category weight matrix.
+- `n_instance::IntegerVector`: number of weights associated with each category.
+- `n_categories::Int`: number of category weights (F2 nodes).
+- `epoch::Int`: current training epoch.
+
 # References
 1. G. Carpenter, S. Grossberg, and D. Rosen, "Fuzzy ART: Fast
 stable learning and categorization of analog patterns by an adaptive

@@ -46,6 +46,16 @@ Default ARTMAP struct.
 
 For module options, see [`AdaptiveResonance.opts_DAM`](@ref).
 
+# Option Parameters
+- `opts::opts_DAM`: Default ARTMAP options struct.
+- `config::DataConfig`: data configuration struct.
+
+# Working Parameters
+- `W::RealMatrix`: category weight matrix.
+- `labels::IntegerVector`: incremental list of labels corresponding to each F2 node, self-prescribed or supervised.
+- `n_categories::Int`: number of category weights (F2 nodes).
+- `epoch::Int`: current training epoch.
+
 # References
 1. G. P. Amis and G. A. Carpenter, “Default ARTMAP 2,” IEEE Int. Conf. Neural Networks - Conf. Proc., vol. 2, no. September 2007, pp. 777-782, Mar. 2007, doi: 10.1109/IJCNN.2007.4371056.
 """
@@ -61,7 +71,7 @@ end # DAM <: ARTMAP
 """
     DAM()
 
-Implements a Simple Fuzzy ARTMAP learner.
+Implements a Default ARTMAP learner.
 
 # Examples
 ```julia-repl
