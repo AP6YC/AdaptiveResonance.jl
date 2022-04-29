@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Incremental vs. Batch Example · AdaptiveResonance.jl</title><script data-outdated-warner src="../../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.044/juliamono.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.11/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../../assets/documenter.js"></script><script src="../../../siteinfo.js"></script><script src="../../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../../assets/themeswap.js"></script><link href="../../../assets/favicon.ico" rel="icon" type="image/x-icon"/><link href="../../../democards/gridtheme.css" rel="stylesheet" type="text/css"/></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../../../"><img src="../../../assets/logo.png" alt="AdaptiveResonance.jl logo"/></a><div class="docs-package-name"><span class="docs-autofit"><a href="../../../">AdaptiveResonance.jl</a></span></div><form class="docs-search" action="../../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../../">Home</a></li><li><span class="tocitem">Getting Started</span><ul><li><a class="tocitem" href="../../../getting-started/whatisart/">Background</a></li><li><a class="tocitem" href="../../../getting-started/basic-example/">Basic Example</a></li></ul></li><li><span class="tocitem">Tutorial</span><ul><li><a class="tocitem" href="../../../man/guide/">Guide</a></li><li><a class="tocitem" href="../../">Examples</a></li><li><a class="tocitem" href="../../../man/modules/">Modules</a></li><li><a class="tocitem" href="../../../man/contributing/">Contributing</a></li><li><a class="tocitem" href="../../../man/full-index/">Index</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Incremental vs. Batch Example</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Incremental vs. Batch Example</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/AP6YC/AdaptiveResonance.jl/blob/master/docs/examples/adaptive_resonance/incremental-batch.jl" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="incremental_batch"><a class="docs-heading-anchor" href="#incremental_batch">Incremental vs. Batch Example</a><a id="incremental_batch-1"></a><a class="docs-heading-anchor-permalink" href="#incremental_batch" title="Permalink"></a></h1><p><a href="../incremental-batch.jl"><img src="https://img.shields.io/badge/download-julia-brightgreen.svg" alt="Source code"/></a> <a href="https://nbviewer.jupyter.org/github/AP6YC/AdaptiveResonance.jl/blob/gh-pages/v0.5.0/examples/adaptive_resonance/incremental-batch.ipynb"><img src="https://img.shields.io/badge/show-nbviewer-579ACA.svg" alt="notebook"/></a> <img src="https://img.shields.io/badge/julia-1.6.0-blue.svg" alt="compat"/> <a href="https://github.com/AP6YC"><img src="https://img.shields.io/badge/Author-Sasha%20Petrenko-blue" alt="Author"/></a> <img src="https://img.shields.io/date/1638316800" alt="Update time"/></p><h2 id="Overview"><a class="docs-heading-anchor" href="#Overview">Overview</a><a id="Overview-1"></a><a class="docs-heading-anchor-permalink" href="#Overview" title="Permalink"></a></h2><p>All modules in <code>AdaptiveResonance.jl</code> are designed to handle incremental and batch training. In fact, ART modules are generally incremental in their implementation, so their batch methods wrap the incremental ones and handle preprocessing, etc. For example, DDVFA can be run incrementally (i.e. with one sample at a time) with custom algorithmic options and a predetermined data configuration.</p><div class="admonition is-info"><header class="admonition-header">Note</header><div class="admonition-body"><p>In the incremental case, it is necessary to provide a data configuration if the model is not pretrained because the model has no knowledge of the boundaries and dimensionality of the data, which are necessary in the complement coding step. For more info, see the guide in the docs on <a href="../../../man/guide/#incremental_vs_batch">incremental vs. batch</a>.</p></div></div><h2 id="Data-Setup"><a class="docs-heading-anchor" href="#Data-Setup">Data Setup</a><a id="Data-Setup-1"></a><a class="docs-heading-anchor-permalink" href="#Data-Setup" title="Permalink"></a></h2><p>We begin with importing AdaptiveResonance for the ART modules and MLDatasets for some data utilities.</p><pre><code class="language-julia hljs">using AdaptiveResonance # ART
+using MLDatasets        # Iris dataset
+using MLDataUtils       # Shuffling and splitting
+using Printf            # Formatted number printing</code></pre><p>We will download the Iris dataset for its small size and benchmark use for clustering algorithms.</p><pre><code class="language-julia hljs">Iris.download(i_accept_the_terms_of_use=true)
+features, labels = Iris.features(), Iris.labels()</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">([5.1 4.9 … 6.2 5.9; 3.5 3.0 … 3.4 3.0; 1.4 1.4 … 5.4 5.1; 0.2 0.2 … 2.3 1.8], [&quot;Iris-setosa&quot;, &quot;Iris-setosa&quot;, &quot;Iris-setosa&quot;, &quot;Iris-setosa&quot;, &quot;Iris-setosa&quot;, &quot;Iris-setosa&quot;, &quot;Iris-setosa&quot;, &quot;Iris-setosa&quot;, &quot;Iris-setosa&quot;, &quot;Iris-setosa&quot;  …  &quot;Iris-virginica&quot;, &quot;Iris-virginica&quot;, &quot;Iris-virginica&quot;, &quot;Iris-virginica&quot;, &quot;Iris-virginica&quot;, &quot;Iris-virginica&quot;, &quot;Iris-virginica&quot;, &quot;Iris-virginica&quot;, &quot;Iris-virginica&quot;, &quot;Iris-virginica&quot;])</code></pre><p>Because the MLDatasets package gives us Iris labels as strings, we will use the <code>MLDataUtils.convertlabel</code> method with the <code>MLLabelUtils.LabelEnc.Indices</code> type to get a list of integers representing each class:</p><pre><code class="language-julia hljs">labels = convertlabel(LabelEnc.Indices{Int}, labels)
+unique(labels)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">3-element Array{Int64,1}:
+ 1
+ 2
+ 3</code></pre><p>Next, we will create a train/test split with the <code>MLDataUtils.stratifiedobs</code> utility:</p><pre><code class="language-julia hljs">(X_train, y_train), (X_test, y_test) = stratifiedobs((features, labels))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">(([6.0 6.1 … 5.1 6.0; 2.7 2.6 … 3.8 2.2; 5.1 5.6 … 1.5 5.0; 1.6 1.4 … 0.3 1.5], [2, 3, 1, 3, 3, 1, 1, 3, 3, 1  …  3, 1, 2, 3, 3, 2, 1, 1, 1, 3]), ([6.9 5.1 … 5.5 5.5; 3.1 3.8 … 2.5 2.6; 4.9 1.6 … 4.0 4.4; 1.5 0.2 … 1.3 1.2], [2, 1, 1, 1, 1, 3, 3, 3, 2, 2  …  3, 2, 2, 2, 1, 2, 3, 1, 2, 2]))</code></pre><h2 id="Incremental-vs.-Batch"><a class="docs-heading-anchor" href="#Incremental-vs.-Batch">Incremental vs. Batch</a><a id="Incremental-vs.-Batch-1"></a><a class="docs-heading-anchor-permalink" href="#Incremental-vs.-Batch" title="Permalink"></a></h2><h3 id="Setup"><a class="docs-heading-anchor" href="#Setup">Setup</a><a id="Setup-1"></a><a class="docs-heading-anchor-permalink" href="#Setup" title="Permalink"></a></h3><p>Now, we can create several modules to illustrate training one in batch and one incrementaly.</p><pre><code class="language-julia hljs"># Create several modules for batch and incremental training.
+# We can take advantage of the options instantiation method here to use the same options for both modules.
+opts = opts_DDVFA(rho_lb=0.6, rho_ub=0.75)
+art_batch = DDVFA(opts)
+art_incremental = DDVFA(opts)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">DDVFA(opts_DDVFA
+  rho_lb: Float64 0.6
+  rho_ub: Float64 0.75
+  alpha: Float64 0.001
+  beta: Float64 1.0
+  gamma: Float64 3.0
+  gamma_ref: Float64 1.0
+  method: String &quot;single&quot;
+  display: Bool true
+  max_epoch: Int64 1
+  gamma_normalization: Bool true
+, opts_FuzzyART
+  rho: Float64 0.75
+  alpha: Float64 0.001
+  beta: Float64 1.0
+  gamma: Float64 3.0
+  gamma_ref: Float64 1.0
+  display: Bool false
+  max_epochs: Int64 1
+  gamma_normalization: Bool true
+, DataConfig(false, Float64[], Float64[], 0, 0), 0.0, FuzzyART[], Int64[], 0, 0, 0.0, 0.0)</code></pre><p>For the incremental version, we must setup the data configuration in advance. In batch mode, this is done automatically based upon the provided data, but the incremental variant has not way of knowing the bounds of the individual features. We <em>could</em> preprocess the data and set the data configuration with <code>art.config = DataConfig(0, 1, 4)</code>, which translates to the data containing four features  that <em>all</em> range from 0 to 1. This would be done in scenarios where we have either done some preprocessing on the data or have prior knowledge about the bounds of individual features. However, in this example we will let the module determine the bounds with the convenience method <code>data_setup!</code>:</p><pre><code class="language-julia hljs"># Setup the data config on all of the features.
+data_setup!(art_incremental.config, features)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">4-element Array{Float64,1}:
+ 7.9
+ 4.4
+ 6.9
+ 2.5</code></pre><h3 id="Training"><a class="docs-heading-anchor" href="#Training">Training</a><a id="Training-1"></a><a class="docs-heading-anchor-permalink" href="#Training" title="Permalink"></a></h3><p>We can train in batch with a simple supervised mode by passing the labels as a keyword argument.</p><pre><code class="language-julia hljs">y_hat_batch_train = train!(art_batch, X_train, y=y_train)
+println(&quot;Training labels: &quot;,  size(y_hat_batch_train), &quot; &quot;, typeof(y_hat_batch_train))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">[ Info: Training DDVFA
+0.0%┣                                               ┫ 0/105 [00:00&lt;00:-5, 0s/it]
+Ep: 1, ID: 1, Cat: 0 1.0%┣▏                    ┫ 1/105 [00:00&lt;Inf:Inf, InfGs/it]
+Ep: 1, ID: 105, Cat: 10 100.0%┣████████████████┫ 105/105 [00:00&lt;00:00, 1.8kit/s]
+Training labels: (105,) Array{Int64,1}</code></pre><p>We can also train incrementally with the same method, being careful that we pass a vector features and a single integer as the labels</p><pre><code class="language-julia hljs"># Get the number of training samples
+n_train = length(y_train)
+# Create a container for the training output labels
+y_hat_incremental_train = zeros(Int, n_train)
+# Iterate over all training samples
+for ix = 1:length(y_train)
+    sample = X_train[:, ix]
+    label = y_train[ix]
+    y_hat_incremental_train[ix] = train!(art_incremental, sample, y=label)
+end</code></pre><h3 id="Testing"><a class="docs-heading-anchor" href="#Testing">Testing</a><a id="Testing-1"></a><a class="docs-heading-anchor-permalink" href="#Testing" title="Permalink"></a></h3><p>We can then classify both networks and check that their performances are equivalent. For both, we will use the best-matching unit in the case of complete mismatch (see the docs on <a href="../../../man/guide/#mismatch-bmu">Mismatch vs. BMU</a>)</p><pre><code class="language-julia hljs"># Classify one model in batch mode
+y_hat_batch = AdaptiveResonance.classify(art_batch, X_test, get_bmu=true)
+
+# Classify one model incrementally
+n_test = length(y_test)
+y_hat_incremental = zeros(Int, n_test)
+for ix = 1:n_test
+    y_hat_incremental[ix] = AdaptiveResonance.classify(art_incremental, X_test[:, ix], get_bmu=true)
+end
+
+# Check the shape and type of the output labels
+println(&quot;Batch testing labels: &quot;,  size(y_hat_batch), &quot; &quot;, typeof(y_hat_batch))
+println(&quot;Incremental testing labels: &quot;,  size(y_hat_incremental), &quot; &quot;, typeof(y_hat_incremental))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">[ Info: Testing DDVFA
+0.0%┣                                                ┫ 0/45 [00:00&lt;00:-2, 0s/it]
+Ep: 1, ID: 1, Cat: 11 2.2%┣▌                    ┫ 1/45 [00:00&lt;Inf:Inf, InfGs/it]
+Ep: 1, ID: 45, Cat: 11 100.0%┣████████████████████┫ 45/45 [00:00&lt;00:00, 816it/s]
+Batch testing labels: (45,) Array{Int64,1}
+Incremental testing labels: (45,) Array{Int64,1}</code></pre><p>Finally, we check the performance (number of correct classifications over total number of test samples) for both models, verifying that they produce the same results.</p><pre><code class="language-julia hljs"># Calculate performance on training data, testing data, and with get_bmu
+perf_train_batch = performance(y_hat_batch_train, y_train)
+perf_train_incremental = performance(y_hat_incremental_train, y_train)
+perf_test_batch = performance(y_hat_batch, y_test)
+perf_test_incremental = performance(y_hat_incremental, y_test)
+
+# Format each performance number for comparison
+@printf &quot;Batch training performance: %.4f\n&quot; perf_train_batch
+@printf &quot;Incremental training performance: %.4f\n&quot; perf_train_incremental
+@printf &quot;Batch testing performance: %.4f\n&quot; perf_test_batch
+@printf &quot;Incremental testing performance: %.4f\n&quot; perf_test_incremental</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Batch training performance: 1.0000
+Incremental training performance: 1.0000
+Batch testing performance: 0.9556
+Incremental testing performance: 0.9333</code></pre><hr/><p><em>This page was generated using <a href="https://github.com/johnnychen94/DemoCards.jl">DemoCards.jl</a> and <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.16 on <span class="colophon-date" title="Friday 29 April 2022 22:26">Friday 29 April 2022</span>. Using Julia version 1.4.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
