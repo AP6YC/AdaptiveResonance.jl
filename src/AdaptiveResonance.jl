@@ -1,6 +1,21 @@
+"""
+Main module for `AdaptiveResonance.jl`, a Julia package of adaptive resonance theory algorithms.
+
+This module exports all of the ART modules, options, and utilities used by the `AdaptiveResonance.jl package.`
+
+# Exports
+
+$(EXPORTS)
+
+"""
 module AdaptiveResonance
 
+# --------------------------------------------------------------------------- #
+# USINGS
+# --------------------------------------------------------------------------- #
+
 # Usings/imports for the whole package declared once
+using DocStringExtensions   # Docstring utilities
 using Parameters    # ARTopts are parameters (@with_kw)
 using Logging       # Logging utils used as main method of terminal reporting
 using ProgressBars  # Provides progress bars for training and inference
@@ -8,17 +23,51 @@ using Printf        # Used for printing formatted progress bars
 using LinearAlgebra: norm   # Trace and norms
 using Statistics: median, mean  # Medians and mean for linkage methods
 
-# Abstract types
+# --------------------------------------------------------------------------- #
+# ABSTRACT TYPES
+# --------------------------------------------------------------------------- #
+
+"""
+    ARTOpts
+
+Abstract supertype for all ART module options.
+"""
 abstract type ARTOpts end               # ART module options
+
+"""
+    ARTModule
+
+Abstract supertype for both ART (unsupervised) and ARTMAP (supervised) modules.
+"""
 abstract type ARTModule end             # ART modules
+
+"""
+    ART <: ARTModule
+
+Abstract supertype for all default unsupervised ART modules.
+"""
 abstract type ART <: ARTModule end      # ART (unsupervised)
+
+"""
+    ARTMAP <: ARTModule
+
+Abstract supertype for all supervised ARTMAP modules.
+"""
 abstract type ARTMAP <: ARTModule end   # ARTMAP (supervised)
+
+# --------------------------------------------------------------------------- #
+# INCLUDES
+# --------------------------------------------------------------------------- #
 
 # Include all files
 include("common.jl")        # Objects shared by all modules
 include("constants.jl")     # Global constants and references for convenience
 include("ARTMAP/ARTMAP.jl") # Supervised ART modules
 include("ART/ART.jl")       # Unsupervised ART modules
+
+# --------------------------------------------------------------------------- #
+# EXPORTS
+# --------------------------------------------------------------------------- #
 
 # Export all public names
 export

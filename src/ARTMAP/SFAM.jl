@@ -3,17 +3,24 @@
 
 Description:
     Options, structures, and logic for the Simplified Fuzzy ARTMAP (SFAM) module.
+
+References:
+    [1] G. A. Carpenter, S. Grossberg, N. Markuzon, J. H. Reynolds, and D. B. Rosen, “Fuzzy ARTMAP: A Neural Network Architecture for Incremental Supervised Learning of Analog Multidimensional Maps,” IEEE Trans. Neural Networks, vol. 3, no. 5, pp. 698-713, 1992, doi: 10.1109/72.159059.
 """
 
 """
-    opts_SFAM()
+    opts_SFAM(;kwargs)
 
 Implements a Simple Fuzzy ARTMAP learner's options.
 
-# Examples
-```julia-repl
-julia> my_opts = opts_SFAM()
-```
+# Keyword Arguments
+- `rho::Float`: vigilance value, [0, 1], default 0.75.
+- `alpha::Float`: choice parameter, alpha > 0, default 1e-7.
+- `epsilon::Float`: match tracking parameter, (0, 1), default 1e-3
+- `beta::Float`: learning parameter, (0, 1], default 1.0.
+- `uncommitted::Bool`: uncommitted node flag, default true.
+- `display::Bool`: display flag, default true.
+- `max_epoch::Int`: maximum number of epochs during training, default 1.
 """
 @with_kw mutable struct opts_SFAM <: ARTOpts @deftype Float
     # Vigilance parameter: [0, 1]
@@ -36,6 +43,21 @@ end # opts_SFAM()
     SFAM <: ARTMAP
 
 Simple Fuzzy ARTMAP struct.
+
+For module options, see [`AdaptiveResonance.opts_SFAM`](@ref).
+
+# Option Parameters
+- `opts::opts_SFAM`: Simplified Fuzzy ARTMAP options struct.
+- `config::DataConfig`: data configuration struct.
+
+# Working Parameters
+- `W::RealMatrix`: category weight matrix.
+- `labels::IntegerVector`: incremental list of labels corresponding to each F2 node, self-prescribed or supervised.
+- `n_categories::Int`: number of category weights (F2 nodes).
+- `epoch::Int`: current training epoch.
+
+# References
+1. G. A. Carpenter, S. Grossberg, N. Markuzon, J. H. Reynolds, and D. B. Rosen, “Fuzzy ARTMAP: A Neural Network Architecture for Incremental Supervised Learning of Analog Multidimensional Maps,” IEEE Trans. Neural Networks, vol. 3, no. 5, pp. 698-713, 1992, doi: 10.1109/72.159059.
 """
 mutable struct SFAM <: ARTMAP
     opts::opts_SFAM
@@ -107,21 +129,7 @@ function SFAM(opts::opts_SFAM)
     )
 end # SFAM(opts::opts_SFAM)
 
-"""
-    train!(art::SFAM, x::RealArray, y::RealArray ; preprocessed::Bool=false)
-
-Trains a Simple Fuzzy ARTMAP learner in a supervised manner.
-
-# Examples
-```julia-repl
-julia> x, y = load_data()
-julia> art = SFAM()
-SFAM
-    opts: opts_SFAM
-    ...
-julia> train!(art, x, y)
-```
-"""
+# SFAM incremental training method
 function train!(art::SFAM, x::RealVector, y::Integer ; preprocessed::Bool=false)
     # Run the sequential initialization procedure
     sample = init_train!(x, art, preprocessed)
@@ -183,23 +191,7 @@ function train!(art::SFAM, x::RealVector, y::Integer ; preprocessed::Bool=false)
     return y
 end
 
-"""
-    classify(art::SFAM, x::RealArray ; preprocessed::Bool=false)
-
-Categorize data 'x' using a trained Simple Fuzzy ARTMAP module 'art'.
-
-# Examples
-```julia-repl
-julia> x, y = load_data()
-julia> x_test, y_test = load_test_data()
-julia> art = SFAM()
-SFAM
-    opts: opts_SFAM
-    ...
-julia> train!(art, x, y)
-julia> classify(art, x_test)
-```
-"""
+# SFAM incremental classification method
 function classify(art::SFAM, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
     # Run the sequential initialization procedure
     sample = init_classify!(x, art, preprocessed)

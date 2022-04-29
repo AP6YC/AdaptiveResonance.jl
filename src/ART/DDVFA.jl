@@ -3,6 +3,10 @@
 
 Description:
     Includes all of the structures and logic for running a Distributed Dual-Vigilance Fuzzy ART (DDVFA) module.
+
+References
+[1] L. E. Brito da Silva, I. Elnabarawy, and D. C. Wunsch, “Distributed dual vigilance fuzzy adaptive resonance theory learns online, retrieves arbitrarily-shaped clusters, and mitigates order dependence,” Neural Networks, vol. 121, pp. 208-228, 2020, doi: 10.1016/j.neunet.2019.08.033.
+[2] G. Carpenter, S. Grossberg, and D. Rosen, "Fuzzy ART: Fast stable learning and categorization of analog patterns by an adaptive resonance system," Neural Networks, vol. 4, no. 6, pp. 759-771, 1991.
 """
 
 # --------------------------------------------------------------------------- #
@@ -10,14 +14,22 @@ Description:
 # --------------------------------------------------------------------------- #
 
 """
-    opts_DDVFA()
+    opts_DDVFA(;kwargs)
 
 Distributed Dual Vigilance Fuzzy ART options struct.
 
-# Examples
-```julia-repl
-julia> my_opts = opts_DDVFA()
-```
+# Keyword Arguments
+- `rho_lb::Float`: lower-bound vigilance value, [0, 1], default 0.7.
+- `rho_ub::Float`: upper-bound vigilance value, [0, 1], default 0.85.
+- `alpha::Float`: choice parameter, alpha > 0, default 1e-3.
+- `beta::Float`: learning parameter, (0, 1], default 1.0.
+- `gamma::Float`: "pseudo" kernel width, gamma >= 1, default 3.0.
+- `gamma_ref::Float`: "reference" kernel width, 0 <= gamma_ref < gamma, default 1.0.
+- `method::String`: similarity method (activation and match):
+`single`, `average`, `complete`, `median`, `weighted`, or `centroid`, default `single`.
+- `display::Bool`: display flag, default true.
+- `max_epoch::Int`: maximum number of epochs during training, default 1.
+- `gamma_normalization::Bool`: normalize the threshold by the feature dimension, default true.
 """
 @with_kw mutable struct opts_DDVFA <: ARTOpts @deftype Float
     # Lower-bound vigilance parameter: [0, 1]
@@ -52,14 +64,25 @@ end # opts_DDVFA
 
 Distributed Dual Vigilance Fuzzy ARTMAP module struct.
 
-# Examples
-```julia-repl
-julia> DDVFA()
-DDVFA
-    opts: opts_DDVFA
-    subopts::opts_FuzzyART
-    ...
-```
+For module options, see [`AdaptiveResonance.opts_DDVFA`](@ref).
+
+# Option Parameters
+- `opts::opts_DDVFA`: DDVFA options struct.
+- `subopts::opts_FuzzyART`: FuzzyART options struct used for all F2 nodes.
+- `config::DataConfig`: data configuration struct.
+
+# Working Parameters
+- `threshold::Float`: operating module threshold value, a function of the vigilance parameter.
+- `F2::Vector{FuzzyART}`: list of F2 nodes (themselves FuzzyART modules).
+- `labels::IntegerVector`: incremental list of labels corresponding to each F2 node, self-prescribed or supervised.
+- `n_categories::Int`: number of total categories.
+- `epoch::Int`: current training epoch.
+- `T::Float`: winning activation value from most recent sample.
+- `M::Float`: winning match value from most recent sample.
+
+# References
+1. L. E. Brito da Silva, I. Elnabarawy, and D. C. Wunsch, “Distributed dual vigilance fuzzy adaptive resonance theory learns online, retrieves arbitrarily-shaped clusters, and mitigates order dependence,” Neural Networks, vol. 121, pp. 208-228, 2020, doi: 10.1016/j.neunet.2019.08.033.
+2. G. Carpenter, S. Grossberg, and D. Rosen, "Fuzzy ART: Fast stable learning and categorization of analog patterns by an adaptive resonance system," Neural Networks, vol. 4, no. 6, pp. 759-771, 1991.
 """
 mutable struct DDVFA <: ART
     # Get parameters
@@ -178,15 +201,7 @@ function set_threshold!(art::DDVFA)
     end
 end # set_threshold!(art::DDVFA)
 
-"""
-    train!(art::DDVFA, x::RealMatrix ; y::IntegerVector=Vector{Int}(), preprocessed::Bool=false)
-
-Train the DDVFA model on the data.
-"""
-
-"""
-    train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=false)
-"""
+# DDVFA incremental training method
 function train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=false)
     # Flag for if training in supervised mode
     supervised = !iszero(y)
@@ -342,24 +357,7 @@ function similarity(method::String, F2::FuzzyART, field_name::String, sample::Re
     return value
 end # similarity(method::String, F2::FuzzyART, field_name::String, sample::RealVector, gamma_ref::RealFP)
 
-"""
-    classify(art::DDVFA, x::RealMatrix ; preprocessed::Bool=false, get_bmu::Bool=false)
-
-Predict categories of 'x' using the DDVFA model.
-
-Returns predicted categories 'y_hat.'
-
-# Examples
-```julia-repl
-julia> my_DDVFA = DDVFA()
-DDVFA
-    opts: opts_DDVFA
-    ...
-julia> x, y = load_data()
-julia> train!(my_DDVFA, x)
-julia> y_hat = classify(my_DDVFA, y)
-```
-"""
+# DDVFA incremental classification method
 function classify(art::DDVFA, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
     # Preprocess the data
     sample = init_classify!(x, art, preprocessed)

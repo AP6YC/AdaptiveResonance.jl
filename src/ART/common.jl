@@ -5,6 +5,10 @@ Description:
     Includes all of the unsupervised ART modules common code.
 """
 
+# -------------------------------------------
+# Methods
+# -------------------------------------------
+
 """
     train!(art::ART, x::RealMatrix ; y::IntegerVector=Vector{Int}(), preprocessed::Bool=false)
 
@@ -14,7 +18,7 @@ Train the ART model on a batch of data 'x' with optional supervisory labels 'y.'
 - `art::ART`: the unsupervised ART model to train.
 - `x::RealMatrix`: the 2-D dataset containing columns of samples with rows of features.
 - `y::IntegerVector=Vector{Int}()`: optional, labels for simple supervisory training.
-- `preprocessed::Bool=false`: flag, if the data has already been complement coded or not.
+- `preprocessed::Bool=false`: optional, flag if the data has already been complement coded or not.
 """
 function train!(art::ART, x::RealMatrix ; y::IntegerVector = Vector{Int}(), preprocessed::Bool=false)
     # Show a message if display is on
@@ -56,3 +60,20 @@ function train!(art::ART, x::RealMatrix ; y::IntegerVector = Vector{Int}(), prep
     end
     return y_hat
 end # train!(art::ART, x::RealMatrix ; y::IntegerVector = Vector{Int}(), preprocessed::Bool=false)
+
+# -------------------------------------------
+# Common Documentation
+# -------------------------------------------
+
+@doc raw"""
+    train!(art::ART, x::RealVector ; y::Integer=0, preprocessed::Bool=false)
+
+Train the ART model on a single sample of features 'x' with an optional supervisory label.
+
+# Arguments
+- `art::ART`: the unsupervised ART model to train.
+- `x::RealVector`: the single sample feature vector to train upon.
+- `y::Integer=0`: optional, a label for simple supervisory training.
+- `preprocessed::Bool=false`: optional, flag if the data has already been complement coded or not.
+"""
+train!(art::ART, x::RealVector ; y::Integer=0, preprocessed::Bool=false)

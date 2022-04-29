@@ -1,3 +1,9 @@
+"""
+    serve.jl
+
+This is a convenience script for docs  development that
+"""
+
 using LiveServer
 
 # Make the documentation

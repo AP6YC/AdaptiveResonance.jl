@@ -3,24 +3,31 @@
 
 Description:
     Options, structures, and logic for the Default ARTMAP (DAM) module.
+
+References:
+[1] G. P. Amis and G. A. Carpenter, “Default ARTMAP 2,” IEEE Int. Conf. Neural Networks - Conf. Proc., vol. 2, no. September 2007, pp. 777-782, Mar. 2007, doi: 10.1109/IJCNN.2007.4371056.
 """
 
 """
-    opts_DAM()
+    opts_DAM(;kwargs)
 
 Implements a Default ARTMAP learner's options.
 
-# Examples
-```julia-repl
-julia> my_opts = opts_DAM()
-```
+# Keyword Arguments
+- `rho::Float`: vigilance value, [0, 1], default 0.75.
+- `alpha::Float`: choice parameter, alpha > 0, default 1e-7.
+- `epsilon::Float`: match tracking parameter, (0, 1), default 1e-3
+- `beta::Float`: learning parameter, (0, 1], default 1.0.
+- `uncommitted::Bool`: uncommitted node flag, default true.
+- `display::Bool`: display flag, default true.
+- `max_epoch::Int`: maximum number of epochs during training, default 1.
 """
 @with_kw mutable struct opts_DAM <: ARTOpts @deftype Float
     # Vigilance parameter: [0, 1]
     rho = 0.75; @assert rho >= 0.0 && rho <= 1.0
     # Choice parameter: alpha > 0
     alpha = 1e-7; @assert alpha > 0.0
-    # Match tracking parameter
+    # Match tracking parameter: (0, 1)
     epsilon = 1e-3; @assert epsilon > 0.0 && epsilon < 1.0
     # Learning parameter: (0, 1]
     beta = 1.0; @assert beta > 0.0 && beta <= 1.0
@@ -36,6 +43,21 @@ end # opts_DAM()
     DAM <: ARTMAP
 
 Default ARTMAP struct.
+
+For module options, see [`AdaptiveResonance.opts_DAM`](@ref).
+
+# Option Parameters
+- `opts::opts_DAM`: Default ARTMAP options struct.
+- `config::DataConfig`: data configuration struct.
+
+# Working Parameters
+- `W::RealMatrix`: category weight matrix.
+- `labels::IntegerVector`: incremental list of labels corresponding to each F2 node, self-prescribed or supervised.
+- `n_categories::Int`: number of category weights (F2 nodes).
+- `epoch::Int`: current training epoch.
+
+# References
+1. G. P. Amis and G. A. Carpenter, “Default ARTMAP 2,” IEEE Int. Conf. Neural Networks - Conf. Proc., vol. 2, no. September 2007, pp. 777-782, Mar. 2007, doi: 10.1109/IJCNN.2007.4371056.
 """
 mutable struct DAM <: ARTMAP
     opts::opts_DAM
@@ -49,7 +71,7 @@ end # DAM <: ARTMAP
 """
     DAM()
 
-Implements a Simple Fuzzy ARTMAP learner.
+Implements a Default ARTMAP learner.
 
 # Examples
 ```julia-repl
@@ -107,21 +129,7 @@ function DAM(opts::opts_DAM)
     )
 end # DAM(opts::opts_DAM)
 
-"""
-    train!(art::DAM, x::RealArray, y::RealArray ; preprocessed::Bool=false)
-
-Trains a Default ARTMAP learner in a supervised manner.
-
-# Examples
-```julia-repl
-julia> x, y = load_data()
-julia> art = DAM()
-DAM
-    opts: opts_DAM
-    ...
-julia> train!(art, x, y)
-```
-"""
+# Incremental DAM training method
 function train!(art::DAM, x::RealVector, y::Integer ; preprocessed::Bool=false)
     # Run the sequential initialization procedure
     sample = init_train!(x, art, preprocessed)
@@ -183,23 +191,7 @@ function train!(art::DAM, x::RealVector, y::Integer ; preprocessed::Bool=false)
     return y
 end
 
-"""
-    classify(art::DAM, x::RealArray ; preprocessed::Bool=false)
-
-Categorize data 'x' using a trained Default ARTMAP module 'art'.
-
-# Examples
-```julia-repl
-julia> x, y = load_data()
-julia> x_test, y_test = load_test_data()
-julia> art = DAM()
-DAM
-    opts: opts_DAM
-    ...
-julia> train!(art, x, y)
-julia> classify(art, x_test)
-```
-"""
+# DAM incremental classification method
 function classify(art::DAM, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
     # Run the sequential initialization procedure
     sample = init_classify!(x, art, preprocessed)
