@@ -111,6 +111,22 @@ function DataConfig(min::Real, max::Real, dim::Int)
 end # DataConfig(min::Real, max::Real, dim::Int)
 
 """
+    DataConfig(data::RealMatrix)
+
+Convenience constructor for DataConfig, requiring only the data matrix.
+"""
+function DataConfig(data::RealMatrix)
+    # Create an empty dataconfig
+    config = DataConfig()
+
+    # Runthe setup upon the config using the data matrix for reference
+    data_setup!(config, data)
+
+    # Return the constructed DataConfig
+    return config
+end # DataConfig(min::Real, max::Real, dim::Int)
+
+"""
     element_min(x::RealVector, W::RealVector)
 
 Returns the element-wise minimum between sample x and weight W.
@@ -211,22 +227,6 @@ function data_setup!(art::ARTModule, data::RealMatrix)
     # Modify the DataConfig of the ART module directly
     data_setup!(art.config, data)
 end # data_setup!(art::ART, data::RealMatrix)
-
-"""
-    DataConfig(data::RealMatrix)
-
-Convenience constructor for DataConfig, requiring only the data matrix.
-"""
-function DataConfig(data::RealMatrix)
-    # Create an empty dataconfig
-    config = DataConfig()
-
-    # Runthe setup upon the config using the data matrix for reference
-    data_setup!(config, data)
-
-    # Return the constructed DataConfig
-    return config
-end # DataConfig(min::Real, max::Real, dim::Int)
 
 """
     get_data_characteristics(data::RealArray ; config::DataConfig=DataConfig())

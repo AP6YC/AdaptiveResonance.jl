@@ -10,6 +10,10 @@ $(EXPORTS)
 """
 module AdaptiveResonance
 
+# --------------------------------------------------------------------------- #
+# USINGS
+# --------------------------------------------------------------------------- #
+
 # Usings/imports for the whole package declared once
 using DocStringExtensions   # Docstring utilities
 using Parameters    # ARTopts are parameters (@with_kw)
@@ -19,7 +23,9 @@ using Printf        # Used for printing formatted progress bars
 using LinearAlgebra: norm   # Trace and norms
 using Statistics: median, mean  # Medians and mean for linkage methods
 
-# Abstract types
+# --------------------------------------------------------------------------- #
+# ABSTRACT TYPES
+# --------------------------------------------------------------------------- #
 
 """
     ARTOpts
@@ -49,11 +55,19 @@ Abstract supertype for all supervised ARTMAP modules.
 """
 abstract type ARTMAP <: ARTModule end   # ARTMAP (supervised)
 
+# --------------------------------------------------------------------------- #
+# INCLUDES
+# --------------------------------------------------------------------------- #
+
 # Include all files
 include("common.jl")        # Objects shared by all modules
 include("constants.jl")     # Global constants and references for convenience
 include("ARTMAP/ARTMAP.jl") # Supervised ART modules
 include("ART/ART.jl")       # Unsupervised ART modules
+
+# --------------------------------------------------------------------------- #
+# EXPORTS
+# --------------------------------------------------------------------------- #
 
 # Export all public names
 export
