@@ -4,6 +4,8 @@ This page lists the core methods and types of the `AdaptiveResonance.jl` package
 The [Methods](@ref index-methods) section lists the public methods for the package that use the modules in [Types](@ref index-types).
 Each of these entries link to the docstrings in the [Docs](@ref index-docs) section.
 
+ART modules document their internal working parameters and references, while their hyperparameters/options are documented under their corresponding option structs `opts_...`.
+
 ## [Methods](@id index-methods)
 
 ```@index
@@ -26,6 +28,13 @@ Public = true
 AdaptiveResonance
 train!
 classify
+data_setup!
+performance
+complement_code
+get_data_characteristics
+linear_normalization
+get_data_shape
+get_n_samples
 DDVFA
 DVFA
 FuzzyART
@@ -39,8 +48,6 @@ opts_DAM
 opts_FAM
 opts_SFAM
 DataConfig
-data_setup!
-performance
 ARTModule
 ART
 ARTMAP

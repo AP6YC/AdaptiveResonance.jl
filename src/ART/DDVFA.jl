@@ -14,7 +14,7 @@ References
 # --------------------------------------------------------------------------- #
 
 """
-    opts_DDVFA()
+    opts_DDVFA(;kwargs)
 
 Distributed Dual Vigilance Fuzzy ART options struct.
 

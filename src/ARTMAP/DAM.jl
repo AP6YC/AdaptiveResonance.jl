@@ -9,7 +9,7 @@ References:
 """
 
 """
-    opts_DAM()
+    opts_DAM(;kwargs)
 
 Implements a Default ARTMAP learner's options.
 

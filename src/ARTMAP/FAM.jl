@@ -9,7 +9,7 @@ References:
 """
 
 """
-    opts_FAM()
+    opts_FAM(;kwargs)
 
 Implements a Fuzzy ARTMAP learner's options.
 

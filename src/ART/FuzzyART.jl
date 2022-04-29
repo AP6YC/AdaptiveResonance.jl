@@ -5,9 +5,7 @@ Description:
     Includes all of the structures and logic for running a Gamma-Normalized Fuzzy ART module.
 
 References:
-[1] G. Carpenter, S. Grossberg, and D. Rosen, "Fuzzy ART: Fast
-stable learning and categorization of analog patterns by an adaptive
-resonance system," Neural Networks, vol. 4, no. 6, pp. 759-771, 1991.
+[1] G. Carpenter, S. Grossberg, and D. Rosen, "Fuzzy ART: Fast stable learning and categorization of analog patterns by an adaptive resonance system," Neural Networks, vol. 4, no. 6, pp. 759-771, 1991.
 """
 
 # --------------------------------------------------------------------------- #
@@ -15,7 +13,7 @@ resonance system," Neural Networks, vol. 4, no. 6, pp. 759-771, 1991.
 # --------------------------------------------------------------------------- #
 
 """
-    opts_FuzzyART()
+    opts_FuzzyART(;kwargs)
 
 Gamma-Normalized Fuzzy ART options struct.
 
@@ -74,9 +72,7 @@ For module options, see [`AdaptiveResonance.opts_FuzzyART`](@ref).
 - `epoch::Int`: current training epoch.
 
 # References
-1. G. Carpenter, S. Grossberg, and D. Rosen, "Fuzzy ART: Fast
-stable learning and categorization of analog patterns by an adaptive
-resonance system," Neural Networks, vol. 4, no. 6, pp. 759-771, 1991.
+1. G. Carpenter, S. Grossberg, and D. Rosen, "Fuzzy ART: Fast stable learning and categorization of analog patterns by an adaptive resonance system," Neural Networks, vol. 4, no. 6, pp. 759-771, 1991.
 """
 mutable struct FuzzyART <: ART
     # Assign numerical parameters from options

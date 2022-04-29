@@ -17,7 +17,7 @@ resonance system," Neural Networks, vol. 4, no. 6, pp. 759-771, 1991.
 """
 
 """
-    opts_DVFA()
+    opts_DVFA(;kwargs)
 
 Dual Vigilance Fuzzy ART options struct.
 
