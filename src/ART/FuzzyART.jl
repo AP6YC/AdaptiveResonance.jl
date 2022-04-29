@@ -3,6 +3,9 @@
 
 Description:
     Includes all of the structures and logic for running a Gamma-Normalized Fuzzy ART module.
+
+References:
+[1] G. Carpenter, S. Grossberg, and D. Rosen, "Fuzzy ART: Fast stable learning and categorization of analog patterns by an adaptive resonance system," Neural Networks, vol. 4, no. 6, pp. 759-771, 1991.
 """
 
 # --------------------------------------------------------------------------- #
@@ -10,15 +13,19 @@ Description:
 # --------------------------------------------------------------------------- #
 
 """
-    opts_FuzzyART()
+    opts_FuzzyART(;kwargs)
 
 Gamma-Normalized Fuzzy ART options struct.
 
-# Examples
-```julia-repl
-julia> opts_FuzzyART()
-Initialized FuzzyART
-```
+# Keyword Arguments
+- `rho::Float`: vigilance value, [0, 1], default 0.6.
+- `alpha::Float`: choice parameter, alpha > 0, default 1e-3.
+- `beta::Float`: learning parameter, (0, 1], default 1.0.
+- `gamma::Float`: "pseudo" kernel width, gamma >= 1, default 3.0.
+- `gamma_ref::Float`: "reference" kernel width, 0 <= gamma_ref < gamma, default 1.0.
+- `display::Bool`: display flag, default true.
+- `max_epoch::Int`: maximum number of epochs during training, default 1.
+- `gamma_normalization::Bool`: normalize the threshold by the feature dimension, default false.
 """
 @with_kw mutable struct opts_FuzzyART <: ARTOpts @deftype Float
     # Vigilance parameter: [0, 1]
@@ -48,13 +55,24 @@ end # opts_FuzzyART
 
 Gamma-Normalized Fuzzy ART learner struct
 
-# Examples
-```julia-repl
-julia> FuzzyART()
-FuzzyART
-    opts: opts_FuzzyART
-    ...
-```
+For module options, see [`AdaptiveResonance.opts_FuzzyART`](@ref).
+
+# Option Parameters
+- `opts::opts_FuzzyART`: FuzzyART options struct.
+- `config::DataConfig`: data configuration struct.
+
+# Working Parameters
+- `threshold::Float`: operating module threshold value, a function of the vigilance parameter.
+- `labels::IntegerVector`: incremental list of labels corresponding to each F2 node, self-prescribed or supervised.
+- `T::RealVector`: activation values for every weight for a given sample.
+- `M::RealVector`: match values for every weight for a given sample.
+- `W::RealMatrix`: category weight matrix.
+- `n_instance::IntegerVector`: number of weights associated with each category.
+- `n_categories::Int`: number of category weights (F2 nodes).
+- `epoch::Int`: current training epoch.
+
+# References
+1. G. Carpenter, S. Grossberg, and D. Rosen, "Fuzzy ART: Fast stable learning and categorization of analog patterns by an adaptive resonance system," Neural Networks, vol. 4, no. 6, pp. 759-771, 1991.
 """
 mutable struct FuzzyART <: ART
     # Assign numerical parameters from options
@@ -200,9 +218,7 @@ function initialize!(art::FuzzyART, x::Vector{T} ; y::Integer=0) where {T<:RealF
     push!(art.labels, label)
 end # initialize!(art::FuzzyART, x::Vector{T} ; y::Integer=0) where {T<:RealFP}
 
-"""
-    train!(art::FuzzyART, x::RealVector ; y::Integer=0, preprocessed::Bool=false)
-"""
+# FuzzyART incremental training method
 function train!(art::FuzzyART, x::RealVector ; y::Integer=0, preprocessed::Bool=false)
     # Flag for if training in supervised mode
     supervised = !iszero(y)
@@ -275,63 +291,7 @@ function create_category(art::FuzzyART, x::RealVector, y::Integer)
     push!(art.labels, y)
 end # create_category(art::FuzzyART, x::RealVector, y::Integer)
 
-"""
-    train!(art::FuzzyART, x::RealMatrix ; y::IntegerVector = Vector{Int}(), preprocessed::Bool=false)
-
-Trains a FuzzyART learner with dataset 'x' and optional labels 'y'
-
-# Examples
-```julia-repl
-julia> my_FuzzyART = FuzzyART()
-FuzzyART
-    opts: opts_FuzzyART
-    ...
-julia> x = load_data()
-julia> train!(my_FuzzyART, x)
-```
-"""
-function train!(art::FuzzyART, x::RealMatrix ; y::IntegerVector = Vector{Int}(), preprocessed::Bool=false)
-    # Show a message if display is on
-    art.opts.display && @info "Training FuzzyART"
-
-    # Flag for if training in supervised mode
-    supervised = !isempty(y)
-
-    # Data information and setup
-    n_samples = get_n_samples(x)
-
-    # Run the batch initialization procedure
-    x = init_train!(x, art, preprocessed)
-
-    # Initialize the output vector
-    y_hat = zeros(Int, n_samples)
-    # Learning
-    art.epoch = 0
-    while true
-        # Increment the epoch and get the iterator
-        art.epoch += 1
-        iter = get_iterator(art.opts, x)
-        # Loop over samples
-        for i = iter
-            # Update the iterator if necessary
-            update_iter(art, iter, i)
-            # Grab the sample slice
-            # sample = get_sample(x, i)
-            sample = x[:, i]
-            # Train on the sample
-            local_y = supervised ? y[i] : 0
-            y_hat[i] = train!(art, sample, y=local_y, preprocessed=true)
-        end
-        # Check for the stopping condition for the whole loop
-        if stopping_conditions(art)
-            break
-        end
-    end
-end # train!(art::FuzzyART, x::RealMatrix ; y::IntegerVector = Vector{Int}(), preprocessed::Bool=false)
-
-"""
-    classify(art::FuzzyART, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
-"""
+# FuzzyART incremental classification method
 function classify(art::FuzzyART, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
     # Preprocess the data
     x = init_classify!(x, art, preprocessed)
@@ -362,42 +322,6 @@ function classify(art::FuzzyART, x::RealVector ; preprocessed::Bool=false, get_b
     end
     return y_hat
 end # classify(art::FuzzyART, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
-
-"""
-    classify(art::FuzzyART, x::RealMatrix ; preprocessed::Bool=false, get_bmu::Bool=false)
-
-Batch predict categories of 'x' using the FuzzyART model.
-
-Returns predicted categories 'y_hat'
-
-# Examples
-```julia-repl
-julia> my_FuzzyART = FuzzyART()
-FuzzyART
-    opts: opts_FuzzyART
-    ...
-julia> x, y = load_data()
-julia> train!(my_FuzzyART, x)
-julia> y_hat = classify(my_FuzzyART, y)
-```
-"""
-function classify(art::FuzzyART, x::RealMatrix ; preprocessed::Bool=false, get_bmu::Bool=false)
-    # Preprocess the data
-    x = init_classify!(x, art, preprocessed)
-    # Get the number of samples to classify
-    n_samples = get_n_samples(x)
-
-    # Initialize the output vector and iterate across all data
-    y_hat = zeros(Int, n_samples)
-    iter = get_iterator(art.opts, x)
-    for ix in iter
-        # Update the iterator if necessary
-        update_iter(art, iter, ix)
-        sample = x[:, ix]
-        y_hat[ix] = classify(art, sample, preprocessed=true, get_bmu=get_bmu)
-    end
-    return y_hat
-end # classify(art::FuzzyART, x::RealMatrix ; preprocessed::Bool=false, get_bmu::Bool=false)
 
 """
     activation_match!(art::FuzzyART, x::RealVector)

@@ -1,7 +1,20 @@
+"""
+    make.jl
+
+This file builds the documentation for the AdaptiveResonance.jl package
+using Documenter.jl and other tools.
+"""
+
 using Documenter
 using AdaptiveResonance
 using DemoCards
 # using JSON
+
+if haskey(ENV, "DOCSARGS")
+    for arg in split(ENV["DOCSARGS"])
+        (arg in ARGS) || push!(ARGS, arg)
+    end
+end
 
 # Generate the demo files
 # this is the relative path to docs/

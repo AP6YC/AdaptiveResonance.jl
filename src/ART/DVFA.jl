@@ -13,18 +13,21 @@ References:
 Vigilance Fuzzy ART," Neural Networks Letters. To appear.
 [2] G. Carpenter, S. Grossberg, and D. Rosen, "Fuzzy ART: Fast
 stable learning and categorization of analog patterns by an adaptive
-resonance system," Neural Networks, vol. 4, no. 6, pp. 759–771, 1991.
+resonance system," Neural Networks, vol. 4, no. 6, pp. 759-771, 1991.
 """
 
 """
-    opts_DVFA()
+    opts_DVFA(;kwargs)
 
 Dual Vigilance Fuzzy ART options struct.
 
-# Examples
-```julia-repl
-julia> my_opts = opts_DVFA()
-```
+# Keyword Arguments
+- `rho_lb::Float`: lower-bound vigilance value, [0, 1], default 0.55.
+- `rho_ub::Float`: upper-bound vigilance value, [0, 1], default 0.75.
+- `alpha::Float`: choice parameter, alpha > 0, default 1e-3.
+- `beta::Float`: learning parameter, (0, 1], default 1.0.
+- `display::Bool`: display flag, default true.
+- `max_epoch::Int`: maximum number of epochs during training, default 1.
 """
 @with_kw mutable struct opts_DVFA <: ARTOpts @deftype Float
     # Lower-bound vigilance parameter: [0, 1]
@@ -46,13 +49,26 @@ end # opts_DVFA
 
 Dual Vigilance Fuzzy ARTMAP module struct.
 
-# Examples
-```julia-repl
-julia> DVFA()
-DVFA
-    opts: opts_DVFA
-    ...
-```
+For module options, see [`AdaptiveResonance.opts_DVFA`](@ref).
+
+# Option Parameters
+- `opts::opts_DVFA`: DVFA options struct.
+- `config::DataConfig`: data configuration struct.
+
+# Working Parameters
+- `threshold_ub::Float`: operating upper bound module threshold value, a function of the upper bound vigilance parameter.
+- `threshold_lb::Float`: operating lower bound module threshold value, a function of the lower bound vigilance parameter.
+- `labels::IntegerVector`: incremental list of labels corresponding to each F2 node, self-prescribed or supervised.
+- `W::RealMatrix`: category weight matrix.
+- `T::RealVector`: activation values for every weight for a given sample.
+- `M::RealVector`: match values for every weight for a given sample.
+- `n_categories::Int`: number of category weights (F2 nodes).
+- `n_clusters::Int`: number of labeled clusters, may be lower than `n_categories`
+- `epoch::Int`: current training epoch.
+
+# References:
+1. L. E. Brito da Silva, I. Elnabarawy and D. C. Wunsch II, "Dual Vigilance Fuzzy ART," Neural Networks Letters. To appear.
+2. G. Carpenter, S. Grossberg, and D. Rosen, "Fuzzy ART: Fast stable learning and categorization of analog patterns by an adaptive resonance system," Neural Networks, vol. 4, no. 6, pp. 759-771, 1991.
 """
 mutable struct DVFA <: ART
     # Get parameters
@@ -66,7 +82,6 @@ mutable struct DVFA <: ART
     W::RealMatrix
     T::RealVector
     M::RealVector
-    map::IntegerVector
     n_categories::Int
     n_clusters::Int
     epoch::Int
@@ -132,7 +147,6 @@ function DVFA(opts::opts_DVFA)
         Array{Float}(undef, 0, 0),      # W
         Array{Float}(undef, 0),         # M
         Array{Float}(undef, 0),         # T
-        Array{Int}(undef, 0),           # map
         0,                              # n_categories
         0,                              # n_clusters
         0                               # epoch
@@ -150,16 +164,7 @@ function set_threshold!(art::DVFA)
     art.threshold_lb = art.opts.rho_lb * art.config.dim
 end # set_threshold!(art::DVFA)
 
-"""
-    train!(art::DVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=false)
-
-Train the DVFA module on x with optional custom category labels y.
-
-# Arguments
-- `art::DVFA`: the dual-vigilance fuzzy art module to train.
-- `x::RealVector`: the data to train on, interpreted as a single sample if x is a vector.
-- `y::Integer=0`: optional custom label to assign to the categories. If zero, ordinary incremental labels are prescribed.
-"""
+# Incremental DVFA training method
 function train!(art::DVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=false)
     # Flag for if training in supervised mode
     supervised = !iszero(y)
@@ -251,24 +256,7 @@ function train!(art::DVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fals
     return y_hat
 end # train!(art::DVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=false)
 
-"""
-    classify(art::DVFA, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
-
-Predict categories of 'x' using the DVFA model.
-
-Returns predicted categories 'y_hat'
-
-# Examples
-```julia-repl
-julia> my_DVFA = DVFA()
-DVFA
-    opts: opts_DVFA
-    ...
-julia> x, y = load_data()
-julia> train!(my_DVFA, x)
-julia> y_hat = classify(my_DVFA, y)
-```
-"""
+# Incremental DVFA classify method
 function classify(art::DVFA, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
     # Preprocess the data
     sample = init_classify!(x, art, preprocessed)

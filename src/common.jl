@@ -39,7 +39,14 @@ const ARTIterator = Union{UnitRange, ProgressBar}
 """
     DataConfig
 
-Conatiner to standardize training/testing data configuration.
+Container to standardize training/testing data configuration.
+
+# Parameters
+- `setup::Bool`: flag if data has been setup yet or not.
+- `mins::RealVector`: list of minimum values for each feature.
+- `maxs::RealVector`: list of maximum values for each feature.
+- `dim::Int`: dimensionality of the feature vectors (i.e., number of features).
+- `dim_comp::Int` complement coded feature dimensionality, twice the size of `dim`.
 """
 mutable struct DataConfig
     setup::Bool
@@ -101,6 +108,22 @@ function DataConfig(min::Real, max::Real, dim::Int)
         dim,                # dim
         dim*2               # dim_comp
     )
+end # DataConfig(min::Real, max::Real, dim::Int)
+
+"""
+    DataConfig(data::RealMatrix)
+
+Convenience constructor for DataConfig, requiring only the data matrix.
+"""
+function DataConfig(data::RealMatrix)
+    # Create an empty dataconfig
+    config = DataConfig()
+
+    # Runthe setup upon the config using the data matrix for reference
+    data_setup!(config, data)
+
+    # Return the constructed DataConfig
+    return config
 end # DataConfig(min::Real, max::Real, dim::Int)
 
 """
@@ -196,30 +219,14 @@ function data_setup!(config::DataConfig, data::RealMatrix)
 end # data_setup!(config::DataConfig, data::RealMatrix)
 
 """
-    data_setup!(art::ART, data::RealMatrix)
+    data_setup!(art::ARTModule, data::RealMatrix)
 
 Convenience method for setting up the DataConfig of an ART module in advance.
 """
-function data_setup!(art::ART, data::RealMatrix)
+function data_setup!(art::ARTModule, data::RealMatrix)
     # Modify the DataConfig of the ART module directly
     data_setup!(art.config, data)
 end # data_setup!(art::ART, data::RealMatrix)
-
-"""
-    DataConfig(data::RealMatrix)
-
-Convenience constructor for DataConfig, requiring only the data matrix.
-"""
-function DataConfig(data::RealMatrix)
-    # Create an empty dataconfig
-    config = DataConfig()
-
-    # Runthe setup upon the config using the data matrix for reference
-    data_setup!(config, data)
-
-    # Return the constructed DataConfig
-    return config
-end # DataConfig(min::Real, max::Real, dim::Int)
 
 """
     get_data_characteristics(data::RealArray ; config::DataConfig=DataConfig())
@@ -480,3 +487,22 @@ function classify(art::ARTModule, x::RealMatrix ; preprocessed::Bool=false, get_
 
     return y_hat
 end # classify(art::ARTModule, x::RealMatrix ; preprocessed::Bool=false, get_bmu::Bool=false)
+
+# -------------------------------------------
+# Common Documentation
+# -------------------------------------------
+
+@doc raw"""
+    classify(art::ARTModule, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
+
+Predict categories of a single sample of features 'x' using the ART model.
+
+Returns predicted category 'y_hat.'
+
+# Arguments
+- `art::ARTModule`: ART or ARTMAP module to use for batch inference.
+- `x::RealVector`: the single sample of features to classify.
+- `preprocessed::Bool=false`: optional, flag if the data has already been complement coded or not.
+- `get_bmu::Bool=false`: optional, flag if the model should return the best-matching-unit label in the case of total mismatch.
+"""
+classify(art::ARTModule, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
