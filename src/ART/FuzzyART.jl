@@ -3,6 +3,11 @@
 
 Description:
     Includes all of the structures and logic for running a Gamma-Normalized Fuzzy ART module.
+
+References:
+[1] G. Carpenter, S. Grossberg, and D. Rosen, "Fuzzy ART: Fast
+stable learning and categorization of analog patterns by an adaptive
+resonance system," Neural Networks, vol. 4, no. 6, pp. 759–771, 1991.
 """
 
 # --------------------------------------------------------------------------- #
@@ -14,11 +19,15 @@ Description:
 
 Gamma-Normalized Fuzzy ART options struct.
 
-# Examples
-```julia-repl
-julia> opts_FuzzyART()
-Initialized FuzzyART
-```
+# Keyword Arguments
+- `rho::Float`: vigilance value, [0, 1], default 0.6.
+- `alpha::Float`: choice parameter, alpha > 0, default 1e-3.
+- `beta::Float`: learning parameter, (0, 1], default 1.0.
+- `gamma::Float`: "pseudo" kernel width, gamma >= 1, default 3.0.
+- `gamma_ref::Float`: "reference" kernel width, 0 <= gamma_ref < gamma, default 1.0.
+- `display::Bool`: display flag, default true.
+- `max_epoch::Int`: maximum number of epochs during training, default 1.
+- `gamma_normalization::Bool`: normalize the threshold by the feature dimension, default false.
 """
 @with_kw mutable struct opts_FuzzyART <: ARTOpts @deftype Float
     # Vigilance parameter: [0, 1]
@@ -48,13 +57,10 @@ end # opts_FuzzyART
 
 Gamma-Normalized Fuzzy ART learner struct
 
-# Examples
-```julia-repl
-julia> FuzzyART()
-FuzzyART
-    opts: opts_FuzzyART
-    ...
-```
+# References
+1. G. Carpenter, S. Grossberg, and D. Rosen, "Fuzzy ART: Fast
+stable learning and categorization of analog patterns by an adaptive
+resonance system," Neural Networks, vol. 4, no. 6, pp. 759–771, 1991.
 """
 mutable struct FuzzyART <: ART
     # Assign numerical parameters from options

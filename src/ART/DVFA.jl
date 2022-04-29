@@ -21,10 +21,13 @@ resonance system," Neural Networks, vol. 4, no. 6, pp. 759–771, 1991.
 
 Dual Vigilance Fuzzy ART options struct.
 
-# Examples
-```julia-repl
-julia> my_opts = opts_DVFA()
-```
+# Keyword Arguments
+- `rho_lb::Float`: lower-bound vigilance value, [0, 1], default 0.55.
+- `rho_ub::Float`: upper-bound vigilance value, [0, 1], default 0.75.
+- `alpha::Float`: choice parameter, alpha > 0, default 1e-3.
+- `beta::Float`: learning parameter, (0, 1], default 1.0.
+- `display::Bool`: display flag, default true.
+- `max_epoch::Int`: maximum number of epochs during training, default 1.
 """
 @with_kw mutable struct opts_DVFA <: ARTOpts @deftype Float
     # Lower-bound vigilance parameter: [0, 1]
@@ -46,13 +49,11 @@ end # opts_DVFA
 
 Dual Vigilance Fuzzy ARTMAP module struct.
 
-# Examples
-```julia-repl
-julia> DVFA()
-DVFA
-    opts: opts_DVFA
-    ...
-```
+For module options, see [`AdaptiveResonance.opts_DVFA`](@ref).
+
+# References:
+1. L. E. Brito da Silva, I. Elnabarawy and D. C. Wunsch II, "Dual Vigilance Fuzzy ART," Neural Networks Letters. To appear.
+2. G. Carpenter, S. Grossberg, and D. Rosen, "Fuzzy ART: Fast stable learning and categorization of analog patterns by an adaptive resonance system," Neural Networks, vol. 4, no. 6, pp. 759–771, 1991.
 """
 mutable struct DVFA <: ART
     # Get parameters
@@ -242,24 +243,7 @@ function train!(art::DVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fals
     return y_hat
 end # train!(art::DVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=false)
 
-"""
-    classify(art::DVFA, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
-
-Predict categories of 'x' using the DVFA model.
-
-Returns predicted categories 'y_hat'
-
-# Examples
-```julia-repl
-julia> my_DVFA = DVFA()
-DVFA
-    opts: opts_DVFA
-    ...
-julia> x, y = load_data()
-julia> train!(my_DVFA, x)
-julia> y_hat = classify(my_DVFA, y)
-```
-"""
+# Incremental DVFA classify method
 function classify(art::DVFA, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
     # Preprocess the data
     sample = init_classify!(x, art, preprocessed)

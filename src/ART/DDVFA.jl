@@ -3,6 +3,10 @@
 
 Description:
     Includes all of the structures and logic for running a Distributed Dual-Vigilance Fuzzy ART (DDVFA) module.
+
+References
+[1] L. E. Brito da Silva, I. Elnabarawy, and D. C. Wunsch, “Distributed dual vigilance fuzzy adaptive resonance theory learns online, retrieves arbitrarily-shaped clusters, and mitigates order dependence,” Neural Networks, vol. 121, pp. 208–228, 2020, doi: 10.1016/j.neunet.2019.08.033.
+[2] G. Carpenter, S. Grossberg, and D. Rosen, "Fuzzy ART: Fast stable learning and categorization of analog patterns by an adaptive resonance system," Neural Networks, vol. 4, no. 6, pp. 759–771, 1991.
 """
 
 # --------------------------------------------------------------------------- #
@@ -14,10 +18,18 @@ Description:
 
 Distributed Dual Vigilance Fuzzy ART options struct.
 
-# Examples
-```julia-repl
-julia> my_opts = opts_DDVFA()
-```
+# Keyword Arguments
+- `rho_lb::Float`: lower-bound vigilance value, [0, 1], default 0.7.
+- `rho_ub::Float`: upper-bound vigilance value, [0, 1], default 0.85.
+- `alpha::Float`: choice parameter, alpha > 0, default 1e-3.
+- `beta::Float`: learning parameter, (0, 1], default 1.0.
+- `gamma::Float`: "pseudo" kernel width, gamma >= 1, default 3.0.
+- `gamma_ref::Float`: "reference" kernel width, 0 <= gamma_ref < gamma, default 1.0.
+- `method::String`: similarity method (activation and match):
+`single`, `average`, `complete`, `median`, `weighted`, or `centroid`, default `single`.
+- `display::Bool`: display flag, default true.
+- `max_epoch::Int`: maximum number of epochs during training, default 1.
+- `gamma_normalization::Bool`: normalize the threshold by the feature dimension, default true.
 """
 @with_kw mutable struct opts_DDVFA <: ARTOpts @deftype Float
     # Lower-bound vigilance parameter: [0, 1]
@@ -52,14 +64,11 @@ end # opts_DDVFA
 
 Distributed Dual Vigilance Fuzzy ARTMAP module struct.
 
-# Examples
-```julia-repl
-julia> DDVFA()
-DDVFA
-    opts: opts_DDVFA
-    subopts::opts_FuzzyART
-    ...
-```
+For module options, see [`AdaptiveResonance.opts_DDVFA`](@ref).
+
+# References
+1. L. E. Brito da Silva, I. Elnabarawy, and D. C. Wunsch, “Distributed dual vigilance fuzzy adaptive resonance theory learns online, retrieves arbitrarily-shaped clusters, and mitigates order dependence,” Neural Networks, vol. 121, pp. 208–228, 2020, doi: 10.1016/j.neunet.2019.08.033.
+2. G. Carpenter, S. Grossberg, and D. Rosen, "Fuzzy ART: Fast stable learning and categorization of analog patterns by an adaptive resonance system," Neural Networks, vol. 4, no. 6, pp. 759–771, 1991.
 """
 mutable struct DDVFA <: ART
     # Get parameters
