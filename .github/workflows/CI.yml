@@ -24,10 +24,10 @@ jobs:
         arch:
           - x64
           - x86
-        # exclude:
-          # Test 32-bit only on Linux
-          # - os: macOS-latest
-          #   arch: x86
+        exclude:
+          # Exclude 32-bit macOS due to Julia support
+          - os: macOS-latest
+            arch: x86
           # - os: windows-latest
           #   arch: x86
         # include:
