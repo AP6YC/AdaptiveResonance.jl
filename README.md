@@ -9,6 +9,13 @@ A Julia package for Adaptive Resonance Theory (ART) algorithms.
 | **Dependents** | **Date** | **Status** |
 | [![deps][deps-img]][deps-url] | [![version][version-img]][version-url] | [![pkgeval][pkgeval-img]][pkgeval-url] |
 
+| **Zenodo DOI** |
+| :------------: |
+| [![DOI][zenodo-img]][zenodo-url] |
+
+[zenodo-img]: https://zenodo.org/badge/DOI/10.5281/zenodo.5748453.svg
+[zenodo-url]: https://doi.org/10.5281/zenodo.5748453
+
 [deps-img]: https://juliahub.com/docs/AdaptiveResonance/deps.svg
 [deps-url]: https://juliahub.com/ui/Packages/AdaptiveResonance/Sm0We?t=2
 
