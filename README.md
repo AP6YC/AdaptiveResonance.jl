@@ -1,17 +1,20 @@
 # AdaptiveResonance
 
 A Julia package for Adaptive Resonance Theory (ART) algorithms.
+d
 
-| **Documentation**  | **Build Status** | **Coverage** |
-|:------------------:|:----------------:|:------------:|
-| [![Stable][docs-stable-img]][docs-stable-url] | [![Build Status][ci-img]][ci-url] | [![Codecov][codecov-img]][codecov-url] |
-| [![Dev][docs-dev-img]][docs-dev-url] | [![Build Status][appveyor-img]][appveyor-url] | [![Coveralls][coveralls-img]][coveralls-url] |
-| **Dependents** | **Date** | **Status** |
-| [![deps][deps-img]][deps-url] | [![version][version-img]][version-url] | [![pkgeval][pkgeval-img]][pkgeval-url] |
+| **Documentation**  | **Testing Status** | **Coverage** | **Reference** |
+|:------------------:|:----------------:|:------------:|:-------------:|
+| [![Stable][docs-stable-img]][docs-stable-url] | [![Build Status][ci-img]][ci-url] | [![Codecov][codecov-img]][codecov-url] | [![DOI][joss-img]][joss-url] |
+| [![Dev][docs-dev-img]][docs-dev-url] | [![Build Status][appveyor-img]][appveyor-url] | [![Coveralls][coveralls-img]][coveralls-url] | [![DOI][zenodo-img]][zenodo-url] |
+| **Documentation Build** | **JuliaHub Status** | **Dependents** | **Release** |
+| [![Documentation][doc-status-img]][doc-status-url] | [![pkgeval][pkgeval-img]][pkgeval-url] | [![deps][deps-img]][deps-url] | [![version][version-img]][version-url] |
 
-| **Zenodo DOI** |
-| :------------: |
-| [![DOI][zenodo-img]][zenodo-url] |
+[joss-img]: https://joss.theoj.org/papers/10.21105/joss.03671/status.svg
+[joss-url]: https://doi.org/10.21105/joss.03671
+
+[doc-status-img]: https://github.com/AP6YC/AdaptiveResonance.jl/actions/workflows/Documentation.yml/badge.svg
+[doc-status-url]: https://github.com/AP6YC/AdaptiveResonance.jl/actions/workflows/Documentation.yml
 
 [zenodo-img]: https://zenodo.org/badge/DOI/10.5281/zenodo.5748453.svg
 [zenodo-url]: https://doi.org/10.5281/zenodo.5748453

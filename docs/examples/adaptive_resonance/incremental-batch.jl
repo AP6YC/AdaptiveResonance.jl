@@ -1,7 +1,7 @@
 # ---
 # title: Incremental vs. Batch Example
 # id: incremental_batch
-# cover: ../assets/art.png
+# cover: assets/incremental-batch-cover.png
 # date: 2021-12-1
 # author: "[Sasha Petrenko](https://github.com/AP6YC)"
 # julia: 1.6
@@ -109,3 +109,52 @@ perf_test_incremental = performance(y_hat_incremental, y_test)
 @printf "Incremental training performance: %.4f\n" perf_train_incremental
 @printf "Batch testing performance: %.4f\n" perf_test_batch
 @printf "Incremental testing performance: %.4f\n" perf_test_incremental
+
+# ## Visualization
+
+# So we showed that the performance and behavior of modules are identical in incremental and batch modes.
+# Great!
+# However, illustrating this point doesn't lend itself to visualization in any meaningful way.
+# Nonetheless, we would like a pretty picture at the end of the experiment to verify that these identical solutions work in the first place.
+
+# To do this, we will reduce the dimensionality of the dataset to two dimensions and show in a scatter plot how the modules classify the test data into groups.
+# This will be done with principal component analysis (PCA) to cast the points into a 2-D space while trying to preserve the relative distances between points in the higher dimension.
+# The process isn't perfect by any means, but it suffices for visualization.
+
+## Import visualization utilities
+using Printf            # Formatted number printing
+using MultivariateStats # Principal component analysis (PCA)
+using Plots             # Plotting frontend
+pyplot()                # Use PyPlot backend
+
+## Train a PCA model
+M = fit(PCA, features; maxoutdim=2)
+
+## Apply the PCA model to the testing set
+X_test_pca = transform(M, X_test)
+
+# Now that we have the test points cast into a 2-D set of points, we can create a scatter plot that shows how each point is categorized by the modules.
+
+## Create a scatterplot object from the data
+p1 = scatter(
+    X_test_pca[1, :],       # PCA dimension 1
+    X_test_pca[2, :],       # PCA dimension 2
+    group = y_hat_batch,    # labels belonging to each point
+    markersize = 8,         # size of scatter points
+    title = @sprintf "DDVFA Iris Clusters"    # formatted title
+)
+
+## Plot the scatterplot with some additonal formatting options
+plot(
+    p1,                     # the scatterplot object
+    legend = false,         # no legend
+    xtickfontsize = 12,     # x-tick size
+    ytickfontsize = 12,     # y-tick size
+    dpi = 300,              # Set the dots-per-inch
+    xlims = :round,         # Round up the x-limits to the nearest whole number
+    xlabel = "\$PCA_1\$",   # x-label
+    ylabel = "\$PCA_2\$",   # y-label
+)
+
+# This plot shows that the DDVFA modules do well at identifying the structure of the three clusters despite not achieving 100% test performance.
+png("assets/incremental-batch-cover") #hide
