@@ -1,7 +1,7 @@
 # ---
 # title: Incremental vs. Batch Example
 # id: incremental_batch
-# cover: ../assets/art.png
+# cover: incremental-batch-cover.png
 # date: 2021-12-1
 # author: "[Sasha Petrenko](https://github.com/AP6YC)"
 # julia: 1.6
@@ -109,3 +109,41 @@ perf_test_incremental = performance(y_hat_incremental, y_test)
 @printf "Incremental training performance: %.4f\n" perf_train_incremental
 @printf "Batch testing performance: %.4f\n" perf_test_batch
 @printf "Incremental testing performance: %.4f\n" perf_test_incremental
+
+# Let's plot!
+using Printf            # Formatted number printing
+using MultivariateStats # Principal component analysis (PCA)
+using Plots             # Plotting frontend
+pyplot()                # Use PyPlot backend
+
+## Train a PCA model
+M = fit(PCA, features; maxoutdim=2)
+
+## Apply the PCA model to the testing set
+X_test_pca = transform(M, X_test)
+
+# Plot
+
+## Create a scatterplot object from the data
+p1 = scatter(
+    X_test_pca[1, :],       # PCA dimension 1
+    X_test_pca[2, :],       # PCA dimension 2
+    group = y_hat_batch,    # labels belonging to each point
+    markersize = 8,         # size of scatter points
+    title = @sprintf "DDVFA"    # formatted title
+)
+
+## Plot the scatterplot with some additonal formatting options
+plot(
+    p1,                     # the scatterplot object
+    legend = false,         # no legend
+    xtickfontsize = 12,     # x-tick size
+    ytickfontsize = 12,     # y-tick size
+    dpi = 300,              # Set the dots-per-inch
+    xlims = :round,         # Round up the x-limits to the nearest whole number
+    xlabel = "\$PCA_1\$",   # x-label
+    ylabel = "\$PCA_2\$",   # y-label
+)
+
+# Neat!
+png("incremental-batch-cover") #hide

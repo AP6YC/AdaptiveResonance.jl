@@ -154,9 +154,35 @@ M = fit(PCA, features; maxoutdim=2)
 X_test_pca = transform(M, X_test)
 
 # We can now plot the PCA'ed test set and label them according to the two FuzzyART's
-p1 = scatter(X_test_pca[1,:], X_test_pca[2,:], group=y_hat_1, title=@sprintf "FuzzyART rho = %.1f" rho_1)
-p2 = scatter(X_test_pca[1,:], X_test_pca[2,:], group=y_hat_2, title=@sprintf "FuzzyART rho = %.1f" rho_2)
-plot(p1, p2, layout=(1, 2), legend = false, xtickfontsize=6, xguidefontsize=8, titlefont=font(8))
 
-# Super neat!
+## Create the two scatterplot objects
+p1 = scatter(
+    X_test_pca[1, :],
+    X_test_pca[2, :],
+    group=y_hat_1,
+    markersize=8,
+    title=@sprintf "FuzzyART \$\\rho\$ = %.1f" rho_1
+)
+p2 = scatter(
+    X_test_pca[1, :],   # PCA dimension 1
+    X_test_pca[2, :],   # PCA dimension 2
+    group = y_hat_2,    # labels belonging to each point
+    markersize = 8,     # size of scatter points
+    title=@sprintf "FuzzyART \$\\rho\$ = %.1f" rho_2    # formatted title
+)
+
+## Plot the two scatterplots together
+plot(
+    p1, p2,                 # scatterplot objects
+    layout = (1, 2),        # plot side-by-side
+    legend = false,         # no legend
+    xtickfontsize = 12,     # x-tick size
+    ytickfontsize = 12,     # y-tick size
+    dpi = 300,              # Set the dots-per-inch
+    xlims = :round,         # Round up the x-limits to the nearest whole number
+    xlabel = "\$PCA_1\$",   # x-label
+    ylabel = "\$PCA_2\$",   # y-label
+)
+
+# We can see that the two different vigilance values result in similar resutls on the whole, though they differ in how they classify certain samples that straddle the border between
 png("options-cover") #hide
