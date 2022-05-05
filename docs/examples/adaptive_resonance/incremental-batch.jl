@@ -110,7 +110,18 @@ perf_test_incremental = performance(y_hat_incremental, y_test)
 @printf "Batch testing performance: %.4f\n" perf_test_batch
 @printf "Incremental testing performance: %.4f\n" perf_test_incremental
 
-# Let's plot!
+# ## Visualization
+
+# So we showed that the performance and behavior of modules are identical in incremental and batch modes.
+# Great!
+# However, illustrating this point doesn't lend itself to visualization in any meaningful way.
+# Nonetheless, we would like a pretty picture at the end of the experiment to verify that these identical solutions work in the first place.
+
+# To do this, we will reduce the dimensionality of the dataset to two dimensions and show in a scatter plot how the modules classify the test data into groups.
+# This will be done with principal component analysis (PCA) to cast the points into a 2-D space while trying to preserve the relative distances between points in the higher dimension.
+# The process isn't perfect by any means, but it suffices for visualization.
+
+## Import visualization utilities
 using Printf            # Formatted number printing
 using MultivariateStats # Principal component analysis (PCA)
 using Plots             # Plotting frontend
@@ -122,7 +133,7 @@ M = fit(PCA, features; maxoutdim=2)
 ## Apply the PCA model to the testing set
 X_test_pca = transform(M, X_test)
 
-# Plot
+# Now that we have the test points cast into a 2-D set of points, we can create a scatter plot that shows how each point is categorized by the modules.
 
 ## Create a scatterplot object from the data
 p1 = scatter(
@@ -145,5 +156,5 @@ plot(
     ylabel = "\$PCA_2\$",   # y-label
 )
 
-# Neat!
+# This plot shows that the DDVFA modules do well at identifying the structure of the three clusters despite not achieving 100% test performance.
 png("incremental-batch-cover") #hide
