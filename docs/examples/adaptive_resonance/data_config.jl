@@ -17,7 +17,7 @@
 # Preprocessing of the features occurs as follows:
 # 1. The features are linearly normalized from 0 to 1 with respect to each feature with `linear_normalization`.
 #    This is done according to some known bounds that each feature has.
-# 2. The features are then complement coded, meaning that the feature vector is appended to its 1-complement (i.e., x -> [x, 1-x]) with `complement_code`.
+# 2. The features are then complement coded, meaning that the feature vector is appended to its 1-complement (i.e., $x \rightarrow \left[x, 1-x\right]$) with `complement_code`.
 
 # This preprocessing has the ultimate consequence that the input features must be bounded.
 # This many not be a problem in some offline applications with a fixed dataset, but in others where the bounds are not known, techniques such as sigmoidal limiting are often used to place an artificial limit.
