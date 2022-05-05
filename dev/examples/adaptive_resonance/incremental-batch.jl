@@ -60,5 +60,40 @@ perf_test_incremental = performance(y_hat_incremental, y_test)
 @printf "Batch testing performance: %.4f\n" perf_test_batch
 @printf "Incremental testing performance: %.4f\n" perf_test_incremental
 
+# Import visualization utilities
+using Printf            # Formatted number printing
+using MultivariateStats # Principal component analysis (PCA)
+using Plots             # Plotting frontend
+pyplot()                # Use PyPlot backend
+
+# Train a PCA model
+M = fit(PCA, features; maxoutdim=2)
+
+# Apply the PCA model to the testing set
+X_test_pca = transform(M, X_test)
+
+# Create a scatterplot object from the data
+p1 = scatter(
+    X_test_pca[1, :],       # PCA dimension 1
+    X_test_pca[2, :],       # PCA dimension 2
+    group = y_hat_batch,    # labels belonging to each point
+    markersize = 8,         # size of scatter points
+    title = @sprintf "DDVFA Iris Clusters"    # formatted title
+)
+
+# Plot the scatterplot with some additonal formatting options
+plot(
+    p1,                     # the scatterplot object
+    legend = false,         # no legend
+    xtickfontsize = 12,     # x-tick size
+    ytickfontsize = 12,     # y-tick size
+    dpi = 300,              # Set the dots-per-inch
+    xlims = :round,         # Round up the x-limits to the nearest whole number
+    xlabel = "\$PCA_1\$",   # x-label
+    ylabel = "\$PCA_2\$",   # y-label
+)
+
+png("assets/incremental-batch-cover") #hide
+
 # This file was generated using Literate.jl, https://github.com/fredrikekre/Literate.jl
 

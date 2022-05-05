@@ -38,7 +38,8 @@ using MLDatasets        # Iris dataset
 using MLDataUtils       # Shuffling and splitting
 using Printf            # Formatted number printing
 using MultivariateStats # Principal component analysis (PCA)
-using Plots             # Plotting
+using Plots             # Plotting frontend
+pyplot()                # Use PyPlot backend
 
 Iris.download(i_accept_the_terms_of_use=true)
 features, labels = Iris.features(), Iris.labels()
@@ -83,9 +84,36 @@ M = fit(PCA, features; maxoutdim=2)
 # Apply the PCA model to the testing set
 X_test_pca = transform(M, X_test)
 
-p1 = scatter(X_test_pca[1,:], X_test_pca[2,:], group=y_hat_1, title=@sprintf "FuzzyART rho = %.1f" rho_1)
-p2 = scatter(X_test_pca[1,:], X_test_pca[2,:], group=y_hat_2, title=@sprintf "FuzzyART rho = %.1f" rho_2)
-plot(p1, p2, layout=(1, 2), legend = false, xtickfontsize=6, xguidefontsize=8, titlefont=font(8))
+# Create the two scatterplot objects
+p1 = scatter(
+    X_test_pca[1, :],
+    X_test_pca[2, :],
+    group=y_hat_1,
+    markersize=8,
+    title=@sprintf "FuzzyART \$\\rho\$ = %.1f" rho_1
+)
+p2 = scatter(
+    X_test_pca[1, :],   # PCA dimension 1
+    X_test_pca[2, :],   # PCA dimension 2
+    group = y_hat_2,    # labels belonging to each point
+    markersize = 8,     # size of scatter points
+    title=@sprintf "FuzzyART \$\\rho\$ = %.1f" rho_2    # formatted title
+)
+
+# Plot the two scatterplots together
+plot(
+    p1, p2,                 # scatterplot objects
+    layout = (1, 2),        # plot side-by-side
+    legend = false,         # no legend
+    xtickfontsize = 12,     # x-tick size
+    ytickfontsize = 12,     # y-tick size
+    dpi = 300,              # Set the dots-per-inch
+    xlims = :round,         # Round up the x-limits to the nearest whole number
+    xlabel = "\$PCA_1\$",   # x-label
+    ylabel = "\$PCA_2\$",   # y-label
+)
+
+png("assets/options-cover") #hide
 
 # This file was generated using Literate.jl, https://github.com/fredrikekre/Literate.jl
 
