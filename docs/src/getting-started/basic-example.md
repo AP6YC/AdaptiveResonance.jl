@@ -1,6 +1,9 @@
 # Basic Example
 
+This page demonstrates a full basic example of an `AdaptiveResonance.jl` workflow.
 In the example below, we create a dataset generated from two multivariate Gaussian distributions in two dimensions, showing how an ART module can be used in unsupervised or simple supervised modes alongside an ARTMAP module that is explicitly supervised-only.
+
+For more examples that you can run yourself in Julia notebooks, see the [Examples](@ref examples) page.
 
 ```@example
 # Copyright © 2021 Alexander L. Hayes
@@ -10,6 +13,7 @@ using AdaptiveResonance
 using Distributions, Random
 using MLDataUtils
 using Plots
+pyplot()
 
 """
 Demonstrates Unsupervised DDVFA, Supervised DDVFA, and (Supervised) SFAM on a toy problem

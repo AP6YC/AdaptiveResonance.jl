@@ -1,7 +1,7 @@
 # ---
 # title: ART Options Example
 # id: options
-# cover: ../assets/art.png
+# cover: options-cover.png
 # date: 2021-12-2
 # author: "[Sasha Petrenko](https://github.com/AP6YC)"
 # julia: 1.6
@@ -91,7 +91,8 @@ using MLDatasets        # Iris dataset
 using MLDataUtils       # Shuffling and splitting
 using Printf            # Formatted number printing
 using MultivariateStats # Principal component analysis (PCA)
-using Plots             # Plotting
+using Plots             # Plotting frontend
+pyplot()                # Use PyPlot backend
 
 # We will download the Iris dataset for its small size and benchmark use for clustering algorithms.
 Iris.download(i_accept_the_terms_of_use=true)
@@ -156,3 +157,6 @@ X_test_pca = transform(M, X_test)
 p1 = scatter(X_test_pca[1,:], X_test_pca[2,:], group=y_hat_1, title=@sprintf "FuzzyART rho = %.1f" rho_1)
 p2 = scatter(X_test_pca[1,:], X_test_pca[2,:], group=y_hat_2, title=@sprintf "FuzzyART rho = %.1f" rho_2)
 plot(p1, p2, layout=(1, 2), legend = false, xtickfontsize=6, xguidefontsize=8, titlefont=font(8))
+
+# Super neat!
+png("options-cover") #hide
