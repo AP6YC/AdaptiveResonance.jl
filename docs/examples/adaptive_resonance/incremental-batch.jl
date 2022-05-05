@@ -1,7 +1,7 @@
 # ---
 # title: Incremental vs. Batch Example
 # id: incremental_batch
-# cover: incremental-batch-cover.png
+# cover: assets/incremental-batch-cover.png
 # date: 2021-12-1
 # author: "[Sasha Petrenko](https://github.com/AP6YC)"
 # julia: 1.6
@@ -141,7 +141,7 @@ p1 = scatter(
     X_test_pca[2, :],       # PCA dimension 2
     group = y_hat_batch,    # labels belonging to each point
     markersize = 8,         # size of scatter points
-    title = @sprintf "DDVFA"    # formatted title
+    title = @sprintf "DDVFA Iris Clusters"    # formatted title
 )
 
 ## Plot the scatterplot with some additonal formatting options
@@ -157,4 +157,4 @@ plot(
 )
 
 # This plot shows that the DDVFA modules do well at identifying the structure of the three clusters despite not achieving 100% test performance.
-png("incremental-batch-cover") #hide
+png("assets/incremental-batch-cover") #hide

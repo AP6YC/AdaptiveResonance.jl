@@ -1,7 +1,7 @@
 # ---
 # title: ART Options Example
 # id: options
-# cover: options-cover.png
+# cover: assets/options-cover.png
 # date: 2021-12-2
 # author: "[Sasha Petrenko](https://github.com/AP6YC)"
 # julia: 1.6
@@ -185,4 +185,4 @@ plot(
 )
 
 # We can see that the two different vigilance values result in similar resutls on the whole, though they differ in how they classify certain samples that straddle the border between
-png("options-cover") #hide
+png("assets/options-cover") #hide
