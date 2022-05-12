@@ -13,7 +13,6 @@ using AdaptiveResonance
 using Distributions, Random
 using MLDataUtils
 using Plots
-pyplot()
 
 """
 Demonstrates Unsupervised DDVFA, Supervised DDVFA, and (Supervised) SFAM on a toy problem
