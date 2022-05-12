@@ -8,6 +8,10 @@ References:
     [1] G. A. Carpenter, S. Grossberg, N. Markuzon, J. H. Reynolds, and D. B. Rosen, “Fuzzy ARTMAP: A Neural Network Architecture for Incremental Supervised Learning of Analog Multidimensional Maps,” IEEE Trans. Neural Networks, vol. 3, no. 5, pp. 698-713, 1992, doi: 10.1109/72.159059.
 """
 
+# --------------------------------------------------------------------------- #
+# OPTIONS
+# --------------------------------------------------------------------------- #
+
 """
     opts_SFAM(;kwargs)
 
@@ -39,6 +43,10 @@ Implements a Simple Fuzzy ARTMAP learner's options.
     max_epochs::Int = 1
 end # opts_SFAM()
 
+# --------------------------------------------------------------------------- #
+# STRUCTS
+# --------------------------------------------------------------------------- #
+
 """
     SFAM <: ARTMAP
 
@@ -68,30 +76,25 @@ mutable struct SFAM <: ARTMAP
     epoch::Int
 end # SFAM <: ARTMAP
 
-"""
-    SFAM()
+# --------------------------------------------------------------------------- #
+# CONSTRUCTORS
+# --------------------------------------------------------------------------- #
 
-Implements a Simple Fuzzy ARTMAP learner.
+"""
+    SFAM(;kwargs...)
+
+Implements a Simple Fuzzy ARTMAP learner with optional keyword arguments.
 
 # Examples
+By default:
 ```julia-repl
 julia> SFAM()
 SFAM
     opts: opts_SFAM
     ...
 ```
-"""
-function SFAM()
-    opts = opts_SFAM()
-    SFAM(opts)
-end # SFAM()
 
-"""
-    SFAM(;kwargs...)
-
-Implements a Simple Fuzzy ARTMAP learner with keyword arguments.
-
-# Examples
+or with keyword arguments:
 ```julia-repl
 julia> SFAM()
 SFAM
@@ -128,6 +131,10 @@ function SFAM(opts::opts_SFAM)
         0                               # epoch
     )
 end # SFAM(opts::opts_SFAM)
+
+# --------------------------------------------------------------------------- #
+# ALGORITHMIC METHODS
+# --------------------------------------------------------------------------- #
 
 # SFAM incremental training method
 function train!(art::SFAM, x::RealVector, y::Integer ; preprocessed::Bool=false)

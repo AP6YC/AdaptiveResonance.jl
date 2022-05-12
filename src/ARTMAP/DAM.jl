@@ -8,6 +8,10 @@ References:
 [1] G. P. Amis and G. A. Carpenter, “Default ARTMAP 2,” IEEE Int. Conf. Neural Networks - Conf. Proc., vol. 2, no. September 2007, pp. 777-782, Mar. 2007, doi: 10.1109/IJCNN.2007.4371056.
 """
 
+# --------------------------------------------------------------------------- #
+# OPTIONS
+# --------------------------------------------------------------------------- #
+
 """
     opts_DAM(;kwargs)
 
@@ -39,6 +43,10 @@ Implements a Default ARTMAP learner's options.
     max_epochs::Int = 1
 end # opts_DAM()
 
+# --------------------------------------------------------------------------- #
+# STRUCTS
+# --------------------------------------------------------------------------- #
+
 """
     DAM <: ARTMAP
 
@@ -68,30 +76,25 @@ mutable struct DAM <: ARTMAP
     epoch::Int
 end # DAM <: ARTMAP
 
-"""
-    DAM()
+# --------------------------------------------------------------------------- #
+# CONSTRUCTORS
+# --------------------------------------------------------------------------- #
 
-Implements a Default ARTMAP learner.
+"""
+    DAM(;kwargs...)
+
+Implements a Default ARTMAP learner with optional keyword arguments.
 
 # Examples
+By default:
 ```julia-repl
 julia> DAM()
 DAM
     opts: opts_DAM
     ...
 ```
-"""
-function DAM()
-    opts = opts_DAM()
-    DAM(opts)
-end # DAM()
 
-"""
-    DAM(;kwargs...)
-
-Implements a Default ARTMAP learner with keyword arguments.
-
-# Examples
+or with keyword arguments:
 ```julia-repl
 julia> DAM()
 DAM
@@ -128,6 +131,10 @@ function DAM(opts::opts_DAM)
         0                               # epoch
     )
 end # DAM(opts::opts_DAM)
+
+# --------------------------------------------------------------------------- #
+# ALGORITHMIC METHODS
+# --------------------------------------------------------------------------- #
 
 # Incremental DAM training method
 function train!(art::DAM, x::RealVector, y::Integer ; preprocessed::Bool=false)

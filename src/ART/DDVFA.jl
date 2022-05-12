@@ -105,11 +105,12 @@ end # DDVFA <: ART
 # --------------------------------------------------------------------------- #
 
 """
-    DDVFA()
+    DDVFA(;kwargs...)
 
-Implements a DDVFA learner with default options.
+Implements a DDVFA learner with optional keyword arguments.
 
 # Examples
+By default:
 ```julia-repl
 julia> DDVFA()
 DDVFA
@@ -117,18 +118,8 @@ DDVFA
     subopts: opts_FuzzyART
     ...
 ```
-"""
-function DDVFA()
-    opts = opts_DDVFA()
-    DDVFA(opts)
-end # DDVFA()
 
-"""
-    DDVFA(;kwargs...)
-
-Implements a DDVFA learner with keyword arguments.
-
-# Examples
+or with keyword arguments:
 ```julia-repl
 julia> DDVFA(rho_lb=0.4, rho_ub = 0.75)
 DDVFA
