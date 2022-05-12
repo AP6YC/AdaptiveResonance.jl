@@ -40,8 +40,8 @@ using Printf            # Formatted number printing
 using MultivariateStats # Principal component analysis (PCA)
 using Plots             # Plotting frontend
 
-Iris.download(i_accept_the_terms_of_use=true)
-features, labels = Iris.features(), Iris.labels()
+iris = Iris()
+features, labels = iris.features(), iris.labels()
 
 labels = convertlabel(LabelEnc.Indices{Int}, labels)
 unique(labels)

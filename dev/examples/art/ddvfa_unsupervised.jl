@@ -1,8 +1,8 @@
 using AdaptiveResonance
 using MLDatasets
 
-Iris.download(i_accept_the_terms_of_use=true)
-features, labels = Iris.features(), Iris.labels()
+iris = Iris()
+features, labels = iris.features(), iris.labels()
 
 art = DDVFA(rho_lb=0.6, rho_ub=0.75)
 

@@ -3,8 +3,8 @@ using MLDatasets        # Iris dataset
 using MLDataUtils       # Shuffling and splitting
 using Printf            # Formatted number printing
 
-Iris.download(i_accept_the_terms_of_use=true)
-features, labels = Iris.features(), Iris.labels()
+iris = Iris()
+features, labels = iris.features(), iris.labels()
 
 labels = convertlabel(LabelEnc.Indices{Int}, labels)
 unique(labels)
