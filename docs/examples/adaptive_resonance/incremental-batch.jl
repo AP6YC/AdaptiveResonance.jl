@@ -27,8 +27,8 @@ using MLDataUtils       # Shuffling and splitting
 using Printf            # Formatted number printing
 
 # We will download the Iris dataset for its small size and benchmark use for clustering algorithms.
-Iris.download(i_accept_the_terms_of_use=true)
-features, labels = Iris.features(), Iris.labels()
+iris = Iris()
+features, labels = iris.features(), iris.labels()
 
 # Because the MLDatasets package gives us Iris labels as strings, we will use the `MLDataUtils.convertlabel` method with the `MLLabelUtils.LabelEnc.Indices` type to get a list of integers representing each class:
 labels = convertlabel(LabelEnc.Indices{Int}, labels)
