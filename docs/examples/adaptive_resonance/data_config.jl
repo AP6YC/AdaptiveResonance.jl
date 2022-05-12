@@ -46,14 +46,15 @@ fieldnames(AdaptiveResonance.DataConfig)
 
 ## Load data
 using MLDatasets
+using MLUtils
 
 ## We will download the Iris dataset for its small size and benchmark use for clustering algorithms.
 iris = Iris()
-features, labels = iris.features(), iris.labels()
+features, labels = Matrix(iris.features), Matrix{String}(iris.targets)
 
-## We will then train the FuzzyART module in unsupervised mode and see that the data config is now set
-y_hat_train = train!(art, features)
-art.config
+# Because the MLDatasets package gives us Iris labels as strings, we will use the `MLDataUtils.convertlabel` method with the `MLLabelUtils.LabelEnc.Indices` type to get a list of integers representing each class:
+labels = convertlabel(LabelEnc.Indices{Int}, vec(labels))
+unique(labels)
 
 # !!! note
 #     This automatic detection of feature characteristics only occurs if the `config` is not already setup.

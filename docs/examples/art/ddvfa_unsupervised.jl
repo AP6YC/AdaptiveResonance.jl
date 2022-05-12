@@ -16,7 +16,7 @@ using MLDatasets
 
 # We will download the Iris dataset for its small size and benchmark use for clustering algorithms.
 iris = Iris()
-features, labels = iris.features(), iris.labels()
+features, labels = Matrix(iris.features), Matrix{String}(iris.targets)
 
 # Next, we will instantiate a DDVFA module.
 # We could create an options struct for reuse with `opts=opts_DDVFA(...)`, but for now we will use the direct keyword arguments approach.
