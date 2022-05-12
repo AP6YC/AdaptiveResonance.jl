@@ -92,7 +92,6 @@ using MLDataUtils       # Shuffling and splitting
 using Printf            # Formatted number printing
 using MultivariateStats # Principal component analysis (PCA)
 using Plots             # Plotting frontend
-pyplot()                # Use PyPlot backend
 
 # We will download the Iris dataset for its small size and benchmark use for clustering algorithms.
 Iris.download(i_accept_the_terms_of_use=true)
@@ -154,34 +153,37 @@ M = fit(PCA, features; maxoutdim=2)
 X_test_pca = transform(M, X_test)
 
 # We can now plot the PCA'ed test set and label them according to the two FuzzyART's
+# We will do so by creating a function for the subplots first as they will share the same format, and we dare not duplicate code.
+# Then, we will plot those subplots side-by-side.
+
+## Create a function for our subplots
+function fuzzyart_scatter(data, labels, rho)
+    p = scatter(
+        data[1, :],             # PCA dimension 1
+        data[2, :],             # PCA dimension 2
+        group=labels,           # labels belonging to each point
+        markersize=8,           # size of scatter points
+        xlims = [-4, 4],        # manually set the x-limits
+        title=(@sprintf "FuzzyART \$\\rho\$ = %.1f" rho),  # formatted title
+    )
+    return p
+end
 
 ## Create the two scatterplot objects
-p1 = scatter(
-    X_test_pca[1, :],
-    X_test_pca[2, :],
-    group=y_hat_1,
-    markersize=8,
-    title=@sprintf "FuzzyART \$\\rho\$ = %.1f" rho_1
-)
-p2 = scatter(
-    X_test_pca[1, :],   # PCA dimension 1
-    X_test_pca[2, :],   # PCA dimension 2
-    group = y_hat_2,    # labels belonging to each point
-    markersize = 8,     # size of scatter points
-    title=@sprintf "FuzzyART \$\\rho\$ = %.1f" rho_2    # formatted title
-)
+p1 = fuzzyart_scatter(X_test_pca, y_hat_1, rho_1)
+p2 = fuzzyart_scatter(X_test_pca, y_hat_2, rho_2)
 
 ## Plot the two scatterplots together
 plot(
     p1, p2,                 # scatterplot objects
     layout = (1, 2),        # plot side-by-side
+    ##layout = [a, b],        # plot side-by-side
     legend = false,         # no legend
     xtickfontsize = 12,     # x-tick size
     ytickfontsize = 12,     # y-tick size
-    dpi = 300,              # Set the dots-per-inch
-    xlims = :round,         # Round up the x-limits to the nearest whole number
     xlabel = "\$PCA_1\$",   # x-label
     ylabel = "\$PCA_2\$",   # y-label
+    dpi = 300,              # Set the dots-per-inch
 )
 
 # We can see that the two different vigilance values result in similar resutls on the whole, though they differ in how they classify certain samples that straddle the border between

@@ -114,8 +114,9 @@ perf_test_incremental = performance(y_hat_incremental, y_test)
 
 # So we showed that the performance and behavior of modules are identical in incremental and batch modes.
 # Great!
-# However, illustrating this point doesn't lend itself to visualization in any meaningful way.
+# Sadly, illustrating this point doesn't lend itself to visualization in any meaningful way.
 # Nonetheless, we would like a pretty picture at the end of the experiment to verify that these identical solutions work in the first place.
+# Sanity checks are meaningful in their own right, right?
 
 # To do this, we will reduce the dimensionality of the dataset to two dimensions and show in a scatter plot how the modules classify the test data into groups.
 # This will be done with principal component analysis (PCA) to cast the points into a 2-D space while trying to preserve the relative distances between points in the higher dimension.
@@ -125,7 +126,6 @@ perf_test_incremental = performance(y_hat_incremental, y_test)
 using Printf            # Formatted number printing
 using MultivariateStats # Principal component analysis (PCA)
 using Plots             # Plotting frontend
-pyplot()                # Use PyPlot backend
 
 ## Train a PCA model
 M = fit(PCA, features; maxoutdim=2)
@@ -135,18 +135,12 @@ X_test_pca = transform(M, X_test)
 
 # Now that we have the test points cast into a 2-D set of points, we can create a scatter plot that shows how each point is categorized by the modules.
 
-## Create a scatterplot object from the data
-p1 = scatter(
+## Create a scatterplot object from the data with some additional formatting options
+scatter(
     X_test_pca[1, :],       # PCA dimension 1
     X_test_pca[2, :],       # PCA dimension 2
     group = y_hat_batch,    # labels belonging to each point
     markersize = 8,         # size of scatter points
-    title = @sprintf "DDVFA Iris Clusters"    # formatted title
-)
-
-## Plot the scatterplot with some additonal formatting options
-plot(
-    p1,                     # the scatterplot object
     legend = false,         # no legend
     xtickfontsize = 12,     # x-tick size
     ytickfontsize = 12,     # y-tick size
@@ -154,6 +148,7 @@ plot(
     xlims = :round,         # Round up the x-limits to the nearest whole number
     xlabel = "\$PCA_1\$",   # x-label
     ylabel = "\$PCA_2\$",   # y-label
+    title = (@sprintf "DDVFA Iris Clusters"),   # formatted title
 )
 
 # This plot shows that the DDVFA modules do well at identifying the structure of the three clusters despite not achieving 100% test performance.
