@@ -48,8 +48,8 @@ fieldnames(AdaptiveResonance.DataConfig)
 using MLDatasets
 
 ## We will download the Iris dataset for its small size and benchmark use for clustering algorithms.
-Iris.download(i_accept_the_terms_of_use=true)
-features, labels = Iris.features(), Iris.labels()
+iris = Iris()
+features, labels = iris.features(), iris.labels()
 
 ## We will then train the FuzzyART module in unsupervised mode and see that the data config is now set
 y_hat_train = train!(art, features)
