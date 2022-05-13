@@ -45,15 +45,17 @@ fieldnames(AdaptiveResonance.DataConfig)
 # In batch training mode, the minimums and maximums are detected automatically; the minimum and maximum values for every feature are saved and used for the preprocessing step at every subsequent iteration.
 
 ## Load data
-using MLDatasets
-using MLUtils
+using MLDatasets        # Iris dataset
+using MLDataUtils       # Shuffling and splitting
 
 ## We will download the Iris dataset for its small size and benchmark use for clustering algorithms.
+## Get the iris dataset as a DataFrame
 iris = Iris()
-features, labels = Matrix(iris.features), Matrix{String}(iris.targets)
+## Manipulate the features and labels into a matrix of features and a vector of labels
+features, labels = Matrix(iris.features)', vec(Matrix{String}(iris.targets))
 
 # Because the MLDatasets package gives us Iris labels as strings, we will use the `MLDataUtils.convertlabel` method with the `MLLabelUtils.LabelEnc.Indices` type to get a list of integers representing each class:
-labels = convertlabel(LabelEnc.Indices{Int}, vec(labels))
+labels = convertlabel(LabelEnc.Indices{Int}, labels)
 unique(labels)
 
 # !!! note

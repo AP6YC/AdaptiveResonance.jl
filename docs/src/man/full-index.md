@@ -27,7 +27,7 @@ Public = true
 ```@docs
 AdaptiveResonance
 train!
-classify
+AdaptiveResonance.classify
 data_setup!
 performance
 complement_code

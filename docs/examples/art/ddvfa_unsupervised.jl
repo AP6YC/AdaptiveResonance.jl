@@ -11,12 +11,15 @@
 # DDVFA is an unsupervised clustering algorithm by definition, so it can be used to cluster a set of samples all at once in batch mode.
 
 # We begin with importing AdaptiveResonance for the ART modules and MLDatasets for loading some data.
-using AdaptiveResonance
-using MLDatasets
+using AdaptiveResonance # ART
+using MLDatasets        # Iris dataset
+using MLDataUtils       # Shuffling and splitting
 
 # We will download the Iris dataset for its small size and benchmark use for clustering algorithms.
+## Get the iris dataset as a DataFrame
 iris = Iris()
-features, labels = Matrix(iris.features), Matrix{String}(iris.targets)
+## Manipulate the features and labels into a matrix of features and a vector of labels
+features, labels = Matrix(iris.features)', vec(Matrix{String}(iris.targets))
 
 # Next, we will instantiate a DDVFA module.
 # We could create an options struct for reuse with `opts=opts_DDVFA(...)`, but for now we will use the direct keyword arguments approach.
