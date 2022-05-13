@@ -1,8 +1,11 @@
-using AdaptiveResonance
-using MLDatasets
+using AdaptiveResonance # ART
+using MLDatasets        # Iris dataset
+using MLDataUtils       # Shuffling and splitting
 
+# Get the iris dataset as a DataFrame
 iris = Iris()
-features, labels = iris.features(), iris.labels()
+# Manipulate the features and labels into a matrix of features and a vector of labels
+features, labels = Matrix(iris.features)', vec(Matrix{String}(iris.targets))
 
 art = DDVFA(rho_lb=0.6, rho_ub=0.75)
 
