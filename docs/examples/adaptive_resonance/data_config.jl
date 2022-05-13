@@ -17,7 +17,7 @@
 # Preprocessing of the features occurs as follows:
 # 1. The features are linearly normalized from 0 to 1 with respect to each feature with `linear_normalization`.
 #    This is done according to some known bounds that each feature has.
-# 2. The features are then complement coded, meaning that the feature vector is appended to its 1-complement (i.e., x -> [x, 1-x]) with `complement_code`.
+# 2. The features are then complement coded, meaning that the feature vector is appended to its 1-complement (i.e., $x \rightarrow \left[x, 1-x\right]$) with `complement_code`.
 
 # This preprocessing has the ultimate consequence that the input features must be bounded.
 # This many not be a problem in some offline applications with a fixed dataset, but in others where the bounds are not known, techniques such as sigmoidal limiting are often used to place an artificial limit.
@@ -45,15 +45,18 @@ fieldnames(AdaptiveResonance.DataConfig)
 # In batch training mode, the minimums and maximums are detected automatically; the minimum and maximum values for every feature are saved and used for the preprocessing step at every subsequent iteration.
 
 ## Load data
-using MLDatasets
+using MLDatasets        # Iris dataset
+using MLDataUtils       # Shuffling and splitting
 
 ## We will download the Iris dataset for its small size and benchmark use for clustering algorithms.
-Iris.download(i_accept_the_terms_of_use=true)
-features, labels = Iris.features(), Iris.labels()
+## Get the iris dataset as a DataFrame
+iris = Iris()
+## Manipulate the features and labels into a matrix of features and a vector of labels
+features, labels = Matrix(iris.features)', vec(Matrix{String}(iris.targets))
 
-## We will then train the FuzzyART module in unsupervised mode and see that the data config is now set
-y_hat_train = train!(art, features)
-art.config
+# Because the MLDatasets package gives us Iris labels as strings, we will use the `MLDataUtils.convertlabel` method with the `MLLabelUtils.LabelEnc.Indices` type to get a list of integers representing each class:
+labels = convertlabel(LabelEnc.Indices{Int}, labels)
+unique(labels)
 
 # !!! note
 #     This automatic detection of feature characteristics only occurs if the `config` is not already setup.

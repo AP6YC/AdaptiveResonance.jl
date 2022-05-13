@@ -1,7 +1,7 @@
 # ---
 # title: ART Options Example
 # id: options
-# cover: ../assets/art.png
+# cover: assets/options-cover.png
 # date: 2021-12-2
 # author: "[Sasha Petrenko](https://github.com/AP6YC)"
 # julia: 1.6
@@ -91,11 +91,13 @@ using MLDatasets        # Iris dataset
 using MLDataUtils       # Shuffling and splitting
 using Printf            # Formatted number printing
 using MultivariateStats # Principal component analysis (PCA)
-using Plots             # Plotting
+using Plots             # Plotting frontend
 
 # We will download the Iris dataset for its small size and benchmark use for clustering algorithms.
-Iris.download(i_accept_the_terms_of_use=true)
-features, labels = Iris.features(), Iris.labels()
+## Get the iris dataset as a DataFrame
+iris = Iris()
+## Manipulate the features and labels into a matrix of features and a vector of labels
+features, labels = Matrix(iris.features)', vec(Matrix{String}(iris.targets))
 
 # Because the MLDatasets package gives us Iris labels as strings, we will use the `MLDataUtils.convertlabel` method with the `MLLabelUtils.LabelEnc.Indices` type to get a list of integers representing each class:
 labels = convertlabel(LabelEnc.Indices{Int}, labels)
@@ -153,6 +155,38 @@ M = fit(PCA, features; maxoutdim=2)
 X_test_pca = transform(M, X_test)
 
 # We can now plot the PCA'ed test set and label them according to the two FuzzyART's
-p1 = scatter(X_test_pca[1,:], X_test_pca[2,:], group=y_hat_1, title=@sprintf "FuzzyART rho = %.1f" rho_1)
-p2 = scatter(X_test_pca[1,:], X_test_pca[2,:], group=y_hat_2, title=@sprintf "FuzzyART rho = %.1f" rho_2)
-plot(p1, p2, layout=(1, 2), legend = false, xtickfontsize=6, xguidefontsize=8, titlefont=font(8))
+# We will do so by creating a function for the subplots first as they will share the same format, and we dare not duplicate code.
+# Then, we will plot those subplots side-by-side.
+
+## Create a function for our subplots
+function fuzzyart_scatter(data, labels, rho)
+    p = scatter(
+        data[1, :],             # PCA dimension 1
+        data[2, :],             # PCA dimension 2
+        group=labels,           # labels belonging to each point
+        markersize=8,           # size of scatter points
+        xlims = [-4, 4],        # manually set the x-limits
+        title=(@sprintf "FuzzyART \$\\rho\$ = %.1f" rho),  # formatted title
+    )
+    return p
+end
+
+## Create the two scatterplot objects
+p1 = fuzzyart_scatter(X_test_pca, y_hat_1, rho_1)
+p2 = fuzzyart_scatter(X_test_pca, y_hat_2, rho_2)
+
+## Plot the two scatterplots together
+plot(
+    p1, p2,                 # scatterplot objects
+    layout = (1, 2),        # plot side-by-side
+    ##layout = [a, b],        # plot side-by-side
+    legend = false,         # no legend
+    xtickfontsize = 12,     # x-tick size
+    ytickfontsize = 12,     # y-tick size
+    xlabel = "\$PCA_1\$",   # x-label
+    ylabel = "\$PCA_2\$",   # y-label
+    dpi = 300,              # Set the dots-per-inch
+)
+
+# We can see that the two different vigilance values result in similar resutls on the whole, though they differ in how they classify certain samples that straddle the border between
+png("assets/options-cover") #hide

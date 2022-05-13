@@ -8,6 +8,10 @@ References:
 [1] G. A. Carpenter, S. Grossberg, N. Markuzon, J. H. Reynolds, and D. B. Rosen, “Fuzzy ARTMAP: A Neural Network Architecture for Incremental Supervised Learning of Analog Multidimensional Maps,” IEEE Trans. Neural Networks, vol. 3, no. 5, pp. 698-713, 1992, doi: 10.1109/72.159059.
 """
 
+# --------------------------------------------------------------------------- #
+# OPTIONS
+# --------------------------------------------------------------------------- #
+
 """
     opts_FAM(;kwargs)
 
@@ -39,6 +43,10 @@ Implements a Fuzzy ARTMAP learner's options.
     max_epochs::Int = 1
 end # opts_FAM()
 
+# --------------------------------------------------------------------------- #
+# STRUCTS
+# --------------------------------------------------------------------------- #
+
 """
     FAM <: ARTMAP
 
@@ -68,30 +76,25 @@ mutable struct FAM <: ARTMAP
     epoch::Int
 end # FAM <: ARTMAP
 
-"""
-    FAM()
+# --------------------------------------------------------------------------- #
+# CONSTRUCTORS
+# --------------------------------------------------------------------------- #
 
-Implements a Fuzzy ARTMAP learner.
+"""
+    FAM(;kwargs...)
+
+Implements a Fuzzy ARTMAP learner with optional keyword arguments.
 
 # Examples
+By default:
 ```julia-repl
 julia> FAM()
 FAM
     opts: opts_FAM
     ...
 ```
-"""
-function FAM()
-    opts = opts_FAM()
-    FAM(opts)
-end # FAM()
 
-"""
-    FAM(;kwargs...)
-
-Implements a Fuzzy ARTMAP learner with keyword arguments.
-
-# Examples
+or with keyword arguments:
 ```julia-repl
 julia> FAM(rho=0.7)
 FAM

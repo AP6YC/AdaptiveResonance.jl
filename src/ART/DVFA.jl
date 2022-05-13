@@ -87,30 +87,25 @@ mutable struct DVFA <: ART
     epoch::Int
 end # DVFA
 
-"""
-    DVFA()
+# --------------------------------------------------------------------------- #
+# CONSTRUCTORS
+# --------------------------------------------------------------------------- #
 
-Implements a DVFA learner with default options.
+"""
+    DVFA(;kwargs...)
+
+Implements a DVFA learner with optional keyword arguments.
 
 # Examples
+By default:
 ```julia-repl
 julia> DVFA()
 DVFA
     opts: opts_DDVFA
     ...
 ```
-"""
-function DVFA()
-    opts = opts_DVFA()
-    DVFA(opts)
-end # DVFA()
 
-"""
-    DVFA(;kwargs...)
-
-Implements a DVFA learner with keyword arguments.
-
-# Examples
+or with keyword arguments:
 ```julia-repl
 julia> DVFA(rho=0.7)
 DVFA

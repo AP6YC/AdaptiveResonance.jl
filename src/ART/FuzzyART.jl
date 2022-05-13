@@ -97,29 +97,20 @@ end # FuzzyART <: ART
 # --------------------------------------------------------------------------- #
 
 """
-    FuzzyART()
+    FuzzyART(;kwargs...)
 
-Implements a Gamma-Normalized Fuzzy ART learner.
+Implements a Gamma-Normalized Fuzzy ART learner with optional keyword arguments.
 
 # Examples
+By default:
 ```julia-repl
 julia> FuzzyART()
 FuzzyART
     opts: opts_FuzzyART
     ...
 ```
-"""
-function FuzzyART()
-    opts = opts_FuzzyART()
-    FuzzyART(opts)
-end # FuzzyART()
 
-"""
-    FuzzyART(;kwargs...)
-
-Implements a Gamma-Normalized Fuzzy ART learner with keyword arguments.
-
-# Examples
+or with keyword arguments:
 ```julia-repl
 julia> FuzzyART(rho=0.7)
 FuzzyART
