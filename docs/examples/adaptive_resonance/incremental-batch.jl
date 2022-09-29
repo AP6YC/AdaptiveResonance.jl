@@ -73,7 +73,7 @@ n_train = length(y_train)
 ## Create a container for the training output labels
 y_hat_incremental_train = zeros(Int, n_train)
 ## Iterate over all training samples
-for ix = 1:length(y_train)
+for ix in eachindex(y_train)
     sample = X_train[:, ix]
     label = y_train[ix]
     y_hat_incremental_train[ix] = train!(art_incremental, sample, y=label)

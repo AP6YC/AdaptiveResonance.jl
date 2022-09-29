@@ -113,7 +113,7 @@ end # @testset "AdaptiveResonance.jl"
                 local_art_opts = art_opts
             end
             # Iterate over all options
-            for kx = 1:length(local_art_opts)
+            for kx in eachindex(local_art_opts)
                 # Only do the unsupervised method if we have an ART module (not ARTMAP)
                 if arts[ix] isa ART
                     # Unsupervised
