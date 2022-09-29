@@ -1,3 +1,9 @@
+"""
+    test_artscene.jl
+
+A container for just ARTSCENE-specific unit tests.
+"""
+
 using Distributed
 using Logging
 

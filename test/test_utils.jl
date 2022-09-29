@@ -1,3 +1,9 @@
+"""
+    test_utils.jl
+
+A set of common struct and function utilities for AdaptiveResonance.jl unit tests.
+"""
+
 using DelimitedFiles
 
 """
@@ -35,7 +41,13 @@ end # DataSplit(data_x::Array, data_y::Array, ratio::Real)
 
 Train and test an ART module.
 """
-function train_test_art(art::ARTModule, data::DataSplit; supervised::Bool=false, train_opts::NamedTuple=NamedTuple(), test_opts::NamedTuple=NamedTuple())
+function train_test_art(
+    art::ARTModule,
+    data::DataSplit ;
+    supervised::Bool=false,
+    train_opts::NamedTuple=NamedTuple(),
+    test_opts::NamedTuple=NamedTuple()
+)
     # Default performance to undefined
     perf = NaN
     # If the module is unsupervised by default

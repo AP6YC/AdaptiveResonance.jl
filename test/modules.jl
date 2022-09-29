@@ -1,3 +1,9 @@
+"""
+    modules.jl
+
+This file contains tests for module initialization.
+"""
+
 @testset "Modules" begin
     # Default constructors
     fam = FAM()

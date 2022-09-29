@@ -1,3 +1,10 @@
+"""
+    test_sets.jl
+
+The main collection of tests for the AdaptiveResonance.jl package.
+This file loads common utilities and aggregates all other unit tests files.
+"""
+
 using AdaptiveResonance
 using Test
 using Logging
