@@ -1,10 +1,6 @@
 using Distributed
 using Logging
 
-# Add four workers and give them all function definitions
-addprocs(4)
-@everywhere using AdaptiveResonance
-
 """
     artscene_filter_porcelain()
 
@@ -12,11 +8,19 @@ Runs the artscene user-level functions on a random image.
 """
 # function artscene_filter_porcelain()
 @testset "ARTSCENE Filter Porcelain" begin
-    # Set the logging level to Debug
-    LogLevel(Logging.Debug)
+    @info "------- ARTSCENE test -------"
+
+    # Add four workers and give them all function definitions
+    addprocs(4)
+    @everywhere using AdaptiveResonance
+
+    # Show the parallel workers
     n_processes = nprocs()
     n_workers = nworkers()
-    @info "Processes: $n_processes, Workers: $n_workers"
+    @info "Started parallel workers. Processes: $n_processes, Workers: $n_workers"
+
+    # Set the logging level to Debug within the test
+    LogLevel(Logging.Debug)
 
     # Random image
     raw_image = rand(3, 5, 5)
@@ -26,7 +30,10 @@ Runs the artscene user-level functions on a random image.
 
     # Set the logging level back to Info
     LogLevel(Logging.Info)
-end # @testset "ARTSCENE Filter Porcelain"
 
-# Close the workers after testing
-rmprocs(workers())
+    # Close the workers after testing
+    rmprocs(workers())
+    n_processes = nprocs()
+    n_workers = nworkers()
+    @info "Closed parallel workers. Processes: $n_processes, Workers: $n_workers"
+end # @testset "ARTSCENE Filter Porcelain"
