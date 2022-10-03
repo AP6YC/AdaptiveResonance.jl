@@ -134,7 +134,7 @@ using Plots             # Plotting frontend
 M = fit(PCA, features; maxoutdim=2)
 
 ## Apply the PCA model to the testing set
-X_test_pca = transform(M, X_test)
+X_test_pca = MultivariateStats.transform(M, X_test)
 
 # Now that we have the test points cast into a 2-D set of points, we can create a scatter plot that shows how each point is categorized by the modules.
 

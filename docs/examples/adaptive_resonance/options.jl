@@ -153,7 +153,7 @@ perf_test_2 = performance(y_hat_2, y_test)
 M = fit(PCA, features; maxoutdim=2)
 
 ## Apply the PCA model to the testing set
-X_test_pca = transform(M, X_test)
+X_test_pca = MultivariateStats.transform(M, X_test)
 
 # We can now plot the PCA'ed test set and label them according to the two FuzzyART's
 # We will do so by creating a function for the subplots first as they will share the same format, and we dare not duplicate code.
