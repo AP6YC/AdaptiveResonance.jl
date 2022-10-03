@@ -1,4 +1,6 @@
 """
+    runtests.jl
+
 The entry point to unit tests for the AdaptiveResonance.jl package.
 """
 
