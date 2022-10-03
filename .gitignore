@@ -1,3 +1,14 @@
+# IDE ignores
+.vscode/
+
+# Project ignores
+data/mnist/
+!data/.gitkeep
+
+# DemoCards intermediate compilation directories
+docs/src/democards/
+docs/src/examples/
+
 # Julia package development ignores
 *.jl.*.cov
 *.jl.cov
@@ -8,10 +19,3 @@
 /docs/Manifest.toml
 /docs/build/
 /docs/site/
-
-# Project ignores
-data/mnist/
-!data/.gitkeep
-
-# IDE ignores
-.vscode/

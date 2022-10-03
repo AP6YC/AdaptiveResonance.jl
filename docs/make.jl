@@ -8,6 +8,7 @@ using Documenter.jl and other tools.
 using Documenter
 using AdaptiveResonance
 using DemoCards
+
 # using JSON
 
 if haskey(ENV, "DOCSARGS")

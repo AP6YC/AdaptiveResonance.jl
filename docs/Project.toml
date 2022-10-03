@@ -10,4 +10,4 @@ MultivariateStats = "6f286f6a-111f-5878-ab1e-185364afe411"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 
 [compat]
-MLDatasets = "0.6"
+MLDatasets = "0.7"

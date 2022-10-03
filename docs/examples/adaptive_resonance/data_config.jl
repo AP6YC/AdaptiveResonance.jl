@@ -46,16 +46,17 @@ fieldnames(AdaptiveResonance.DataConfig)
 
 ## Load data
 using MLDatasets        # Iris dataset
+using DataFrames        # DataFrames, necessary for MLDatasets.Iris()
 using MLDataUtils       # Shuffling and splitting
 
-## We will download the Iris dataset for its small size and benchmark use for clustering algorithms.
-## Get the iris dataset as a DataFrame
-iris = Iris()
+# We will download the Iris dataset for its small size and benchmark use for clustering algorithms.
+## Get the iris dataset
+iris = Iris(as_df=false)
 ## Manipulate the features and labels into a matrix of features and a vector of labels
-features, labels = Matrix(iris.features)', vec(Matrix{String}(iris.targets))
+features, labels = iris.features, iris.targets
 
 # Because the MLDatasets package gives us Iris labels as strings, we will use the `MLDataUtils.convertlabel` method with the `MLLabelUtils.LabelEnc.Indices` type to get a list of integers representing each class:
-labels = convertlabel(LabelEnc.Indices{Int}, labels)
+labels = convertlabel(LabelEnc.Indices{Int}, vec(labels))
 unique(labels)
 
 # !!! note
