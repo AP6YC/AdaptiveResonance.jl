@@ -4,7 +4,7 @@
 # cover: assets/incremental-batch-cover.png
 # date: 2021-12-1
 # author: "[Sasha Petrenko](https://github.com/AP6YC)"
-# julia: 1.6
+# julia: 1.8
 # description: This demo illustrates how to use incremental training methods vs. batch training for all ART modules.
 # ---
 

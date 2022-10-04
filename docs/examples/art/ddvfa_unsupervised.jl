@@ -4,7 +4,7 @@
 # cover: ../assets/ddvfa.png
 # date: 2021-11-30
 # author: "[Sasha Petrenko](https://github.com/AP6YC)"
-# julia: 1.6
+# julia: 1.8
 # description: This demo shows how to use DDVFA for unsupervised learning by clustering Iris samples.
 # ---
 

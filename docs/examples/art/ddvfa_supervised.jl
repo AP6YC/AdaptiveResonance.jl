@@ -4,7 +4,7 @@
 # cover: ../assets/ddvfa.png
 # date: 2021-11-30
 # author: "[Sasha Petrenko](https://github.com/AP6YC)"
-# julia: 1.6
+# julia: 1.8
 # description: This demo shows how to use DDVFA for simple supervised learning by clustering Iris samples and mapping the modules internal categories to the true labels.
 # ---
 
