@@ -58,10 +58,10 @@ For module options, see [`AdaptiveResonance.opts_DVFA`](@ref).
 # Working Parameters
 - `threshold_ub::Float`: operating upper bound module threshold value, a function of the upper bound vigilance parameter.
 - `threshold_lb::Float`: operating lower bound module threshold value, a function of the lower bound vigilance parameter.
-- `labels::IntegerVector`: incremental list of labels corresponding to each F2 node, self-prescribed or supervised.
-- `W::RealMatrix`: category weight matrix.
-- `T::RealVector`: activation values for every weight for a given sample.
-- `M::RealVector`: match values for every weight for a given sample.
+- `labels::Vector{Int}`: incremental list of labels corresponding to each F2 node, self-prescribed or supervised.
+- `W::Matrix{Float}`: category weight matrix.
+- `T::Vector{Float}`: activation values for every weight for a given sample.
+- `M::Vector{Float}`: match values for every weight for a given sample.
 - `n_categories::Int`: number of category weights (F2 nodes).
 - `n_clusters::Int`: number of labeled clusters, may be lower than `n_categories`
 - `epoch::Int`: current training epoch.
@@ -78,10 +78,10 @@ mutable struct DVFA <: ART
     # Working variables
     threshold_ub::Float
     threshold_lb::Float
-    labels::IntegerVector
-    W::RealMatrix
-    T::RealVector
-    M::RealVector
+    labels::Vector{Int}
+    W::Matrix{Float}
+    T::Vector{Float}
+    M::Vector{Float}
     n_categories::Int
     n_clusters::Int
     epoch::Int

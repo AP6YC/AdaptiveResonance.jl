@@ -363,23 +363,23 @@ function get_iterator(opts::ARTOpts, x::RealArray)
 end # get_iterator(opts::ARTOpts, x::RealArray)
 
 """
-    update_iter(art::ARTModule, iter::ARTIterator, i::Int)
+    update_iter(art::ARTModule, iter::ARTIterator, i::Integer)
 """
-function update_iter(art::ARTModule, iter::ARTIterator, i::Int)
+function update_iter(art::ARTModule, iter::ARTIterator, i::Integer)
     # Check explicitly for each, as the function definition restricts the types
     if iter isa ProgressBar
         set_description(iter, string(@sprintf("Ep: %i, ID: %i, Cat: %i", art.epoch, i, art.n_categories)))
     elseif iter isa UnitRange
         return
     end
-end # update_iter(art::ARTModule, iter::Union{UnitRange, ProgressBar}, i::Int)
+end # update_iter(art::ARTModule, iter::Union{UnitRange, ProgressBar}, i::Integer)
 
 """
-    get_sample(x::RealArray, i::Int)
+    get_sample(x::RealArray, i::Integer)
 
 Returns a sample from data array x safely, accounting for 1-D and
 """
-function get_sample(x::RealArray, i::Int)
+function get_sample(x::RealArray, i::Integer)
     # Get the shape of the data, irrespective of data type
     dim, n_samples = get_data_shape(x)
     # Get the type shape of the array
@@ -396,7 +396,7 @@ function get_sample(x::RealArray, i::Int)
         sample = x[:, i]
     end
     return sample
-end # get_sample(x::RealArray, i::Int)
+end # get_sample(x::RealArray, i::Integer)
 
 """
     init_train!(x::RealVector, art::ARTModule, preprocessed::Bool)

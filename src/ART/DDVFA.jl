@@ -74,7 +74,7 @@ For module options, see [`AdaptiveResonance.opts_DDVFA`](@ref).
 # Working Parameters
 - `threshold::Float`: operating module threshold value, a function of the vigilance parameter.
 - `F2::Vector{FuzzyART}`: list of F2 nodes (themselves FuzzyART modules).
-- `labels::IntegerVector`: incremental list of labels corresponding to each F2 node, self-prescribed or supervised.
+- `labels::Vector{Int}`: incremental list of labels corresponding to each F2 node, self-prescribed or supervised.
 - `n_categories::Int`: number of total categories.
 - `epoch::Int`: current training epoch.
 - `T::Float`: winning activation value from most recent sample.
@@ -93,7 +93,7 @@ mutable struct DDVFA <: ART
     # Working variables
     threshold::Float
     F2::Vector{FuzzyART}
-    labels::IntegerVector
+    labels::Vector{Int}
     n_categories::Int
     epoch::Int
     T::Float
@@ -185,7 +185,7 @@ function set_threshold!(art::DDVFA)
     # Gamma match normalization
     if art.opts.gamma_normalization
         # Set the learning threshold as a function of the data dimension
-        art.threshold = art.opts.rho_lb*(art.config.dim^art.opts.gamma_ref)
+        art.threshold = art.opts.rho_lb * (art.config.dim ^ art.opts.gamma_ref)
     else
         # Set the learning threshold as simply the vigilance parameter
         art.threshold = art.opts.rho_lb
