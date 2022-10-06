@@ -58,15 +58,15 @@ Container to standardize training/testing data configuration.
 
 # Parameters
 - `setup::Bool`: flag if data has been setup yet or not.
-- `mins::RealVector`: list of minimum values for each feature.
-- `maxs::RealVector`: list of maximum values for each feature.
+- `mins::Vector{Float}`: list of minimum values for each feature.
+- `maxs::Vector{Float}`: list of maximum values for each feature.
 - `dim::Int`: dimensionality of the feature vectors (i.e., number of features).
 - `dim_comp::Int` complement coded feature dimensionality, twice the size of `dim`.
 """
 mutable struct DataConfig
     setup::Bool
-    mins::RealVector
-    maxs::RealVector
+    mins::Vector{Float}
+    maxs::Vector{Float}
     dim::Int
     dim_comp::Int
 end # DataConfig
@@ -109,13 +109,13 @@ function DataConfig(mins::RealVector, maxs::RealVector)
 end # DataConfig(mins::RealVector, maxs::RealVector)
 
 """
-    DataConfig(min::Real, max::Real, dim::Int)
+    DataConfig(min::Real, max::Real, dim::Integer)
 
 Convenience constructor for DataConfig, requiring only a global min, max, and dim.
 
 This constructor is used in the case that the feature mins and maxs are all the same respectively.
 """
-function DataConfig(min::Real, max::Real, dim::Int)
+function DataConfig(min::Real, max::Real, dim::Integer)
     DataConfig(
         true,               # setup
         repeat([min], dim), # min
@@ -123,7 +123,7 @@ function DataConfig(min::Real, max::Real, dim::Int)
         dim,                # dim
         dim*2               # dim_comp
     )
-end # DataConfig(min::Real, max::Real, dim::Int)
+end # DataConfig(min::Real, max::Real, dim::Integer)
 
 """
     DataConfig(data::RealMatrix)
