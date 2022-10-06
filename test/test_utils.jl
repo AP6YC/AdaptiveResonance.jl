@@ -85,21 +85,6 @@ function train_test_art(
 end
 
 """
-    showtypetree(T, level=0)
-
-Show the tree of subtypes for a type.
-```julia
-showtypetree(Number)
-```
-"""
-function showtypetree(T, level=0)
-    println("\t" ^ level, T)
-    for t in subtypes(T)
-        showtypetree(t, level+1)
-    end
-end # showtypetree(T, level=0)
-
-"""
     load_iris(data_path::AbstractString ; split_ratio::Real = 0.8)
 
 Loads the iris dataset for testing and examples.
