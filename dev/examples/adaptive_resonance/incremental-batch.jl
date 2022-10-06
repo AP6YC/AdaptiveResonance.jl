@@ -1,14 +1,15 @@
 using AdaptiveResonance # ART
 using MLDatasets        # Iris dataset
+using DataFrames        # DataFrames, necessary for MLDatasets.Iris()
 using MLDataUtils       # Shuffling and splitting
 using Printf            # Formatted number printing
 
-# Get the iris dataset as a DataFrame
-iris = Iris()
+# Get the iris dataset
+iris = Iris(as_df=false)
 # Manipulate the features and labels into a matrix of features and a vector of labels
-features, labels = Matrix(iris.features)', vec(Matrix{String}(iris.targets))
+features, labels = iris.features, iris.targets
 
-labels = convertlabel(LabelEnc.Indices{Int}, labels)
+labels = convertlabel(LabelEnc.Indices{Int}, vec(labels))
 unique(labels)
 
 (X_train, y_train), (X_test, y_test) = stratifiedobs((features, labels))
@@ -30,7 +31,7 @@ n_train = length(y_train)
 # Create a container for the training output labels
 y_hat_incremental_train = zeros(Int, n_train)
 # Iterate over all training samples
-for ix = 1:length(y_train)
+for ix in eachindex(y_train)
     sample = X_train[:, ix]
     label = y_train[ix]
     y_hat_incremental_train[ix] = train!(art_incremental, sample, y=label)
@@ -66,12 +67,13 @@ perf_test_incremental = performance(y_hat_incremental, y_test)
 using Printf            # Formatted number printing
 using MultivariateStats # Principal component analysis (PCA)
 using Plots             # Plotting frontend
+gr()                    # Use the default GR backend explicitly
 
 # Train a PCA model
 M = fit(PCA, features; maxoutdim=2)
 
 # Apply the PCA model to the testing set
-X_test_pca = transform(M, X_test)
+X_test_pca = MultivariateStats.transform(M, X_test)
 
 # Create a scatterplot object from the data with some additional formatting options
 scatter(

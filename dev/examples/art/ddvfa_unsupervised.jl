@@ -1,11 +1,12 @@
 using AdaptiveResonance # ART
 using MLDatasets        # Iris dataset
+using DataFrames        # DataFrames, necessary for MLDatasets.Iris()
 using MLDataUtils       # Shuffling and splitting
 
-# Get the iris dataset as a DataFrame
-iris = Iris()
-# Manipulate the features and labels into a matrix of features and a vector of labels
-features, labels = Matrix(iris.features)', vec(Matrix{String}(iris.targets))
+# Get the iris dataset
+iris = Iris(as_df=false)
+# Extract the features into a local variable
+features = iris.features
 
 art = DDVFA(rho_lb=0.6, rho_ub=0.75)
 
