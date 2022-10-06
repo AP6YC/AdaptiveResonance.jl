@@ -368,7 +368,7 @@ end # get_iterator(opts::ARTOpts, x::RealArray)
 function update_iter(art::ARTModule, iter::ARTIterator, i::Integer)
     # Check explicitly for each, as the function definition restricts the types
     if iter isa ProgressBar
-        set_description(iter, string(@sprintf("Ep: %i, ID: %i, Cat: %i", art.epoch, i, art.n_categories)))
+        set_description(iter, "Ep: $(art.epoch), ID: $(i), Cat: $(art.n_categories)")
     elseif iter isa UnitRange
         return
     end

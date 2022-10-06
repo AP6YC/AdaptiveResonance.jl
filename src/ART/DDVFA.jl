@@ -285,12 +285,12 @@ function stopping_conditions(art::DDVFA)
 end # stopping_conditions(DDVFA)
 
 """
-    similarity(method::String, F2::FuzzyART, field_name::String, sample::RealVector, gamma_ref::RealFP)
+    similarity(method::AbstractString, F2::FuzzyART, field_name::AbstractString, sample::RealVector, gamma_ref::RealFP)
 
 Compute the similarity metric depending on method with explicit comparisons
 for the field name.
 """
-function similarity(method::String, F2::FuzzyART, field_name::String, sample::RealVector, gamma_ref::RealFP)
+function similarity(method::AbstractString, F2::FuzzyART, field_name::AbstractString, sample::RealVector, gamma_ref::RealFP)
     @debug "Computing similarity"
 
     if field_name != "T" && field_name != "M"
@@ -346,7 +346,7 @@ function similarity(method::String, F2::FuzzyART, field_name::String, sample::Re
     end
 
     return value
-end # similarity(method::String, F2::FuzzyART, field_name::String, sample::RealVector, gamma_ref::RealFP)
+end # similarity(method::AbstractString, F2::FuzzyART, field_name::AbstractString, sample::RealVector, gamma_ref::RealFP)
 
 # DDVFA incremental classification method
 function classify(art::DDVFA, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
