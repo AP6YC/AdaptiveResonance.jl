@@ -87,11 +87,11 @@ function contrast_normalization(image::RealArray ; distributed::Bool=true)
 end # contrast_normalization(image::RealArray ; distributed::Bool=true)
 
 """
-    oriented_kernel(i::Integer, j::Integer, p::Integer, q::Integer, k::Integer, sigma_h::Real, sigma_v::Real ; sign::String="plus")
+    oriented_kernel(i::Integer, j::Integer, p::Integer, q::Integer, k::Integer, sigma_h::Real, sigma_v::Real ; sign::AbstractString="plus")
 
 Oriented, elongated, spatially offset kernel G for ARTSCENE Stage 3.
 """
-function oriented_kernel(i::Integer, j::Integer, p::Integer, q::Integer, k::Integer, sigma_h::Real, sigma_v::Real ; sign::String="plus")
+function oriented_kernel(i::Integer, j::Integer, p::Integer, q::Integer, k::Integer, sigma_h::Real, sigma_v::Real ; sign::AbstractString="plus")
     m = sin(pi*k/4)
     n = cos(pi*k/4)
 
@@ -108,7 +108,7 @@ function oriented_kernel(i::Integer, j::Integer, p::Integer, q::Integer, k::Inte
     end
 
     return G
-end # oriented_kernel(i::Integer, j::Integer, p::Integer, q::Integer, k::Integer, sigma_h::Real, sigma_v::Real ; sign::String="plus")
+end # oriented_kernel(i::Integer, j::Integer, p::Integer, q::Integer, k::Integer, sigma_h::Real, sigma_v::Real ; sign::AbstractString="plus")
 
 """
     ddt_y(y::RealArray, X_plus::RealArray, X_minus::RealArray, alpha::Real, distributed::Bool)
@@ -201,11 +201,11 @@ function contrast_insensitive_oriented_filtering(y::RealArray)
 end # contrast_insensitive_oriented_filtering(y::RealArray)
 
 """
-    competition_kernel(l::Integer, k::Integer ; sign::String="plus")
+    competition_kernel(l::Integer, k::Integer ; sign::AbstractString="plus")
 
 Competition kernel for ARTSCENE: Stage 5.
 """
-function competition_kernel(l::Integer, k::Integer ; sign::String="plus")
+function competition_kernel(l::Integer, k::Integer ; sign::AbstractString="plus")
 
     if sign == "plus"
         g = ( 1/(0.5*sqrt(2*pi))*MathConstants.e^(-0.5*((l-k)/0.5)^2) )
@@ -216,7 +216,7 @@ function competition_kernel(l::Integer, k::Integer ; sign::String="plus")
     end
 
     return g
-end # competition_kernel(l::Integer, k::Integer ; sign::String="plus")
+end # competition_kernel(l::Integer, k::Integer ; sign::AbstractString="plus")
 
 """
     ddt_z(z::RealArray ; distributed=true)

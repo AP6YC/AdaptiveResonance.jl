@@ -59,8 +59,8 @@ For module options, see [`AdaptiveResonance.opts_DAM`](@ref).
 - `config::DataConfig`: data configuration struct.
 
 # Working Parameters
-- `W::RealMatrix`: category weight matrix.
-- `labels::IntegerVector`: incremental list of labels corresponding to each F2 node, self-prescribed or supervised.
+- `W::Matrix{Float}`: category weight matrix.
+- `labels::Vector{Int}`: incremental list of labels corresponding to each F2 node, self-prescribed or supervised.
 - `n_categories::Int`: number of category weights (F2 nodes).
 - `epoch::Int`: current training epoch.
 
@@ -70,8 +70,8 @@ For module options, see [`AdaptiveResonance.opts_DAM`](@ref).
 mutable struct DAM <: ARTMAP
     opts::opts_DAM
     config::DataConfig
-    W::RealMatrix
-    labels::IntegerVector
+    W::Matrix{Float}
+    labels::Vector{Int}
     n_categories::Int
     epoch::Int
 end # DAM <: ARTMAP

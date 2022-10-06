@@ -85,26 +85,11 @@ function train_test_art(
 end
 
 """
-    showtypetree(T, level=0)
-
-Show the tree of subtypes for a type.
-```julia
-showtypetree(Number)
-```
-"""
-function showtypetree(T, level=0)
-    println("\t" ^ level, T)
-    for t in subtypes(T)
-        showtypetree(t, level+1)
-    end
-end # showtypetree(T, level=0)
-
-"""
-    load_iris(data_path::String ; split_ratio::Real = 0.8)
+    load_iris(data_path::AbstractString ; split_ratio::Real = 0.8)
 
 Loads the iris dataset for testing and examples.
 """
-function load_iris(data_path::String ; split_ratio::Real = 0.8)
+function load_iris(data_path::AbstractString ; split_ratio::Real = 0.8)
     raw_data = readdlm(data_path,',')
     labels = ["Iris-setosa", "Iris-versicolor", "Iris-virginica"]
     raw_x = Array{AdaptiveResonance.RealFP}(raw_data[2:end, 2:5])
@@ -117,7 +102,6 @@ function load_iris(data_path::String ; split_ratio::Real = 0.8)
             end
         end
     end
-    n_samples, n_features = size(raw_x)
 
     # Julia is column-major, so use columns for features
     raw_x = permutedims(raw_x)
@@ -126,4 +110,4 @@ function load_iris(data_path::String ; split_ratio::Real = 0.8)
     data = DataSplit(raw_x, raw_y, split_ratio)
 
     return data
-end # load_iris(data_path::String ; split_ratio::Real = 0.8)
+end # load_iris(data_path::AbstractString ; split_ratio::Real = 0.8)

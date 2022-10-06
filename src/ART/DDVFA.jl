@@ -74,7 +74,7 @@ For module options, see [`AdaptiveResonance.opts_DDVFA`](@ref).
 # Working Parameters
 - `threshold::Float`: operating module threshold value, a function of the vigilance parameter.
 - `F2::Vector{FuzzyART}`: list of F2 nodes (themselves FuzzyART modules).
-- `labels::IntegerVector`: incremental list of labels corresponding to each F2 node, self-prescribed or supervised.
+- `labels::Vector{Int}`: incremental list of labels corresponding to each F2 node, self-prescribed or supervised.
 - `n_categories::Int`: number of total categories.
 - `epoch::Int`: current training epoch.
 - `T::Float`: winning activation value from most recent sample.
@@ -93,7 +93,7 @@ mutable struct DDVFA <: ART
     # Working variables
     threshold::Float
     F2::Vector{FuzzyART}
-    labels::IntegerVector
+    labels::Vector{Int}
     n_categories::Int
     epoch::Int
     T::Float
@@ -185,7 +185,7 @@ function set_threshold!(art::DDVFA)
     # Gamma match normalization
     if art.opts.gamma_normalization
         # Set the learning threshold as a function of the data dimension
-        art.threshold = art.opts.rho_lb*(art.config.dim^art.opts.gamma_ref)
+        art.threshold = art.opts.rho_lb * (art.config.dim ^ art.opts.gamma_ref)
     else
         # Set the learning threshold as simply the vigilance parameter
         art.threshold = art.opts.rho_lb
@@ -285,12 +285,12 @@ function stopping_conditions(art::DDVFA)
 end # stopping_conditions(DDVFA)
 
 """
-    similarity(method::String, F2::FuzzyART, field_name::String, sample::RealVector, gamma_ref::RealFP)
+    similarity(method::AbstractString, F2::FuzzyART, field_name::AbstractString, sample::RealVector, gamma_ref::RealFP)
 
 Compute the similarity metric depending on method with explicit comparisons
 for the field name.
 """
-function similarity(method::String, F2::FuzzyART, field_name::String, sample::RealVector, gamma_ref::RealFP)
+function similarity(method::AbstractString, F2::FuzzyART, field_name::AbstractString, sample::RealVector, gamma_ref::RealFP)
     @debug "Computing similarity"
 
     if field_name != "T" && field_name != "M"
@@ -346,7 +346,7 @@ function similarity(method::String, F2::FuzzyART, field_name::String, sample::Re
     end
 
     return value
-end # similarity(method::String, F2::FuzzyART, field_name::String, sample::RealVector, gamma_ref::RealFP)
+end # similarity(method::AbstractString, F2::FuzzyART, field_name::AbstractString, sample::RealVector, gamma_ref::RealFP)
 
 # DDVFA incremental classification method
 function classify(art::DDVFA, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)

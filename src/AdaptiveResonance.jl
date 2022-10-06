@@ -28,7 +28,6 @@ using
     Logging,                # Logging utils used as main method of terminal reporting
     NumericalTypeAliases,   # Abstract type aliases
     Parameters,             # ARTopts are parameters (@with_kw)
-    Printf,                 # Used for printing formatted progress bars
     ProgressBars            # Provides progress bars for training and inference
 
 # Partial usings (which does not yet support comma-separated import notation)

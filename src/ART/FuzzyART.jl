@@ -63,11 +63,11 @@ For module options, see [`AdaptiveResonance.opts_FuzzyART`](@ref).
 
 # Working Parameters
 - `threshold::Float`: operating module threshold value, a function of the vigilance parameter.
-- `labels::IntegerVector`: incremental list of labels corresponding to each F2 node, self-prescribed or supervised.
-- `T::RealVector`: activation values for every weight for a given sample.
-- `M::RealVector`: match values for every weight for a given sample.
-- `W::RealMatrix`: category weight matrix.
-- `n_instance::IntegerVector`: number of weights associated with each category.
+- `labels::Vector{Int}`: incremental list of labels corresponding to each F2 node, self-prescribed or supervised.
+- `T::Vector{Float}`: activation values for every weight for a given sample.
+- `M::Vector{Float}`: match values for every weight for a given sample.
+- `W::Matrix{Float}`: category weight matrix.
+- `n_instance::Vector{Int}`: number of weights associated with each category.
 - `n_categories::Int`: number of category weights (F2 nodes).
 - `epoch::Int`: current training epoch.
 
@@ -81,13 +81,13 @@ mutable struct FuzzyART <: ART
 
     # Working variables
     threshold::Float
-    labels::IntegerVector
-    T::RealVector
-    M::RealVector
+    labels::Vector{Int}
+    T::Vector{Float}
+    M::Vector{Float}
 
     # "Private" working variables
-    W::RealMatrix
-    n_instance::IntegerVector
+    W::Matrix{Float}
+    n_instance::Vector{Int}
     n_categories::Int
     epoch::Int
 end # FuzzyART <: ART
