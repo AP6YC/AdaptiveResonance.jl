@@ -93,6 +93,7 @@ using MLDataUtils       # Shuffling and splitting
 using Printf            # Formatted number printing
 using MultivariateStats # Principal component analysis (PCA)
 using Plots             # Plotting frontend
+gr()                    # Use the default GR backend explicitly
 
 # We will download the Iris dataset for its small size and benchmark use for clustering algorithms.
 ## Get the iris dataset

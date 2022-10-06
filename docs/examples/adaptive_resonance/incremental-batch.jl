@@ -129,6 +129,7 @@ perf_test_incremental = performance(y_hat_incremental, y_test)
 using Printf            # Formatted number printing
 using MultivariateStats # Principal component analysis (PCA)
 using Plots             # Plotting frontend
+gr()                    # Use the default GR backend explicitly
 
 ## Train a PCA model
 M = fit(PCA, features; maxoutdim=2)

@@ -3,8 +3,14 @@ Main module for `AdaptiveResonance.jl`, a Julia package of adaptive resonance th
 
 This module exports all of the ART modules, options, and utilities used by the `AdaptiveResonance.jl package.`
 
+# Imports
+
+The following names are imported by the package as dependencies:
+$(IMPORTS)
+
 # Exports
 
+The following names are exported and available when `using` the package:
 $(EXPORTS)
 
 """
@@ -15,11 +21,16 @@ module AdaptiveResonance
 # --------------------------------------------------------------------------- #
 
 # Usings/imports for the whole package declared once
-using DocStringExtensions   # Docstring utilities
-using Parameters    # ARTopts are parameters (@with_kw)
-using Logging       # Logging utils used as main method of terminal reporting
-using ProgressBars  # Provides progress bars for training and inference
-using Printf        # Used for printing formatted progress bars
+
+# Full usings (which supports comma-separated import notation)
+using
+    DocStringExtensions,    # Docstring utilities
+    Logging,                # Logging utils used as main method of terminal reporting
+    Parameters,             # ARTopts are parameters (@with_kw)
+    Printf,                 # Used for printing formatted progress bars
+    ProgressBars            # Provides progress bars for training and inference
+
+# Partial usings (which does not yet support comma-separated import notation)
 using LinearAlgebra: norm   # Trace and norms
 using Statistics: median, mean  # Medians and mean for linkage methods
 
