@@ -1,7 +1,6 @@
 # AdaptiveResonance
 
 A Julia package for Adaptive Resonance Theory (ART) algorithms.
-d
 
 | **Documentation**  | **Testing Status** | **Coverage** | **Reference** |
 |:------------------:|:----------------:|:------------:|:-------------:|

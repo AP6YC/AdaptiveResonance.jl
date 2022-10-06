@@ -1,3 +1,9 @@
+"""
+    test_utils.jl
+
+A set of common struct and function utilities for AdaptiveResonance.jl unit tests.
+"""
+
 using DelimitedFiles
 
 """
@@ -35,7 +41,13 @@ end # DataSplit(data_x::Array, data_y::Array, ratio::Real)
 
 Train and test an ART module.
 """
-function train_test_art(art::ARTModule, data::DataSplit; supervised::Bool=false, train_opts::NamedTuple=NamedTuple(), test_opts::NamedTuple=NamedTuple())
+function train_test_art(
+    art::ARTModule,
+    data::DataSplit ;
+    supervised::Bool=false,
+    train_opts::NamedTuple=NamedTuple(),
+    test_opts::NamedTuple=NamedTuple()
+)
     # Default performance to undefined
     perf = NaN
     # If the module is unsupervised by default
@@ -98,8 +110,8 @@ function load_iris(data_path::String ; split_ratio::Real = 0.8)
     raw_x = Array{AdaptiveResonance.RealFP}(raw_data[2:end, 2:5])
     raw_y_labels = raw_data[2:end, 6]
     raw_y = Array{Integer}(undef, 0)
-    for ix = 1:length(raw_y_labels)
-        for jx = 1:length(labels)
+    for ix in eachindex(raw_y_labels)
+        for jx in eachindex(labels)
             if raw_y_labels[ix] == labels[jx]
                 push!(raw_y, jx)
             end

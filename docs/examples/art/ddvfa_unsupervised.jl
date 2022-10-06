@@ -4,7 +4,7 @@
 # cover: ../assets/ddvfa.png
 # date: 2021-11-30
 # author: "[Sasha Petrenko](https://github.com/AP6YC)"
-# julia: 1.6
+# julia: 1.8
 # description: This demo shows how to use DDVFA for unsupervised learning by clustering Iris samples.
 # ---
 
@@ -13,13 +13,14 @@
 # We begin with importing AdaptiveResonance for the ART modules and MLDatasets for loading some data.
 using AdaptiveResonance # ART
 using MLDatasets        # Iris dataset
+using DataFrames        # DataFrames, necessary for MLDatasets.Iris()
 using MLDataUtils       # Shuffling and splitting
 
 # We will download the Iris dataset for its small size and benchmark use for clustering algorithms.
-## Get the iris dataset as a DataFrame
-iris = Iris()
-## Manipulate the features and labels into a matrix of features and a vector of labels
-features, labels = Matrix(iris.features)', vec(Matrix{String}(iris.targets))
+## Get the iris dataset
+iris = Iris(as_df=false)
+## Extract the features into a local variable
+features = iris.features
 
 # Next, we will instantiate a DDVFA module.
 # We could create an options struct for reuse with `opts=opts_DDVFA(...)`, but for now we will use the direct keyword arguments approach.

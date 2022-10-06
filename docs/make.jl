@@ -6,8 +6,12 @@ using Documenter.jl and other tools.
 """
 
 using Documenter
-using AdaptiveResonance
 using DemoCards
+
+# Inlude the local package
+push!(LOAD_PATH, "../src/")
+using AdaptiveResonance
+
 # using JSON
 
 if haskey(ENV, "DOCSARGS")

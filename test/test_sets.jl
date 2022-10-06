@@ -1,3 +1,10 @@
+"""
+    test_sets.jl
+
+The main collection of tests for the AdaptiveResonance.jl package.
+This file loads common utilities and aggregates all other unit tests files.
+"""
+
 using AdaptiveResonance
 using Test
 using Logging
@@ -60,7 +67,10 @@ end # @testset "constants.jl"
     include("modules.jl")
 end # @testset "AdaptiveResonance.jl"
 
-@testset "Train Test" begin
+@testset "Training Test" begin
+
+    @info "------- Training test -------"
+
     # All ART modules
     arts = [
         FuzzyART,
@@ -96,7 +106,6 @@ end # @testset "AdaptiveResonance.jl"
     ]
     n_test_opts = length(test_opts)
 
-    @info "-------------- BEGIN TRAIN TEST --------------"
     # Performance baseline for all algorithms
     perf_baseline = 0.7
 
@@ -111,7 +120,7 @@ end # @testset "AdaptiveResonance.jl"
                 local_art_opts = art_opts
             end
             # Iterate over all options
-            for kx = 1:length(local_art_opts)
+            for kx in eachindex(local_art_opts)
                 # Only do the unsupervised method if we have an ART module (not ARTMAP)
                 if arts[ix] isa ART
                     # Unsupervised
@@ -122,12 +131,10 @@ end # @testset "AdaptiveResonance.jl"
             end
         end
     end
-
-    @info "-------------- END TRAIN TEST --------------"
 end # @testset "Train Test"
 
 @testset "kwargs" begin
-    @info "--------- KWARGS TEST ---------"
+    @info "------- Kwargs test -------"
 
     arts = [
         FuzzyART,
@@ -140,12 +147,10 @@ end # @testset "Train Test"
     for art in arts
         art_module = art(alpha=1e-3, display=false)
     end
-
-    @info "--------- END KWARGS TEST ---------"
 end # @testset "kwargs"
 
 @testset "FuzzyART" begin
-    @info "------- FuzzyART Testing -------"
+    @info "------- FuzzyART Test -------"
 
     # FuzzyART train and test
     my_FuzzyART = FuzzyART()

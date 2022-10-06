@@ -168,7 +168,7 @@ end # FuzzyART(opts::opts_FuzzyART, sample::RealVector)
 
 function set_threshold!(art::FuzzyART)
     if art.opts.gamma_normalization
-        art.threshold = art.opts.rho*(art.config.dim^art.opts.gamma_ref)
+        art.threshold = art.opts.rho * (art.config.dim ^ art.opts.gamma_ref)
     else
         art.threshold = art.opts.rho
     end
