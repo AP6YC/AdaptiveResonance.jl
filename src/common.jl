@@ -1,40 +1,55 @@
-# -------------------------------------------
-# Document: common.jl
-# Author: Sasha Petrenko <sap625@mst.edu>
-# Description:
-#   Types and functions that are used throughout AdaptiveResonance.jl.
-# -------------------------------------------
+"""
+    common.jl
 
-# -------------------------------------------
-# Aliases
-# -------------------------------------------
-#   **Taken from StatsBase.jl**
-#
-#  These types signficantly reduces the need of using
-#  type parameters in functions (which are often just
-#  for the purpose of restricting the arrays to real)
-#
-# These could be removed when the Base supports
-# covariant type notation, i.e. AbstractVector{<:Real}
+# Description
+Types and functions that are used throughout AdaptiveResonance.jl.
 
-# Real-numbered aliases
-const RealArray{T<:Real, N} = AbstractArray{T, N}
-const RealVector{T<:Real} = AbstractArray{T, 1}
-const RealMatrix{T<:Real} = AbstractArray{T, 2}
+# Authors
+- Sasha Petrenko <sap625@mst.edu>
+"""
 
-# Integered aliases
-const IntegerArray{T<:Integer, N} = AbstractArray{T, N}
-const IntegerVector{T<:Integer} = AbstractArray{T, 1}
-const IntegerMatrix{T<:Integer} = AbstractArray{T, 2}
+# --------------------------------------------------------------------------- #
+# ABSTRACT TYPES
+# --------------------------------------------------------------------------- #
 
-# Specifically floating-point aliases
-const RealFP = Union{Float32, Float64}
+"""
+    ARTOpts
 
-# System's largest native floating point variable
-const Float = (Sys.WORD_SIZE == 64 ? Float64 : Float32)
+Abstract supertype for all ART module options.
+"""
+abstract type ARTOpts end               # ART module options
 
-# Acceptable iterators for ART module training and inference
+"""
+    ARTModule
+
+Abstract supertype for both ART (unsupervised) and ARTMAP (supervised) modules.
+"""
+abstract type ARTModule end             # ART modules
+
+"""
+    ART <: ARTModule
+
+Abstract supertype for all default unsupervised ART modules.
+"""
+abstract type ART <: ARTModule end      # ART (unsupervised)
+
+"""
+    ARTMAP <: ARTModule
+
+Abstract supertype for all supervised ARTMAP modules.
+"""
+abstract type ARTMAP <: ARTModule end   # ARTMAP (supervised)
+
+"""
+    ARTIterator = Union{UnitRange, ProgressBar}
+
+Acceptable iterators for ART module training and inference
+"""
 const ARTIterator = Union{UnitRange, ProgressBar}
+
+# --------------------------------------------------------------------------- #
+# COMPOSITE TYPES
+# --------------------------------------------------------------------------- #
 
 """
     DataConfig
