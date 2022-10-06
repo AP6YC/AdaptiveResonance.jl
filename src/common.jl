@@ -141,6 +141,10 @@ function DataConfig(data::RealMatrix)
     return config
 end # DataConfig(min::Real, max::Real, dim::Int)
 
+# --------------------------------------------------------------------------- #
+# FUNCTIONS
+# --------------------------------------------------------------------------- #
+
 """
     element_min(x::RealVector, W::RealVector)
 
@@ -449,7 +453,6 @@ function init_classify!(x::RealArray, art::ARTModule, preprocessed::Bool)
     return x
 end # init_classify!(x::RealArray, art::ART, preprocessed::Bool)
 
-
 """
     classify(art::ARTModule, x::RealMatrix ; preprocessed::Bool=false, get_bmu::Bool=false)
 
@@ -503,9 +506,9 @@ function classify(art::ARTModule, x::RealMatrix ; preprocessed::Bool=false, get_
     return y_hat
 end # classify(art::ARTModule, x::RealMatrix ; preprocessed::Bool=false, get_bmu::Bool=false)
 
-# -------------------------------------------
-# Common Documentation
-# -------------------------------------------
+# --------------------------------------------------------------------------- #
+# COMMON DOCUMENTATION
+# --------------------------------------------------------------------------- #
 
 @doc raw"""
     classify(art::ARTModule, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
