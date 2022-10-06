@@ -26,6 +26,7 @@ module AdaptiveResonance
 using
     DocStringExtensions,    # Docstring utilities
     Logging,                # Logging utils used as main method of terminal reporting
+    NumericalTypeAliases,   # Abstract type aliases
     Parameters,             # ARTopts are parameters (@with_kw)
     Printf,                 # Used for printing formatted progress bars
     ProgressBars            # Provides progress bars for training and inference
@@ -33,38 +34,6 @@ using
 # Partial usings (which does not yet support comma-separated import notation)
 using LinearAlgebra: norm   # Trace and norms
 using Statistics: median, mean  # Medians and mean for linkage methods
-
-# --------------------------------------------------------------------------- #
-# ABSTRACT TYPES
-# --------------------------------------------------------------------------- #
-
-"""
-    ARTOpts
-
-Abstract supertype for all ART module options.
-"""
-abstract type ARTOpts end               # ART module options
-
-"""
-    ARTModule
-
-Abstract supertype for both ART (unsupervised) and ARTMAP (supervised) modules.
-"""
-abstract type ARTModule end             # ART modules
-
-"""
-    ART <: ARTModule
-
-Abstract supertype for all default unsupervised ART modules.
-"""
-abstract type ART <: ARTModule end      # ART (unsupervised)
-
-"""
-    ARTMAP <: ARTModule
-
-Abstract supertype for all supervised ARTMAP modules.
-"""
-abstract type ARTMAP <: ARTModule end   # ARTMAP (supervised)
 
 # --------------------------------------------------------------------------- #
 # INCLUDES
