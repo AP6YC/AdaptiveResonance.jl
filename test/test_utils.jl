@@ -5,6 +5,7 @@ A set of common struct and function utilities for AdaptiveResonance.jl unit test
 """
 
 using DelimitedFiles
+using NumericalTypeAliases
 
 """
     DataSplit
@@ -12,20 +13,37 @@ using DelimitedFiles
 A basic struct for encapsulating the four components of supervised training.
 """
 struct DataSplit
-    train_x::AdaptiveResonance.RealMatrix
-    test_x::AdaptiveResonance.RealMatrix
-    train_y::AdaptiveResonance.IntegerVector
-    test_y::AdaptiveResonance.IntegerVector
+    """
+    The training feature samples.
+    Dimensions are [dim, sample].
+    """
+    train_x::Matrix{Float}
+
+    """
+    The testing feature samples.
+    Dimensions are [dim, sample].
+    """
+    test_x::Matrix{Float}
+
+    """
+    A vector of training labels.
+    """
+    train_y::Vector{Int}
+
+    """
+    A vector of testing labels.
+    """
+    test_y::Vector{Int}
     DataSplit(train_x, test_x, train_y, test_y) = new(train_x, test_x, train_y, test_y)
 end # DataSplit
 
 """
-    DataSplit(data_x::Array, data_y::Array, ratio::Float)
+    DataSplit(data_x::RealMatrix, data_y::RealVector, ratio::Real)
 
 Return a DataSplit struct that is split by the ratio (e.g. 0.8).
 """
-function DataSplit(data_x::Array, data_y::Array, ratio::Real)
-    dim, n_data = size(data_x)
+function DataSplit(data_x::RealMatrix, data_y::RealVector, ratio::Real)
+    _, n_data = size(data_x)
     split_ind = Integer(floor(n_data*ratio))
 
     train_x = data_x[:, 1:split_ind]
@@ -34,7 +52,7 @@ function DataSplit(data_x::Array, data_y::Array, ratio::Real)
     test_y = data_y[split_ind+1:end]
 
     return DataSplit(train_x, test_x, train_y, test_y)
-end # DataSplit(data_x::Array, data_y::Array, ratio::Real)
+end # DataSplit(data_x::RealMatrix, data_y::RealVector, ratio::Real)
 
 """
     train_test_art(art::ARTModule, data::DataSplit; supervised::Bool=false, art_opts...)
@@ -92,9 +110,9 @@ Loads the iris dataset for testing and examples.
 function load_iris(data_path::AbstractString ; split_ratio::Real = 0.8)
     raw_data = readdlm(data_path,',')
     labels = ["Iris-setosa", "Iris-versicolor", "Iris-virginica"]
-    raw_x = Array{AdaptiveResonance.RealFP}(raw_data[2:end, 2:5])
+    raw_x = Matrix{Real}(raw_data[2:end, 2:5])
     raw_y_labels = raw_data[2:end, 6]
-    raw_y = Array{Integer}(undef, 0)
+    raw_y = Vector{Int}(undef, 0)
     for ix in eachindex(raw_y_labels)
         for jx in eachindex(labels)
             if raw_y_labels[ix] == labels[jx]
