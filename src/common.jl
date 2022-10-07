@@ -9,39 +9,67 @@ Types and functions that are used throughout AdaptiveResonance.jl.
 """
 
 # --------------------------------------------------------------------------- #
+# DOCSTRING TEMPLATES
+# --------------------------------------------------------------------------- #
+
+# Default template if not specified (i.e., constants and modules)
+# @template DEFAULT =
+# """
+# $(SIGNATURES)
+# $(DOCSTRING)
+# """
+
+# Types template
+@template TYPES =
+"""
+$(TYPEDEF)
+
+# Summary
+$(DOCSTRING)
+
+# Fields
+$(TYPEDFIELDS)
+"""
+
+# Template for functions, macros, and methods (i.e., constructors)
+@template (FUNCTIONS, METHODS, MACROS) =
+"""
+$(SIGNATURES)
+
+# Summary
+$(TYPEDSIGNATURES)
+$(DOCSTRING)
+
+# Method List / Definition Locations
+$(METHODLIST)
+"""
+
+# --------------------------------------------------------------------------- #
 # ABSTRACT TYPES
 # --------------------------------------------------------------------------- #
 
 """
-    ARTOpts
-
 Abstract supertype for all ART module options.
 """
 abstract type ARTOpts end               # ART module options
 
 """
-    ARTModule
-
 Abstract supertype for both ART (unsupervised) and ARTMAP (supervised) modules.
 """
 abstract type ARTModule end             # ART modules
 
 """
-    ART <: ARTModule
-
 Abstract supertype for all default unsupervised ART modules.
 """
 abstract type ART <: ARTModule end      # ART (unsupervised)
 
 """
-    ARTMAP <: ARTModule
-
 Abstract supertype for all supervised ARTMAP modules.
 """
 abstract type ARTMAP <: ARTModule end   # ARTMAP (supervised)
 
 """
-    ARTIterator = Union{UnitRange, ProgressBar}
+    const ARTIterator = Union{UnitRange, ProgressBar}
 
 Acceptable iterators for ART module training and inference
 """
