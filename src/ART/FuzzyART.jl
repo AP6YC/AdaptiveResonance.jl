@@ -150,7 +150,8 @@ FuzzyART
 ```
 """
 function FuzzyART(opts::opts_FuzzyART)
-    FuzzyART(opts,                          # opts
+    FuzzyART(
+        opts,                           # opts
         DataConfig(),                   # config
         0.0,                            # threshold
         Array{Int}(undef,0),            # labels

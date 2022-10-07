@@ -439,7 +439,7 @@ function init_train!(x::RealVector, art::ARTModule, preprocessed::Bool)
         dim_comp = length(x)
         # If the complemented dimension is not even, error
         if !iseven(dim_comp)
-            error("Declare that the vector is preprocessed, but it is not even")
+            error("Declared that the vector is preprocessed, but it is not even")
         end
         # Half the complemented dimension and setup the DataConfig with that
         dim = Int(dim_comp/2)
@@ -449,7 +449,12 @@ function init_train!(x::RealVector, art::ARTModule, preprocessed::Bool)
 end # init_train!(x::RealVector, art::ARTModule, preprocessed::Bool)
 
 """
-    init_train!(x::RealMatrix, art::ARTModule, preprocessed::Bool)
+Initializes the training loop for batch learning.
+
+# Arguments
+- `x::RealMatrix`: the data that is used for training.
+- `art::ARTModule`: the ART/ARTMAP that will be trained.
+- `preprocessed::Bool`: required flag for if the data has already been complement coded and normalized.
 """
 function init_train!(x::RealMatrix, art::ARTModule, preprocessed::Bool)
     # If the data is not preprocessed, then complement code it
@@ -459,10 +464,15 @@ function init_train!(x::RealMatrix, art::ARTModule, preprocessed::Bool)
         x = complement_code(x, config=art.config)
     end
     return x
-end # init_train!(x::RealMatrix, art::ART, preprocessed::Bool)
+end
 
 """
-    init_classify!(x::RealArray, art::ARTModule, preprocessed::Bool)
+Initializes the classification loop for batch inference.
+
+# Arguments
+- `x::RealArray`: the data that is used for inference.
+- `art::ARTModule`: the ART/ARTMAP module that will be used for inference.
+- `preprocessed::Bool`: required flag for if the data has already been complement coded and normalized.
 """
 function init_classify!(x::RealArray, art::ARTModule, preprocessed::Bool)
     # If the data is not preprocessed
@@ -475,11 +485,9 @@ function init_classify!(x::RealArray, art::ARTModule, preprocessed::Bool)
         x = complement_code(x, config=art.config)
     end
     return x
-end # init_classify!(x::RealArray, art::ART, preprocessed::Bool)
+end
 
 """
-    classify(art::ARTModule, x::RealMatrix ; preprocessed::Bool=false, get_bmu::Bool=false)
-
 Predict categories of 'x' using the ART model.
 
 Returns predicted categories 'y_hat.'
@@ -528,15 +536,13 @@ function classify(art::ARTModule, x::RealMatrix ; preprocessed::Bool=false, get_
     end
 
     return y_hat
-end # classify(art::ARTModule, x::RealMatrix ; preprocessed::Bool=false, get_bmu::Bool=false)
+end
 
 # --------------------------------------------------------------------------- #
 # COMMON DOCUMENTATION
 # --------------------------------------------------------------------------- #
 
 @doc raw"""
-    classify(art::ARTModule, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
-
 Predict categories of a single sample of features 'x' using the ART model.
 
 Returns predicted category 'y_hat.'
@@ -548,6 +554,16 @@ Returns predicted category 'y_hat.'
 - `get_bmu::Bool=false`: optional, flag if the model should return the best-matching-unit label in the case of total mismatch.
 """
 classify(art::ARTModule, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
+
+@doc raw"""
+Sets the match threshold of the ART/ARTMAP module as a function of the vigilance parameter.
+
+Depending on selected ART/ARTMAP module and its options, this may be a function of other parameters as well.
+
+# Arguments
+- `art::ARTModule`: the ART/ARTMAP module for setting a new threshold.
+"""
+set_threshold!(art::ARTModule)
 
 # Shared options docstring, inserted at the end of `opts_<...>` structs.
 opts_docstring = """

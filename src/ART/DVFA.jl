@@ -178,19 +178,14 @@ function DVFA(opts::opts_DVFA)
     )
 end
 
-"""
-Configure the threshold values of the DVFA module.
-
-# Arguments
-- `art::DVFA`: the DVFA module to set the threshold for.
-"""
+# COMMON DOC: Set threshold function
 function set_threshold!(art::DVFA)
     # DVFA thresholds
     art.threshold_ub = art.opts.rho_ub * art.config.dim
     art.threshold_lb = art.opts.rho_lb * art.config.dim
 end
 
-# Incremental DVFA training method
+# COMMON DOC: Incremental DVFA training method
 function train!(art::DVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=false)
     # Flag for if training in supervised mode
     supervised = !iszero(y)
@@ -282,7 +277,7 @@ function train!(art::DVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fals
     return y_hat
 end
 
-# Incremental DVFA classify method
+# COMMON DOC: Incremental DVFA classify method
 function classify(art::DVFA, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
     # Preprocess the data
     sample = init_classify!(x, art, preprocessed)

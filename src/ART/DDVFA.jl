@@ -197,7 +197,7 @@ function set_threshold!(art::DDVFA)
     end
 end
 
-# DDVFA incremental training method
+# COMMON DOC: DDVFA incremental training method
 function train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=false)
     # Flag for if training in supervised mode
     supervised = !iszero(y)
@@ -279,6 +279,9 @@ end
 Stopping conditions for Distributed Dual Vigilance Fuzzy ARTMAP.
 
 Returns true if there is no change in weights during the epoch or the maxmimum epochs has been reached.
+
+# Arguments
+- `art::DDVFA`: the DDVFA module for checking stopping conditions.
 """
 function stopping_conditions(art::DDVFA)
     # Compute the stopping condition, return a bool
@@ -287,6 +290,13 @@ end
 
 """
 Compute the similarity metric depending on method with explicit comparisons for the field name.
+
+# Arguments
+- `method::AbstractString`: the selected DDVFA linkage method.
+- `F2::FuzzyART`: the FuzzyART module to compute the linkage method within.
+- `field_name::AbstractString`: the activation or match value to compute, field_name ∈ ["T", "M"]
+- `sample::RealVector`: the sample to use for computing the linkage to the F2 module.
+- `gamma_ref::RealFP`: the reference gamma for normalization.
 """
 function similarity(method::AbstractString, F2::FuzzyART, field_name::AbstractString, sample::RealVector, gamma_ref::RealFP)
     @debug "Computing similarity"
@@ -337,7 +347,7 @@ function similarity(method::AbstractString, F2::FuzzyART, field_name::AbstractSt
         if field_name == "T"
             value = T
         elseif field_name == "M"
-            value = (norm(Wc, 1)^gamma_ref)*T
+            value = (norm(Wc, 1)^F2.opts.gamma_ref)*T
         end
     else
         error("Invalid/unimplemented similarity method")
@@ -346,7 +356,7 @@ function similarity(method::AbstractString, F2::FuzzyART, field_name::AbstractSt
     return value
 end
 
-# DDVFA incremental classification method
+# COMMON DOC: DDVFA incremental classification method
 function classify(art::DDVFA, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
     # Preprocess the data
     sample = init_classify!(x, art, preprocessed)
