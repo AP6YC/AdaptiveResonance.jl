@@ -4,8 +4,16 @@
 A set of common struct and function utilities for AdaptiveResonance.jl unit tests.
 """
 
+# --------------------------------------------------------------------------- #
+# IMPORTS
+# --------------------------------------------------------------------------- #
+
 using DelimitedFiles
 using NumericalTypeAliases
+
+# --------------------------------------------------------------------------- #
+# STRUCTS
+# --------------------------------------------------------------------------- #
 
 """
 A basic struct for encapsulating the four components of supervised training.
@@ -36,8 +44,17 @@ struct DataSplit
     DataSplit(train_x, test_x, train_y, test_y) = new(train_x, test_x, train_y, test_y)
 end # DataSplit
 
+# --------------------------------------------------------------------------- #
+# METHODS
+# --------------------------------------------------------------------------- #
+
 """
 Return a DataSplit struct that is split by the ratio (e.g. 0.8).
+
+# Arguments
+- `data_x::RealMatrix`: a 2-D matrix of samples with convention (features, samples).
+- `data_y::RealVector`: a 1-D vector of integered labels.
+- `ratio::Real`: the ratio for the train/test split ∈ (0, 1).
 """
 function DataSplit(data_x::RealMatrix, data_y::RealVector, ratio::Real)
     _, n_data = size(data_x)
@@ -51,11 +68,19 @@ function DataSplit(data_x::RealMatrix, data_y::RealVector, ratio::Real)
     return DataSplit(train_x, test_x, train_y, test_y)
 end # DataSplit(data_x::RealMatrix, data_y::RealVector, ratio::Real)
 
+# --------------------------------------------------------------------------- #
+# FUNCTIONS
+# --------------------------------------------------------------------------- #
+
 """
 Train and test an ART module.
 
 # Arguments
-
+- `art::ARTModule`: the ART or ARTMAP module to train and test.
+- `data::DataSplit`: the struct containing a train/test split.
+- `supervised::Bool=false`: flag for using supervised learning for ART modules (i.e., ARTMAP modules are always supervised).
+- `train_opts::NamedTuple=NamedTuple()`: keyword options to pass to the `train!` function.
+- `test_opts::NamedTuple=NamedTuple()`: keyword options to pass to the `classify` function.
 """
 function train_test_art(
     art::ARTModule,
@@ -102,9 +127,13 @@ end
 
 """
 Loads the iris dataset for testing and examples.
+
+# Arguments
+- `data_path::AbstractString`: path containing the Iris dataset.
+- `split_ratio::Real = 0.8`: train/test split ration ∈ (0, 1).
 """
 function load_iris(data_path::AbstractString ; split_ratio::Real = 0.8)
-    raw_data = readdlm(data_path,',')
+    raw_data = readdlm(data_path, ',')
     labels = ["Iris-setosa", "Iris-versicolor", "Iris-virginica"]
     raw_x = Matrix{Real}(raw_data[2:end, 2:5])
     raw_y_labels = raw_data[2:end, 6]

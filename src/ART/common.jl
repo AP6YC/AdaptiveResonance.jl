@@ -5,9 +5,9 @@ Description:
     Includes all of the unsupervised ART modules common code.
 """
 
-# -------------------------------------------
-# Methods
-# -------------------------------------------
+# --------------------------------------------------------------------------- #
+# FUNCTIONS
+# --------------------------------------------------------------------------- #
 
 """
     train!(art::ART, x::RealMatrix ; y::IntegerVector=Vector{Int}(), preprocessed::Bool=false)
@@ -60,9 +60,9 @@ function train!(art::ART, x::RealMatrix ; y::IntegerVector = Vector{Int}(), prep
     return y_hat
 end # train!(art::ART, x::RealMatrix ; y::IntegerVector = Vector{Int}(), preprocessed::Bool=false)
 
-# -------------------------------------------
-# Common Documentation
-# -------------------------------------------
+# --------------------------------------------------------------------------- #
+# COMMON DOCUMENTATION
+# --------------------------------------------------------------------------- #
 
 @doc raw"""
     train!(art::ART, x::RealVector ; y::Integer=0, preprocessed::Bool=false)
