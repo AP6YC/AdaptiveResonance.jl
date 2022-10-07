@@ -19,6 +19,15 @@ Types and functions that are used throughout AdaptiveResonance.jl.
 # $(DOCSTRING)
 # """
 
+# Constants template
+@template CONSTANTS =
+"""
+$(FUNCTIONNAME)
+
+# Description
+$(DOCSTRING)
+"""
+
 # Types template
 @template TYPES =
 """
