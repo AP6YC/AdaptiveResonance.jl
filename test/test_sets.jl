@@ -17,7 +17,7 @@ LogLevel(Logging.Info)
 include("test_utils.jl")
 
 # Load the data and test across all supervised modules
-data = load_iris("../data/Iris.csv")
+data = load_iris("data/Iris.csv")
 
 @testset "common.jl" begin
     @info "------- Common Code Tests -------"
