@@ -405,26 +405,13 @@ end # update_iter(art::ARTModule, iter::Union{UnitRange, ProgressBar}, i::Intege
 """
     get_sample(x::RealArray, i::Integer)
 
-Returns a sample from data array x safely, accounting for 1-D and
+Returns a sample from data array `x` at sample location `i`.
+This function implements the convention that columns are samples while rows are features within samples.
 """
-function get_sample(x::RealArray, i::Integer)
-    # Get the shape of the data, irrespective of data type
-    dim, n_samples = get_data_shape(x)
-    # Get the type shape of the array
-    x_dim = ndims(x)
-    # Initialize the sample 1-D array with the original dim
-    sample = zeros(dim)
-    # Short-circuit error if asking for index out of bounds
-    i > n_samples && error("Index of data array out of bounds.")
-    # Copy the contents of the input if we got a 1-D array
-    if x_dim == 1
-        sample = x
-    # Otherwise, take the correct slice of the 2-D array
-    else
-        sample = x[:, i]
-    end
-    return sample
-end # get_sample(x::RealArray, i::Integer)
+function get_sample(x::RealMatrix, i::Integer)
+    # Return the sample at location
+    return x[:, i]
+end
 
 """
     init_train!(x::RealVector, art::ARTModule, preprocessed::Bool)

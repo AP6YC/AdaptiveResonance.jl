@@ -8,20 +8,18 @@ using DelimitedFiles
 using NumericalTypeAliases
 
 """
-    DataSplit
-
 A basic struct for encapsulating the four components of supervised training.
 """
 struct DataSplit
     """
     The training feature samples.
-    Dimensions are \[feature-dim, sample-index\].
+    Dimensions are `(feature-dim, sample-index)`.
     """
     train_x::Matrix{Float}
 
     """
     The testing feature samples.
-    Dimensions are \[feature-dim, sample-index\].
+    Dimensions are `(feature-dim, sample-index)`.
     """
     test_x::Matrix{Float}
 
@@ -34,12 +32,11 @@ struct DataSplit
     A vector of testing labels.
     """
     test_y::Vector{Int}
+
     DataSplit(train_x, test_x, train_y, test_y) = new(train_x, test_x, train_y, test_y)
 end # DataSplit
 
 """
-    DataSplit(data_x::RealMatrix, data_y::RealVector, ratio::Real)
-
 Return a DataSplit struct that is split by the ratio (e.g. 0.8).
 """
 function DataSplit(data_x::RealMatrix, data_y::RealVector, ratio::Real)
@@ -47,17 +44,18 @@ function DataSplit(data_x::RealMatrix, data_y::RealVector, ratio::Real)
     split_ind = Integer(floor(n_data*ratio))
 
     train_x = data_x[:, 1:split_ind]
-    test_x = data_x[:, split_ind+1:end]
+    test_x = data_x[:, split_ind + 1:end]
     train_y = data_y[1:split_ind]
-    test_y = data_y[split_ind+1:end]
+    test_y = data_y[split_ind + 1:end]
 
     return DataSplit(train_x, test_x, train_y, test_y)
 end # DataSplit(data_x::RealMatrix, data_y::RealVector, ratio::Real)
 
 """
-    train_test_art(art::ARTModule, data::DataSplit; supervised::Bool=false, art_opts...)
-
 Train and test an ART module.
+
+# Arguments
+
 """
 function train_test_art(
     art::ARTModule,
@@ -103,8 +101,6 @@ function train_test_art(
 end
 
 """
-    load_iris(data_path::AbstractString ; split_ratio::Real = 0.8)
-
 Loads the iris dataset for testing and examples.
 """
 function load_iris(data_path::AbstractString ; split_ratio::Real = 0.8)

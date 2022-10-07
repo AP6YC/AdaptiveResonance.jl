@@ -42,8 +42,7 @@ function train!(art::ARTMAP, x::RealMatrix, y::IntegerVector, preprocessed::Bool
             # Update the iterator if necessary
             update_iter(art, iter, i)
             # Grab the sample slice
-            # sample = get_sample(x, i)
-            sample = x[:, i]
+            sample = get_sample(x, i)
             label = y[i]
             # Train upon the sample and label
             y_hat[i] = train!(art, sample, label, preprocessed=true)
