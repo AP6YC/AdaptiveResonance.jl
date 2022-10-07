@@ -552,3 +552,9 @@ Returns predicted category 'y_hat.'
 - `get_bmu::Bool=false`: optional, flag if the model should return the best-matching-unit label in the case of total mismatch.
 """
 classify(art::ARTModule, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
+
+# Shared options docstring, inserted at the end of `opts_<...>` structs.
+opts_docstring = """
+These options are a [`Parameters.jl`](https://github.com/mauro3/Parameters.jl) struct, taking custom options keyword arguments.
+Each field has a default value listed below.
+"""

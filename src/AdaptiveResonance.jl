@@ -27,7 +27,7 @@ my_art = DDVFA(rho_ub=0.45, rho_ub=0.7)
 ```
 
 Train all models with `train!` and conduct inference with `classify`.
-In batch, samples are interpreted in the Julia column-major fashion with dimensions [n_dim, n_samples] (i.e., columns are samples).
+In batch, samples are interpreted in the Julia column-major fashion with dimensions \[n_dim, n_samples\] (i.e., columns are samples).
 
 Train unsupervised ART modules incrementally or in batch with optional labels as a keyword argument `y`
 

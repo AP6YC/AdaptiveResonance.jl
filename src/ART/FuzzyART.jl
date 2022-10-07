@@ -13,36 +13,49 @@ References:
 # --------------------------------------------------------------------------- #
 
 """
-    opts_FuzzyART(;kwargs)
-
 Gamma-Normalized Fuzzy ART options struct.
 
-# Keyword Arguments
-- `rho::Float`: vigilance value, [0, 1], default 0.6.
-- `alpha::Float`: choice parameter, alpha > 0, default 1e-3.
-- `beta::Float`: learning parameter, (0, 1], default 1.0.
-- `gamma::Float`: "pseudo" kernel width, gamma >= 1, default 3.0.
-- `gamma_ref::Float`: "reference" kernel width, 0 <= gamma_ref < gamma, default 1.0.
-- `display::Bool`: display flag, default true.
-- `max_epoch::Int`: maximum number of epochs during training, default 1.
-- `gamma_normalization::Bool`: normalize the threshold by the feature dimension, default false.
+$(opts_docstring)
 """
 @with_kw mutable struct opts_FuzzyART <: ARTOpts @deftype Float
-    # Vigilance parameter: [0, 1]
+    """
+    Vigilance parameter: [0, 1].
+    """
     rho = 0.6; @assert rho >= 0.0 && rho <= 1.0
-    # Choice parameter: alpha > 0
+
+    """
+    Choice parameter: alpha > 0.
+    """
     alpha = 1e-3; @assert alpha > 0.0
-    # Learning parameter: (0, 1]
+
+    """
+    Learning parameter: (0, 1].
+    """
     beta = 1.0; @assert beta > 0.0 && beta <= 1.0
-    # "Pseudo" kernel width: gamma >= 1
+
+    """
+    Pseudo kernel width: gamma >= 1.
+    """
     gamma = 3.0; @assert gamma >= 1.0
-    # "Reference" gamma for normalization: 0 <= gamma_ref < gamma
+
+    """
+    Reference gamma for normalization: 0 <= gamma_ref < gamma.
+    """
     gamma_ref = 1.0; @assert 0.0 <= gamma_ref && gamma_ref <= gamma
-    # Display flag
+
+    """
+    Display flag.
+    """
     display::Bool = true
-    # Maximum number of epochs during training
+
+    """
+    Maximum number of epochs during training.
+    """
     max_epochs::Int = 1
-    # Normalize the threshold by the feature dimension
+
+    """
+    Normalize the threshold by the feature dimension.
+    """
     gamma_normalization::Bool = false
 end # opts_FuzzyART
 
