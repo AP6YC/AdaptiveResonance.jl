@@ -32,26 +32,54 @@ Distributed Dual Vigilance Fuzzy ART options struct.
 - `gamma_normalization::Bool`: normalize the threshold by the feature dimension, default true.
 """
 @with_kw mutable struct opts_DDVFA <: ARTOpts @deftype Float
-    # Lower-bound vigilance parameter: [0, 1]
+    """
+    Lower-bound vigilance parameter: rho_lb ∈ [0, 1].
+    """
     rho_lb = 0.7; @assert rho_lb >= 0.0 && rho_lb <= 1.0
-    # Upper bound vigilance parameter: [0, 1]
+
+    """
+    Upper bound vigilance parameter: rho_ub ∈ [0, 1].
+    """
     rho_ub = 0.85; @assert rho_ub >= 0.0 && rho_ub <= 1.0
-    # Choice parameter: alpha > 0
+
+    """
+    Choice parameter: alpha > 0.
+    """
     alpha = 1e-3; @assert alpha > 0.0
-    # Learning parameter: (0, 1]
+
+    """
+    Learning parameter: beta ∈ (0, 1].
+    """
     beta = 1.0; @assert beta > 0.0 && beta <= 1.0
-    # "Pseudo" kernel width: gamma >= 1
+
+    """
+    Pseudo kernel width: gamma >= 1.
+    """
     gamma = 3.0; @assert gamma >= 1.0
-    # "Reference" gamma for normalization: 0 <= gamma_ref < gamma
+
+    """
+    Reference gamma for normalization: 0 <= gamma_ref < gamma.
+    """
     gamma_ref = 1.0; @assert 0.0 <= gamma_ref && gamma_ref < gamma
-    # Similarity method (activation and match):
-    #   'single', 'average', 'complete', 'median', 'weighted', or 'centroid'
+
+    """
+    Similarity method (activation and match): method ∈ ["single", "average", "complete", "median", "weighted", "centroid"].
+    """
     method::String = "single"
-    # Display flag
-    display::Bool = true
-    # Maximum number of epochs during training
+
+    """
+    Maximum number of epochs during training: max_epochs ∈ (1, Inf).
+    """
     max_epoch::Int = 1
-    # Normalize the threshold by the feature dimension
+
+    """
+    Display flag.
+    """
+    display::Bool = true
+
+    """
+    Flag to normalize the threshold by the feature dimension.
+    """
     gamma_normalization::Bool = true
 end # opts_DDVFA
 

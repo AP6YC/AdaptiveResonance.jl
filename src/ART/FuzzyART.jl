@@ -19,7 +19,7 @@ $(opts_docstring)
 """
 @with_kw mutable struct opts_FuzzyART <: ARTOpts @deftype Float
     """
-    Vigilance parameter: [0, 1].
+    Vigilance parameter: rho ∈ [0, 1].
     """
     rho = 0.6; @assert rho >= 0.0 && rho <= 1.0
 
@@ -29,7 +29,7 @@ $(opts_docstring)
     alpha = 1e-3; @assert alpha > 0.0
 
     """
-    Learning parameter: (0, 1].
+    Learning parameter: beta ∈ (0, 1].
     """
     beta = 1.0; @assert beta > 0.0 && beta <= 1.0
 
@@ -44,17 +44,17 @@ $(opts_docstring)
     gamma_ref = 1.0; @assert 0.0 <= gamma_ref && gamma_ref <= gamma
 
     """
+    Maximum number of epochs during training: max_epochs ∈ (1, Inf).
+    """
+    max_epochs::Int = 1
+
+    """
     Display flag.
     """
     display::Bool = true
 
     """
-    Maximum number of epochs during training.
-    """
-    max_epochs::Int = 1
-
-    """
-    Normalize the threshold by the feature dimension.
+    Flag to normalize the threshold by the feature dimension.
     """
     gamma_normalization::Bool = false
 end # opts_FuzzyART
@@ -64,8 +64,6 @@ end # opts_FuzzyART
 # --------------------------------------------------------------------------- #
 
 """
-    FuzzyART <: ART
-
 Gamma-Normalized Fuzzy ART learner struct
 
 For module options, see [`AdaptiveResonance.opts_FuzzyART`](@ref).

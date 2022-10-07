@@ -17,31 +17,40 @@ resonance system," Neural Networks, vol. 4, no. 6, pp. 759-771, 1991.
 """
 
 """
-    opts_DVFA(;kwargs)
-
 Dual Vigilance Fuzzy ART options struct.
 
-# Keyword Arguments
-- `rho_lb::Float`: lower-bound vigilance value, [0, 1], default 0.55.
-- `rho_ub::Float`: upper-bound vigilance value, [0, 1], default 0.75.
-- `alpha::Float`: choice parameter, alpha > 0, default 1e-3.
-- `beta::Float`: learning parameter, (0, 1], default 1.0.
-- `display::Bool`: display flag, default true.
-- `max_epoch::Int`: maximum number of epochs during training, default 1.
+$(opts_docstring)
 """
 @with_kw mutable struct opts_DVFA <: ARTOpts @deftype Float
-    # Lower-bound vigilance parameter: [0, 1]
+    """
+    Lower-bound vigilance parameter: rho_lb ∈ [0, 1].
+    """
     rho_lb = 0.55; @assert rho_lb >= 0.0 && rho_lb <= 1.0
-    # Upper bound vigilance parameter: [0, 1]
+
+    """
+    Upper bound vigilance parameter: rho_ub ∈ [0, 1].
+    """
     rho_ub = 0.75; @assert rho_ub >= 0.0 && rho_ub <= 1.0
-    # Choice parameter: alpha > 0
+
+    """
+    Choice parameter: alpha > 0.
+    """
     alpha = 1e-3; @assert alpha > 0.0
-    # Learning parameter: (0, 1]
+
+    """
+    Learning parameter: beta ∈ (0, 1].
+    """
     beta = 1.0; @assert beta > 0.0 && beta <= 1.0
-    # Display flag
-    display::Bool = true
-    # Maximum number of epochs during training
+
+    """
+    Maximum number of epochs during training.
+    """
     max_epochs::Int = 1
+
+    """
+    Display flag.
+    """
+    display::Bool = true
 end # opts_DVFA
 
 """
