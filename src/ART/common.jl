@@ -33,6 +33,7 @@ function train!(art::ART, x::RealMatrix ; y::IntegerVector = Vector{Int}(), prep
 
     # Initialize the output vector
     y_hat = zeros(Int, n_samples)
+
     # Learn until the stopping conditions
     art.epoch = 0
     while true

@@ -89,28 +89,38 @@ const ARTIterator = Union{UnitRange, ProgressBar}
 # --------------------------------------------------------------------------- #
 
 """
-    DataConfig
-
 Container to standardize training/testing data configuration.
 
-# Parameters
-- `setup::Bool`: flag if data has been setup yet or not.
-- `mins::Vector{Float}`: list of minimum values for each feature.
-- `maxs::Vector{Float}`: list of maximum values for each feature.
-- `dim::Int`: dimensionality of the feature vectors (i.e., number of features).
-- `dim_comp::Int` complement coded feature dimensionality, twice the size of `dim`.
+This container declares if a data configuration has been setup, what the original and complement coded dimensions are, and what the minimums and maximums of the values along each feature dimension are.
 """
 mutable struct DataConfig
+    """
+    Flag if data has been setup yet or not.
+    """
     setup::Bool
+
+    """
+    List of minimum values for each feature.
+    """
     mins::Vector{Float}
+
+    """
+    List of maximum values for each feature.
+    """
     maxs::Vector{Float}
+
+    """
+    Dimensionality of the feature vectors (i.e., number of features).
+    """
     dim::Int
+
+    """
+    Complement coded feature dimensionality, twice the size of `dim`.
+    """
     dim_comp::Int
-end # DataConfig
+end
 
 """
-    DataConfig()
-
 Default constructor for a data configuration, not set up.
 """
 function DataConfig()
@@ -121,14 +131,16 @@ function DataConfig()
         0,                          # dim
         0                           # dim_comp
     )
-end # DataConfig()
+end
 
 """
-    DataConfig(mins::RealVector, maxs::RealVector)
-
 Convenience constructor for DataConfig, requiring only mins and maxs of the features.
 
 This constructor is used when the mins and maxs differ across features. The dimension is inferred by the length of the mins and maxs.
+
+# Arguments
+- `mins::RealVector`: a vector of minimum values for each feature dimension.
+- `maxs::RealVector`: a vector of maximum values for each feature dimension.
 """
 function DataConfig(mins::RealVector, maxs::RealVector)
     # Verify that the mins and maxs are the same length
@@ -141,16 +153,19 @@ function DataConfig(mins::RealVector, maxs::RealVector)
         mins,   # min
         maxs,   # max
         dim,    # dim
-        dim*2   # dim_comp
+        dim * 2 # dim_comp
     )
-end # DataConfig(mins::RealVector, maxs::RealVector)
+end
 
 """
-    DataConfig(min::Real, max::Real, dim::Integer)
-
 Convenience constructor for DataConfig, requiring only a global min, max, and dim.
 
 This constructor is used in the case that the feature mins and maxs are all the same respectively.
+
+# Arguments
+- `min::Real`: the minimum value across all features.
+- `max::Real`: the maximum value across all features.
+- `dim::Integer`: the dimension of the features, which must be provided because it cannot be inferred from just the minimum or maximum values.
 """
 function DataConfig(min::Real, max::Real, dim::Integer)
     DataConfig(
@@ -158,14 +173,15 @@ function DataConfig(min::Real, max::Real, dim::Integer)
         repeat([min], dim), # min
         repeat([max], dim), # max
         dim,                # dim
-        dim*2               # dim_comp
+        dim * 2             # dim_comp
     )
-end # DataConfig(min::Real, max::Real, dim::Integer)
+end
 
 """
-    DataConfig(data::RealMatrix)
-
 Convenience constructor for DataConfig, requiring only the data matrix.
+
+# Arguments
+- `data::RealMatrix`: the 2-D batch of data to be used for inferring the data configuration.
 """
 function DataConfig(data::RealMatrix)
     # Create an empty dataconfig
@@ -176,26 +192,30 @@ function DataConfig(data::RealMatrix)
 
     # Return the constructed DataConfig
     return config
-end # DataConfig(min::Real, max::Real, dim::Int)
+end
 
 # --------------------------------------------------------------------------- #
 # FUNCTIONS
 # --------------------------------------------------------------------------- #
 
 """
-    element_min(x::RealVector, W::RealVector)
-
 Returns the element-wise minimum between sample x and weight W.
+
+# Arguments
+- `x::RealVector`: the input sample.
+- `W::RealVector`: the weight vector to compare the sample against.
 """
 function element_min(x::RealVector, W::RealVector)
     # Compute the element-wise minimum of two vectors
     return minimum([x W], dims = 2)
-end # element_min(x::RealVector, W::RealVector)
+end
 
 """
-    performance(y_hat::IntegerVector, y::IntegerVector)
+Convenience function to get the categorization performance of y_hat against y.
 
-Returns the categorization performance of y_hat against y.
+# Arguments
+- `y_hat::IntegerVector`: the estimated labels.
+- `y::IntegerVector`: the true labels.
 """
 function performance(y_hat::IntegerVector, y::IntegerVector)
     # Get the number of labels
@@ -215,12 +235,13 @@ function performance(y_hat::IntegerVector, y::IntegerVector)
     end
 
     return n_correct/n_y
-end # performance(y_hat::IntegerVector, y::IntegerVector)
+end
 
 """
-    get_data_shape(data::RealArray)
-
 Returns the correct feature dimension and number of samples.
+
+# Arguments
+- `data::RealArray`: the 1-D or 2-D data to get the dimension and number of samples from. 1-D data is interpreted as a single sample.
 """
 function get_data_shape(data::RealArray)
     # Get the correct dimensionality and number of samples
@@ -234,12 +255,13 @@ function get_data_shape(data::RealArray)
     end
 
     return dim, n_samples
-end # get_data_shape(data::RealArray)
+end
 
 """
-    get_n_samples(data::RealArray)
-
 Returns the number of samples, accounting for 1-D and 2-D arrays.
+
+# Arguments
+- `data::RealArray`: the 1-D or 2-D data to infer the number of samples from.
 """
 function get_n_samples(data::RealArray)
     # Get the correct dimensionality and number of samples
@@ -251,12 +273,16 @@ function get_n_samples(data::RealArray)
     end
 
     return n_samples
-end # get_n_samples(data::RealArray)
+end
 
 """
-    data_setup!(config::DataConfig, data::RealMatrix)
-
 Sets up the data config for the ART module before training.
+
+This function crucially gets the original and complement-coded dimensions of the data, and it infers the bounds of the data (minimums and maximums) by the largest and smallest values along each feature dimension.
+
+# Arguments
+- `config::DataConfig`: the ART/ARTMAP module's data configuration object.
+- `data::RealMatrix`: the 2-D batch of data to use for creating the data configuration.
 """
 function data_setup!(config::DataConfig, data::RealMatrix)
     if config.setup
@@ -267,17 +293,19 @@ function data_setup!(config::DataConfig, data::RealMatrix)
 
     # Get the correct dimensionality and number of samples
     config.dim, _ = get_data_shape(data)
-    config.dim_comp = 2*config.dim
+    config.dim_comp = 2 * config.dim
 
     # Compute the ranges of each feature
     config.mins = [minimum(data[i, :]) for i in 1:config.dim]
     config.maxs = [maximum(data[i, :]) for i in 1:config.dim]
-end # data_setup!(config::DataConfig, data::RealMatrix)
+end
 
 """
-    data_setup!(art::ARTModule, data::RealMatrix)
-
 Convenience method for setting up the DataConfig of an ART module in advance.
+
+# Arguments
+- `art::ARTModule`: the ART/ARTMAP module to manually configure the data config for.
+- `data::RealArray`: the 2-D batch of data used to create the data config.
 """
 function data_setup!(art::ARTModule, data::RealMatrix)
     # Modify the DataConfig of the ART module directly
@@ -285,11 +313,13 @@ function data_setup!(art::ARTModule, data::RealMatrix)
 end # data_setup!(art::ART, data::RealMatrix)
 
 """
-    get_data_characteristics(data::RealArray ; config::DataConfig=DataConfig())
-
 Get the characteristics of the data, taking account if a data config is passed.
 
 If no DataConfig is passed, then the data characteristics come from the array itself. Otherwise, use the config for the statistics of the data and the data array for the number of samples.
+
+# Arguments
+- `data::RealArray`: the 1-D or 2-D data to be complement coded.
+- `config::DataConfig=DataConfig()`: the data configuration for the ART/ARTMAP module.
 """
 function get_data_characteristics(data::RealArray ; config::DataConfig=DataConfig())
     # If the data is setup, use the config
@@ -306,12 +336,14 @@ function get_data_characteristics(data::RealArray ; config::DataConfig=DataConfi
         maxs = [maximum(data[i, :]) for i in 1:dim]
     end
     return dim, n_samples, mins, maxs
-end # get_data_characteristics(data::RealArray ; config::DataConfig=DataConfig())
+end
 
 """
-    linear_normalization(data::RealVector ; config::DataConfig=DataConfig())
-
 Normalize the data to the range [0, 1] along each feature.
+
+# Arguments
+- `data::RealVector`: the 1-D sample of data to normalize.
+- `config::DataConfig=DataConfig()`: the data configuration from the ART/ARTMAP module.
 """
 function linear_normalization(data::RealVector ; config::DataConfig=DataConfig())
     # Vector normalization requires a setup DataConfig
@@ -334,12 +366,14 @@ function linear_normalization(data::RealVector ; config::DataConfig=DataConfig()
         end
     end
     return x_raw
-end # linear_normalization(data::RealArray ; config::DataConfig=DataConfig())
+end
 
 """
-    linear_normalization(data::RealMatrix ; config::DataConfig=DataConfig())
-
 Normalize the data to the range [0, 1] along each feature.
+
+# Arguments
+- `data::RealMatrix`: the 2-D batch of data to normalize.
+- `config::DataConfig=DataConfig()`: the data configuration from the ART/ARTMAP module.
 """
 function linear_normalization(data::RealMatrix ; config::DataConfig=DataConfig())
     # Get the data characteristics
@@ -365,12 +399,14 @@ function linear_normalization(data::RealMatrix ; config::DataConfig=DataConfig()
         end
     end
     return x_raw
-end # linear_normalization(data::RealMatrix ; config::DataConfig=DataConfig())
+end
 
 """
-    complement_code(data::RealArray ; config::DataConfig=DataConfig())
+Normalizes the data x to [0, 1] and returns the augmented vector [x, 1 - x].
 
-Normalize the data x to [0, 1] and returns the augmented vector [x, 1 - x].
+# Arguments
+- `data::RealArray`: the 1-D or 2-D data to be complement coded.
+- `config::DataConfig=DataConfig()`: the data configuration for the ART/ARTMAP module.
 """
 function complement_code(data::RealArray ; config::DataConfig=DataConfig())
     # Normalize the data
@@ -378,14 +414,18 @@ function complement_code(data::RealArray ; config::DataConfig=DataConfig())
 
     # Complement code the data and return a concatenated matrix
     return vcat(x_raw, 1 .- x_raw)
-end # complement_code(data::RealArray ; config::DataConfig=DataConfig())
+end
 
 """
-    get_iterator(opts::ARTOpts, x::Array)
+Creates an iterator object according to the ART/ARTMAP modules display settings for batch iteration.
+
+# Arguments
+- `opts::ARTOpts`: the ART/ARTMAP module's options containing display settings.
+- `x::RealMatrix`: the batch of data being iterated over, used to infer dimensions.
 """
-function get_iterator(opts::ARTOpts, x::RealArray)
+function get_iterator(opts::ARTOpts, x::RealMatrix)
     # Show a progbar only if the data is 2-D and the option is on
-    dim, n_samples = get_data_shape(x)
+    _, n_samples = get_data_shape(x)
     single_sample = n_samples == 1
 
     # Decide if using a progress bar or not
@@ -397,10 +437,15 @@ function get_iterator(opts::ARTOpts, x::RealArray)
     iter = prog_bar ? ProgressBar(iter_raw) : iter_raw
 
     return iter
-end # get_iterator(opts::ARTOpts, x::RealArray)
+end
 
 """
-    update_iter(art::ARTModule, iter::ARTIterator, i::Integer)
+Updates the iteration of the ART/ARTMAP module, training or inference, according to its display settings.
+
+# Arguments
+- `art::ARTModule`: the ART/ARTMAP module being iterated upon.
+- `iter::ARTIterator`: the iterator object used in the training/inference loop.
+- `i::Integer`: the iteration during training/inference that the iterator should be updated to.
 """
 function update_iter(art::ARTModule, iter::ARTIterator, i::Integer)
     # Check explicitly for each, as the function definition restricts the types
@@ -409,13 +454,15 @@ function update_iter(art::ARTModule, iter::ARTIterator, i::Integer)
     elseif iter isa UnitRange
         return
     end
-end # update_iter(art::ARTModule, iter::Union{UnitRange, ProgressBar}, i::Integer)
+end
 
 """
-    get_sample(x::RealArray, i::Integer)
-
 Returns a sample from data array `x` at sample location `i`.
 This function implements the convention that columns are samples while rows are features within samples.
+
+# Arguments
+- `x::RealMatrix`: the batch of data to grab a sample from.
+- `i::Integer`: the index to get the sample from.
 """
 function get_sample(x::RealMatrix, i::Integer)
     # Return the sample at location
@@ -423,7 +470,15 @@ function get_sample(x::RealMatrix, i::Integer)
 end
 
 """
-    init_train!(x::RealVector, art::ARTModule, preprocessed::Bool)
+Initializes the module for training in a single iteration.
+
+The purpose of this function is mainly to handle the conditions of complement coding.
+Fails if the module was incorrectly set up or if the module was not setup and the data was not preprocessed.
+
+# Arguments
+- `x::RealVector`: the sample used for initialization.
+- `art::ARTModule`: the ART/ARTMAP module that will be trained on the sample.
+- `preprocessed::Bool`: a required flag for if the sample has already been complement coded and normalized.
 """
 function init_train!(x::RealVector, art::ARTModule, preprocessed::Bool)
     # If the data is not preprocessed
