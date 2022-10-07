@@ -5,7 +5,9 @@ Description:
     All constant values associated with the package.
 """
 
-# DDVFA linkage methods
+"""
+DDVFA linkage methods
+"""
 const DDVFA_METHODS = [
     "single",
     "average",

@@ -112,6 +112,18 @@ include("ARTMAP/ARTMAP.jl") # Supervised ART modules
 include("ART/ART.jl")       # Unsupervised ART modules
 
 # --------------------------------------------------------------------------- #
+# DERIVATIVE TYPES AND CONSTANTS
+# --------------------------------------------------------------------------- #
+
+"""
+A combined list of all unsupervised ART and supervised ARTMAP modules from the `AdaptiveResonance.jl` package.
+"""
+const ADAPTIVE_RESONANCE_MODULES = [
+    ART_MODULES;
+    ARTMAP_MODULES;
+]
+
+# --------------------------------------------------------------------------- #
 # EXPORTS
 # --------------------------------------------------------------------------- #
 
@@ -149,6 +161,12 @@ export
     FAM, opts_FAM,
     DAM, opts_DAM,
     SFAM, opts_SFAM,
+
+    # Useful constants
+    ART_MODULES,                # List of (default) unsupervised ART modules
+    ARTMAP_MODULES,             # List of supervised ARTMAP modules
+    ADAPTIVE_RESONANCE_MODULES, # Combined list of ART and ARTMAP modules
+    DDVFA_METHODS,              # DDVFA linkage methods
 
     # ARTSCENE filter functions
     color_to_gray,

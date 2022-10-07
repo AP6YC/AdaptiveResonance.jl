@@ -35,11 +35,19 @@ Modules = [AdaptiveResonance]
 Order = [:type]
 ```
 
+### [Constants](@id index-constants)
+
+```@index
+Pages   = ["full-index.md"]
+Modules = [AdaptiveResonance]
+Order = [:constant]
+```
+
 ## [Docs](@id index-docs)
 
 This section lists the documentation for every exported name of the `AdaptiveResonance.jl` package.
 
-### Modules
+### [Modules](@id index-modules-docs)
 
 ```@autodocs
 Modules = [AdaptiveResonance]
@@ -47,7 +55,7 @@ Private = false
 Order = [:module]
 ```
 
-### Functions
+### [Functions](@id index-functions-docs)
 
 ```@autodocs
 Modules = [AdaptiveResonance]
@@ -55,10 +63,18 @@ Private = false
 Order = [:function]
 ```
 
-### Types
+### [Types](@id index-types-docs)
 
 ```@autodocs
 Modules = [AdaptiveResonance]
 Private = false
 Order = [:type]
+```
+
+### [Constants](@id index-constants-docs)
+
+```@autodocs
+Modules = [AdaptiveResonance]
+Private = false
+Order = [:constant]
 ```
