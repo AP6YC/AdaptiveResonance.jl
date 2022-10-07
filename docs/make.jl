@@ -66,6 +66,7 @@ makedocs(
             "Modules" => "man/modules.md",
             "Contributing" => "man/contributing.md",
             "Index" => "man/full-index.md",
+            "Internals" => "man/dev-index.md",
         ],
     ],
     repo="https://github.com/AP6YC/AdaptiveResonance.jl/blob/{commit}{path}#L{line}",
