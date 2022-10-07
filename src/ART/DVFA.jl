@@ -180,6 +180,9 @@ end
 
 """
 Configure the threshold values of the DVFA module.
+
+# Arguments
+- `art::DVFA`: the DVFA module to set the threshold for.
 """
 function set_threshold!(art::DVFA)
     # DVFA thresholds

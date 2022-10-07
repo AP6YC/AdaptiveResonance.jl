@@ -286,8 +286,7 @@ function stopping_conditions(art::DDVFA)
 end
 
 """
-Compute the similarity metric depending on method with explicit comparisons
-for the field name.
+Compute the similarity metric depending on method with explicit comparisons for the field name.
 """
 function similarity(method::AbstractString, F2::FuzzyART, field_name::AbstractString, sample::RealVector, gamma_ref::RealFP)
     @debug "Computing similarity"

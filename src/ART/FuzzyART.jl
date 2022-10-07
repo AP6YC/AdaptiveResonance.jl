@@ -57,7 +57,7 @@ $(opts_docstring)
     Flag to normalize the threshold by the feature dimension.
     """
     gamma_normalization::Bool = false
-end # opts_FuzzyART
+end
 
 # --------------------------------------------------------------------------- #
 # STRUCTS
@@ -101,16 +101,17 @@ mutable struct FuzzyART <: ART
     n_instance::Vector{Int}
     n_categories::Int
     epoch::Int
-end # FuzzyART <: ART
+end
 
 # --------------------------------------------------------------------------- #
 # CONSTRUCTORS
 # --------------------------------------------------------------------------- #
 
 """
-    FuzzyART(;kwargs...)
-
 Implements a Gamma-Normalized Fuzzy ART learner with optional keyword arguments.
+
+# Arguments
+- `kwargs`: keyword arguments of valid FuzzyART options.
 
 # Examples
 By default:
@@ -132,12 +133,13 @@ FuzzyART
 function FuzzyART(;kwargs...)
     opts = opts_FuzzyART(;kwargs...)
     FuzzyART(opts)
-end # FuzzyART(;kwargs...)
+end
 
 """
-    FuzzyART(opts::opts_FuzzyART)
-
 Implements a Gamma-Normalized Fuzzy ART learner with specified options.
+
+# Arguments
+- `opts::opts_FuzzyART`: the FuzzyART options struct with specified options.
 
 # Examples
 ```julia-repl
@@ -159,35 +161,46 @@ function FuzzyART(opts::opts_FuzzyART)
         0,                              # n_categories
         0                               # epoch
     )
-end # FuzzyART(opts::opts_FuzzyART)
+end
 
 """
-    FuzzyART(opts::opts_FuzzyART, sample::RealVector)
-
 Create and initialize a FuzzyART with a single sample in one step.
+
+Principally used as a method for initialization within DDVFA.
+
+# Arguments
+- `opts::opts_FuzzyART`: the FuzzyART options contains.
+- `sample::RealVector`: the sample to use as a basis for setting up the FuzzyART.
+- `preprocessed::Bool=false`: flag for if the sample is already complement coded and normalized.
 """
 function FuzzyART(opts::opts_FuzzyART, sample::RealVector ; preprocessed::Bool=false)
     art = FuzzyART(opts)
     init_train!(sample, art, preprocessed)
     initialize!(art, sample)
     return art
-end # FuzzyART(opts::opts_FuzzyART, sample::RealVector)
+end
 
 # --------------------------------------------------------------------------- #
 # ALGORITHMIC METHODS
 # --------------------------------------------------------------------------- #
 
+"""
+Sets the threshold as a function of the vigilance parameter.
+
+Depending on selected FuzzyART options, this may be a function of other parameters as well.
+
+# Arguments
+- `art::FuzzyART`: the FuzzyART module for setting a new threshold.
+"""
 function set_threshold!(art::FuzzyART)
     if art.opts.gamma_normalization
         art.threshold = art.opts.rho * (art.config.dim ^ art.opts.gamma_ref)
     else
         art.threshold = art.opts.rho
     end
-end # set_threshold!(art::FuzzyART)
+end
 
 """
-    initialize!(art::FuzzyART, x::Vector{T} ; y::Integer=0) where {T<:RealFP}
-
 Initializes a FuzzyART learner with an intial sample 'x'.
 
 # Examples
@@ -218,7 +231,7 @@ function initialize!(art::FuzzyART, x::Vector{T} ; y::Integer=0) where {T<:RealF
 
     # Add the label to the label list
     push!(art.labels, label)
-end # initialize!(art::FuzzyART, x::Vector{T} ; y::Integer=0) where {T<:RealFP}
+end
 
 # FuzzyART incremental training method
 function train!(art::FuzzyART, x::RealVector ; y::Integer=0, preprocessed::Bool=false)
