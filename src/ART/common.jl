@@ -10,8 +10,6 @@ Description:
 # --------------------------------------------------------------------------- #
 
 """
-    train!(art::ART, x::RealMatrix ; y::IntegerVector=Vector{Int}(), preprocessed::Bool=false)
-
 Train the ART model on a batch of data 'x' with optional supervisory labels 'y.'
 
 # Arguments
@@ -65,8 +63,6 @@ end # train!(art::ART, x::RealMatrix ; y::IntegerVector = Vector{Int}(), preproc
 # --------------------------------------------------------------------------- #
 
 @doc raw"""
-    train!(art::ART, x::RealVector ; y::Integer=0, preprocessed::Bool=false)
-
 Train the ART model on a single sample of features 'x' with an optional supervisory label.
 
 # Arguments

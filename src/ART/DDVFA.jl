@@ -14,22 +14,7 @@ References
 # --------------------------------------------------------------------------- #
 
 """
-    opts_DDVFA(;kwargs)
-
 Distributed Dual Vigilance Fuzzy ART options struct.
-
-# Keyword Arguments
-- `rho_lb::Float`: lower-bound vigilance value, [0, 1], default 0.7.
-- `rho_ub::Float`: upper-bound vigilance value, [0, 1], default 0.85.
-- `alpha::Float`: choice parameter, alpha > 0, default 1e-3.
-- `beta::Float`: learning parameter, (0, 1], default 1.0.
-- `gamma::Float`: "pseudo" kernel width, gamma >= 1, default 3.0.
-- `gamma_ref::Float`: "reference" kernel width, 0 <= gamma_ref < gamma, default 1.0.
-- `method::String`: similarity method (activation and match):
-`single`, `average`, `complete`, `median`, `weighted`, or `centroid`, default `single`.
-- `display::Bool`: display flag, default true.
-- `max_epoch::Int`: maximum number of epochs during training, default 1.
-- `gamma_normalization::Bool`: normalize the threshold by the feature dimension, default true.
 """
 @with_kw mutable struct opts_DDVFA <: ARTOpts @deftype Float
     """
@@ -81,15 +66,13 @@ Distributed Dual Vigilance Fuzzy ART options struct.
     Flag to normalize the threshold by the feature dimension.
     """
     gamma_normalization::Bool = true
-end # opts_DDVFA
+end
 
 # --------------------------------------------------------------------------- #
 # STRUCTS
 # --------------------------------------------------------------------------- #
 
 """
-    DDVFA <: ART
-
 Distributed Dual Vigilance Fuzzy ARTMAP module struct.
 
 For module options, see [`AdaptiveResonance.opts_DDVFA`](@ref).
@@ -126,15 +109,13 @@ mutable struct DDVFA <: ART
     epoch::Int
     T::Float
     M::Float
-end # DDVFA <: ART
+end
 
 # --------------------------------------------------------------------------- #
 # CONSTRUCTORS
 # --------------------------------------------------------------------------- #
 
 """
-    DDVFA(;kwargs...)
-
 Implements a DDVFA learner with optional keyword arguments.
 
 # Examples
@@ -159,11 +140,9 @@ DDVFA
 function DDVFA(;kwargs...)
     opts = opts_DDVFA(;kwargs...)
     DDVFA(opts)
-end # DDVFA(;kwargs...)
+end
 
 """
-    DDVFA(opts::opts_DDVFA)
-
 Implements a DDVFA learner with specified options.
 
 # Examples
@@ -198,15 +177,13 @@ function DDVFA(opts::opts_DDVFA)
           0.0,
           0.0
     )
-end # DDVFA(opts::opts_DDVFA)
+end
 
 # --------------------------------------------------------------------------- #
 # ALGORITHMIC METHODS
 # --------------------------------------------------------------------------- #
 
 """
-    set_threshold!(art::DDVFA)
-
 Sets the vigilance threshold of the DDVFA module as a function of several flags and hyperparameters.
 """
 function set_threshold!(art::DDVFA)
@@ -218,7 +195,7 @@ function set_threshold!(art::DDVFA)
         # Set the learning threshold as simply the vigilance parameter
         art.threshold = art.opts.rho_lb
     end
-end # set_threshold!(art::DDVFA)
+end
 
 # DDVFA incremental training method
 function train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=false)
@@ -285,11 +262,9 @@ function train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fal
     end
 
     return y_hat
-end # train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=false)
+end
 
 """
-    create_category(art::DDVFA, sample::RealVector, label::Integer)
-
 Create a new category by appending and initializing a new FuzzyART node to F2.
 """
 function create_category(art::DDVFA, sample::RealVector, label::Integer)
@@ -298,11 +273,9 @@ function create_category(art::DDVFA, sample::RealVector, label::Integer)
     push!(art.labels, label)
     # Local Gamma-Normalized Fuzzy ART
     push!(art.F2, FuzzyART(art.subopts, sample, preprocessed=true))
-end # function create_category(art::DDVFA, sample::RealVector, label::Integer)
+end
 
 """
-    stopping_conditions(art::DDVFA)
-
 Stopping conditions for Distributed Dual Vigilance Fuzzy ARTMAP.
 
 Returns true if there is no change in weights during the epoch or the maxmimum epochs has been reached.
@@ -310,11 +283,9 @@ Returns true if there is no change in weights during the epoch or the maxmimum e
 function stopping_conditions(art::DDVFA)
     # Compute the stopping condition, return a bool
     return art.epoch >= art.opts.max_epoch
-end # stopping_conditions(DDVFA)
+end
 
 """
-    similarity(method::AbstractString, F2::FuzzyART, field_name::AbstractString, sample::RealVector, gamma_ref::RealFP)
-
 Compute the similarity metric depending on method with explicit comparisons
 for the field name.
 """
@@ -374,7 +345,7 @@ function similarity(method::AbstractString, F2::FuzzyART, field_name::AbstractSt
     end
 
     return value
-end # similarity(method::AbstractString, F2::FuzzyART, field_name::AbstractString, sample::RealVector, gamma_ref::RealFP)
+end
 
 # DDVFA incremental classification method
 function classify(art::DDVFA, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
@@ -431,30 +402,24 @@ end
 # --------------------------------------------------------------------------- #
 
 """
-    get_W(art::DDVFA)
-
 Convenience functio; return a concatenated array of all DDVFA weights.
 """
 function get_W(art::DDVFA)
     # Return a concatenated array of the weights
     return [art.F2[kx].W for kx = 1:art.n_categories]
-end # get_W(art::DDVFA)
+end
 
 """
-    get_n_weights_vec(art::DDVFA)
-
 Convenience function; return the number of weights in each category as a vector.
 """
 function get_n_weights_vec(art::DDVFA)
     return [art.F2[i].n_categories for i = 1:art.n_categories]
-end # get_n_weights_vec(art::DDVFA)
+end
 
 """
-    get_n_weights(art::DDVFA)
-
 Convenience function; return the sum total number of weights in the DDVFA module.
 """
 function get_n_weights(art::DDVFA)
     # Return the number of weights across all categories
     return sum(get_n_weights_vec(art))
-end # get_n_weights(art::DDVFA)
+end

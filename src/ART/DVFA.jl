@@ -51,29 +51,12 @@ $(opts_docstring)
     Display flag.
     """
     display::Bool = true
-end # opts_DVFA
+end
 
 """
-    DVFA <: ART
-
 Dual Vigilance Fuzzy ARTMAP module struct.
 
 For module options, see [`AdaptiveResonance.opts_DVFA`](@ref).
-
-# Option Parameters
-- `opts::opts_DVFA`: DVFA options struct.
-- `config::DataConfig`: data configuration struct.
-
-# Working Parameters
-- `threshold_ub::Float`: operating upper bound module threshold value, a function of the upper bound vigilance parameter.
-- `threshold_lb::Float`: operating lower bound module threshold value, a function of the lower bound vigilance parameter.
-- `labels::Vector{Int}`: incremental list of labels corresponding to each F2 node, self-prescribed or supervised.
-- `W::Matrix{Float}`: category weight matrix.
-- `T::Vector{Float}`: activation values for every weight for a given sample.
-- `M::Vector{Float}`: match values for every weight for a given sample.
-- `n_categories::Int`: number of category weights (F2 nodes).
-- `n_clusters::Int`: number of labeled clusters, may be lower than `n_categories`
-- `epoch::Int`: current training epoch.
 
 # References:
 1. L. E. Brito da Silva, I. Elnabarawy and D. C. Wunsch II, "Dual Vigilance Fuzzy ART," Neural Networks Letters. To appear.
@@ -81,28 +64,68 @@ For module options, see [`AdaptiveResonance.opts_DVFA`](@ref).
 """
 mutable struct DVFA <: ART
     # Get parameters
+    """
+    DVFA options struct.
+    """
     opts::opts_DVFA
+
+    """
+    Data configuration struct.
+    """
     config::DataConfig
 
     # Working variables
+    """
+    Operating upper bound module threshold value, a function of the upper bound vigilance parameter.
+    """
     threshold_ub::Float
+
+    """
+    Operating lower bound module threshold value, a function of the lower bound vigilance parameter.
+    """
     threshold_lb::Float
+
+    """
+    Incremental list of labels corresponding to each F2 node, self-prescribed or supervised.
+    """
     labels::Vector{Int}
+
+    """
+    Category weight matrix.
+    """
     W::Matrix{Float}
+
+    """
+    Activation values for every weight for a given sample.
+    """
     T::Vector{Float}
+
+    """
+    Match values for every weight for a given sample.
+    """
     M::Vector{Float}
+
+    """
+    Number of category weights (F2 nodes).
+    """
     n_categories::Int
+
+    """
+    Number of labeled clusters, may be lower than `n_categories`
+    """
     n_clusters::Int
+
+    """
+    Current training epoch.
+    """
     epoch::Int
-end # DVFA
+end
 
 # --------------------------------------------------------------------------- #
 # CONSTRUCTORS
 # --------------------------------------------------------------------------- #
 
 """
-    DVFA(;kwargs...)
-
 Implements a DVFA learner with optional keyword arguments.
 
 # Examples
@@ -125,11 +148,9 @@ DVFA
 function DVFA(;kwargs...)
     opts = opts_DVFA(;kwargs...)
     DVFA(opts)
-end # DVFA(;kwargs...)
+end
 
 """
-    DVFA(opts::opts_DVFA)
-
 Implements a DVFA learner with specified options.
 
 # Examples
@@ -155,18 +176,16 @@ function DVFA(opts::opts_DVFA)
         0,                              # n_clusters
         0                               # epoch
     )
-end # DDVFA(opts::opts_DDVFA)
+end
 
 """
-    set_threshold!(art::DVFA)
-
 Configure the threshold values of the DVFA module.
 """
 function set_threshold!(art::DVFA)
     # DVFA thresholds
     art.threshold_ub = art.opts.rho_ub * art.config.dim
     art.threshold_lb = art.opts.rho_lb * art.config.dim
-end # set_threshold!(art::DVFA)
+end
 
 # Incremental DVFA training method
 function train!(art::DVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=false)
@@ -258,7 +277,7 @@ function train!(art::DVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fals
     end
 
     return y_hat
-end # train!(art::DVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=false)
+end
 
 # Incremental DVFA classify method
 function classify(art::DVFA, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
@@ -290,11 +309,9 @@ function classify(art::DVFA, x::RealVector ; preprocessed::Bool=false, get_bmu::
     end
 
     return y_hat
-end # classify(art::DVFA, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
+end
 
 """
-    activation_match!(art::DVFA, x::RealVector)
-
 Compute and store the activation and match values for the DVFA module.
 """
 function activation_match!(art::DVFA, x::RealVector)
@@ -305,33 +322,27 @@ function activation_match!(art::DVFA, x::RealVector)
         art.T[jx] = numerator/(art.opts.alpha + norm(art.W[:, jx], 1))
         art.M[jx] = numerator
     end
-end # activation_match!(art::DVFA, x::RealVector)
+end
 
 """
-    learn(art::DVFA, x::RealVector, W::RealVector)
-
 Return the modified weight of the DVFA module conditioned by sample x.
 """
 function learn(art::DVFA, x::RealVector, W::RealVector)
     # Update W
     return art.opts.beta .* element_min(x, W) .+ W .* (1 - art.opts.beta)
-end # learn(art::DVFA, x::RealVector, W::RealVector)
+end
 
 """
-    learn!(art::DVFA, x::RealVector, index::Integer)
-
 In place learning function.
 """
 function learn!(art::DVFA, x::RealVector, index::Integer)
     # Update W
     art.W[:, index] = learn(art, x, art.W[:, index])
-end # learn!(art::DVFA, x::RealVector, index::Integer)
+end
 
 """
-    stopping_conditions(art::DVFA)
-
 Stopping conditions for a DVFA module.
 """
 function stopping_conditions(art::DVFA)
     return art.epoch >= art.opts.max_epochs
-end # stopping_conditions(art::DVFA)
+end
