@@ -15,13 +15,13 @@ A basic struct for encapsulating the four components of supervised training.
 struct DataSplit
     """
     The training feature samples.
-    Dimensions are [dim, sample].
+    Dimensions are \[feature-dim, sample-index\].
     """
     train_x::Matrix{Float}
 
     """
     The testing feature samples.
-    Dimensions are [dim, sample].
+    Dimensions are \[feature-dim, sample-index\].
     """
     test_x::Matrix{Float}
 
