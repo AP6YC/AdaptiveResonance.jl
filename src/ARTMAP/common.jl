@@ -5,9 +5,9 @@ Description:
     Includes all of the unsupervised ARTMAP modules common code.
 """
 
-# -------------------------------------------
-# Methods
-# -------------------------------------------
+# --------------------------------------------------------------------------- #
+# FUNCTIONS
+# --------------------------------------------------------------------------- #
 
 """
     train!(art::ARTMAP, x::RealMatrix, y::IntegerVector, preprocessed::Bool=false)
@@ -53,12 +53,13 @@ function train!(art::ARTMAP, x::RealMatrix, y::IntegerVector, preprocessed::Bool
             break
         end
     end
+
     return y_hat
 end
 
-# -------------------------------------------
-# Common Documentation
-# -------------------------------------------
+# --------------------------------------------------------------------------- #
+# COMMON DOCUMENTATION
+# --------------------------------------------------------------------------- #
 
 @doc raw"""
     train!(art::ARTMAP, x::RealVector, y::Integer ; preprocessed::Bool=false)

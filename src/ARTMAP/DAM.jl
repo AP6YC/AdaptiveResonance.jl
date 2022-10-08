@@ -267,8 +267,7 @@ function activation(art::DAM, x::RealVector, W::RealVector)
 end
 
 """
-Returns a single updated weight for the Default ARTMAP module for weight
-vector W and sample x.
+Returns a single updated weight for the Default ARTMAP module for weight vector W and sample x.
 """
 function learn(art::DAM, x::RealVector, W::RealVector)
     # Update W
@@ -276,8 +275,7 @@ function learn(art::DAM, x::RealVector, W::RealVector)
 end
 
 """
-Returns the match function for the Default ARTMAP module with weight W and
-sample x.
+Returns the match function for the Default ARTMAP module with weight W and sample x.
 """
 function art_match(art::DAM, x::RealVector, W::RealVector)
     # Compute M and return
