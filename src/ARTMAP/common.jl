@@ -54,7 +54,7 @@ function train!(art::ARTMAP, x::RealMatrix, y::IntegerVector, preprocessed::Bool
         end
     end
     return y_hat
-end # train!(art::ARTMAP, x::RealMatrix, y::IntegerVector, preprocessed::Bool=false)
+end
 
 # -------------------------------------------
 # Common Documentation
