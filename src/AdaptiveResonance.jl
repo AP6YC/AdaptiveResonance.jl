@@ -84,7 +84,7 @@ $(EXPORTS)
 module AdaptiveResonance
 
 # --------------------------------------------------------------------------- #
-# USINGS
+# DEPENDENCIES
 # --------------------------------------------------------------------------- #
 
 # Usings/imports for the whole package declared once

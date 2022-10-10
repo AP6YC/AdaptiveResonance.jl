@@ -12,13 +12,6 @@ Types and functions that are used throughout AdaptiveResonance.jl.
 # DOCSTRING TEMPLATES
 # --------------------------------------------------------------------------- #
 
-# Default template if not specified (i.e., constants and modules)
-# @template DEFAULT =
-# """
-# $(SIGNATURES)
-# $(DOCSTRING)
-# """
-
 # Constants template
 @template CONSTANTS =
 """
