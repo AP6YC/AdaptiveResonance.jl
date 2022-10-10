@@ -362,11 +362,11 @@ function activation_match!(art::FuzzyART, x::RealVector)
     for i = 1:art.n_categories
         W_norm = norm(art.W[:, i], 1)
         numerator = norm(element_min(x, art.W[:, i]), 1)
-        art.T[i] = (numerator/(art.opts.alpha + W_norm))^art.opts.gamma
+        art.T[i] = (numerator / (art.opts.alpha + W_norm))^art.opts.gamma
         if art.opts.gamma_normalization
-            art.M[i] = (W_norm^art.opts.gamma_ref)*art.T[i]
+            art.M[i] = (W_norm^art.opts.gamma_ref) * art.T[i]
         else
-            art.M[i] = numerator/norm(x, 1)
+            art.M[i] = numerator / norm(x, 1)
         end
     end
 end # activation_match!(art::FuzzyART, x::RealVector)

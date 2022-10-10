@@ -1,10 +1,10 @@
 """
     DDVFA.jl
 
-Description:
-    Includes all of the structures and logic for running a Distributed Dual-Vigilance Fuzzy ART (DDVFA) module.
+# Description:
+Includes all of the structures and logic for running a Distributed Dual-Vigilance Fuzzy ART (DDVFA) module.
 
-References
+# References
 [1] L. E. Brito da Silva, I. Elnabarawy, and D. C. Wunsch, “Distributed dual vigilance fuzzy adaptive resonance theory learns online, retrieves arbitrarily-shaped clusters, and mitigates order dependence,” Neural Networks, vol. 121, pp. 208-228, 2020, doi: 10.1016/j.neunet.2019.08.033.
 [2] G. Carpenter, S. Grossberg, and D. Rosen, "Fuzzy ART: Fast stable learning and categorization of analog patterns by an adaptive resonance system," Neural Networks, vol. 4, no. 6, pp. 759-771, 1991.
 """
@@ -98,18 +98,56 @@ For module options, see [`AdaptiveResonance.opts_DDVFA`](@ref).
 2. G. Carpenter, S. Grossberg, and D. Rosen, "Fuzzy ART: Fast stable learning and categorization of analog patterns by an adaptive resonance system," Neural Networks, vol. 4, no. 6, pp. 759-771, 1991.
 """
 mutable struct DDVFA <: ART
-    # Get parameters
+    # Option Parameters
+    """
+    DDVFA options struct.
+    """
     opts::opts_DDVFA
+
+    """
+    FuzzyART options struct used for all F2 nodes.
+    """
     subopts::opts_FuzzyART
+
+    """
+    Data configuration struct.
+    """
     config::DataConfig
 
     # Working variables
+    """
+    Operating module threshold value, a function of the vigilance parameter.
+    """
     threshold::Float
+
+    """
+    List of F2 nodes (themselves FuzzyART modules).
+    """
     F2::Vector{FuzzyART}
+
+    """
+    Incremental list of labels corresponding to each F2 node, self-prescribed or supervised.
+    """
     labels::Vector{Int}
+
+    """
+    Number of total categories.
+    """
     n_categories::Int
+
+    """
+    Current training epoch.
+    """
     epoch::Int
+
+    """
+    Winning activation value from most recent sample.
+    """
     T::Float
+
+    """
+    Winning match value from most recent sample.
+    """
     M::Float
 end
 
@@ -225,14 +263,14 @@ function train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fal
     T = zeros(art.n_categories)
     for jx = 1:art.n_categories
         activation_match!(art.F2[jx], sample)
-        T[jx] = similarity(art.opts.method, art.F2[jx], "T", sample, art.opts.gamma_ref)
+        T[jx] = similarity(art.opts.method, art.F2[jx], "T", sample)
     end
 
     # Compute the match for each category in the order of greatest activation
     index = sortperm(T, rev=true)
     for jx = 1:art.n_categories
         bmu = index[jx]
-        M = similarity(art.opts.method, art.F2[bmu], "M", sample, art.opts.gamma_ref)
+        M = similarity(art.opts.method, art.F2[bmu], "M", sample)
         # If we got a match, then learn (update the category)
         if M >= art.threshold
             # Update the stored match and activation values
@@ -256,7 +294,7 @@ function train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fal
     if mismatch_flag
         # Update the stored match and activation values
         bmu = index[1]
-        art.M = similarity(art.opts.method, art.F2[bmu], "M", sample, art.opts.gamma_ref)
+        art.M = similarity(art.opts.method, art.F2[bmu], "M", sample)
         art.T = T[bmu]
         # Get the correct label
         y_hat = supervised ? y : art.n_categories + 1
@@ -298,9 +336,8 @@ Compute the similarity metric depending on method with explicit comparisons for 
 - `F2::FuzzyART`: the FuzzyART module to compute the linkage method within.
 - `field_name::AbstractString`: the activation or match value to compute, field_name ∈ ["T", "M"]
 - `sample::RealVector`: the sample to use for computing the linkage to the F2 module.
-- `gamma_ref::RealFP`: the reference gamma for normalization.
 """
-function similarity(method::AbstractString, F2::FuzzyART, field_name::AbstractString, sample::RealVector, gamma_ref::RealFP)
+function similarity(method::AbstractString, F2::FuzzyART, field_name::AbstractString, sample::RealVector)
     @debug "Computing similarity"
 
     if field_name != "T" && field_name != "M"
@@ -367,7 +404,7 @@ function classify(art::DDVFA, x::RealVector ; preprocessed::Bool=false, get_bmu:
     T = zeros(art.n_categories)
     for jx = 1:art.n_categories
         activation_match!(art.F2[jx], sample)
-        T[jx] = similarity(art.opts.method, art.F2[jx], "T", sample, art.opts.gamma_ref)
+        T[jx] = similarity(art.opts.method, art.F2[jx], "T", sample)
     end
 
     # Sort by highest activation
@@ -381,7 +418,7 @@ function classify(art::DDVFA, x::RealVector ; preprocessed::Bool=false, get_bmu:
         # Get the best-matching unit
         bmu = index[jx]
         # Get the match value of this activation
-        M = similarity(art.opts.method, art.F2[bmu], "M", sample, art.opts.gamma_ref)
+        M = similarity(art.opts.method, art.F2[bmu], "M", sample)
         # If the match satisfies the threshold criterion, then report that label
         if M >= art.threshold
             # Update the stored match and activation values
@@ -399,7 +436,7 @@ function classify(art::DDVFA, x::RealVector ; preprocessed::Bool=false, get_bmu:
         @debug "Mismatch"
         # Update the stored match and activation values of the best matching unit
         bmu = index[1]
-        art.M = similarity(art.opts.method, art.F2[bmu], "M", sample, art.opts.gamma_ref)
+        art.M = similarity(art.opts.method, art.F2[bmu], "M", sample)
         art.T = T[bmu]
         # Report either the best matching unit or the mismatch label -1
         y_hat = get_bmu ? art.labels[bmu] : -1
