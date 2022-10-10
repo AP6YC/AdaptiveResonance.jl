@@ -22,7 +22,7 @@ ARTSCENE Stage 1: Color-to-gray image transformation.
 function color_to_gray(image::RealArray)
     # Treat the image as a column-major array, cast to grayscale
     dim, n_row, n_column = size(image)
-    return [sum(image[:,i,j])/3 for i=1:n_row, j=1:n_column]
+    return [sum(image[:, i, j])/3 for i=1:n_row, j=1:n_column]
 end
 
 """
@@ -295,8 +295,12 @@ end
 
 """
 Process the full artscene filter toolchain on an image.
+
+# Arguments
+- `raw_image::Array{Real, 3}`: the rwa RGB image to process with the ARTSCENE filter.
+- `distributed::Bool=true`: flag to process the filter with parallel processing.
 """
-function artscene_filter(raw_image::Array{T, 3} ;  distributed::Bool=true) where {T<:Real}
+function artscene_filter(raw_image::Array{T, 3} ;  distributed::Bool=true) where T <: RealFP
 
     # Get the number of workers
     n_processes = nprocs()
@@ -315,7 +319,7 @@ function artscene_filter(raw_image::Array{T, 3} ;  distributed::Bool=true) where
     @debug "Stage 1 Complete: Grayscale: Size = $image_size, Type = $image_type"
 
     # Stage 2: Contrast normalization
-    x = contrast_normalization(image, distributed=true)
+    x = contrast_normalization(image, distributed=distributed)
     image_size = size(x)
     image_type = typeof(x)
     @debug "Stage 2 Complete: Contrast: Size = $image_size, Type = $image_type"

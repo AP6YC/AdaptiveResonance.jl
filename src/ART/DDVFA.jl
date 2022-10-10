@@ -212,7 +212,7 @@ function DDVFA(opts::opts_DDVFA)
 end
 
 # --------------------------------------------------------------------------- #
-# ALGORITHMIC METHODS
+# COMMON FUNCTIONS
 # --------------------------------------------------------------------------- #
 
 # COMMON DOC: Set threshold function
@@ -293,6 +293,60 @@ function train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fal
 
     return y_hat
 end
+
+# COMMON DOC: DDVFA incremental classification method
+function classify(art::DDVFA, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
+    # Preprocess the data
+    sample = init_classify!(x, art, preprocessed)
+
+    # Calculate all global activations
+    T = zeros(art.n_categories)
+    for jx = 1:art.n_categories
+        activation_match!(art.F2[jx], sample)
+        T[jx] = similarity(art.opts.method, art.F2[jx], "T", sample)
+    end
+
+    # Sort by highest activation
+    index = sortperm(T, rev=true)
+
+    # Default to mismatch
+    mismatch_flag = true
+
+    # Iterate over the list of activations
+    for jx = 1:art.n_categories
+        # Get the best-matching unit
+        bmu = index[jx]
+        # Get the match value of this activation
+        M = similarity(art.opts.method, art.F2[bmu], "M", sample)
+        # If the match satisfies the threshold criterion, then report that label
+        if M >= art.threshold
+            # Update the stored match and activation values
+            art.M = M
+            art.T = T[bmu]
+            # Current winner
+            y_hat = art.labels[bmu]
+            mismatch_flag = false
+            break
+        end
+    end
+
+    # If we did not find a resonant category
+    if mismatch_flag
+        @debug "Mismatch"
+        # Update the stored match and activation values of the best matching unit
+        bmu = index[1]
+        art.M = similarity(art.opts.method, art.F2[bmu], "M", sample)
+        art.T = T[bmu]
+        # Report either the best matching unit or the mismatch label -1
+        y_hat = get_bmu ? art.labels[bmu] : -1
+    end
+
+    return y_hat
+end
+
+# --------------------------------------------------------------------------- #
+# INTERNAL FUNCTIONS
+# --------------------------------------------------------------------------- #
 
 """
 Create a new category by appending and initializing a new FuzzyART node to F2.
@@ -388,56 +442,6 @@ function similarity(method::AbstractString, F2::FuzzyART, field_name::AbstractSt
     end
 
     return value
-end
-
-# COMMON DOC: DDVFA incremental classification method
-function classify(art::DDVFA, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
-    # Preprocess the data
-    sample = init_classify!(x, art, preprocessed)
-
-    # Calculate all global activations
-    T = zeros(art.n_categories)
-    for jx = 1:art.n_categories
-        activation_match!(art.F2[jx], sample)
-        T[jx] = similarity(art.opts.method, art.F2[jx], "T", sample)
-    end
-
-    # Sort by highest activation
-    index = sortperm(T, rev=true)
-
-    # Default to mismatch
-    mismatch_flag = true
-
-    # Iterate over the list of activations
-    for jx = 1:art.n_categories
-        # Get the best-matching unit
-        bmu = index[jx]
-        # Get the match value of this activation
-        M = similarity(art.opts.method, art.F2[bmu], "M", sample)
-        # If the match satisfies the threshold criterion, then report that label
-        if M >= art.threshold
-            # Update the stored match and activation values
-            art.M = M
-            art.T = T[bmu]
-            # Current winner
-            y_hat = art.labels[bmu]
-            mismatch_flag = false
-            break
-        end
-    end
-
-    # If we did not find a resonant category
-    if mismatch_flag
-        @debug "Mismatch"
-        # Update the stored match and activation values of the best matching unit
-        bmu = index[1]
-        art.M = similarity(art.opts.method, art.F2[bmu], "M", sample)
-        art.T = T[bmu]
-        # Report either the best matching unit or the mismatch label -1
-        y_hat = get_bmu ? art.labels[bmu] : -1
-    end
-
-    return y_hat
 end
 
 # --------------------------------------------------------------------------- #
