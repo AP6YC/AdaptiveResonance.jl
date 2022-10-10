@@ -450,6 +450,9 @@ end
 
 """
 Convenience function; return a concatenated array of all DDVFA weights.
+
+# Arguments
+- `art::DDVFA`: the DDVFA module to get all of the weights from as a matrix.
 """
 function get_W(art::DDVFA)
     # Return a concatenated array of the weights
@@ -458,6 +461,9 @@ end
 
 """
 Convenience function; return the number of weights in each category as a vector.
+
+# Arguments
+- `art::DDVFA`: the DDVFA module to get all of the weights from as a matrix.
 """
 function get_n_weights_vec(art::DDVFA)
     return [art.F2[i].n_categories for i = 1:art.n_categories]

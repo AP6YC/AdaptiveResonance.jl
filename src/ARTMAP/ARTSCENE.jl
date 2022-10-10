@@ -19,9 +19,9 @@ using SharedArrays
 """
 ARTSCENE Stage 1: Color-to-gray image transformation.
 """
-function color_to_gray(image::RealArray)
+function color_to_gray(image::Array{T, 3}) where T <: RealFP
     # Treat the image as a column-major array, cast to grayscale
-    dim, n_row, n_column = size(image)
+    _, n_row, n_column = size(image)
     return [sum(image[:, i, j])/3 for i=1:n_row, j=1:n_column]
 end
 

@@ -36,10 +36,9 @@ $(TYPEDFIELDS)
 # Template for functions, macros, and methods (i.e., constructors)
 @template (FUNCTIONS, METHODS, MACROS) =
 """
-$(SIGNATURES)
+$(TYPEDSIGNATURES)
 
 # Summary
-$(TYPEDSIGNATURES)
 $(DOCSTRING)
 
 # Method List / Definition Locations
