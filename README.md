@@ -208,16 +208,18 @@ The following file tree summarizes the project structure:
 ```console
 AdaptiveResonance
 ├── .github/workflows       // GitHub: workflows for testing and documentation.
-├── data                    // Data: CI data location.
 ├── docs                    // Docs: documentation for the module.
-│   ├─── examples          //      DemoCards documentation examples.
-│   └─── src               //      Documentation source files.
+│   ├─── examples           //      DemoCards documentation examples.
+│   └─── src                //      Documentation source files.
 ├── src                     // Source: majority of source code.
-│   ├─── ART               //      ART-based unsupervised modules.
-│   └─── ARTMAP            //      ARTMAP-based supervised modules.
+│   ├─── ART                //      ART-based unsupervised modules.
+│   └─── ARTMAP             //      ARTMAP-based supervised modules.
 ├── test                    // Test: Unit, integration, and environment tests.
 ├── .appveyor               // Appveyor: Windows-specific coverage.
+├── .gitattributes          // Git: LFS settings, languages, etc.
 ├── .gitignore              // Git: .gitignore for the whole project.
+├── CODE_OF_CONDUCT.md      // Doc: the code of conduct for contributors.
+├── CONTRIBUTING.md         // Doc: contributing guide (points to this page).
 ├── LICENSE                 // Doc: the license to the project.
 ├── Project.toml            // Julia: the Pkg.jl dependencies of the project.
 └── README.md               // Doc: this document.
