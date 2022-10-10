@@ -1,11 +1,11 @@
 """
     SFAM.jl
 
-Description:
-    Options, structures, and logic for the Simplified Fuzzy ARTMAP (SFAM) module.
+# Description:
+Options, structures, and logic for the Simplified Fuzzy ARTMAP (SFAM) module.
 
-References:
-    [1] G. A. Carpenter, S. Grossberg, N. Markuzon, J. H. Reynolds, and D. B. Rosen, “Fuzzy ARTMAP: A Neural Network Architecture for Incremental Supervised Learning of Analog Multidimensional Maps,” IEEE Trans. Neural Networks, vol. 3, no. 5, pp. 698-713, 1992, doi: 10.1109/72.159059.
+# References:
+[1] G. A. Carpenter, S. Grossberg, N. Markuzon, J. H. Reynolds, and D. B. Rosen, “Fuzzy ARTMAP: A Neural Network Architecture for Incremental Supervised Learning of Analog Multidimensional Maps,” IEEE Trans. Neural Networks, vol. 3, no. 5, pp. 698-713, 1992, doi: 10.1109/72.159059.
 """
 
 # --------------------------------------------------------------------------- #
@@ -16,73 +16,93 @@ References:
     opts_SFAM(;kwargs)
 
 Implements a Simple Fuzzy ARTMAP learner's options.
-
-# Keyword Arguments
-- `rho::Float`: vigilance value, [0, 1], default 0.75.
-- `alpha::Float`: choice parameter, alpha > 0, default 1e-7.
-- `epsilon::Float`: match tracking parameter, (0, 1), default 1e-3
-- `beta::Float`: learning parameter, (0, 1], default 1.0.
-- `uncommitted::Bool`: uncommitted node flag, default true.
-- `display::Bool`: display flag, default true.
-- `max_epoch::Int`: maximum number of epochs during training, default 1.
 """
 @with_kw mutable struct opts_SFAM <: ARTOpts @deftype Float
-    # Vigilance parameter: [0, 1]
+    """
+    Vigilance parameter: rho ∈ [0, 1].
+    """
     rho = 0.75; @assert rho >= 0.0 && rho <= 1.0
-    # Choice parameter: alpha > 0
+
+    """
+    Choice parameter: alpha > 0.
+    """
     alpha = 1e-7; @assert alpha > 0.0
-    # Match tracking parameter
+
+    """
+    Match tracking parameter: epsilon ∈ (0, 1).
+    """
     epsilon = 1e-3; @assert epsilon > 0.0 && epsilon < 1.0
-    # Learning parameter: (0, 1]
+
+    """
+    Learning parameter: beta ∈ (0, 1].
+    """
     beta = 1.0; @assert beta > 0.0 && beta <= 1.0
-    # Uncommitted node flag
-    uncommitted::Bool = true
-    # Display flag
-    display::Bool = true
-    # Maximum number of epochs during training
+
+    """
+    Maximum number of epochs during training: max_epochs ∈ [1, Inf).
+    """
     max_epochs::Int = 1
-end # opts_SFAM()
+
+    """
+    Uncommitted node flag.
+    """
+    uncommitted::Bool = true
+
+    """
+    Display flag.
+    """
+    display::Bool = true
+end
 
 # --------------------------------------------------------------------------- #
 # STRUCTS
 # --------------------------------------------------------------------------- #
 
 """
-    SFAM <: ARTMAP
-
 Simple Fuzzy ARTMAP struct.
 
 For module options, see [`AdaptiveResonance.opts_SFAM`](@ref).
-
-# Option Parameters
-- `opts::opts_SFAM`: Simplified Fuzzy ARTMAP options struct.
-- `config::DataConfig`: data configuration struct.
-
-# Working Parameters
-- `W::Matrix{Float}`: category weight matrix.
-- `labels::Vector{Int}`: incremental list of labels corresponding to each F2 node, self-prescribed or supervised.
-- `n_categories::Int`: number of category weights (F2 nodes).
-- `epoch::Int`: current training epoch.
 
 # References
 1. G. A. Carpenter, S. Grossberg, N. Markuzon, J. H. Reynolds, and D. B. Rosen, “Fuzzy ARTMAP: A Neural Network Architecture for Incremental Supervised Learning of Analog Multidimensional Maps,” IEEE Trans. Neural Networks, vol. 3, no. 5, pp. 698-713, 1992, doi: 10.1109/72.159059.
 """
 mutable struct SFAM <: ARTMAP
+    """
+    Simplified Fuzzy ARTMAP options struct.
+    """
     opts::opts_SFAM
+
+    """
+    Data configuration struct.
+    """
     config::DataConfig
+
+    """
+    Category weight matrix.
+    """
     W::Matrix{Float}
+
+    """
+    Incremental list of labels corresponding to each F2 node, self-prescribed or supervised.
+    """
     labels::Vector{Int}
+
+    """
+    Number of category weights (F2 nodes).
+    """
     n_categories::Int
+
+    """
+    Current training epoch.
+    """
     epoch::Int
-end # SFAM <: ARTMAP
+end
 
 # --------------------------------------------------------------------------- #
 # CONSTRUCTORS
 # --------------------------------------------------------------------------- #
 
 """
-    SFAM(;kwargs...)
-
 Implements a Simple Fuzzy ARTMAP learner with optional keyword arguments.
 
 # Examples
@@ -105,7 +125,7 @@ SFAM
 function SFAM(;kwargs...)
     opts = opts_SFAM(;kwargs...)
     SFAM(opts)
-end # SFAM(;kwargs...)
+end
 
 """
     SFAM(opts)
@@ -234,44 +254,36 @@ function classify(art::SFAM, x::RealVector ; preprocessed::Bool=false, get_bmu::
 end
 
 """
-    stopping_conditions(art::SFAM)
-
 Stopping conditions for Simple Fuzzy ARTMAP, checked at the end of every epoch.
 """
 function stopping_conditions(art::SFAM)
     # Compute the stopping condition, return a bool
     return art.epoch >= art.opts.max_epochs
-end # stopping_conditions(art::SFAM)
+end
 
 """
-    learn(art::SFAM, x::RealVector, W::RealVector)
-
 Returns a single updated weight for the Simple Fuzzy ARTMAP module for weight
 vector W and sample x.
 """
 function learn(art::SFAM, x::RealVector, W::RealVector)
     # Update W
     return art.opts.beta .* element_min(x, W) .+ W .* (1 - art.opts.beta)
-end # learn(art::SFAM, x::RealVector, W::RealVector)
+end
 
 """
-    activation(art::SFAM, x::RealVector, W::RealVector)
-
 Returns the activation value of the Simple Fuzzy ARTMAP module with weight W
 and sample x.
 """
 function activation(art::SFAM, x::RealVector, W::RealVector)
     # Compute T and return
     return norm(element_min(x, W), 1) / (art.opts.alpha + norm(W, 1))
-end # activation(art::SFAM, x::RealVector, W::RealVector)
+end
 
 """
-    art_match(art::SFAM, x::RealVector, W::RealVector)
-
 Returns the match function for the Simple Fuzzy ARTMAP module with weight W and
 sample x.
 """
 function art_match(art::SFAM, x::RealVector, W::RealVector)
     # Compute M and return
     return norm(element_min(x, W), 1) / art.config.dim
-end # art_match(art::SFAM, x::RealVector, W::RealVector)
+end

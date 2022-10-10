@@ -1,10 +1,10 @@
 """
     DAM.jl
 
-Description:
-    Options, structures, and logic for the Default ARTMAP (DAM) module.
+# Description:
+Options, structures, and logic for the Default ARTMAP (DAM) module.
 
-References:
+# References:
 [1] G. P. Amis and G. A. Carpenter, “Default ARTMAP 2,” IEEE Int. Conf. Neural Networks - Conf. Proc., vol. 2, no. September 2007, pp. 777-782, Mar. 2007, doi: 10.1109/IJCNN.2007.4371056.
 """
 
