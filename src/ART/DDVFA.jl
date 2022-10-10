@@ -15,6 +15,8 @@ References
 
 """
 Distributed Dual Vigilance Fuzzy ART options struct.
+
+$(opts_docstring)
 """
 @with_kw mutable struct opts_DDVFA <: ARTOpts @deftype Float
     """

@@ -94,21 +94,23 @@ Patch versions are for bug fixes, minor versions are for backward-compatible cha
 This project is distributed as a Julia package, available on [JuliaHub](https://juliahub.com/).
 Its usage follows the usual Julia package installation procedure, interactively:
 
-```julia
-] add AdaptiveResonance
+```julia-repl
+julia> ]
+(@v1.8) pkg> add AdaptiveResonance
 ```
 
 or programmatically:
 
-```julia
-using Pkg
-Pkg.add("AdaptiveResonance")
+```julia-repl
+julia> using Pkg
+julia> Pkg.add("AdaptiveResonance")
 ```
 
 You may also add the package directly from GitHub to get the latest changes between releases:
 
-```julia
-] add https://github.com/AP6YC/AdaptiveResonance.jl
+```julia-repl
+julia> ]
+(@v1.8) pkg> add https://github.com/AP6YC/AdaptiveResonance.jl
 ```
 
 ## Quickstart

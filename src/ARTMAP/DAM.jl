@@ -14,6 +14,8 @@ References:
 
 """
 Implements a Default ARTMAP learner's options.
+
+$(opts_docstring)
 """
 @with_kw mutable struct opts_DAM <: ARTOpts @deftype Float
     """
@@ -262,8 +264,10 @@ Default ARTMAP's choice-by-difference activation function.
 """
 function activation(art::DAM, x::RealVector, W::RealVector)
     # Compute T and return
-    return norm(element_min(x, W), 1) +
-        (1-art.opts.alpha)*(art.config.dim - norm(W, 1))
+    return (
+        norm(element_min(x, W), 1)
+        + (1 - art.opts.alpha) * (art.config.dim - norm(W, 1))
+    )
 end
 
 """

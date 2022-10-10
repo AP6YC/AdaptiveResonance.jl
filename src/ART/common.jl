@@ -1,8 +1,8 @@
 """
     common.jl
 
-Description:
-    Includes all of the unsupervised ART modules common code.
+# Description:
+Includes all of the unsupervised ART modules common code.
 """
 
 # --------------------------------------------------------------------------- #
