@@ -1,10 +1,11 @@
 """
-    modules.jl
+    initialization.jl
 
-This file contains tests for module initialization.
+# Description
+Contains tests for module initialization.
 """
 
-@testset "Modules" begin
+@testset "Initialization" begin
     # Default constructors
     fam = FAM()
     dam = DAM()
@@ -18,4 +19,4 @@ This file contains tests for module initialization.
     sfam_2 = SFAM(opts_SFAM())
     dvfa_2 = DVFA(opts_DVFA())
     ddvfa_2 = DDVFA(opts_DDVFA())
-end # @testset "Modules"
+end

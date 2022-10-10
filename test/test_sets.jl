@@ -20,157 +20,23 @@ include("test_utils.jl")
 # Load the data and test across all supervised modules
 data = load_iris("data/Iris.csv")
 
-@testset "common.jl" begin
-    @info "------- Common Code Tests -------"
-    # Example arrays
-    three_by_two = [1 2; 3 4; 5 6]
 
-    # Test DataConfig constructors
-    @info "Testing DataConfig..."
-    dc1 = DataConfig()                  # Default constructor
-    dc2 = DataConfig(0, 1, 2)           # When min and max are same across all features
-    dc3 = DataConfig([0, 1], [2, 3])    # When min and max differ across features
-    dc4 = DataConfig(three_by_two)      # When a data matrix is provided
+# @testset "AdaptiveResonance.jl" begin
+#     # Module loading
+#     include("modules.jl")
+# end # @testset "AdaptiveResonance.jl"
 
-    # Test get_n_samples
-    @info "Testing get_n_samples..."
-    @test get_n_samples([1,2,3]) == 1           # 1-D array case
-    @test get_n_samples(three_by_two) == 2      # 2-D array case
+@testset "AdaptiveResonance" begin
+    @info "------- ADAPTIVERESONANCE TESTS -------"
+    include("adaptiveresonance/adaptiveresonance_tests.jl")
+end
 
-    # Test data_setup!
-    @info "Testing data_setup!..."
-    data_setup!(DDVFA(), three_by_two)
-    data_setup!(DDVFA().config, three_by_two)
+@testset "ART" begin
+    @info "------- ART TESTS -------"
+    include("art/art_tests.jl")
+end
 
-    # Test breaking situations
-    @info "Testing common code error handling..."
-    @test_throws ErrorException performance([1,2],[1,2,3])
-    @test_logs (:warn,) AdaptiveResonance.data_setup!(dc3, three_by_two)
-    bad_config =  DataConfig(1, 0, 3)
-    @test_throws ErrorException linear_normalization(three_by_two, config=bad_config)
-end # @testset "common.jl"
-
-@testset "constants.jl" begin
-    @info "------- Constants Tests -------"
-    ddvfa_methods = [
-        "single",
-        "average",
-        "complete",
-        "median",
-        "weighted",
-        "centroid"
-    ]
-    @test AdaptiveResonance.DDVFA_METHODS == ddvfa_methods
-end # @testset "constants.jl"
-
-@testset "AdaptiveResonance.jl" begin
-    # Module loading
-    include("modules.jl")
-end # @testset "AdaptiveResonance.jl"
-
-@testset "Training Test" begin
-
-    @info "------- Training test -------"
-
-    # All ART modules
-    arts = ADAPTIVE_RESONANCE_MODULES
-    n_arts = length(arts)
-
-    # All common ART options
-    art_opts = [
-        (display = true,),
-        # (display = false,),
-    ]
-
-    # Specific ART options
-    art_specifics = Dict(
-        DDVFA => [
-            (gamma_normalization=true,),
-            (gamma_normalization=false,),
-        ],
-        FuzzyART => [
-            (gamma_normalization=true,),
-            (gamma_normalization=false,),
-        ],
-    )
-
-    # All test option permutations
-    test_opts = [
-        (get_bmu = true,),
-        (get_bmu = false,)
-    ]
-    n_test_opts = length(test_opts)
-
-    # Performance baseline for all algorithms
-    perf_baseline = 0.7
-
-    # Iterate over all ART modules
-    for ix = 1:n_arts
-        # Iterate over all test options
-        for jx = 1:n_test_opts
-            # If we are testing a module with different options, merge
-            if haskey(art_specifics, arts[ix])
-                local_art_opts = vcat(art_opts, art_specifics[arts[ix]])
-            else
-                local_art_opts = art_opts
-            end
-            # Iterate over all options
-            for kx in eachindex(local_art_opts)
-                # Only do the unsupervised method if we have an ART module (not ARTMAP)
-                if arts[ix] isa ART
-                    # Unsupervised
-                    train_test_art(arts[ix](;local_art_opts[kx]...), data; test_opts=test_opts[jx])
-                end
-                # Supervised
-                @test train_test_art(arts[ix](;local_art_opts[kx]...), data; supervised=true, test_opts=test_opts[jx]) >= perf_baseline
-            end
-        end
-    end
-end # @testset "Train Test"
-
-@testset "kwargs" begin
-    @info "------- Kwargs test -------"
-
-    # Iterate over all modules
-    for art in ADAPTIVE_RESONANCE_MODULES
-        art_module = art(alpha=1e-3, display=false)
-    end
-end # @testset "kwargs"
-
-@testset "FuzzyART" begin
-    @info "------- FuzzyART Test -------"
-
-    # FuzzyART initialization and training
-    my_FuzzyART = FuzzyART()
-    train!(my_FuzzyART, data.train_x)
-
-    # Compute a local sample for FuzzyART similarity method testing
-    local_sample = complement_code(data.train_x[:, 1], config=my_FuzzyART.config)
-
-    # Compute the local activation and match
-    AdaptiveResonance.activation_match!(my_FuzzyART, local_sample)
-
-    # Both field names
-    field_names = ["T", "M"]
-
-    # Test that every method and field name computes
-    for method in DDVFA_METHODS
-        results = Dict()
-        for field_name in field_names
-            results[field_name] = AdaptiveResonance.similarity(method, my_FuzzyART, field_name, local_sample)
-            # @test isapprox(truth[method][field_name], results[field_name])
-        end
-        @info "Method: $method" results
-    end
-
-    # Check the error handling of the similarity function
-    # Access the wrong similarity metric keyword ("asdf")
-    @test_throws ErrorException AdaptiveResonance.similarity("asdf", my_FuzzyART, "T", local_sample)
-    # Access the wrong output function ("A")
-    @test_throws ErrorException AdaptiveResonance.similarity("centroid", my_FuzzyART, "A", local_sample)
-end # @testset "FuzzyART"
-
-@testset "ARTSCENE.jl" begin
-    # ARTSCENE training and testing
-    include("test_artscene.jl")
-end # @testset "ARTSCENE.jl"
+@testset "ARTMAP" begin
+    @info "------- ARTMAP TESTS -------"
+    include("artmap/artmap_tests.jl")
+end
