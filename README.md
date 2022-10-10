@@ -211,6 +211,7 @@ AdaptiveResonance
 ├── docs                    // Docs: documentation for the module.
 │   ├─── examples           //      DemoCards documentation examples.
 │   └─── src                //      Documentation source files.
+├── paper                   // JOSS: journal paper and citations.
 ├── src                     // Source: majority of source code.
 │   ├─── ART                //      ART-based unsupervised modules.
 │   └─── ARTMAP             //      ARTMAP-based supervised modules.
