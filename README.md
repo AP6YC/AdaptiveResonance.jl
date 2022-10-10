@@ -1,5 +1,3 @@
-# AdaptiveResonance
-
 [![adaptiveresonance-header](docs/src/assets/header.png)][docs-dev-url]
 
 A Julia package for Adaptive Resonance Theory (ART) algorithms.
@@ -54,20 +52,19 @@ Please read the [documentation](https://ap6yc.github.io/AdaptiveResonance.jl/dev
 
 ## Contents
 
-- [AdaptiveResonance](#adaptiveresonance)
-  - [Contents](#contents)
-  - [Overview](#overview)
-  - [Contributing](#contributing)
-  - [Installation](#installation)
-  - [Quickstart](#quickstart)
-  - [Implemented Modules](#implemented-modules)
-  - [Structure](#structure)
-  - [History](#history)
-  - [Acknowledgements](#acknowledgements)
-    - [Authors](#authors)
-    - [Software](#software)
-    - [Datasets](#datasets)
-  - [License](#license)
+- [Contents](#contents)
+- [Overview](#overview)
+- [Contributing](#contributing)
+- [Installation](#installation)
+- [Quickstart](#quickstart)
+- [Implemented Modules](#implemented-modules)
+- [Structure](#structure)
+- [History](#history)
+- [Acknowledgements](#acknowledgements)
+  - [Authors](#authors)
+  - [Software](#software)
+  - [Datasets](#datasets)
+- [License](#license)
 
 ## Overview
 

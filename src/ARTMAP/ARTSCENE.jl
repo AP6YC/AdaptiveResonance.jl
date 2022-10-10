@@ -5,32 +5,34 @@ Description:
     All of the visual filter functions for the ARTSCENE algorithm.
 """
 
+# --------------------------------------------------------------------------- #
+# DEPENDENCIES
+# --------------------------------------------------------------------------- #
+
 using Distributed
 using SharedArrays
 
-"""
-    color_to_gray(image::RealArray)
+# --------------------------------------------------------------------------- #
+# FUNCTIONS
+# --------------------------------------------------------------------------- #
 
+"""
 ARTSCENE Stage 1: Color-to-gray image transformation.
 """
 function color_to_gray(image::RealArray)
     # Treat the image as a column-major array, cast to grayscale
     dim, n_row, n_column = size(image)
     return [sum(image[:,i,j])/3 for i=1:n_row, j=1:n_column]
-end # color_to_gray(image::RealArray)
+end
 
 """
-    surround_kernel(i::Integer, j::Integer, p::Integer, q::Integer, scale::Integer)
-
-Surround kernel S function for ARTSCENE Stage 2
+Surround kernel S function for ARTSCENE Stage 2.
 """
 function surround_kernel(i::Integer, j::Integer, p::Integer, q::Integer, scale::Integer)
     return 1/(2*pi*scale^2)*MathConstants.e^(-((i-p)^2 + (j-q)^2)/(2*scale^2))
-end # surround_kernel(i::Integer, j::Integer, p::Integer, q::Integer, scale::Integer)
+end
 
 """
-    ddt_x(x::RealArray, image::RealArray, sigma_s::RealArray, distributed::Bool)
-
 Time rate of change of LGN network (ARTSCENE Stage 2).
 """
 function ddt_x(x::RealArray, image::RealArray, sigma_s::RealArray, distributed::Bool)
@@ -57,11 +59,9 @@ function ddt_x(x::RealArray, image::RealArray, sigma_s::RealArray, distributed::
         end
     end
     return dx
-end # ddt_x(x::RealArray, image::RealArray, sigma_s::RealArray, distributed::Bool)
+end
 
 """
-    contrast_normalization(image::RealArray ; distributed::Bool=true)
-
 ARTSCENE Stage 2: Constrast normalization.
 """
 function contrast_normalization(image::RealArray ; distributed::Bool=true)
@@ -84,11 +84,9 @@ function contrast_normalization(image::RealArray ; distributed::Bool=true)
     end
 
     return x
-end # contrast_normalization(image::RealArray ; distributed::Bool=true)
+end
 
 """
-    oriented_kernel(i::Integer, j::Integer, p::Integer, q::Integer, k::Integer, sigma_h::Real, sigma_v::Real ; sign::AbstractString="plus")
-
 Oriented, elongated, spatially offset kernel G for ARTSCENE Stage 3.
 """
 function oriented_kernel(i::Integer, j::Integer, p::Integer, q::Integer, k::Integer, sigma_h::Real, sigma_v::Real ; sign::AbstractString="plus")
@@ -108,11 +106,9 @@ function oriented_kernel(i::Integer, j::Integer, p::Integer, q::Integer, k::Inte
     end
 
     return G
-end # oriented_kernel(i::Integer, j::Integer, p::Integer, q::Integer, k::Integer, sigma_h::Real, sigma_v::Real ; sign::AbstractString="plus")
+end
 
 """
-    ddt_y(y::RealArray, X_plus::RealArray, X_minus::RealArray, alpha::Real, distributed::Bool)
-
 Shunting equation for ARTSCENE Stage 3.
 """
 function ddt_y(y::RealArray, X_plus::RealArray, X_minus::RealArray, alpha::Real, distributed::Bool)
@@ -150,11 +146,9 @@ function ddt_y(y::RealArray, X_plus::RealArray, X_minus::RealArray, alpha::Real,
         end
     end
     return dy
-end # ddt_y(y::RealArray, X_plus::RealArray, X_minus::RealArray, alpha::Real, distributed::Bool)
+end
 
 """
-    contrast_sensitive_oriented_filtering(image::RealArray, x::RealArray ; distributed::Bool=true)
-
 ARTSCENE Stage 3: Contrast-sensitive oriented filtering.
 """
 function contrast_sensitive_oriented_filtering(image::RealArray, x::RealArray ; distributed::Bool=true)
@@ -183,11 +177,9 @@ function contrast_sensitive_oriented_filtering(image::RealArray, x::RealArray ; 
     end
 
     return y
-end # contrast_sensitive_oriented_filtering(image::RealArray, x::RealArray ; distributed::Bool=true)
+end
 
 """
-    contrast_insensitive_oriented_filtering(y::RealArray)
-
 ARTSCENE Stage 4: Contrast-insensitive oriented filtering.
 """
 function contrast_insensitive_oriented_filtering(y::RealArray)
@@ -198,11 +190,9 @@ function contrast_insensitive_oriented_filtering(y::RealArray)
     Y_minus = [max(0, -y[i,j,g,k]) for i=1:n_row, j=1:n_column, g=1:n_g, k=1:n_k]
 
     return Y_plus + Y_minus
-end # contrast_insensitive_oriented_filtering(y::RealArray)
+end
 
 """
-    competition_kernel(l::Integer, k::Integer ; sign::AbstractString="plus")
-
 Competition kernel for ARTSCENE: Stage 5.
 """
 function competition_kernel(l::Integer, k::Integer ; sign::AbstractString="plus")
@@ -216,11 +206,9 @@ function competition_kernel(l::Integer, k::Integer ; sign::AbstractString="plus"
     end
 
     return g
-end # competition_kernel(l::Integer, k::Integer ; sign::AbstractString="plus")
+end
 
 """
-    ddt_z(z::RealArray ; distributed=true)
-
 Time rate of change for ARTSCENE: Stage 5.
 """
 function ddt_z(z::RealArray ; distributed::Bool=true)
@@ -247,11 +235,9 @@ function ddt_z(z::RealArray ; distributed::Bool=true)
     end
 
     return dz
-end # ddt_z(z::RealArray ; distributed=true)
+end
 
 """
-    orientation_competition(z::RealArray)
-
 ARTSCENE Stage 5: Orientation competition at the same position.
 """
 function orientation_competition(z::RealArray)
@@ -274,8 +260,6 @@ function orientation_competition(z::RealArray)
 end
 
 """
-    patch_orientation_color(z::RealArray, image::RealArray)
-
 ARTSCENE Stage 6: Create patch feature vectors.
 """
 function patch_orientation_color(z::RealArray, image::RealArray)
@@ -301,17 +285,15 @@ function patch_orientation_color(z::RealArray, image::RealArray)
             # Compute the orientation averages
             for k = 1:4
                 for g = 1:4
-                    O[p_i,p_j,k,g] = 1/size_patch * sum(z[i_range, j_range, k, g])
+                    O[p_i, p_j, k, g] = 1/size_patch * sum(z[i_range, j_range, k, g])
                 end
             end
         end
     end
     return O, C
-end # patch_orientation_color(z::RealArray, image::RealArray)
+end
 
 """
-    artscene_filter(raw_image::Array{T, 3} ;  distributed::Bool=true) where {T<:Real}
-
 Process the full artscene filter toolchain on an image.
 """
 function artscene_filter(raw_image::Array{T, 3} ;  distributed::Bool=true) where {T<:Real}
@@ -361,4 +343,4 @@ function artscene_filter(raw_image::Array{T, 3} ;  distributed::Bool=true) where
     @debug "Stage 6 Complete"
 
     return O, C
-end # artscene_filter(raw_image::Array{T, 3} ;  distributed::Bool=true) where {T<:Real}
+end
