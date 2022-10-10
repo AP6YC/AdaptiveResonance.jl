@@ -68,38 +68,62 @@ Gamma-Normalized Fuzzy ART learner struct
 
 For module options, see [`AdaptiveResonance.opts_FuzzyART`](@ref).
 
-# Option Parameters
-- `opts::opts_FuzzyART`: FuzzyART options struct.
-- `config::DataConfig`: data configuration struct.
-
-# Working Parameters
-- `threshold::Float`: operating module threshold value, a function of the vigilance parameter.
-- `labels::Vector{Int}`: incremental list of labels corresponding to each F2 node, self-prescribed or supervised.
-- `T::Vector{Float}`: activation values for every weight for a given sample.
-- `M::Vector{Float}`: match values for every weight for a given sample.
-- `W::Matrix{Float}`: category weight matrix.
-- `n_instance::Vector{Int}`: number of weights associated with each category.
-- `n_categories::Int`: number of category weights (F2 nodes).
-- `epoch::Int`: current training epoch.
-
 # References
 1. G. Carpenter, S. Grossberg, and D. Rosen, "Fuzzy ART: Fast stable learning and categorization of analog patterns by an adaptive resonance system," Neural Networks, vol. 4, no. 6, pp. 759-771, 1991.
 """
 mutable struct FuzzyART <: ART
+    # Option Parameters
     # Assign numerical parameters from options
+    """
+    FuzzyART options struct.
+    """
     opts::opts_FuzzyART
+
+    """
+    Data configuration struct.
+    """
     config::DataConfig
 
     # Working variables
+    """
+    Operating module threshold value, a function of the vigilance parameter.
+    """
     threshold::Float
+
+    """
+    Incremental list of labels corresponding to each F2 node, self-prescribed or supervised.
+    """
     labels::Vector{Int}
+
+    """
+    Activation values for every weight for a given sample.
+    """
     T::Vector{Float}
+
+    """
+    Match values for every weight for a given sample.
+    """
     M::Vector{Float}
 
     # "Private" working variables
+    """
+    Category weight matrix.
+    """
     W::Matrix{Float}
+
+    """
+    Number of weights associated with each category.
+    """
     n_instance::Vector{Int}
+
+    """
+    number of category weights (F2 nodes).
+    """
     n_categories::Int
+
+    """
+    Current training epoch.
+    """
     epoch::Int
 end
 
@@ -204,6 +228,13 @@ end
 """
 Initializes a FuzzyART learner with an intial sample 'x'.
 
+This function is used during the first training iteration when the FuzzyART module is empty.
+
+# Arguments
+- `art::FuzzyART`: the FuzzyART module to initialize.
+- `x::RealVector`: the sample to use for initialization.
+- `y::Integer=0`: the optional new label for the first weight of the FuzzyART module. If not specified, defaults the new label to 1.
+
 # Examples
 ```julia-repl
 julia> my_FuzzyART = FuzzyART()
@@ -213,7 +244,7 @@ FuzzyART
 julia> initialize!(my_FuzzyART, [1 2 3 4])
 ```
 """
-function initialize!(art::FuzzyART, x::Vector{T} ; y::Integer=0) where {T<:RealFP}
+function initialize!(art::FuzzyART, x::RealVector ; y::Integer=0)
     # Initialize the instance and categories counters
     art.n_instance = [1]
     art.n_categories = 1
@@ -222,7 +253,7 @@ function initialize!(art::FuzzyART, x::Vector{T} ; y::Integer=0) where {T<:RealF
     set_threshold!(art)
 
     # Fast commit the weight
-    art.W = Array{T}(undef, art.config.dim_comp, 1)
+    art.W = Matrix{Float}(undef, art.config.dim_comp, 1)
 
     # Assign the contents, valid this way for 1-D or 2-D arrays
     art.W[:, 1] = x
@@ -234,7 +265,7 @@ function initialize!(art::FuzzyART, x::Vector{T} ; y::Integer=0) where {T<:RealF
     push!(art.labels, label)
 end
 
-# FuzzyART incremental training method
+# COMMON DOC: FuzzyART incremental training method
 function train!(art::FuzzyART, x::RealVector ; y::Integer=0, preprocessed::Bool=false)
     # Flag for if training in supervised mode
     supervised = !iszero(y)
@@ -293,20 +324,6 @@ function train!(art::FuzzyART, x::RealVector ; y::Integer=0, preprocessed::Bool=
     return y_hat
 end # train!(art::FuzzyART, x::RealVector ; y::Integer=0, preprocessed::Bool=false)
 
-"""
-    create_category(art::FuzzyART, x::RealVector, y::Integer)
-"""
-function create_category(art::FuzzyART, x::RealVector, y::Integer)
-    # Increment the number of categories
-    art.n_categories += 1
-    # Fast commit
-    art.W = hcat(art.W, x)
-    # Increment number of samples associated with new category
-    push!(art.n_instance, 1)
-    # Add the label for the ategory
-    push!(art.labels, y)
-end # create_category(art::FuzzyART, x::RealVector, y::Integer)
-
 # FuzzyART incremental classification method
 function classify(art::FuzzyART, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
     # Preprocess the data
@@ -337,12 +354,33 @@ function classify(art::FuzzyART, x::RealVector ; preprocessed::Bool=false, get_b
         y_hat = get_bmu ? art.labels[index[1]] : -1
     end
     return y_hat
-end # classify(art::FuzzyART, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
+end
 
 """
-    activation_match!(art::FuzzyART, x::RealVector)
+Creates a category for the FuzzyART module, expanding the weights and incrementing the category labels.
 
+# Arguments
+- `art::FuzzyART`: the FuzzyART module to add a category to.
+- `x::RealVector`: the sample to use for adding a category.
+- `y::Integer`: the new label for the new category.
+"""
+function create_category(art::FuzzyART, x::RealVector, y::Integer)
+    # Increment the number of categories
+    art.n_categories += 1
+    # Fast commit
+    art.W = hcat(art.W, x)
+    # Increment number of samples associated with new category
+    push!(art.n_instance, 1)
+    # Add the label for the ategory
+    push!(art.labels, y)
+end
+
+"""
 Computes the activation and match functions of the art module against sample x.
+
+# Arguments
+- `art::FuzzyART`: the FuzzyART module to compute the activation and match values for all weights.
+- `x::RealVector`: the sample to compute the activation and match functions against.
 
 # Examples
 ```julia-repl
@@ -369,34 +407,41 @@ function activation_match!(art::FuzzyART, x::RealVector)
             art.M[i] = numerator / norm(x, 1)
         end
     end
-end # activation_match!(art::FuzzyART, x::RealVector)
+end
 
 """
-    learn(art::FuzzyART, x::RealVector, W::RealVector)
-
 Return the modified weight of the art module conditioned by sample x.
+
+# Arguments
+- `art::FuzzyART`: the FuzzyART module containing learning options.
+- `x::RealVector`: the sample to learn from.
+- `W::RealVector`: the weight vector to update against the sample.
 """
 function learn(art::FuzzyART, x::RealVector, W::RealVector)
     # Update W
     return art.opts.beta .* element_min(x, W) .+ W .* (1 - art.opts.beta)
-end # learn(art::FuzzyART, x::RealVector, W::RealVector)
+end
 
 """
-    learn!(art::FuzzyART, x::RealVector, index::Integer)
-
 In place learning function with instance counting.
+
+# Arguments
+- `art::FuzzyART`: the FuzzyART module to update.
+- `x::RealVector`: the sample to learn from.
+- `index::Integer`: the index of the FuzzyART weight to update.
 """
 function learn!(art::FuzzyART, x::RealVector, index::Integer)
     # Update W
     art.W[:, index] = learn(art, x, art.W[:, index])
     art.n_instance[index] += 1
-end # learn!(art::FuzzyART, x::RealVector, index::Integer)
+end
 
 """
-    stopping_conditions(art::FuzzyART)
-
 Stopping conditions for a FuzzyART module.
+
+# Arguments
+- `art::FuzzyART`: the FuzzyART module to check stopping conditions for.
 """
 function stopping_conditions(art::FuzzyART)
     return art.epoch >= art.opts.max_epochs
-end # stopping_conditions(art::FuzzyART)
+end

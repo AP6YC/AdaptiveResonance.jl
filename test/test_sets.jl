@@ -200,9 +200,9 @@ end # @testset "kwargs"
 
     # Check the error handling of the similarity function
     # Access the wrong similarity metric keyword ("asdf")
-    @test_throws ErrorException AdaptiveResonance.similarity("asdf", my_FuzzyART, "T", local_sample, my_FuzzyART.opts.gamma_ref)
+    @test_throws ErrorException AdaptiveResonance.similarity("asdf", my_FuzzyART, "T", local_sample)
     # Access the wrong output function ("A")
-    @test_throws ErrorException AdaptiveResonance.similarity("centroid", my_FuzzyART, "A", local_sample, my_FuzzyART.opts.gamma_ref)
+    @test_throws ErrorException AdaptiveResonance.similarity("centroid", my_FuzzyART, "A", local_sample)
 
 end # @testset "FuzzyART"
 

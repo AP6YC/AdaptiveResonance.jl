@@ -17,7 +17,7 @@ Runs the artscene user-level functions on a random image.
     @info "------- ARTSCENE test -------"
 
     # Add four workers and give them all function definitions
-    addprocs(4)
+    addprocs(3)
     @everywhere using AdaptiveResonance
 
     # Show the parallel workers

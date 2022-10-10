@@ -13,9 +13,9 @@ Options, structures, and logic for the Simplified Fuzzy ARTMAP (SFAM) module.
 # --------------------------------------------------------------------------- #
 
 """
-    opts_SFAM(;kwargs)
-
 Implements a Simple Fuzzy ARTMAP learner's options.
+
+$(opts_docstring)
 """
 @with_kw mutable struct opts_SFAM <: ARTOpts @deftype Float
     """
@@ -105,6 +105,9 @@ end
 """
 Implements a Simple Fuzzy ARTMAP learner with optional keyword arguments.
 
+# Arguments
+- `kwargs`: keyword arguments to pass to the Simple Fuzzy ARTMAP options struct (see [`AdaptiveResonance.opts_SFAM`](@ref).)
+
 # Examples
 By default:
 ```julia-repl
@@ -128,9 +131,10 @@ function SFAM(;kwargs...)
 end
 
 """
-    SFAM(opts)
-
 Implements a Simple Fuzzy ARTMAP learner with specified options.
+
+# Arguments
+- `opts::opts_SFAM`: the Simple Fuzzy ARTMAP options (see [`AdaptiveResonance.opts_SFAM`](@ref)).
 
 # Examples
 ```julia-repl

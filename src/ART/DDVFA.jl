@@ -225,6 +225,9 @@ end
 
 """
 Sets the vigilance threshold of the DDVFA module as a function of several flags and hyperparameters.
+
+# Arguments
+- `art::DDVFA`: the DDVFA module to update the lower-bound vigilance threshold for.
 """
 function set_threshold!(art::DDVFA)
     # Gamma match normalization
@@ -306,6 +309,11 @@ end
 
 """
 Create a new category by appending and initializing a new FuzzyART node to F2.
+
+# Arguments
+- `art::DDVFA`: the DDVFA module to create a new FuzzyART category in.
+- `sample::RealVector`: the sample to use for instantiating the new category.
+- `label::Integer`: the new label to use for the new category.
 """
 function create_category(art::DDVFA, sample::RealVector, label::Integer)
     # Global Fuzzy ART
@@ -335,7 +343,7 @@ Compute the similarity metric depending on method with explicit comparisons for 
 - `method::AbstractString`: the selected DDVFA linkage method.
 - `F2::FuzzyART`: the FuzzyART module to compute the linkage method within.
 - `field_name::AbstractString`: the activation or match value to compute, field_name ∈ ["T", "M"]
-- `sample::RealVector`: the sample to use for computing the linkage to the F2 module.
+- `sample::RealVector`: the sample to use for computing the linkage to the F2 module, sample ∈ DDVFA_METHODS.
 """
 function similarity(method::AbstractString, F2::FuzzyART, field_name::AbstractString, sample::RealVector)
     @debug "Computing similarity"
@@ -450,7 +458,7 @@ end
 # --------------------------------------------------------------------------- #
 
 """
-Convenience functio; return a concatenated array of all DDVFA weights.
+Convenience function; return a concatenated array of all DDVFA weights.
 """
 function get_W(art::DDVFA)
     # Return a concatenated array of the weights

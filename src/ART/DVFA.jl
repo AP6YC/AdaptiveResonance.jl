@@ -178,6 +178,10 @@ function DVFA(opts::opts_DVFA)
     )
 end
 
+# --------------------------------------------------------------------------- #
+# FUNCTIONS
+# --------------------------------------------------------------------------- #
+
 # COMMON DOC: Set threshold function
 function set_threshold!(art::DVFA)
     # DVFA thresholds
