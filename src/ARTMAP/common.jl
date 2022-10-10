@@ -1,8 +1,8 @@
 """
     common.jl
 
-Description:
-    Includes all of the unsupervised ARTMAP modules common code.
+# Description:
+Includes all of the unsupervised ARTMAP modules common code.
 """
 
 # --------------------------------------------------------------------------- #
@@ -37,7 +37,7 @@ function train!(art::ARTMAP, x::RealMatrix, y::IntegerVector, preprocessed::Bool
     while true
         # Increment the epoch and get the iterator
         art.epoch += 1
-        iter = get_iterator(art.opts, x)
+        iter = get_iterator(art.opts, n_samples)
         for i = iter
             # Update the iterator if necessary
             update_iter(art, iter, i)

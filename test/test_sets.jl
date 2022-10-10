@@ -1,6 +1,7 @@
 """
     test_sets.jl
 
+# Description
 The main collection of tests for the AdaptiveResonance.jl package.
 This file loads common utilities and aggregates all other unit tests files.
 """
@@ -158,45 +159,17 @@ end # @testset "kwargs"
     local_sample = AdaptiveResonance.complement_code(data.train_x[:, 1], config=my_FuzzyART.config)
 
     # Compute the local activation and match
-    # AdaptiveResonance.activation_match!(my_FuzzyART, local_sample)
+    AdaptiveResonance.activation_match!(my_FuzzyART, local_sample)
 
-    # # Declare the true activation and match magnitudes
-    # truth = Dict(
-    #     "single" => Dict(
-    #         "T" => 0.9988714513100155,
-    #         "M" => 2.6532834139109758
-    #     ),
-    #     "average" => Dict(
-    #         "T" => 0.33761483787933894,
-    #         "M" => 1.1148764060015297
-    #     ),
-    #     "complete" => Dict(
-    #         "T" => 0.018234409874338647,
-    #         "M" => 0.07293763949735459
-    #     ),
-    #     "median" => Dict(
-    #         "T" => 0.2089217851518073,
-    #         "M" => 0.835687140607229
-    #     ),
-    #     "weighted" => Dict(
-    #         "T" => 0.5374562506748786,
-    #         "M" => 1.4396083090159748
-    #     ),
-    #     "centroid" => Dict(
-    #         "T" => 0.0,
-    #         "M" => 0.0
-    #     )
-    # )
-
-    # # Test every method and field name
-    # for method in methods
-    #     results = Dict()
-    #     for field_name in field_names
-    #         results[field_name] = AdaptiveResonance.similarity(method, my_FuzzyART, field_name, local_sample, my_FuzzyART.opts.gamma_ref)
-    #         # @test isapprox(truth[method][field_name], results[field_name])
-    #     end
-    #     @info "Method: $method" results
-    # end
+    # Test that every method and field name
+    for method in methods
+        results = Dict()
+        for field_name in field_names
+            results[field_name] = AdaptiveResonance.similarity(method, my_FuzzyART, field_name, local_sample)
+            # @test isapprox(truth[method][field_name], results[field_name])
+        end
+        @info "Method: $method" results
+    end
 
     # Check the error handling of the similarity function
     # Access the wrong similarity metric keyword ("asdf")

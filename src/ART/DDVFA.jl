@@ -435,7 +435,7 @@ function similarity(method::AbstractString, F2::FuzzyART, field_name::AbstractSt
         if field_name == "T"
             value = T
         elseif field_name == "M"
-            value = (norm(Wc, 1)^F2.opts.gamma_ref)*T
+            value = (norm(Wc, 1)^F2.opts.gamma_ref) * T
         end
     else
         error("Invalid/unimplemented similarity method")
