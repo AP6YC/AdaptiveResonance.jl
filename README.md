@@ -1,5 +1,7 @@
 # AdaptiveResonance
 
+[![adaptiveresonance-header](docs/src/assets/header.png)][docs-dev-url]
+
 A Julia package for Adaptive Resonance Theory (ART) algorithms.
 
 | **Documentation**  | **Testing Status** | **Coverage** | **Reference** |
