@@ -1,10 +1,10 @@
 """
     DDVFA.jl
 
-Description:
-    Includes all of the structures and logic for running a Distributed Dual-Vigilance Fuzzy ART (DDVFA) module.
+# Description:
+Includes all of the structures and logic for running a Distributed Dual-Vigilance Fuzzy ART (DDVFA) module.
 
-References
+# References
 [1] L. E. Brito da Silva, I. Elnabarawy, and D. C. Wunsch, “Distributed dual vigilance fuzzy adaptive resonance theory learns online, retrieves arbitrarily-shaped clusters, and mitigates order dependence,” Neural Networks, vol. 121, pp. 208-228, 2020, doi: 10.1016/j.neunet.2019.08.033.
 [2] G. Carpenter, S. Grossberg, and D. Rosen, "Fuzzy ART: Fast stable learning and categorization of analog patterns by an adaptive resonance system," Neural Networks, vol. 4, no. 6, pp. 759-771, 1991.
 """
@@ -14,100 +14,138 @@ References
 # --------------------------------------------------------------------------- #
 
 """
-    opts_DDVFA(;kwargs)
-
 Distributed Dual Vigilance Fuzzy ART options struct.
 
-# Keyword Arguments
-- `rho_lb::Float`: lower-bound vigilance value, [0, 1], default 0.7.
-- `rho_ub::Float`: upper-bound vigilance value, [0, 1], default 0.85.
-- `alpha::Float`: choice parameter, alpha > 0, default 1e-3.
-- `beta::Float`: learning parameter, (0, 1], default 1.0.
-- `gamma::Float`: "pseudo" kernel width, gamma >= 1, default 3.0.
-- `gamma_ref::Float`: "reference" kernel width, 0 <= gamma_ref < gamma, default 1.0.
-- `method::String`: similarity method (activation and match):
-`single`, `average`, `complete`, `median`, `weighted`, or `centroid`, default `single`.
-- `display::Bool`: display flag, default true.
-- `max_epoch::Int`: maximum number of epochs during training, default 1.
-- `gamma_normalization::Bool`: normalize the threshold by the feature dimension, default true.
+$(opts_docstring)
 """
 @with_kw mutable struct opts_DDVFA <: ARTOpts @deftype Float
-    # Lower-bound vigilance parameter: [0, 1]
+    """
+    Lower-bound vigilance parameter: rho_lb ∈ [0, 1].
+    """
     rho_lb = 0.7; @assert rho_lb >= 0.0 && rho_lb <= 1.0
-    # Upper bound vigilance parameter: [0, 1]
+
+    """
+    Upper bound vigilance parameter: rho_ub ∈ [0, 1].
+    """
     rho_ub = 0.85; @assert rho_ub >= 0.0 && rho_ub <= 1.0
-    # Choice parameter: alpha > 0
+
+    """
+    Choice parameter: alpha > 0.
+    """
     alpha = 1e-3; @assert alpha > 0.0
-    # Learning parameter: (0, 1]
+
+    """
+    Learning parameter: beta ∈ (0, 1].
+    """
     beta = 1.0; @assert beta > 0.0 && beta <= 1.0
-    # "Pseudo" kernel width: gamma >= 1
+
+    """
+    Pseudo kernel width: gamma >= 1.
+    """
     gamma = 3.0; @assert gamma >= 1.0
-    # "Reference" gamma for normalization: 0 <= gamma_ref < gamma
+
+    """
+    Reference gamma for normalization: 0 <= gamma_ref < gamma.
+    """
     gamma_ref = 1.0; @assert 0.0 <= gamma_ref && gamma_ref < gamma
-    # Similarity method (activation and match):
-    #   'single', 'average', 'complete', 'median', 'weighted', or 'centroid'
+
+    """
+    Similarity method (activation and match): method ∈ ["single", "average", "complete", "median", "weighted", "centroid"].
+    """
     method::String = "single"
-    # Display flag
-    display::Bool = true
-    # Maximum number of epochs during training
+
+    """
+    Maximum number of epochs during training: max_epochs ∈ (1, Inf).
+    """
     max_epoch::Int = 1
-    # Normalize the threshold by the feature dimension
+
+    """
+    Display flag.
+    """
+    display::Bool = true
+
+    """
+    Flag to normalize the threshold by the feature dimension.
+    """
     gamma_normalization::Bool = true
-end # opts_DDVFA
+end
 
 # --------------------------------------------------------------------------- #
 # STRUCTS
 # --------------------------------------------------------------------------- #
 
 """
-    DDVFA <: ART
-
 Distributed Dual Vigilance Fuzzy ARTMAP module struct.
 
 For module options, see [`AdaptiveResonance.opts_DDVFA`](@ref).
-
-# Option Parameters
-- `opts::opts_DDVFA`: DDVFA options struct.
-- `subopts::opts_FuzzyART`: FuzzyART options struct used for all F2 nodes.
-- `config::DataConfig`: data configuration struct.
-
-# Working Parameters
-- `threshold::Float`: operating module threshold value, a function of the vigilance parameter.
-- `F2::Vector{FuzzyART}`: list of F2 nodes (themselves FuzzyART modules).
-- `labels::Vector{Int}`: incremental list of labels corresponding to each F2 node, self-prescribed or supervised.
-- `n_categories::Int`: number of total categories.
-- `epoch::Int`: current training epoch.
-- `T::Float`: winning activation value from most recent sample.
-- `M::Float`: winning match value from most recent sample.
 
 # References
 1. L. E. Brito da Silva, I. Elnabarawy, and D. C. Wunsch, “Distributed dual vigilance fuzzy adaptive resonance theory learns online, retrieves arbitrarily-shaped clusters, and mitigates order dependence,” Neural Networks, vol. 121, pp. 208-228, 2020, doi: 10.1016/j.neunet.2019.08.033.
 2. G. Carpenter, S. Grossberg, and D. Rosen, "Fuzzy ART: Fast stable learning and categorization of analog patterns by an adaptive resonance system," Neural Networks, vol. 4, no. 6, pp. 759-771, 1991.
 """
 mutable struct DDVFA <: ART
-    # Get parameters
+    # Option Parameters
+    """
+    DDVFA options struct.
+    """
     opts::opts_DDVFA
+
+    """
+    FuzzyART options struct used for all F2 nodes.
+    """
     subopts::opts_FuzzyART
+
+    """
+    Data configuration struct.
+    """
     config::DataConfig
 
     # Working variables
+    """
+    Operating module threshold value, a function of the vigilance parameter.
+    """
     threshold::Float
+
+    """
+    List of F2 nodes (themselves FuzzyART modules).
+    """
     F2::Vector{FuzzyART}
+
+    """
+    Incremental list of labels corresponding to each F2 node, self-prescribed or supervised.
+    """
     labels::Vector{Int}
+
+    """
+    Number of total categories.
+    """
     n_categories::Int
+
+    """
+    Current training epoch.
+    """
     epoch::Int
+
+    """
+    Winning activation value from most recent sample.
+    """
     T::Float
+
+    """
+    Winning match value from most recent sample.
+    """
     M::Float
-end # DDVFA <: ART
+end
 
 # --------------------------------------------------------------------------- #
 # CONSTRUCTORS
 # --------------------------------------------------------------------------- #
 
 """
-    DDVFA(;kwargs...)
-
 Implements a DDVFA learner with optional keyword arguments.
+
+# Arguments
+- `kwargs`: keyword arguments to pass to the DDVFA options struct (see [`AdaptiveResonance.opts_DDVFA`](@ref).)
 
 # Examples
 By default:
@@ -131,12 +169,13 @@ DDVFA
 function DDVFA(;kwargs...)
     opts = opts_DDVFA(;kwargs...)
     DDVFA(opts)
-end # DDVFA(;kwargs...)
+end
 
 """
-    DDVFA(opts::opts_DDVFA)
-
 Implements a DDVFA learner with specified options.
+
+# Arguments
+- `opts::opts_DDVFA`: the DDVFA options (see [`AdaptiveResonance.opts_DDVFA`](@ref)).
 
 # Examples
 ```julia-repl
@@ -170,17 +209,13 @@ function DDVFA(opts::opts_DDVFA)
           0.0,
           0.0
     )
-end # DDVFA(opts::opts_DDVFA)
+end
 
 # --------------------------------------------------------------------------- #
-# ALGORITHMIC METHODS
+# COMMON FUNCTIONS
 # --------------------------------------------------------------------------- #
 
-"""
-    set_threshold!(art::DDVFA)
-
-Sets the vigilance threshold of the DDVFA module as a function of several flags and hyperparameters.
-"""
+# COMMON DOC: Set threshold function
 function set_threshold!(art::DDVFA)
     # Gamma match normalization
     if art.opts.gamma_normalization
@@ -190,9 +225,9 @@ function set_threshold!(art::DDVFA)
         # Set the learning threshold as simply the vigilance parameter
         art.threshold = art.opts.rho_lb
     end
-end # set_threshold!(art::DDVFA)
+end
 
-# DDVFA incremental training method
+# COMMON DOC: DDVFA incremental training method
 function train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=false)
     # Flag for if training in supervised mode
     supervised = !iszero(y)
@@ -218,14 +253,14 @@ function train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fal
     T = zeros(art.n_categories)
     for jx = 1:art.n_categories
         activation_match!(art.F2[jx], sample)
-        T[jx] = similarity(art.opts.method, art.F2[jx], "T", sample, art.opts.gamma_ref)
+        T[jx] = similarity(art.opts.method, art.F2[jx], "T", sample)
     end
 
     # Compute the match for each category in the order of greatest activation
     index = sortperm(T, rev=true)
     for jx = 1:art.n_categories
         bmu = index[jx]
-        M = similarity(art.opts.method, art.F2[bmu], "M", sample, art.opts.gamma_ref)
+        M = similarity(art.opts.method, art.F2[bmu], "M", sample)
         # If we got a match, then learn (update the category)
         if M >= art.threshold
             # Update the stored match and activation values
@@ -249,7 +284,7 @@ function train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fal
     if mismatch_flag
         # Update the stored match and activation values
         bmu = index[1]
-        art.M = similarity(art.opts.method, art.F2[bmu], "M", sample, art.opts.gamma_ref)
+        art.M = similarity(art.opts.method, art.F2[bmu], "M", sample)
         art.T = T[bmu]
         # Get the correct label
         y_hat = supervised ? y : art.n_categories + 1
@@ -257,12 +292,69 @@ function train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fal
     end
 
     return y_hat
-end # train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=false)
+end
+
+# COMMON DOC: DDVFA incremental classification method
+function classify(art::DDVFA, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
+    # Preprocess the data
+    sample = init_classify!(x, art, preprocessed)
+
+    # Calculate all global activations
+    T = zeros(art.n_categories)
+    for jx = 1:art.n_categories
+        activation_match!(art.F2[jx], sample)
+        T[jx] = similarity(art.opts.method, art.F2[jx], "T", sample)
+    end
+
+    # Sort by highest activation
+    index = sortperm(T, rev=true)
+
+    # Default to mismatch
+    mismatch_flag = true
+
+    # Iterate over the list of activations
+    for jx = 1:art.n_categories
+        # Get the best-matching unit
+        bmu = index[jx]
+        # Get the match value of this activation
+        M = similarity(art.opts.method, art.F2[bmu], "M", sample)
+        # If the match satisfies the threshold criterion, then report that label
+        if M >= art.threshold
+            # Update the stored match and activation values
+            art.M = M
+            art.T = T[bmu]
+            # Current winner
+            y_hat = art.labels[bmu]
+            mismatch_flag = false
+            break
+        end
+    end
+
+    # If we did not find a resonant category
+    if mismatch_flag
+        @debug "Mismatch"
+        # Update the stored match and activation values of the best matching unit
+        bmu = index[1]
+        art.M = similarity(art.opts.method, art.F2[bmu], "M", sample)
+        art.T = T[bmu]
+        # Report either the best matching unit or the mismatch label -1
+        y_hat = get_bmu ? art.labels[bmu] : -1
+    end
+
+    return y_hat
+end
+
+# --------------------------------------------------------------------------- #
+# INTERNAL FUNCTIONS
+# --------------------------------------------------------------------------- #
 
 """
-    create_category(art::DDVFA, sample::RealVector, label::Integer)
-
 Create a new category by appending and initializing a new FuzzyART node to F2.
+
+# Arguments
+- `art::DDVFA`: the DDVFA module to create a new FuzzyART category in.
+- `sample::RealVector`: the sample to use for instantiating the new category.
+- `label::Integer`: the new label to use for the new category.
 """
 function create_category(art::DDVFA, sample::RealVector, label::Integer)
     # Global Fuzzy ART
@@ -270,27 +362,31 @@ function create_category(art::DDVFA, sample::RealVector, label::Integer)
     push!(art.labels, label)
     # Local Gamma-Normalized Fuzzy ART
     push!(art.F2, FuzzyART(art.subopts, sample, preprocessed=true))
-end # function create_category(art::DDVFA, sample::RealVector, label::Integer)
+end
 
 """
-    stopping_conditions(art::DDVFA)
-
 Stopping conditions for Distributed Dual Vigilance Fuzzy ARTMAP.
 
 Returns true if there is no change in weights during the epoch or the maxmimum epochs has been reached.
+
+# Arguments
+- `art::DDVFA`: the DDVFA module for checking stopping conditions.
 """
 function stopping_conditions(art::DDVFA)
     # Compute the stopping condition, return a bool
     return art.epoch >= art.opts.max_epoch
-end # stopping_conditions(DDVFA)
+end
 
 """
-    similarity(method::AbstractString, F2::FuzzyART, field_name::AbstractString, sample::RealVector, gamma_ref::RealFP)
+Compute the similarity metric depending on method with explicit comparisons for the field name.
 
-Compute the similarity metric depending on method with explicit comparisons
-for the field name.
+# Arguments
+- `method::AbstractString`: the selected DDVFA linkage method.
+- `F2::FuzzyART`: the FuzzyART module to compute the linkage method within.
+- `field_name::AbstractString`: the activation or match value to compute, field_name ∈ ["T", "M"]
+- `sample::RealVector`: the sample to use for computing the linkage to the F2 module, sample ∈ DDVFA_METHODS.
 """
-function similarity(method::AbstractString, F2::FuzzyART, field_name::AbstractString, sample::RealVector, gamma_ref::RealFP)
+function similarity(method::AbstractString, F2::FuzzyART, field_name::AbstractString, sample::RealVector)
     @debug "Computing similarity"
 
     if field_name != "T" && field_name != "M"
@@ -339,63 +435,13 @@ function similarity(method::AbstractString, F2::FuzzyART, field_name::AbstractSt
         if field_name == "T"
             value = T
         elseif field_name == "M"
-            value = (norm(Wc, 1)^gamma_ref)*T
+            value = (norm(Wc, 1)^F2.opts.gamma_ref)*T
         end
     else
         error("Invalid/unimplemented similarity method")
     end
 
     return value
-end # similarity(method::AbstractString, F2::FuzzyART, field_name::AbstractString, sample::RealVector, gamma_ref::RealFP)
-
-# DDVFA incremental classification method
-function classify(art::DDVFA, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
-    # Preprocess the data
-    sample = init_classify!(x, art, preprocessed)
-
-    # Calculate all global activations
-    T = zeros(art.n_categories)
-    for jx = 1:art.n_categories
-        activation_match!(art.F2[jx], sample)
-        T[jx] = similarity(art.opts.method, art.F2[jx], "T", sample, art.opts.gamma_ref)
-    end
-
-    # Sort by highest activation
-    index = sortperm(T, rev=true)
-
-    # Default to mismatch
-    mismatch_flag = true
-
-    # Iterate over the list of activations
-    for jx = 1:art.n_categories
-        # Get the best-matching unit
-        bmu = index[jx]
-        # Get the match value of this activation
-        M = similarity(art.opts.method, art.F2[bmu], "M", sample, art.opts.gamma_ref)
-        # If the match satisfies the threshold criterion, then report that label
-        if M >= art.threshold
-            # Update the stored match and activation values
-            art.M = M
-            art.T = T[bmu]
-            # Current winner
-            y_hat = art.labels[bmu]
-            mismatch_flag = false
-            break
-        end
-    end
-
-    # If we did not find a resonant category
-    if mismatch_flag
-        @debug "Mismatch"
-        # Update the stored match and activation values of the best matching unit
-        bmu = index[1]
-        art.M = similarity(art.opts.method, art.F2[bmu], "M", sample, art.opts.gamma_ref)
-        art.T = T[bmu]
-        # Report either the best matching unit or the mismatch label -1
-        y_hat = get_bmu ? art.labels[bmu] : -1
-    end
-
-    return y_hat
 end
 
 # --------------------------------------------------------------------------- #
@@ -403,30 +449,30 @@ end
 # --------------------------------------------------------------------------- #
 
 """
-    get_W(art::DDVFA)
+Convenience function; return a concatenated array of all DDVFA weights.
 
-Convenience functio; return a concatenated array of all DDVFA weights.
+# Arguments
+- `art::DDVFA`: the DDVFA module to get all of the weights from as a matrix.
 """
 function get_W(art::DDVFA)
     # Return a concatenated array of the weights
     return [art.F2[kx].W for kx = 1:art.n_categories]
-end # get_W(art::DDVFA)
+end
 
 """
-    get_n_weights_vec(art::DDVFA)
-
 Convenience function; return the number of weights in each category as a vector.
+
+# Arguments
+- `art::DDVFA`: the DDVFA module to get all of the weights from as a matrix.
 """
 function get_n_weights_vec(art::DDVFA)
     return [art.F2[i].n_categories for i = 1:art.n_categories]
-end # get_n_weights_vec(art::DDVFA)
+end
 
 """
-    get_n_weights(art::DDVFA)
-
 Convenience function; return the sum total number of weights in the DDVFA module.
 """
 function get_n_weights(art::DDVFA)
     # Return the number of weights across all categories
     return sum(get_n_weights_vec(art))
-end # get_n_weights(art::DDVFA)
+end

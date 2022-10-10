@@ -1,4 +1,4 @@
-# AdaptiveResonance
+[![adaptiveresonance-header](docs/src/assets/header.png)][docs-dev-url]
 
 A Julia package for Adaptive Resonance Theory (ART) algorithms.
 
@@ -52,20 +52,19 @@ Please read the [documentation](https://ap6yc.github.io/AdaptiveResonance.jl/dev
 
 ## Contents
 
-- [AdaptiveResonance](#adaptiveresonance)
-  - [Contents](#contents)
-  - [Overview](#overview)
-  - [Contributing](#contributing)
-  - [Installation](#installation)
-  - [Quickstart](#quickstart)
-  - [Implemented Modules](#implemented-modules)
-  - [Structure](#structure)
-  - [History](#history)
-  - [Acknowledgements](#acknowledgements)
-    - [Authors](#authors)
-    - [Software](#software)
-    - [Datasets](#datasets)
-  - [License](#license)
+- [Contents](#contents)
+- [Overview](#overview)
+- [Contributing](#contributing)
+- [Installation](#installation)
+- [Quickstart](#quickstart)
+- [Implemented Modules](#implemented-modules)
+- [Structure](#structure)
+- [History](#history)
+- [Acknowledgements](#acknowledgements)
+  - [Authors](#authors)
+  - [Software](#software)
+  - [Datasets](#datasets)
+- [License](#license)
 
 ## Overview
 
@@ -95,21 +94,23 @@ Patch versions are for bug fixes, minor versions are for backward-compatible cha
 This project is distributed as a Julia package, available on [JuliaHub](https://juliahub.com/).
 Its usage follows the usual Julia package installation procedure, interactively:
 
-```julia
-] add AdaptiveResonance
+```julia-repl
+julia> ]
+(@v1.8) pkg> add AdaptiveResonance
 ```
 
 or programmatically:
 
-```julia
-using Pkg
-Pkg.add("AdaptiveResonance")
+```julia-repl
+julia> using Pkg
+julia> Pkg.add("AdaptiveResonance")
 ```
 
 You may also add the package directly from GitHub to get the latest changes between releases:
 
-```julia
-] add https://github.com/AP6YC/AdaptiveResonance.jl
+```julia-repl
+julia> ]
+(@v1.8) pkg> add https://github.com/AP6YC/AdaptiveResonance.jl
 ```
 
 ## Quickstart
@@ -208,16 +209,19 @@ The following file tree summarizes the project structure:
 ```console
 AdaptiveResonance
 ├── .github/workflows       // GitHub: workflows for testing and documentation.
-├── data                    // Data: CI data location.
 ├── docs                    // Docs: documentation for the module.
-│   ├─── examples          //      DemoCards documentation examples.
-│   └─── src               //      Documentation source files.
+│   ├─── examples           //      DemoCards documentation examples.
+│   └─── src                //      Documentation source files.
+├── paper                   // JOSS: journal paper and citations.
 ├── src                     // Source: majority of source code.
-│   ├─── ART               //      ART-based unsupervised modules.
-│   └─── ARTMAP            //      ARTMAP-based supervised modules.
+│   ├─── ART                //      ART-based unsupervised modules.
+│   └─── ARTMAP             //      ARTMAP-based supervised modules.
 ├── test                    // Test: Unit, integration, and environment tests.
 ├── .appveyor               // Appveyor: Windows-specific coverage.
+├── .gitattributes          // Git: LFS settings, languages, etc.
 ├── .gitignore              // Git: .gitignore for the whole project.
+├── CODE_OF_CONDUCT.md      // Doc: the code of conduct for contributors.
+├── CONTRIBUTING.md         // Doc: contributing guide (points to this page).
 ├── LICENSE                 // Doc: the license to the project.
 ├── Project.toml            // Julia: the Pkg.jl dependencies of the project.
 └── README.md               // Doc: this document.

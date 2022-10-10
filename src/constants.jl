@@ -1,11 +1,13 @@
 """
     constants.jl
 
-Description:
-    All constant values associated with the package.
+# Description:
+All constant values associated with the package.
 """
 
-# DDVFA linkage methods
+"""
+A list of all DDVFA linkage methods as strings.
+"""
 const DDVFA_METHODS = [
     "single",
     "average",

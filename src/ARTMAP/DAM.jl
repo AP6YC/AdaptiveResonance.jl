@@ -1,10 +1,10 @@
 """
     DAM.jl
 
-Description:
-    Options, structures, and logic for the Default ARTMAP (DAM) module.
+# Description:
+Options, structures, and logic for the Default ARTMAP (DAM) module.
 
-References:
+# References:
 [1] G. P. Amis and G. A. Carpenter, “Default ARTMAP 2,” IEEE Int. Conf. Neural Networks - Conf. Proc., vol. 2, no. September 2007, pp. 777-782, Mar. 2007, doi: 10.1109/IJCNN.2007.4371056.
 """
 
@@ -13,76 +13,96 @@ References:
 # --------------------------------------------------------------------------- #
 
 """
-    opts_DAM(;kwargs)
-
 Implements a Default ARTMAP learner's options.
 
-# Keyword Arguments
-- `rho::Float`: vigilance value, [0, 1], default 0.75.
-- `alpha::Float`: choice parameter, alpha > 0, default 1e-7.
-- `epsilon::Float`: match tracking parameter, (0, 1), default 1e-3
-- `beta::Float`: learning parameter, (0, 1], default 1.0.
-- `uncommitted::Bool`: uncommitted node flag, default true.
-- `display::Bool`: display flag, default true.
-- `max_epoch::Int`: maximum number of epochs during training, default 1.
+$(opts_docstring)
 """
 @with_kw mutable struct opts_DAM <: ARTOpts @deftype Float
-    # Vigilance parameter: [0, 1]
+    """
+    Vigilance parameter: rho ∈ [0, 1].
+    """
     rho = 0.75; @assert rho >= 0.0 && rho <= 1.0
-    # Choice parameter: alpha > 0
+
+    """
+    Choice parameter: alpha > 0.
+    """
     alpha = 1e-7; @assert alpha > 0.0
-    # Match tracking parameter: (0, 1)
+
+    """
+    Match tracking parameter: episilon ∈ (0, 1).
+    """
     epsilon = 1e-3; @assert epsilon > 0.0 && epsilon < 1.0
-    # Learning parameter: (0, 1]
+
+    """
+    Learning parameter: beta ∈ (0, 1].
+    """
     beta = 1.0; @assert beta > 0.0 && beta <= 1.0
-    # Uncommitted node flag
-    uncommitted::Bool = true
-    # Display flag
-    display::Bool = true
-    # Maximum number of epochs during training
+
+    """
+    Maximum number of epochs during training: ∈ [1, Inf).
+    """
     max_epochs::Int = 1
-end # opts_DAM()
+
+    """
+    Uncommitted node flag.
+    """
+    uncommitted::Bool = true
+
+    """
+    Display flag.
+    """
+    display::Bool = true
+end
 
 # --------------------------------------------------------------------------- #
 # STRUCTS
 # --------------------------------------------------------------------------- #
 
 """
-    DAM <: ARTMAP
-
 Default ARTMAP struct.
 
 For module options, see [`AdaptiveResonance.opts_DAM`](@ref).
-
-# Option Parameters
-- `opts::opts_DAM`: Default ARTMAP options struct.
-- `config::DataConfig`: data configuration struct.
-
-# Working Parameters
-- `W::Matrix{Float}`: category weight matrix.
-- `labels::Vector{Int}`: incremental list of labels corresponding to each F2 node, self-prescribed or supervised.
-- `n_categories::Int`: number of category weights (F2 nodes).
-- `epoch::Int`: current training epoch.
 
 # References
 1. G. P. Amis and G. A. Carpenter, “Default ARTMAP 2,” IEEE Int. Conf. Neural Networks - Conf. Proc., vol. 2, no. September 2007, pp. 777-782, Mar. 2007, doi: 10.1109/IJCNN.2007.4371056.
 """
 mutable struct DAM <: ARTMAP
+    """
+    Default ARTMAP options struct.
+    """
     opts::opts_DAM
+
+    """
+    Data configuration struct.
+    """
     config::DataConfig
+
+    """
+    Category weight matrix.
+    """
     W::Matrix{Float}
+
+    """
+    Incremental list of labels corresponding to each F2 node, self-prescribed or supervised.
+    """
     labels::Vector{Int}
+
+    """
+    Number of category weights (F2 nodes).
+    """
     n_categories::Int
+
+    """
+    Current training epoch.
+    """
     epoch::Int
-end # DAM <: ARTMAP
+end
 
 # --------------------------------------------------------------------------- #
 # CONSTRUCTORS
 # --------------------------------------------------------------------------- #
 
 """
-    DAM(;kwargs...)
-
 Implements a Default ARTMAP learner with optional keyword arguments.
 
 # Examples
@@ -105,11 +125,9 @@ DAM
 function DAM(;kwargs...)
     opts = opts_DAM(;kwargs...)
     DAM(opts)
-end # DAM(;kwargs...)
+end
 
 """
-    DAM(opts)
-
 Implements a Default ARTMAP learner with specified options.
 
 # Examples
@@ -130,7 +148,7 @@ function DAM(opts::opts_DAM)
         0,                              # n_categories
         0                               # epoch
     )
-end # DAM(opts::opts_DAM)
+end
 
 # --------------------------------------------------------------------------- #
 # ALGORITHMIC METHODS
@@ -234,44 +252,36 @@ function classify(art::DAM, x::RealVector ; preprocessed::Bool=false, get_bmu::B
 end
 
 """
-    stopping_conditions(art::DAM)
-
 Stopping conditions for Default ARTMAP, checked at the end of every epoch.
 """
 function stopping_conditions(art::DAM)
     # Compute the stopping condition, return a bool
     return art.epoch >= art.opts.max_epochs
-end # stopping_conditions(art::DAM)
+end
 
 """
-    activation(art::DAM, x::RealVector, W::RealVector)
-
 Default ARTMAP's choice-by-difference activation function.
 """
 function activation(art::DAM, x::RealVector, W::RealVector)
     # Compute T and return
-    return norm(element_min(x, W), 1) +
-        (1-art.opts.alpha)*(art.config.dim - norm(W, 1))
-end # activation(art::DAM, x::RealVector, W::RealVector)
+    return (
+        norm(element_min(x, W), 1)
+        + (1 - art.opts.alpha) * (art.config.dim - norm(W, 1))
+    )
+end
 
 """
-    learn(art::DAM, x::RealVector, W::RealVector)
-
-Returns a single updated weight for the Default ARTMAP module for weight
-vector W and sample x.
+Returns a single updated weight for the Default ARTMAP module for weight vector W and sample x.
 """
 function learn(art::DAM, x::RealVector, W::RealVector)
     # Update W
     return art.opts.beta .* element_min(x, W) .+ W .* (1 - art.opts.beta)
-end # learn(art::DAM, x::RealVector, W::RealVector)
+end
 
 """
-    art_match(art::DAM, x::RealVector, W::RealVector)
-
-Returns the match function for the Default ARTMAP module with weight W and
-sample x.
+Returns the match function for the Default ARTMAP module with weight W and sample x.
 """
 function art_match(art::DAM, x::RealVector, W::RealVector)
     # Compute M and return
     return norm(element_min(x, W), 1) / art.config.dim
-end # art_match(art::DAM, x::RealVector, W::RealVector)
+end

@@ -5,9 +5,9 @@ Description:
     Includes all of the unsupervised ARTMAP modules common code.
 """
 
-# -------------------------------------------
-# Methods
-# -------------------------------------------
+# --------------------------------------------------------------------------- #
+# FUNCTIONS
+# --------------------------------------------------------------------------- #
 
 """
     train!(art::ARTMAP, x::RealMatrix, y::IntegerVector, preprocessed::Bool=false)
@@ -42,8 +42,7 @@ function train!(art::ARTMAP, x::RealMatrix, y::IntegerVector, preprocessed::Bool
             # Update the iterator if necessary
             update_iter(art, iter, i)
             # Grab the sample slice
-            # sample = get_sample(x, i)
-            sample = x[:, i]
+            sample = get_sample(x, i)
             label = y[i]
             # Train upon the sample and label
             y_hat[i] = train!(art, sample, label, preprocessed=true)
@@ -54,12 +53,13 @@ function train!(art::ARTMAP, x::RealMatrix, y::IntegerVector, preprocessed::Bool
             break
         end
     end
-    return y_hat
-end # train!(art::ARTMAP, x::RealMatrix, y::IntegerVector, preprocessed::Bool=false)
 
-# -------------------------------------------
-# Common Documentation
-# -------------------------------------------
+    return y_hat
+end
+
+# --------------------------------------------------------------------------- #
+# COMMON DOCUMENTATION
+# --------------------------------------------------------------------------- #
 
 @doc raw"""
     train!(art::ARTMAP, x::RealVector, y::Integer ; preprocessed::Bool=false)

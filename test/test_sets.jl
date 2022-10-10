@@ -17,7 +17,7 @@ LogLevel(Logging.Info)
 include("test_utils.jl")
 
 # Load the data and test across all supervised modules
-data = load_iris("../data/Iris.csv")
+data = load_iris("data/Iris.csv")
 
 @testset "common.jl" begin
     @info "------- Common Code Tests -------"
@@ -72,13 +72,7 @@ end # @testset "AdaptiveResonance.jl"
     @info "------- Training test -------"
 
     # All ART modules
-    arts = [
-        FuzzyART,
-        DVFA,
-        DDVFA,
-        SFAM,
-        DAM,
-    ]
+    arts = ADAPTIVE_RESONANCE_MODULES
     n_arts = length(arts)
 
     # All common ART options
@@ -136,15 +130,8 @@ end # @testset "Train Test"
 @testset "kwargs" begin
     @info "------- Kwargs test -------"
 
-    arts = [
-        FuzzyART,
-        DVFA,
-        DDVFA,
-        SFAM,
-        DAM
-    ]
-
-    for art in arts
+    # Iterate over all modules
+    for art in ADAPTIVE_RESONANCE_MODULES
         art_module = art(alpha=1e-3, display=false)
     end
 end # @testset "kwargs"
@@ -159,14 +146,7 @@ end # @testset "kwargs"
     train!(my_FuzzyART, data.train_x)
 
     # Similarity methods
-    methods = [
-        "single",
-        "average",
-        "complete",
-        "median",
-        "weighted",
-        "centroid"
-    ]
+    methods = DDVFA_METHODS
 
     # Both field names
     field_names = ["T", "M"]
@@ -213,16 +193,16 @@ end # @testset "kwargs"
     #     results = Dict()
     #     for field_name in field_names
     #         results[field_name] = AdaptiveResonance.similarity(method, my_FuzzyART, field_name, local_sample, my_FuzzyART.opts.gamma_ref)
-    #         @test isapprox(truth[method][field_name], results[field_name])
+    #         # @test isapprox(truth[method][field_name], results[field_name])
     #     end
     #     @info "Method: $method" results
     # end
 
     # Check the error handling of the similarity function
     # Access the wrong similarity metric keyword ("asdf")
-    @test_throws ErrorException AdaptiveResonance.similarity("asdf", my_FuzzyART, "T", local_sample, my_FuzzyART.opts.gamma_ref)
+    @test_throws ErrorException AdaptiveResonance.similarity("asdf", my_FuzzyART, "T", local_sample)
     # Access the wrong output function ("A")
-    @test_throws ErrorException AdaptiveResonance.similarity("centroid", my_FuzzyART, "A", local_sample, my_FuzzyART.opts.gamma_ref)
+    @test_throws ErrorException AdaptiveResonance.similarity("centroid", my_FuzzyART, "A", local_sample)
 
 end # @testset "FuzzyART"
 

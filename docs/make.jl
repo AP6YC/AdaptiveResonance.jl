@@ -8,12 +8,26 @@ using Documenter.jl and other tools.
 using Documenter
 using DemoCards
 
+# Get the current workind directory's base name
+current_dir = basename(pwd())
+@info "Current directory is $(current_dir)"
+
+# If using the CI method `julia --project=docs/ docs/make.jl`
+#   or `julia --startup-file=no --project=docs/ docs/make.jl`
+if occursin("AdaptiveResonance", current_dir)
+    push!(LOAD_PATH, "../src/")
+# Otherwise, we are already in the docs project and need to dev the above package
+elseif occursin("docs", current_dir)
+    Pkg.develop(path="..")
+# Otherwise, building docs from the wrong path
+else
+    error("Unrecognized docs setup path")
+end
+
 # Inlude the local package
-push!(LOAD_PATH, "../src/")
 using AdaptiveResonance
 
 # using JSON
-
 if haskey(ENV, "DOCSARGS")
     for arg in split(ENV["DOCSARGS"])
         (arg in ARGS) || push!(ARGS, arg)
@@ -52,6 +66,7 @@ makedocs(
             "Modules" => "man/modules.md",
             "Contributing" => "man/contributing.md",
             "Index" => "man/full-index.md",
+            "Internals" => "man/dev-index.md",
         ],
     ],
     repo="https://github.com/AP6YC/AdaptiveResonance.jl/blob/{commit}{path}#L{line}",

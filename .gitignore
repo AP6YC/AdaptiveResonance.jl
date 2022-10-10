@@ -2,8 +2,7 @@
 .vscode/
 
 # Project ignores
-data/mnist/
-!data/.gitkeep
+_dev/
 
 # DemoCards intermediate compilation directories
 docs/src/democards/
