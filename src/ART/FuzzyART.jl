@@ -209,14 +209,7 @@ end
 # ALGORITHMIC METHODS
 # --------------------------------------------------------------------------- #
 
-"""
-Sets the threshold as a function of the vigilance parameter.
-
-Depending on selected FuzzyART options, this may be a function of other parameters as well.
-
-# Arguments
-- `art::FuzzyART`: the FuzzyART module for setting a new threshold.
-"""
+# COMMON DOC: Set threshold function
 function set_threshold!(art::FuzzyART)
     if art.opts.gamma_normalization
         art.threshold = art.opts.rho * (art.config.dim ^ art.opts.gamma_ref)

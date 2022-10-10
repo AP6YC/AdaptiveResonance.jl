@@ -119,7 +119,7 @@ SFAM
 
 or with keyword arguments:
 ```julia-repl
-julia> SFAM()
+julia> SFAM(rho=0.6)
 SFAM
     opts: opts_SFAM
     ...
@@ -154,7 +154,7 @@ function SFAM(opts::opts_SFAM)
         0,                              # n_categories
         0                               # epoch
     )
-end # SFAM(opts::opts_SFAM)
+end
 
 # --------------------------------------------------------------------------- #
 # ALGORITHMIC METHODS

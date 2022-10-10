@@ -128,12 +128,15 @@ end
 """
 Implements a DVFA learner with optional keyword arguments.
 
+# Arguments
+- `kwargs`: keyword arguments to pass to the DVFA options struct (see [`AdaptiveResonance.opts_DVFA`](@ref).)
+
 # Examples
 By default:
 ```julia-repl
 julia> DVFA()
 DVFA
-    opts: opts_DDVFA
+    opts: opts_DVFA
     ...
 ```
 
@@ -141,7 +144,7 @@ or with keyword arguments:
 ```julia-repl
 julia> DVFA(rho=0.7)
 DVFA
-    opts: opts_DDVFA
+    opts: opts_DVFA
     ...
 ```
 """
@@ -152,6 +155,9 @@ end
 
 """
 Implements a DVFA learner with specified options.
+
+# Arguments
+- `opts::opts_DVFA`: the DVFA options (see [`AdaptiveResonance.opts_DVFA`](@ref)).
 
 # Examples
 ```julia-repl

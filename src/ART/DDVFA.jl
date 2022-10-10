@@ -79,20 +79,6 @@ Distributed Dual Vigilance Fuzzy ARTMAP module struct.
 
 For module options, see [`AdaptiveResonance.opts_DDVFA`](@ref).
 
-# Option Parameters
-- `opts::opts_DDVFA`: DDVFA options struct.
-- `subopts::opts_FuzzyART`: FuzzyART options struct used for all F2 nodes.
-- `config::DataConfig`: data configuration struct.
-
-# Working Parameters
-- `threshold::Float`: operating module threshold value, a function of the vigilance parameter.
-- `F2::Vector{FuzzyART}`: list of F2 nodes (themselves FuzzyART modules).
-- `labels::Vector{Int}`: incremental list of labels corresponding to each F2 node, self-prescribed or supervised.
-- `n_categories::Int`: number of total categories.
-- `epoch::Int`: current training epoch.
-- `T::Float`: winning activation value from most recent sample.
-- `M::Float`: winning match value from most recent sample.
-
 # References
 1. L. E. Brito da Silva, I. Elnabarawy, and D. C. Wunsch, “Distributed dual vigilance fuzzy adaptive resonance theory learns online, retrieves arbitrarily-shaped clusters, and mitigates order dependence,” Neural Networks, vol. 121, pp. 208-228, 2020, doi: 10.1016/j.neunet.2019.08.033.
 2. G. Carpenter, S. Grossberg, and D. Rosen, "Fuzzy ART: Fast stable learning and categorization of analog patterns by an adaptive resonance system," Neural Networks, vol. 4, no. 6, pp. 759-771, 1991.
@@ -158,6 +144,9 @@ end
 """
 Implements a DDVFA learner with optional keyword arguments.
 
+# Arguments
+- `kwargs`: keyword arguments to pass to the DDVFA options struct (see [`AdaptiveResonance.opts_DDVFA`](@ref).)
+
 # Examples
 By default:
 ```julia-repl
@@ -184,6 +173,9 @@ end
 
 """
 Implements a DDVFA learner with specified options.
+
+# Arguments
+- `opts::opts_DDVFA`: the DDVFA options (see [`AdaptiveResonance.opts_DDVFA`](@ref)).
 
 # Examples
 ```julia-repl
@@ -223,12 +215,7 @@ end
 # ALGORITHMIC METHODS
 # --------------------------------------------------------------------------- #
 
-"""
-Sets the vigilance threshold of the DDVFA module as a function of several flags and hyperparameters.
-
-# Arguments
-- `art::DDVFA`: the DDVFA module to update the lower-bound vigilance threshold for.
-"""
+# COMMON DOC: Set threshold function
 function set_threshold!(art::DDVFA)
     # Gamma match normalization
     if art.opts.gamma_normalization
