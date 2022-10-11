@@ -43,7 +43,7 @@ end # @testset "common.jl"
         "complete",
         "median",
         "weighted",
-        "centroid"
+        "centroid",
     ]
     @test AdaptiveResonance.DDVFA_METHODS == ddvfa_methods
 end

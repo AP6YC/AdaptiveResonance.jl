@@ -5,6 +5,10 @@
 Includes all of the AdaptiveResonance module tests.
 """
 
+@testset "Exceptions" begin
+    include("exceptions.jl")
+end
+
 @testset "Initialization" begin
     include("initialization.jl")
 end
