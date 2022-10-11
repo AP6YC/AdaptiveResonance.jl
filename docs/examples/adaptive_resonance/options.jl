@@ -4,7 +4,7 @@
 # cover: assets/options-cover.png
 # date: 2021-12-2
 # author: "[Sasha Petrenko](https://github.com/AP6YC)"
-# julia: 1.6
+# julia: 1.8
 # description: This demo illustrates how to use options and modify the options for all ART and ARTMAP modules.
 # ---
 
@@ -88,19 +88,21 @@ my_fuzzyart.opts.rho=0.6
 
 # We begin with importing AdaptiveResonance for the ART modules and MLDatasets for some data utilities.
 using MLDatasets        # Iris dataset
+using DataFrames        # DataFrames, necessary for MLDatasets.Iris()
 using MLDataUtils       # Shuffling and splitting
 using Printf            # Formatted number printing
 using MultivariateStats # Principal component analysis (PCA)
 using Plots             # Plotting frontend
+gr()                    # Use the default GR backend explicitly
 
 # We will download the Iris dataset for its small size and benchmark use for clustering algorithms.
-## Get the iris dataset as a DataFrame
-iris = Iris()
+## Get the iris dataset
+iris = Iris(as_df=false)
 ## Manipulate the features and labels into a matrix of features and a vector of labels
-features, labels = Matrix(iris.features)', vec(Matrix{String}(iris.targets))
+features, labels = iris.features, iris.targets
 
 # Because the MLDatasets package gives us Iris labels as strings, we will use the `MLDataUtils.convertlabel` method with the `MLLabelUtils.LabelEnc.Indices` type to get a list of integers representing each class:
-labels = convertlabel(LabelEnc.Indices{Int}, labels)
+labels = convertlabel(LabelEnc.Indices{Int}, vec(labels))
 unique(labels)
 
 # Next, we will create a train/test split with the `MLDataUtils.stratifiedobs` utility:
@@ -152,7 +154,7 @@ perf_test_2 = performance(y_hat_2, y_test)
 M = fit(PCA, features; maxoutdim=2)
 
 ## Apply the PCA model to the testing set
-X_test_pca = transform(M, X_test)
+X_test_pca = MultivariateStats.transform(M, X_test)
 
 # We can now plot the PCA'ed test set and label them according to the two FuzzyART's
 # We will do so by creating a function for the subplots first as they will share the same format, and we dare not duplicate code.

@@ -4,7 +4,7 @@
 # cover: ../assets/artmap.png
 # date: 2021-11-30
 # author: "[Sasha Petrenko](https://github.com/AP6YC)"
-# julia: 1.6
+# julia: 1.8
 # description: This demo shows how to use a Simplified FuzzyARTMAP (SFAM) module to conduct supervised learning on the Iris dataset.
 # ---
 

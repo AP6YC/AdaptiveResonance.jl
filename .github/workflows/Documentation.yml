@@ -20,9 +20,11 @@ jobs:
           access_token: ${{ github.token }}
 
       - uses: actions/checkout@v2
+        with:
+          lfs: 'true'
       - uses: julia-actions/setup-julia@latest
         with:
-          version: '1.6'
+          version: '1.8'
       - name: Install dependencies
         run: julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
       - name: Build and deploy

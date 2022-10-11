@@ -1,55 +1,80 @@
 # [Index](@id main-index)
 
 This page lists the core methods and types of the `AdaptiveResonance.jl` package.
+The [Modules](@ref index-modules) section lists the modules exported by the package including the `AdaptiveResonance` module itself.
 The [Methods](@ref index-methods) section lists the public methods for the package that use the modules in [Types](@ref index-types).
 Each of these entries link to the docstrings in the [Docs](@ref index-docs) section.
 
 ART modules document their internal working parameters and references, while their hyperparameters/options are documented under their corresponding option structs `opts_...`.
 
-## [Methods](@id index-methods)
+## Index
+
+This section enumerates the names exported by the package, each of which links to its corresponding [Documentation](@ref index-docs).
+
+### [Modules](@id index-modules)
 
 ```@index
+Pages   = ["full-index.md"]
 Modules = [AdaptiveResonance]
-Order = [:function]
-Public = true
+Order = [:module]
 ```
 
-## [Types](@id index-types)
+### [Methods](@id index-methods)
 
 ```@index
+Pages   = ["full-index.md"]
+Modules = [AdaptiveResonance]
+Order = [:function]
+```
+
+### [Types](@id index-types)
+
+```@index
+Pages   = ["full-index.md"]
 Modules = [AdaptiveResonance]
 Order = [:type]
-Public = true
+```
+
+### [Constants](@id index-constants)
+
+```@index
+Pages   = ["full-index.md"]
+Modules = [AdaptiveResonance]
+Order = [:constant]
 ```
 
 ## [Docs](@id index-docs)
 
-```@docs
-AdaptiveResonance
-train!
-AdaptiveResonance.classify
-data_setup!
-performance
-complement_code
-get_data_characteristics
-linear_normalization
-get_data_shape
-get_n_samples
-DDVFA
-DVFA
-FuzzyART
-DAM
-FAM
-SFAM
-opts_DDVFA
-opts_DVFA
-opts_FuzzyART
-opts_DAM
-opts_FAM
-opts_SFAM
-DataConfig
-ARTModule
-ART
-ARTMAP
-ARTOpts
+This section lists the documentation for every exported name of the `AdaptiveResonance.jl` package.
+
+### [Modules](@id index-modules-docs)
+
+```@autodocs
+Modules = [AdaptiveResonance]
+Private = false
+Order = [:module]
+```
+
+### [Functions](@id index-functions-docs)
+
+```@autodocs
+Modules = [AdaptiveResonance]
+Private = false
+Order = [:function]
+```
+
+### [Types](@id index-types-docs)
+
+```@autodocs
+Modules = [AdaptiveResonance]
+Private = false
+Order = [:type]
+```
+
+### [Constants](@id index-constants-docs)
+
+```@autodocs
+Modules = [AdaptiveResonance]
+Private = false
+Order = [:constant]
 ```

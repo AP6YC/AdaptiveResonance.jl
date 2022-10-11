@@ -1,4 +1,4 @@
-# Modules
+# [Modules](@id modules-page)
 
 This project implements a number of ART-based models with options that modulate their behavior (see the [options section of the Guide](@ref art_options))
 

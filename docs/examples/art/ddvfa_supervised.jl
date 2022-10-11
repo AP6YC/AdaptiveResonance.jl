@@ -4,7 +4,7 @@
 # cover: ../assets/ddvfa.png
 # date: 2021-11-30
 # author: "[Sasha Petrenko](https://github.com/AP6YC)"
-# julia: 1.6
+# julia: 1.8
 # description: This demo shows how to use DDVFA for simple supervised learning by clustering Iris samples and mapping the modules internal categories to the true labels.
 # ---
 
@@ -14,17 +14,18 @@
 # We begin with importing AdaptiveResonance for the ART modules and MLDatasets for some data utilities.
 using AdaptiveResonance # ART
 using MLDatasets        # Iris dataset
+using DataFrames        # DataFrames, necessary for MLDatasets.Iris()
 using MLDataUtils       # Shuffling and splitting
 using Printf            # Formatted number printing
 
 # We will download the Iris dataset for its small size and benchmark use for clustering algorithms.
-## Get the iris dataset as a DataFrame
-iris = Iris()
+## Get the iris dataset
+iris = Iris(as_df=false)
 ## Manipulate the features and labels into a matrix of features and a vector of labels
-features, labels = Matrix(iris.features)', vec(Matrix{String}(iris.targets))
+features, labels = iris.features, iris.targets
 
 # Because the MLDatasets package gives us Iris labels as strings, we will use the `MLDataUtils.convertlabel` method with the `MLLabelUtils.LabelEnc.Indices` type to get a list of integers representing each class:
-labels = convertlabel(LabelEnc.Indices{Int}, labels)
+labels = convertlabel(LabelEnc.Indices{Int}, vec(labels))
 unique(labels)
 
 # Next, we will create a train/test split with the `MLDataUtils.stratifiedobs` utility:

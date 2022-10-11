@@ -13,93 +13,129 @@ References:
 # --------------------------------------------------------------------------- #
 
 """
-    opts_FuzzyART(;kwargs)
-
 Gamma-Normalized Fuzzy ART options struct.
 
-# Keyword Arguments
-- `rho::Float`: vigilance value, [0, 1], default 0.6.
-- `alpha::Float`: choice parameter, alpha > 0, default 1e-3.
-- `beta::Float`: learning parameter, (0, 1], default 1.0.
-- `gamma::Float`: "pseudo" kernel width, gamma >= 1, default 3.0.
-- `gamma_ref::Float`: "reference" kernel width, 0 <= gamma_ref < gamma, default 1.0.
-- `display::Bool`: display flag, default true.
-- `max_epoch::Int`: maximum number of epochs during training, default 1.
-- `gamma_normalization::Bool`: normalize the threshold by the feature dimension, default false.
+$(opts_docstring)
 """
 @with_kw mutable struct opts_FuzzyART <: ARTOpts @deftype Float
-    # Vigilance parameter: [0, 1]
+    """
+    Vigilance parameter: rho ∈ [0, 1].
+    """
     rho = 0.6; @assert rho >= 0.0 && rho <= 1.0
-    # Choice parameter: alpha > 0
+
+    """
+    Choice parameter: alpha > 0.
+    """
     alpha = 1e-3; @assert alpha > 0.0
-    # Learning parameter: (0, 1]
+
+    """
+    Learning parameter: beta ∈ (0, 1].
+    """
     beta = 1.0; @assert beta > 0.0 && beta <= 1.0
-    # "Pseudo" kernel width: gamma >= 1
+
+    """
+    Pseudo kernel width: gamma >= 1.
+    """
     gamma = 3.0; @assert gamma >= 1.0
-    # "Reference" gamma for normalization: 0 <= gamma_ref < gamma
+
+    """
+    Reference gamma for normalization: 0 <= gamma_ref < gamma.
+    """
     gamma_ref = 1.0; @assert 0.0 <= gamma_ref && gamma_ref <= gamma
-    # Display flag
-    display::Bool = true
-    # Maximum number of epochs during training
+
+    """
+    Maximum number of epochs during training: max_epochs ∈ (1, Inf).
+    """
     max_epochs::Int = 1
-    # Normalize the threshold by the feature dimension
+
+    """
+    Display flag.
+    """
+    display::Bool = true
+
+    """
+    Flag to normalize the threshold by the feature dimension.
+    """
     gamma_normalization::Bool = false
-end # opts_FuzzyART
+end
 
 # --------------------------------------------------------------------------- #
 # STRUCTS
 # --------------------------------------------------------------------------- #
 
 """
-    FuzzyART <: ART
-
 Gamma-Normalized Fuzzy ART learner struct
 
 For module options, see [`AdaptiveResonance.opts_FuzzyART`](@ref).
-
-# Option Parameters
-- `opts::opts_FuzzyART`: FuzzyART options struct.
-- `config::DataConfig`: data configuration struct.
-
-# Working Parameters
-- `threshold::Float`: operating module threshold value, a function of the vigilance parameter.
-- `labels::IntegerVector`: incremental list of labels corresponding to each F2 node, self-prescribed or supervised.
-- `T::RealVector`: activation values for every weight for a given sample.
-- `M::RealVector`: match values for every weight for a given sample.
-- `W::RealMatrix`: category weight matrix.
-- `n_instance::IntegerVector`: number of weights associated with each category.
-- `n_categories::Int`: number of category weights (F2 nodes).
-- `epoch::Int`: current training epoch.
 
 # References
 1. G. Carpenter, S. Grossberg, and D. Rosen, "Fuzzy ART: Fast stable learning and categorization of analog patterns by an adaptive resonance system," Neural Networks, vol. 4, no. 6, pp. 759-771, 1991.
 """
 mutable struct FuzzyART <: ART
+    # Option Parameters
     # Assign numerical parameters from options
+    """
+    FuzzyART options struct.
+    """
     opts::opts_FuzzyART
+
+    """
+    Data configuration struct.
+    """
     config::DataConfig
 
     # Working variables
+    """
+    Operating module threshold value, a function of the vigilance parameter.
+    """
     threshold::Float
-    labels::IntegerVector
-    T::RealVector
-    M::RealVector
+
+    """
+    Incremental list of labels corresponding to each F2 node, self-prescribed or supervised.
+    """
+    labels::Vector{Int}
+
+    """
+    Activation values for every weight for a given sample.
+    """
+    T::Vector{Float}
+
+    """
+    Match values for every weight for a given sample.
+    """
+    M::Vector{Float}
 
     # "Private" working variables
-    W::RealMatrix
-    n_instance::IntegerVector
+    """
+    Category weight matrix.
+    """
+    W::Matrix{Float}
+
+    """
+    Number of weights associated with each category.
+    """
+    n_instance::Vector{Int}
+
+    """
+    number of category weights (F2 nodes).
+    """
     n_categories::Int
+
+    """
+    Current training epoch.
+    """
     epoch::Int
-end # FuzzyART <: ART
+end
 
 # --------------------------------------------------------------------------- #
 # CONSTRUCTORS
 # --------------------------------------------------------------------------- #
 
 """
-    FuzzyART(;kwargs...)
-
 Implements a Gamma-Normalized Fuzzy ART learner with optional keyword arguments.
+
+# Arguments
+- `kwargs`: keyword arguments of valid FuzzyART options.
 
 # Examples
 By default:
@@ -121,12 +157,13 @@ FuzzyART
 function FuzzyART(;kwargs...)
     opts = opts_FuzzyART(;kwargs...)
     FuzzyART(opts)
-end # FuzzyART(;kwargs...)
+end
 
 """
-    FuzzyART(opts::opts_FuzzyART)
-
 Implements a Gamma-Normalized Fuzzy ART learner with specified options.
+
+# Arguments
+- `opts::opts_FuzzyART`: the FuzzyART options struct with specified options.
 
 # Examples
 ```julia-repl
@@ -137,7 +174,8 @@ FuzzyART
 ```
 """
 function FuzzyART(opts::opts_FuzzyART)
-    FuzzyART(opts,                          # opts
+    FuzzyART(
+        opts,                           # opts
         DataConfig(),                   # config
         0.0,                            # threshold
         Array{Int}(undef,0),            # labels
@@ -148,36 +186,47 @@ function FuzzyART(opts::opts_FuzzyART)
         0,                              # n_categories
         0                               # epoch
     )
-end # FuzzyART(opts::opts_FuzzyART)
+end
 
 """
-    FuzzyART(opts::opts_FuzzyART, sample::RealVector)
-
 Create and initialize a FuzzyART with a single sample in one step.
+
+Principally used as a method for initialization within DDVFA.
+
+# Arguments
+- `opts::opts_FuzzyART`: the FuzzyART options contains.
+- `sample::RealVector`: the sample to use as a basis for setting up the FuzzyART.
+- `preprocessed::Bool=false`: flag for if the sample is already complement coded and normalized.
 """
 function FuzzyART(opts::opts_FuzzyART, sample::RealVector ; preprocessed::Bool=false)
     art = FuzzyART(opts)
     init_train!(sample, art, preprocessed)
     initialize!(art, sample)
     return art
-end # FuzzyART(opts::opts_FuzzyART, sample::RealVector)
+end
 
 # --------------------------------------------------------------------------- #
 # ALGORITHMIC METHODS
 # --------------------------------------------------------------------------- #
 
+# COMMON DOC: Set threshold function
 function set_threshold!(art::FuzzyART)
     if art.opts.gamma_normalization
-        art.threshold = art.opts.rho*(art.config.dim^art.opts.gamma_ref)
+        art.threshold = art.opts.rho * (art.config.dim ^ art.opts.gamma_ref)
     else
         art.threshold = art.opts.rho
     end
-end # set_threshold!(art::FuzzyART)
+end
 
 """
-    initialize!(art::FuzzyART, x::Vector{T} ; y::Integer=0) where {T<:RealFP}
-
 Initializes a FuzzyART learner with an intial sample 'x'.
+
+This function is used during the first training iteration when the FuzzyART module is empty.
+
+# Arguments
+- `art::FuzzyART`: the FuzzyART module to initialize.
+- `x::RealVector`: the sample to use for initialization.
+- `y::Integer=0`: the optional new label for the first weight of the FuzzyART module. If not specified, defaults the new label to 1.
 
 # Examples
 ```julia-repl
@@ -188,7 +237,7 @@ FuzzyART
 julia> initialize!(my_FuzzyART, [1 2 3 4])
 ```
 """
-function initialize!(art::FuzzyART, x::Vector{T} ; y::Integer=0) where {T<:RealFP}
+function initialize!(art::FuzzyART, x::RealVector ; y::Integer=0)
     # Initialize the instance and categories counters
     art.n_instance = [1]
     art.n_categories = 1
@@ -197,7 +246,7 @@ function initialize!(art::FuzzyART, x::Vector{T} ; y::Integer=0) where {T<:RealF
     set_threshold!(art)
 
     # Fast commit the weight
-    art.W = Array{T}(undef, art.config.dim_comp, 1)
+    art.W = Matrix{Float}(undef, art.config.dim_comp, 1)
 
     # Assign the contents, valid this way for 1-D or 2-D arrays
     art.W[:, 1] = x
@@ -207,9 +256,9 @@ function initialize!(art::FuzzyART, x::Vector{T} ; y::Integer=0) where {T<:RealF
 
     # Add the label to the label list
     push!(art.labels, label)
-end # initialize!(art::FuzzyART, x::Vector{T} ; y::Integer=0) where {T<:RealFP}
+end
 
-# FuzzyART incremental training method
+# COMMON DOC: FuzzyART incremental training method
 function train!(art::FuzzyART, x::RealVector ; y::Integer=0, preprocessed::Bool=false)
     # Flag for if training in supervised mode
     supervised = !iszero(y)
@@ -268,20 +317,6 @@ function train!(art::FuzzyART, x::RealVector ; y::Integer=0, preprocessed::Bool=
     return y_hat
 end # train!(art::FuzzyART, x::RealVector ; y::Integer=0, preprocessed::Bool=false)
 
-"""
-    create_category(art::FuzzyART, x::RealVector, y::Integer)
-"""
-function create_category(art::FuzzyART, x::RealVector, y::Integer)
-    # Increment the number of categories
-    art.n_categories += 1
-    # Fast commit
-    art.W = hcat(art.W, x)
-    # Increment number of samples associated with new category
-    push!(art.n_instance, 1)
-    # Add the label for the ategory
-    push!(art.labels, y)
-end # create_category(art::FuzzyART, x::RealVector, y::Integer)
-
 # FuzzyART incremental classification method
 function classify(art::FuzzyART, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
     # Preprocess the data
@@ -312,12 +347,33 @@ function classify(art::FuzzyART, x::RealVector ; preprocessed::Bool=false, get_b
         y_hat = get_bmu ? art.labels[index[1]] : -1
     end
     return y_hat
-end # classify(art::FuzzyART, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
+end
 
 """
-    activation_match!(art::FuzzyART, x::RealVector)
+Creates a category for the FuzzyART module, expanding the weights and incrementing the category labels.
 
+# Arguments
+- `art::FuzzyART`: the FuzzyART module to add a category to.
+- `x::RealVector`: the sample to use for adding a category.
+- `y::Integer`: the new label for the new category.
+"""
+function create_category(art::FuzzyART, x::RealVector, y::Integer)
+    # Increment the number of categories
+    art.n_categories += 1
+    # Fast commit
+    art.W = hcat(art.W, x)
+    # Increment number of samples associated with new category
+    push!(art.n_instance, 1)
+    # Add the label for the ategory
+    push!(art.labels, y)
+end
+
+"""
 Computes the activation and match functions of the art module against sample x.
+
+# Arguments
+- `art::FuzzyART`: the FuzzyART module to compute the activation and match values for all weights.
+- `x::RealVector`: the sample to compute the activation and match functions against.
 
 # Examples
 ```julia-repl
@@ -337,41 +393,48 @@ function activation_match!(art::FuzzyART, x::RealVector)
     for i = 1:art.n_categories
         W_norm = norm(art.W[:, i], 1)
         numerator = norm(element_min(x, art.W[:, i]), 1)
-        art.T[i] = (numerator/(art.opts.alpha + W_norm))^art.opts.gamma
+        art.T[i] = (numerator / (art.opts.alpha + W_norm))^art.opts.gamma
         if art.opts.gamma_normalization
-            art.M[i] = (W_norm^art.opts.gamma_ref)*art.T[i]
+            art.M[i] = (W_norm^art.opts.gamma_ref) * art.T[i]
         else
-            art.M[i] = numerator/norm(x, 1)
+            art.M[i] = numerator / norm(x, 1)
         end
     end
-end # activation_match!(art::FuzzyART, x::RealVector)
+end
 
 """
-    learn(art::FuzzyART, x::RealVector, W::RealVector)
-
 Return the modified weight of the art module conditioned by sample x.
+
+# Arguments
+- `art::FuzzyART`: the FuzzyART module containing learning options.
+- `x::RealVector`: the sample to learn from.
+- `W::RealVector`: the weight vector to update against the sample.
 """
 function learn(art::FuzzyART, x::RealVector, W::RealVector)
     # Update W
     return art.opts.beta .* element_min(x, W) .+ W .* (1 - art.opts.beta)
-end # learn(art::FuzzyART, x::RealVector, W::RealVector)
+end
 
 """
-    learn!(art::FuzzyART, x::RealVector, index::Integer)
-
 In place learning function with instance counting.
+
+# Arguments
+- `art::FuzzyART`: the FuzzyART module to update.
+- `x::RealVector`: the sample to learn from.
+- `index::Integer`: the index of the FuzzyART weight to update.
 """
 function learn!(art::FuzzyART, x::RealVector, index::Integer)
     # Update W
     art.W[:, index] = learn(art, x, art.W[:, index])
     art.n_instance[index] += 1
-end # learn!(art::FuzzyART, x::RealVector, index::Integer)
+end
 
 """
-    stopping_conditions(art::FuzzyART)
-
 Stopping conditions for a FuzzyART module.
+
+# Arguments
+- `art::FuzzyART`: the FuzzyART module to check stopping conditions for.
 """
 function stopping_conditions(art::FuzzyART)
     return art.epoch >= art.opts.max_epochs
-end # stopping_conditions(art::FuzzyART)
+end

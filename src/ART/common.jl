@@ -1,17 +1,15 @@
 """
     common.jl
 
-Description:
-    Includes all of the unsupervised ART modules common code.
+# Description:
+Includes all of the unsupervised ART modules common code.
 """
 
-# -------------------------------------------
-# Methods
-# -------------------------------------------
+# --------------------------------------------------------------------------- #
+# FUNCTIONS
+# --------------------------------------------------------------------------- #
 
 """
-    train!(art::ART, x::RealMatrix ; y::IntegerVector=Vector{Int}(), preprocessed::Bool=false)
-
 Train the ART model on a batch of data 'x' with optional supervisory labels 'y.'
 
 # Arguments
@@ -35,18 +33,18 @@ function train!(art::ART, x::RealMatrix ; y::IntegerVector = Vector{Int}(), prep
 
     # Initialize the output vector
     y_hat = zeros(Int, n_samples)
+
     # Learn until the stopping conditions
     art.epoch = 0
     while true
         # Increment the epoch and get the iterator
         art.epoch += 1
-        iter = get_iterator(art.opts, x)
+        iter = get_iterator(art.opts, n_samples)
         for i = iter
             # Update the iterator if necessary
             update_iter(art, iter, i)
             # Grab the sample slice
-            # sample = get_sample(x, i)
-            sample = x[:, i]
+            sample = get_sample(x, i)
             # Select the label to pass to the incremental method
             local_y = supervised ? y[i] : 0
             # Train upon the sample and label
@@ -59,15 +57,13 @@ function train!(art::ART, x::RealMatrix ; y::IntegerVector = Vector{Int}(), prep
         end
     end
     return y_hat
-end # train!(art::ART, x::RealMatrix ; y::IntegerVector = Vector{Int}(), preprocessed::Bool=false)
+end
 
-# -------------------------------------------
-# Common Documentation
-# -------------------------------------------
+# --------------------------------------------------------------------------- #
+# COMMON DOCUMENTATION
+# --------------------------------------------------------------------------- #
 
 @doc raw"""
-    train!(art::ART, x::RealVector ; y::Integer=0, preprocessed::Bool=false)
-
 Train the ART model on a single sample of features 'x' with an optional supervisory label.
 
 # Arguments
