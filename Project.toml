@@ -17,7 +17,7 @@ Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 
 [compat]
 DocStringExtensions = "0.8, 0.9"
-NumericalTypeAliases = "0.1"
+NumericalTypeAliases = "0.1, 0.2"
 Parameters = "0.12"
 ProgressBars = "0.7, 0.8, 1"
 julia = "1"
