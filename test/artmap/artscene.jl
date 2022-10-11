@@ -42,4 +42,4 @@ Runs the artscene user-level functions on a random image.
     n_processes = nprocs()
     n_workers = nworkers()
     @info "Closed parallel workers. Processes: $n_processes, Workers: $n_workers"
-end # @testset "ARTSCENE Filter Porcelain"
+end

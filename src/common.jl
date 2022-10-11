@@ -307,13 +307,14 @@ end # data_setup!(art::ART, data::RealMatrix)
 """
 Get the characteristics of the data, taking account if a data config is passed.
 
-If no DataConfig is passed, then the data characteristics come from the array itself. Otherwise, use the config for the statistics of the data and the data array for the number of samples.
+If no DataConfig is passed, then the data characteristics come from the array itself.
+Otherwise, use the config for the statistics of the data and the data array for the number of samples.
 
 # Arguments
-- `data::RealArray`: the 1-D or 2-D data to be complement coded.
+- `data::RealMatrix`: the 2-D data to be complement coded.
 - `config::DataConfig=DataConfig()`: the data configuration for the ART/ARTMAP module.
 """
-function get_data_characteristics(data::RealArray ; config::DataConfig=DataConfig())
+function get_data_characteristics(data::RealMatrix ; config::DataConfig=DataConfig())
     # If the data is setup, use the config
     if config.setup
         n_samples = get_n_samples(data)
@@ -413,20 +414,14 @@ Creates an iterator object according to the ART/ARTMAP modules display settings 
 
 # Arguments
 - `opts::ARTOpts`: the ART/ARTMAP module's options containing display settings.
-- `x::RealMatrix`: the batch of data being iterated over, used to infer dimensions.
+- `n_samples::Integer`: the number of iterations to create the iterator for.
 """
-function get_iterator(opts::ARTOpts, x::RealMatrix)
-    # Show a progbar only if the data is 2-D and the option is on
-    _, n_samples = get_data_shape(x)
-    single_sample = n_samples == 1
-
-    # Decide if using a progress bar or not
-    # Don't use one if either there is a single sample or the display option is off
-    prog_bar = single_sample ? false : opts.display
-
+function get_iterator(opts::ARTOpts, n_samples::Integer)
     # Construct the iterator
     iter_raw = 1:n_samples
-    iter = prog_bar ? ProgressBar(iter_raw) : iter_raw
+
+    # If we want a progress bar, construct one. Otherwise, return the raw iterator
+    iter = opts.display ? ProgressBar(iter_raw) : iter_raw
 
     return iter
 end
@@ -570,7 +565,7 @@ function classify(art::ARTModule, x::RealMatrix ; preprocessed::Bool=false, get_
     y_hat = zeros(Int, n_samples)
 
     # Get the iterator based on the module options and data shape
-    iter = get_iterator(art.opts, x)
+    iter = get_iterator(art.opts, n_samples)
     for ix = iter
         # Update the iterator if necessary
         update_iter(art, iter, ix)

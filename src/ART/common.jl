@@ -39,7 +39,7 @@ function train!(art::ART, x::RealMatrix ; y::IntegerVector = Vector{Int}(), prep
     while true
         # Increment the epoch and get the iterator
         art.epoch += 1
-        iter = get_iterator(art.opts, x)
+        iter = get_iterator(art.opts, n_samples)
         for i = iter
             # Update the iterator if necessary
             update_iter(art, iter, i)
@@ -57,7 +57,7 @@ function train!(art::ART, x::RealMatrix ; y::IntegerVector = Vector{Int}(), prep
         end
     end
     return y_hat
-end # train!(art::ART, x::RealMatrix ; y::IntegerVector = Vector{Int}(), preprocessed::Bool=false)
+end
 
 # --------------------------------------------------------------------------- #
 # COMMON DOCUMENTATION
