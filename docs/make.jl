@@ -8,6 +8,9 @@ using Documenter.jl and other tools.
 using Documenter
 using DemoCards
 
+# Fix GR headless errors
+ENV["GKSwstype"] = "100"
+
 # Get the current workind directory's base name
 current_dir = basename(pwd())
 @info "Current directory is $(current_dir)"
@@ -44,7 +47,6 @@ assets = [
 
 # if there are generated css assets, pass it to Documenter.HTML
 isnothing(demo_assets) || (push!(assets, demo_assets))
-
 
 # Make the documentation
 makedocs(
