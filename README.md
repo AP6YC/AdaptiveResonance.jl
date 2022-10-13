@@ -58,7 +58,6 @@ Please read the [documentation](https://ap6yc.github.io/AdaptiveResonance.jl/dev
 - [Installation](#installation)
 - [Quickstart](#quickstart)
 - [Implemented Modules](#implemented-modules)
-- [Structure](#structure)
 - [History](#history)
 - [Acknowledgements](#acknowledgements)
   - [Authors](#authors)
@@ -201,31 +200,6 @@ In addition to these modules, this package contains the following accessory meth
 - **complement_code**: complement coding is implemented with `complement_code`.
 However, training and classification methods complement code their inputs unless they are passed `preprocessed=true`.
 - **linear_normalization**: the first step to complement coding, `linear_normalization` normalizes input arrays within [0, 1].
-
-## Structure
-
-The following file tree summarizes the project structure:
-
-```console
-AdaptiveResonance
-├── .github/workflows       // GitHub: workflows for testing and documentation.
-├── docs                    // Docs: documentation for the module.
-│   ├─── examples           //      DemoCards documentation examples.
-│   └─── src                //      Documentation source files.
-├── paper                   // JOSS: journal paper and citations.
-├── src                     // Source: majority of source code.
-│   ├─── ART                //      ART-based unsupervised modules.
-│   └─── ARTMAP             //      ARTMAP-based supervised modules.
-├── test                    // Test: Unit, integration, and environment tests.
-├── .appveyor               // Appveyor: Windows-specific coverage.
-├── .gitattributes          // Git: LFS settings, languages, etc.
-├── .gitignore              // Git: .gitignore for the whole project.
-├── CODE_OF_CONDUCT.md      // Doc: the code of conduct for contributors.
-├── CONTRIBUTING.md         // Doc: contributing guide (points to this page).
-├── LICENSE                 // Doc: the license to the project.
-├── Project.toml            // Julia: the Pkg.jl dependencies of the project.
-└── README.md               // Doc: this document.
-```
 
 ## History
 
