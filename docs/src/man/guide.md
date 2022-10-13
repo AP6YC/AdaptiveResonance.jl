@@ -115,7 +115,7 @@ Batch and incremental modes can be used interchangably after module instantiatio
 
     ```julia
     # Manually setup the data config with the data itself
-    data_setup!(art.config, data.train_x)
+    data_setup!(art, data.train_x)
     ```
 
     If you do not have the batch data available, you can directly create a `DataConfig` with the minimums and maximums (inferring the number of features from the lengths of these vectors):
