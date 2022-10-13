@@ -207,6 +207,8 @@ However, training and classification methods complement code their inputs unless
 - 11/3/2020 - Complete baseline modules and tests.
 - 2/8/2021 - Formalize usage documentation.
 - 10/13/2021 - Initiate GitFlow contribution.
+- 5/4/2022 - [Acceptance to JOSS](https://doi.org/10.21105/joss.03671).
+- 10/11/2022 - v0.6.0
 
 ## Acknowledgements
 
