@@ -2,7 +2,7 @@
 
 This project implements a number of ART-based models with options that modulate their behavior (see the [options section of the Guide](@ref art_options))
 
-This page lists both the [implemented models](@ref Implemented-Models) and some of their [variants](@ref variants)
+This page lists both the [implemented models](@ref Implemented-Models) and some of their [variants](@ref modules-variants)
 
 ## Implemented Models
 
@@ -21,7 +21,7 @@ CurrentModule=AdaptiveResonance
   - [`FAM`](@ref): Fuzzy ARTMAP
   - [`DAM`](@ref): Default ARTMAP
 
-## Variants
+## [Variants](@id modules-variants)
 
 Each module contains many [options](@ref art_options) that modulate its behavior.
 Some of these options are used to modulate the internals of the module, such as switching the match and activation functions, to achieve different modules that are found in the literature.
