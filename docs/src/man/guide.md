@@ -243,7 +243,7 @@ Otherwise, most ART and ARTMAP modules share the following nomenclature for algo
 ART modules are generally unsupervised in formulation, so they do not explicitly require supervisory labels to their training examples.
 However, many of these modules can be formulated in the simplified ARTMAP style whereby the ART B module has a vigilance parameter of 1, directly mapping the categories of the ART A module to any provided supervisory labels.
 
-This is done in the training stage through the optional argument `y=...`:
+This is done in the training stage through the optional keyword argument `y=...`:
 
 ```julia
 # Create an arbitrary ART module
