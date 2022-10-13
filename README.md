@@ -58,7 +58,6 @@ Please read the [documentation](https://ap6yc.github.io/AdaptiveResonance.jl/dev
 - [Installation](#installation)
 - [Quickstart](#quickstart)
 - [Implemented Modules](#implemented-modules)
-- [Structure](#structure)
 - [History](#history)
 - [Acknowledgements](#acknowledgements)
   - [Authors](#authors)
@@ -184,13 +183,20 @@ y_hat_bmu = classify(art, test_x, get_bmu=true)
 This project has implementations of the following ART (unsupervised) and ARTMAP (supervised) modules:
 
 - ART
-  - **FuzzyART**: Fuzzy ART
-  - **DVFA**: Dual Vigilance Fuzzy ART
-  - **DDVFA**: Distributed Dual Vigilance Fuzzy ART
+  - **[`FuzzyART`][1]**: Fuzzy ART
+  - **[`DVFA`][2]**: Dual Vigilance Fuzzy ART
+  - **[`DDVFA`][3]**: Distributed Dual Vigilance Fuzzy ART
 - ARTMAP
-  - **SFAM**: Simplified Fuzzy ARTMAP
-  - **FAM**: Fuzzy ARTMAP
-  - **DAM**: Default ARTMAP
+  - **[`SFAM`][4]**: Simplified Fuzzy ARTMAP
+  - **[`FAM`][5]**: Fuzzy ARTMAP
+  - **[`DAM`][6]**: Default ARTMAP
+
+[1]: https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/full-index/#AdaptiveResonance.FuzzyART
+[2]: https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/full-index/#AdaptiveResonance.DVFA
+[3]: https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/full-index/#AdaptiveResonance.DDVFA
+[4]: https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/full-index/#AdaptiveResonance.SFAM
+[5]: https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/full-index/#AdaptiveResonance.FAM
+[6]: https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/full-index/#AdaptiveResonance.DAM
 
 Because each of these modules is a framework for many variants in the literature, this project also implements these [variants](https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/modules/) by changing their module [options](https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/guide/#art_options).
 
@@ -202,37 +208,14 @@ In addition to these modules, this package contains the following accessory meth
 However, training and classification methods complement code their inputs unless they are passed `preprocessed=true`.
 - **linear_normalization**: the first step to complement coding, `linear_normalization` normalizes input arrays within [0, 1].
 
-## Structure
-
-The following file tree summarizes the project structure:
-
-```console
-AdaptiveResonance
-├── .github/workflows       // GitHub: workflows for testing and documentation.
-├── docs                    // Docs: documentation for the module.
-│   ├─── examples           //      DemoCards documentation examples.
-│   └─── src                //      Documentation source files.
-├── paper                   // JOSS: journal paper and citations.
-├── src                     // Source: majority of source code.
-│   ├─── ART                //      ART-based unsupervised modules.
-│   └─── ARTMAP             //      ARTMAP-based supervised modules.
-├── test                    // Test: Unit, integration, and environment tests.
-├── .appveyor               // Appveyor: Windows-specific coverage.
-├── .gitattributes          // Git: LFS settings, languages, etc.
-├── .gitignore              // Git: .gitignore for the whole project.
-├── CODE_OF_CONDUCT.md      // Doc: the code of conduct for contributors.
-├── CONTRIBUTING.md         // Doc: contributing guide (points to this page).
-├── LICENSE                 // Doc: the license to the project.
-├── Project.toml            // Julia: the Pkg.jl dependencies of the project.
-└── README.md               // Doc: this document.
-```
-
 ## History
 
 - 7/10/2020 - Begin project.
 - 11/3/2020 - Complete baseline modules and tests.
 - 2/8/2021 - Formalize usage documentation.
 - 10/13/2021 - Initiate GitFlow contribution.
+- 5/4/2022 - [Acceptance to JOSS](https://doi.org/10.21105/joss.03671).
+- 10/11/2022 - v0.6.0
 
 ## Acknowledgements
 

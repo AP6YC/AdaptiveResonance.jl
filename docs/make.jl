@@ -5,8 +5,21 @@ This file builds the documentation for the AdaptiveResonance.jl package
 using Documenter.jl and other tools.
 """
 
-using Documenter
-using DemoCards
+# --------------------------------------------------------------------------- #
+# DEPENDENCIES
+# --------------------------------------------------------------------------- #
+
+using
+    Documenter,
+    DemoCards,
+    Pkg
+
+# --------------------------------------------------------------------------- #
+# SETUP
+# --------------------------------------------------------------------------- #
+
+# Fix GR headless errors
+ENV["GKSwstype"] = "100"
 
 # Get the current workind directory's base name
 current_dir = basename(pwd())
@@ -34,6 +47,10 @@ if haskey(ENV, "DOCSARGS")
     end
 end
 
+# --------------------------------------------------------------------------- #
+# GENERATE
+# --------------------------------------------------------------------------- #
+
 # Generate the demo files
 # this is the relative path to docs/
 demopage, postprocess_cb, demo_assets = makedemos("examples")
@@ -44,7 +61,6 @@ assets = [
 
 # if there are generated css assets, pass it to Documenter.HTML
 isnothing(demo_assets) || (push!(assets, demo_assets))
-
 
 # Make the documentation
 makedocs(
@@ -87,6 +103,10 @@ postprocess_cb()
 #     labels = [x["name"] for x in event["pull_request"]["labels"]]
 #     return "push_preview" in labels
 #  end
+
+# --------------------------------------------------------------------------- #
+# DEPLOY
+# --------------------------------------------------------------------------- #
 
 deploydocs(
     repo="github.com/AP6YC/AdaptiveResonance.jl.git",

@@ -2,8 +2,6 @@
 
 ---
 
-# AdaptiveResonance.jl
-
 These pages serve as the official documentation for the AdaptiveResonance.jl Julia package.
 
 Adaptive Resonance Theory (ART) began as a neurocognitive theory of how fields of cells can continuously learn stable representations, and it evolved into the basis for a myriad of practical machine learning algorithms.
