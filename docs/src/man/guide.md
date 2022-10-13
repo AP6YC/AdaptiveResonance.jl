@@ -15,8 +15,9 @@ To work with `AdaptiveResonance.jl`, you should know:
 The AdaptiveResonance package can be installed using the Julia package manager.
 From the Julia REPL, type `]` to enter the Pkg REPL mode and run
 
-```julia
-pkg> add AdaptiveResonance
+```julia-repl
+julia> ]
+(@v1.8) pkg> add AdaptiveResonance
 ```
 
 Alternatively, it can be added to your environment in a script with
@@ -28,8 +29,9 @@ Pkg.add("AdaptiveResonance")
 
 If you wish to have the latest changes between releases, you can directly add the GitHub repo as a dependency with
 
-```julia
-pkg> add https://github.com/AP6YC/AdaptiveResonance.jl
+```julia-repl
+julia> ]
+(@v1.8) pkg> add https://github.com/AP6YC/AdaptiveResonance.jl
 ```
 
 ## [ART Modules](@id art_modules)
@@ -205,12 +207,11 @@ The options are objects from the [Parameters.jl](https://github.com/mauro3/Param
 my_art_opts = opts_DDVFA(gamma = 3)
 ```
 
-!!! note "Note"
-    As of version `0.3.6`, you can pass these keyword arguments directly to the ART model when constructing it with
+You can also pass these keyword arguments directly to the ART model when constructing it with
 
-    ```julia
-    my_art = DDVFA(gamma = 3)
-    ```
+```julia
+my_art = DDVFA(gamma = 3)
+```
 
 You can even modify the parameters on the fly after the ART module has been instantiated by directly modifying the options within the module:
 
@@ -229,7 +230,7 @@ However, it is possible to change these parameter values beyond their predefined
 Though most parameters differ between each ART and ARTMAP module, they all share some quality-of-life options and parameters shared by all ART algorithms:
 
 - `display::Bool`: a flag to display or suppress progress bars and logging messages during training and testing.
-- `max_epochs::Integer`: the maximum number of epochs to train over the data, regardless if other stopping conditions have not been met yet.
+- `max_epochs::Int`: the maximum number of epochs to train over the data, regardless if other stopping conditions have not been met yet.
 
 Otherwise, most ART and ARTMAP modules share the following nomenclature for algorithmic parameters:
 
@@ -258,7 +259,7 @@ This can also be done incrementally with the same function:
 ```julia
 # Get the number of training samples and create a results container
 n_train = length(train_y)
-y_hat_train_incremental = zeros(Integer, n_train)
+y_hat_train_incremental = zeros(Int, n_train)
 
 # Train incrementally over all training samples
 for i = 1:n_train
