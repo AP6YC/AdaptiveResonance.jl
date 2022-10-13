@@ -183,13 +183,20 @@ y_hat_bmu = classify(art, test_x, get_bmu=true)
 This project has implementations of the following ART (unsupervised) and ARTMAP (supervised) modules:
 
 - ART
-  - **FuzzyART**: Fuzzy ART
-  - **DVFA**: Dual Vigilance Fuzzy ART
-  - **DDVFA**: Distributed Dual Vigilance Fuzzy ART
+  - **[`FuzzyART`][1]**: Fuzzy ART
+  - **[`DVFA`][2]**: Dual Vigilance Fuzzy ART
+  - **[`DDVFA`][3]**: Distributed Dual Vigilance Fuzzy ART
 - ARTMAP
-  - **SFAM**: Simplified Fuzzy ARTMAP
-  - **FAM**: Fuzzy ARTMAP
-  - **DAM**: Default ARTMAP
+  - **[`SFAM`][4]**: Simplified Fuzzy ARTMAP
+  - **[`FAM`][5]**: Fuzzy ARTMAP
+  - **[`DAM`][6]**: Default ARTMAP
+
+[1]: https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/full-index/#AdaptiveResonance.FuzzyART
+[2]: https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/full-index/#AdaptiveResonance.DVFA
+[3]: https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/full-index/#AdaptiveResonance.DDVFA
+[4]: https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/full-index/#AdaptiveResonance.SFAM
+[5]: https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/full-index/#AdaptiveResonance.FAM
+[6]: https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/full-index/#AdaptiveResonance.DAM
 
 Because each of these modules is a framework for many variants in the literature, this project also implements these [variants](https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/modules/) by changing their module [options](https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/guide/#art_options).
 
