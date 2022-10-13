@@ -2,22 +2,26 @@
 
 This project implements a number of ART-based models with options that modulate their behavior (see the [options section of the Guide](@ref art_options))
 
-This page lists both the [implemented models](@ref Implemented-Models) and some [variants](@ref Variants)
+This page lists both the [implemented models](@ref Implemented-Models) and some of their [variants](@ref modules-variants)
 
 ## Implemented Models
 
 This project has implementations of the following ART (unsupervised) and ARTMAP (supervised) modules:
 
-- ART
-  - `FuzzyART`: Fuzzy ART
-  - `DVFA`: Dual Vigilance Fuzzy ART
-  - `DDVFA`: Distributed Dual Vigilance Fuzzy ART
-- ARTMAP
-  - `SFAM`: Simplified Fuzzy ARTMAP
-  - `FAM`: Fuzzy ARTMAP
-  - `DAM`: Default ARTMAP
+```@meta
+CurrentModule=AdaptiveResonance
+```
 
-## Variants
+- ART
+  - [`FuzzyART`](@ref): Fuzzy ART
+  - [`DVFA`](@ref): Dual Vigilance Fuzzy ART
+  - [`DDVFA`](@ref): Distributed Dual Vigilance Fuzzy ART
+- ARTMAP
+  - [`SFAM`](@ref): Simplified Fuzzy ARTMAP
+  - [`FAM`](@ref): Fuzzy ARTMAP
+  - [`DAM`](@ref): Default ARTMAP
+
+## [Variants](@id modules-variants)
 
 Each module contains many [options](@ref art_options) that modulate its behavior.
 Some of these options are used to modulate the internals of the module, such as switching the match and activation functions, to achieve different modules that are found in the literature.
