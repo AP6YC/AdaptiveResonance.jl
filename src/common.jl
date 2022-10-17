@@ -229,25 +229,25 @@ function performance(y_hat::IntegerVector, y::IntegerVector)
     return n_correct/n_y
 end
 
-"""
-Returns the correct feature dimension and number of samples.
+# """
+# Returns the correct feature dimension and number of samples.
 
-# Arguments
-- `data::RealArray`: the 1-D or 2-D data to get the dimension and number of samples from. 1-D data is interpreted as a single sample.
-"""
-function get_data_shape(data::RealArray)
-    # Get the correct dimensionality and number of samples
-    if ndims(data) > 1
-        dim, n_samples = size(data)
-    else
-        # dim = 1
-        # n_samples = length(data)
-        dim = length(data)
-        n_samples = 1
-    end
+# # Arguments
+# - `data::RealArray`: the 1-D or 2-D data to get the dimension and number of samples from. 1-D data is interpreted as a single sample.
+# """
+# function get_data_shape(data::RealArray)
+#     # Get the correct dimensionality and number of samples
+#     if ndims(data) > 1
+#         dim, n_samples = size(data)
+#     else
+#         # dim = 1
+#         # n_samples = length(data)
+#         dim = length(data)
+#         n_samples = 1
+#     end
 
-    return dim, n_samples
-end
+#     return dim, n_samples
+# end
 
 """
 Returns the number of samples, accounting for 1-D and 2-D arrays.
@@ -284,7 +284,8 @@ function data_setup!(config::DataConfig, data::RealMatrix)
     end
 
     # Get the correct dimensionality and number of samples
-    config.dim, _ = get_data_shape(data)
+    # config.dim, _ = get_data_shape(data)
+    config.dim, _ = size(data)
     config.dim_comp = 2 * config.dim
 
     # Compute the ranges of each feature
@@ -315,15 +316,17 @@ Otherwise, use the config for the statistics of the data and the data array for 
 - `config::DataConfig=DataConfig()`: the data configuration for the ART/ARTMAP module.
 """
 function get_data_characteristics(data::RealMatrix ; config::DataConfig=DataConfig())
+    dim, n_samples = size(data)
     # If the data is setup, use the config
     if config.setup
-        n_samples = get_n_samples(data)
+        # n_samples = get_n_samples(data)
         dim = config.dim
         mins = config.mins
         maxs = config.maxs
     else
         # Get the correct dimensionality and number of samples
-        dim, n_samples = get_data_shape(data)
+        # dim, n_samples = get_data_shape(data)
+        # dim, n_samples = size(data)
         # Get the ranges for each feature
         mins = [minimum(data[i, :]) for i in 1:dim]
         maxs = [maximum(data[i, :]) for i in 1:dim]

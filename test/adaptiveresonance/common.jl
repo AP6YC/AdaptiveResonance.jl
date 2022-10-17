@@ -17,10 +17,10 @@ Tests of common code for the `AdaptiveResonance.jl` package.
     dc3 = DataConfig([0, 1], [2, 3])    # When min and max differ across features
     dc4 = DataConfig(three_by_two)      # When a data matrix is provided
 
-    # Test get_n_samples
-    @info "Testing get_n_samples..."
-    @test get_n_samples([1,2,3]) == 1           # 1-D array case
-    @test get_n_samples(three_by_two) == 2      # 2-D array case
+    # # Test get_n_samples
+    # @info "Testing get_n_samples..."
+    # @test get_n_samples([1,2,3]) == 1           # 1-D array case
+    # @test get_n_samples(three_by_two) == 2      # 2-D array case
 
     # Test data_setup!
     @info "Testing data_setup!..."
