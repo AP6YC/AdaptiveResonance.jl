@@ -46,6 +46,17 @@ end # @testset "common.jl"
         "centroid",
     ]
     @test AdaptiveResonance.DDVFA_METHODS == ddvfa_methods
+
+    # Test that constants are exported
+    art_constants = [
+        ADAPTIVERESONANCE_VERSION,
+        ART_MODULES,
+        ARTMAP_MODULES,
+        ADAPTIVE_RESONANCE_MODULES,
+    ]
+    for local_constant in art_constants
+        @test @isdefined local_constant
+    end
 end
 
 @testset "kwargs" begin
