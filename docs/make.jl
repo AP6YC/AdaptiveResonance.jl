@@ -12,7 +12,8 @@ using Documenter.jl and other tools.
 using
     Documenter,
     DemoCards,
-    Pkg
+    Pkg,
+    Git
 
 # --------------------------------------------------------------------------- #
 # SETUP
