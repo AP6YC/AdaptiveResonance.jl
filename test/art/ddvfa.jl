@@ -2,7 +2,7 @@
     ddvfa.jl
 
 # Description
-DDVFA test sets.
+DDVFA-specific test sets.
 """
 
 @testset "Convenience functions" begin

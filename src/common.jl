@@ -226,6 +226,7 @@ function performance(y_hat::IntegerVector, y::IntegerVector)
         end
     end
 
+    # Return the performance as the number correct over the total number
     return n_correct/n_y
 end
 

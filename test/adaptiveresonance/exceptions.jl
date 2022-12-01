@@ -36,3 +36,13 @@ Tests the edge cases and exceptions of the entire `AdaptiveResonance.jl` package
         classify(artmap, test_data)
     end
 end
+
+@testset "init_classify!" begin
+    # Create a new FuzzyART module
+    art = FuzzyART()
+    # Test that the new module's data config is not setup
+    @test art.config.setup == false
+    # Test that initializing classification fails if the data is not
+    # preprocessed and the data config is not setup
+    @test_throws ErrorException AdaptiveResonance.init_classify!(rand(2, 2), art, false)
+end

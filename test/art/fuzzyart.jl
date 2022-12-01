@@ -2,7 +2,7 @@
     fuzzyart.jl
 
 # Description
-FuzzyART test sets.
+FuzzyART-specific test sets.
 """
 
 @testset "FuzzyART" begin
