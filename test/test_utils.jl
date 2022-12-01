@@ -8,8 +8,9 @@ A set of common struct and function utilities for AdaptiveResonance.jl unit test
 # IMPORTS
 # --------------------------------------------------------------------------- #
 
-using DelimitedFiles
-using NumericalTypeAliases
+using
+    DelimitedFiles,
+    NumericalTypeAliases
 
 # --------------------------------------------------------------------------- #
 # STRUCTS

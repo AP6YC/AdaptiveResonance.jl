@@ -6,10 +6,11 @@ The main collection of tests for the AdaptiveResonance.jl package.
 This file loads common utilities and aggregates all other unit tests files.
 """
 
-using AdaptiveResonance
-using Test
-using Logging
-using DelimitedFiles
+using
+    AdaptiveResonance,
+    DelimitedFiles,
+    Logging,
+    Test
 
 # Set the log level
 LogLevel(Logging.Info)
@@ -19,7 +20,6 @@ include("test_utils.jl")
 
 # Load the data and test across all supervised modules
 data = load_iris("data/Iris.csv")
-
 
 # @testset "AdaptiveResonance.jl" begin
 #     # Module loading

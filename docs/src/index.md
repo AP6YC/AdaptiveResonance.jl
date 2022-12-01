@@ -1,3 +1,9 @@
+```@meta
+DocTestSetup = quote
+    using AdaptieResonance, Dates
+end
+```
+
 ![header](assets/header.png)
 
 ---
@@ -32,3 +38,12 @@ A list of the implemented ART modules is included in [Modules](@ref modules-page
 
 Instructions on how to contribute to the package are found in [Contributing](@ref), and docstrings for every element of the package is listed in the [Index](@ref main-index).
 Names internal to the package are also listed under the [Developer Index](@ref dev-main-index).
+
+## Documentation Build
+
+This documentation was built using [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl) with the following version and OS:
+
+```@example
+using AdaptiveResonance, Dates # hide
+println("AdaptiveResonance v$(ADAPTIVERESONANCE_VERSION) docs built $(Dates.now()) with Julia $(VERSION) on $(Sys.KERNEL)") # hide
+```

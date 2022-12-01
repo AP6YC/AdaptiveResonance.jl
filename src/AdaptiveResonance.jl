@@ -107,6 +107,7 @@ using Statistics: median, mean  # Medians and mean for linkage methods
 
 # Include all files
 include("common.jl")        # Objects shared by all modules
+include("version.jl")       # Exported constant for the version of the package
 include("constants.jl")     # Global constants and references for convenience
 include("ARTMAP/ARTMAP.jl") # Supervised ART modules
 include("ART/ART.jl")       # Unsupervised ART modules
@@ -149,8 +150,6 @@ export
     complement_code,            # Map x -> [x, 1 - x] and normalize to [0, 1]
     get_data_characteristics,   # Get characteristics of x, used by data configs
     linear_normalization,       # Normalize x to [0, 1]
-    get_data_shape,             # Get the dim, n_samples of x (accepts 1-D and 2-D)
-    get_n_samples,              # Get the number of samples (1-D interpreted as one sample)
 
     # ART (unsupervised)
     FuzzyART, opts_FuzzyART,
@@ -167,6 +166,7 @@ export
     ARTMAP_MODULES,             # List of supervised ARTMAP modules
     ADAPTIVE_RESONANCE_MODULES, # Combined list of ART and ARTMAP modules
     DDVFA_METHODS,              # DDVFA linkage methods
+    ADAPTIVERESONANCE_VERSION,  # Version of the package
 
     # ARTSCENE filter functions
     color_to_gray,

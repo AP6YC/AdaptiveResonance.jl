@@ -46,6 +46,20 @@ $(METHODLIST)
 """
 
 # --------------------------------------------------------------------------- #
+# CONSTANTS AND CONVENTIONS
+# --------------------------------------------------------------------------- #
+
+"""
+AdaptiveResonance.jl convention for which 2-D dimension contains the feature dimension.
+"""
+const ART_DIM = 1
+
+"""
+AdaptiveResonance.jl convention for which 2-D dimension contains the number of samples.
+"""
+const ART_SAMPLES = 2
+
+# --------------------------------------------------------------------------- #
 # ABSTRACT TYPES
 # --------------------------------------------------------------------------- #
 
@@ -226,45 +240,46 @@ function performance(y_hat::IntegerVector, y::IntegerVector)
         end
     end
 
+    # Return the performance as the number correct over the total number
     return n_correct/n_y
 end
 
 """
-Returns the correct feature dimension and number of samples.
+Returns the dimension of the data, enforcint the (dim, n_samples) convention of the package.
 
 # Arguments
-- `data::RealArray`: the 1-D or 2-D data to get the dimension and number of samples from. 1-D data is interpreted as a single sample.
+- `data::RealMatrix`: the 2-D data to infer the feature dimension of.
 """
-function get_data_shape(data::RealArray)
-    # Get the correct dimensionality and number of samples
-    if ndims(data) > 1
-        dim, n_samples = size(data)
-    else
-        # dim = 1
-        # n_samples = length(data)
-        dim = length(data)
-        n_samples = 1
-    end
-
-    return dim, n_samples
+function get_dim(data::RealMatrix)
+    # Return the correct dimension of the data
+    return size(data)[ART_DIM]
 end
 
 """
-Returns the number of samples, accounting for 1-D and 2-D arrays.
+Returns the number of samples, enforcing the convention of the package.
 
 # Arguments
-- `data::RealArray`: the 1-D or 2-D data to infer the number of samples from.
+- `data::RealMatrix`: the 2-D data to infer the number of samples from.
 """
-function get_n_samples(data::RealArray)
-    # Get the correct dimensionality and number of samples
-    if ndims(data) > 1
-        n_samples = size(data)[2]
-    else
-        # n_samples = length(data)
-        n_samples = 1
-    end
+function get_n_samples(data::RealMatrix)
+    # Return the correct number of samples
+    return size(data)[ART_SAMPLES]
+end
 
-    return n_samples
+"""
+Returns the (dim, n_samples) of the provided 2-D data matrix, enforcing the ART package convention.
+
+# Arguments
+- `data::RealMatrix`: the 2-D data to infer the feature dimension and number of samples from.
+"""
+function get_data_shape(data::RealMatrix)
+    # Get the dimension of the data
+    dim = get_dim(data)
+    # Get the number of samples of the data
+    n_samples = get_n_samples(data)
+
+    # Return the dimension and number of samples
+    return dim, n_samples
 end
 
 """
@@ -284,7 +299,7 @@ function data_setup!(config::DataConfig, data::RealMatrix)
     end
 
     # Get the correct dimensionality and number of samples
-    config.dim, _ = get_data_shape(data)
+    config.dim = get_dim(data)
     config.dim_comp = 2 * config.dim
 
     # Compute the ranges of each feature
@@ -317,12 +332,13 @@ Otherwise, use the config for the statistics of the data and the data array for 
 function get_data_characteristics(data::RealMatrix ; config::DataConfig=DataConfig())
     # If the data is setup, use the config
     if config.setup
+        # Just get the number of samples and use the config for everything else
         n_samples = get_n_samples(data)
         dim = config.dim
         mins = config.mins
         maxs = config.maxs
     else
-        # Get the correct dimensionality and number of samples
+        # Get the feature dimension and number of samples
         dim, n_samples = get_data_shape(data)
         # Get the ranges for each feature
         mins = [minimum(data[i, :]) for i in 1:dim]

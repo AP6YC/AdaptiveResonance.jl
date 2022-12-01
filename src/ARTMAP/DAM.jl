@@ -5,7 +5,7 @@
 Options, structures, and logic for the Default ARTMAP (DAM) module.
 
 # References:
-[1] G. P. Amis and G. A. Carpenter, “Default ARTMAP 2,” IEEE Int. Conf. Neural Networks - Conf. Proc., vol. 2, no. September 2007, pp. 777-782, Mar. 2007, doi: 10.1109/IJCNN.2007.4371056.
+1. G. P. Amis and G. A. Carpenter, 'Default ARTMAP 2,' IEEE Int. Conf. Neural Networks - Conf. Proc., vol. 2, no. September 2007, pp. 777-782, Mar. 2007, doi: 10.1109/IJCNN.2007.4371056.
 """
 
 # --------------------------------------------------------------------------- #
@@ -64,7 +64,7 @@ Default ARTMAP struct.
 For module options, see [`AdaptiveResonance.opts_DAM`](@ref).
 
 # References
-1. G. P. Amis and G. A. Carpenter, “Default ARTMAP 2,” IEEE Int. Conf. Neural Networks - Conf. Proc., vol. 2, no. September 2007, pp. 777-782, Mar. 2007, doi: 10.1109/IJCNN.2007.4371056.
+1. G. P. Amis and G. A. Carpenter, 'Default ARTMAP 2,' IEEE Int. Conf. Neural Networks - Conf. Proc., vol. 2, no. September 2007, pp. 777-782, Mar. 2007, doi: 10.1109/IJCNN.2007.4371056.
 """
 mutable struct DAM <: ARTMAP
     """
@@ -253,6 +253,9 @@ end
 
 """
 Stopping conditions for Default ARTMAP, checked at the end of every epoch.
+
+# Arguments
+- `art::DAM`: the Default ARTMAP module to check stopping conditions for.
 """
 function stopping_conditions(art::DAM)
     # Compute the stopping condition, return a bool
@@ -261,6 +264,11 @@ end
 
 """
 Default ARTMAP's choice-by-difference activation function.
+
+# Arguments
+- `art::DAM`: the Default ARTMAP module to compute the activation for.
+- `x::RealVector`: the sample to compute the activation against.
+- `W::RealVector`: the Default ARTMAP weight vector to use for the activation function.
 """
 function activation(art::DAM, x::RealVector, W::RealVector)
     # Compute T and return
@@ -272,6 +280,11 @@ end
 
 """
 Returns a single updated weight for the Default ARTMAP module for weight vector W and sample x.
+
+# Arguments
+- `art::DAM`: the Default ARTMAP module to compute the weight update for.
+- `x::RealVector`: the sample to compute the weight update for.
+- `W::RealVector`: the Default ARTMAP weight vector to update.
 """
 function learn(art::DAM, x::RealVector, W::RealVector)
     # Update W
@@ -280,6 +293,11 @@ end
 
 """
 Returns the match function for the Default ARTMAP module with weight W and sample x.
+
+# Arguments
+- `art::DAM`: the Default ARTMAP module to compute the match function for.
+- `x::RealVector`: the sample to compute the match function against.
+- `W::RealVector`: the Default ARTMAP weight vector to match against.
 """
 function art_match(art::DAM, x::RealVector, W::RealVector)
     # Compute M and return
