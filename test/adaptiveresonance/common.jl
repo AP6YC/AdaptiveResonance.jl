@@ -67,3 +67,21 @@ end
         art_module = art(alpha=1e-3, display=false)
     end
 end
+
+@testset "Incremental train!" begin
+    # Create an FuzzyART module
+    art = FuzzyART()
+
+    # Create a small batch of data
+    dim = 2
+    n_samples = 3
+    x = rand(dim, n_samples)
+
+    # Setup the ART data config
+    data_setup!(art, x)
+
+    # Train incrementally before without batch operation
+    for i = 1:n_samples
+        train!(art, x)
+    end
+end
