@@ -297,7 +297,7 @@ end
 Process the full artscene filter toolchain on an image.
 
 # Arguments
-- `raw_image::Array{Real, 3}`: the rwa RGB image to process with the ARTSCENE filter.
+- `raw_image::Array{Real, 3}`: the raw RGB image to process with the ARTSCENE filter.
 - `distributed::Bool=true`: flag to process the filter with parallel processing.
 """
 function artscene_filter(raw_image::Array{T, 3} ;  distributed::Bool=true) where T <: RealFP

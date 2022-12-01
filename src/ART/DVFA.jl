@@ -9,11 +9,8 @@ Authors:
     Julia port: Sasha Petrenko <sap625@mst.edu>
 
 References:
-[1] L. E. Brito da Silva, I. Elnabarawy and D. C. Wunsch II, "Dual
-Vigilance Fuzzy ART," Neural Networks Letters. To appear.
-[2] G. Carpenter, S. Grossberg, and D. Rosen, "Fuzzy ART: Fast
-stable learning and categorization of analog patterns by an adaptive
-resonance system," Neural Networks, vol. 4, no. 6, pp. 759-771, 1991.
+[1] L. E. Brito da Silva, I. Elnabarawy and D. C. Wunsch II, 'Dual Vigilance Fuzzy ART,' Neural Networks Letters. To appear.
+[2] G. Carpenter, S. Grossberg, and D. Rosen, 'Fuzzy ART: Fast stable learning and categorization of analog patterns by an adaptive resonance system,' Neural Networks, vol. 4, no. 6, pp. 759-771, 1991.
 """
 
 """
@@ -59,8 +56,8 @@ Dual Vigilance Fuzzy ARTMAP module struct.
 For module options, see [`AdaptiveResonance.opts_DVFA`](@ref).
 
 # References:
-1. L. E. Brito da Silva, I. Elnabarawy and D. C. Wunsch II, "Dual Vigilance Fuzzy ART," Neural Networks Letters. To appear.
-2. G. Carpenter, S. Grossberg, and D. Rosen, "Fuzzy ART: Fast stable learning and categorization of analog patterns by an adaptive resonance system," Neural Networks, vol. 4, no. 6, pp. 759-771, 1991.
+1. L. E. Brito da Silva, I. Elnabarawy and D. C. Wunsch II, 'Dual Vigilance Fuzzy ART,' Neural Networks Letters. To appear.
+2. G. Carpenter, S. Grossberg, and D. Rosen, 'Fuzzy ART: Fast stable learning and categorization of analog patterns by an adaptive resonance system,' Neural Networks, vol. 4, no. 6, pp. 759-771, 1991.
 """
 mutable struct DVFA <: ART
     # Get parameters

@@ -150,8 +150,6 @@ export
     complement_code,            # Map x -> [x, 1 - x] and normalize to [0, 1]
     get_data_characteristics,   # Get characteristics of x, used by data configs
     linear_normalization,       # Normalize x to [0, 1]
-    # get_data_shape,             # Get the dim, n_samples of x (accepts 1-D and 2-D)
-    # get_n_samples,              # Get the number of samples (1-D interpreted as one sample)
 
     # ART (unsupervised)
     FuzzyART, opts_FuzzyART,

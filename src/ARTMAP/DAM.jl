@@ -5,7 +5,7 @@
 Options, structures, and logic for the Default ARTMAP (DAM) module.
 
 # References:
-[1] G. P. Amis and G. A. Carpenter, “Default ARTMAP 2,” IEEE Int. Conf. Neural Networks - Conf. Proc., vol. 2, no. September 2007, pp. 777-782, Mar. 2007, doi: 10.1109/IJCNN.2007.4371056.
+[1] G. P. Amis and G. A. Carpenter, 'Default ARTMAP 2,' IEEE Int. Conf. Neural Networks - Conf. Proc., vol. 2, no. September 2007, pp. 777-782, Mar. 2007, doi: 10.1109/IJCNN.2007.4371056.
 """
 
 # --------------------------------------------------------------------------- #
@@ -64,7 +64,7 @@ Default ARTMAP struct.
 For module options, see [`AdaptiveResonance.opts_DAM`](@ref).
 
 # References
-1. G. P. Amis and G. A. Carpenter, “Default ARTMAP 2,” IEEE Int. Conf. Neural Networks - Conf. Proc., vol. 2, no. September 2007, pp. 777-782, Mar. 2007, doi: 10.1109/IJCNN.2007.4371056.
+1. G. P. Amis and G. A. Carpenter, 'Default ARTMAP 2,' IEEE Int. Conf. Neural Networks - Conf. Proc., vol. 2, no. September 2007, pp. 777-782, Mar. 2007, doi: 10.1109/IJCNN.2007.4371056.
 """
 mutable struct DAM <: ARTMAP
     """
