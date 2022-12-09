@@ -84,8 +84,6 @@ Abstract supertype for all supervised ARTMAP modules.
 abstract type ARTMAP <: ARTModule end   # ARTMAP (supervised)
 
 """
-    const ARTIterator = Union{UnitRange, ProgressBar}
-
 Acceptable iterators for ART module training and inference
 """
 const ARTIterator = Union{UnitRange, ProgressBar}

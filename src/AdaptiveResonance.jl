@@ -92,6 +92,7 @@ module AdaptiveResonance
 # Full usings (which supports comma-separated import notation)
 using
     DocStringExtensions,    # Docstring utilities
+    ElasticArrays,          # Fast resizable arrays
     Logging,                # Logging utils used as main method of terminal reporting
     NumericalTypeAliases,   # Abstract type aliases
     Parameters,             # ARTopts are parameters (@with_kw)

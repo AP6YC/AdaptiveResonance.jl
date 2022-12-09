@@ -109,7 +109,7 @@ mutable struct FuzzyART <: ART
     """
     Category weight matrix.
     """
-    W::Matrix{Float}
+    W::ElasticMatrix{Float}
 
     """
     Number of weights associated with each category.
@@ -117,7 +117,7 @@ mutable struct FuzzyART <: ART
     n_instance::Vector{Int}
 
     """
-    number of category weights (F2 nodes).
+    Number of category weights (F2 nodes).
     """
     n_categories::Int
 
@@ -178,10 +178,10 @@ function FuzzyART(opts::opts_FuzzyART)
         opts,                           # opts
         DataConfig(),                   # config
         0.0,                            # threshold
-        Array{Int}(undef,0),            # labels
+        Array{Int}(undef, 0),            # labels
         Array{Float}(undef, 0),         # T
         Array{Float}(undef, 0),         # M
-        Array{Float}(undef, 0, 0),      # W
+        ElasticArray{Float}(undef, 0, 0),      # W
         Array{Int}(undef, 0),           # n_instance
         0,                              # n_categories
         0                               # epoch
@@ -246,7 +246,7 @@ function initialize!(art::FuzzyART, x::RealVector ; y::Integer=0)
     set_threshold!(art)
 
     # Fast commit the weight
-    art.W = Matrix{Float}(undef, art.config.dim_comp, 1)
+    art.W = ElasticMatrix{Float}(undef, art.config.dim_comp, 1)
 
     # Assign the contents, valid this way for 1-D or 2-D arrays
     art.W[:, 1] = x
@@ -361,7 +361,8 @@ function create_category(art::FuzzyART, x::RealVector, y::Integer)
     # Increment the number of categories
     art.n_categories += 1
     # Fast commit
-    art.W = hcat(art.W, x)
+    # art.W = hcat(art.W, x)
+    append!(art.W, x)
     # Increment number of samples associated with new category
     push!(art.n_instance, 1)
     # Add the label for the ategory
