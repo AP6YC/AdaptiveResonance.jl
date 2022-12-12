@@ -274,10 +274,13 @@ function train!(art::FuzzyART, x::RealVector ; y::Integer=0, preprocessed::Bool=
     # Run the sequential initialization procedure
     sample = init_train!(x, art, preprocessed)
 
-    # Initialization if weights are empty; fast commit the first sample
+    # Initialization
     if isempty(art.W)
+        # Set the first label as either 1 or the first provided label
         y_hat = supervised ? y : 1
+        # Initialize the module with the first sample and label
         initialize!(art, sample, y=y_hat)
+        # Return the selected label
         return y_hat
     end
 

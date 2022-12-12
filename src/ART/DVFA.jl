@@ -229,10 +229,11 @@ Creates a new category for the DVFA modules.
 - `x::RealVector`: the sample to use for adding a category.
 - `y::Integer`: the new label for the new category.
 """
-function create_category!(art::DVFA, x::RealVector, y::Integer)
+function create_category!(art::DVFA, x::RealVector, y::Integer ; new_cluster::Bool=true)
     # Increment the number of categories
     art.n_categories += 1
-    art.n_clusters += 1
+    # If we are creating a new cluster altogether, increment that
+    new_cluster && (art.n_clusters += 1)
 
     # If we use an uncommitted node
     if art.opts.uncommitted
@@ -261,21 +262,16 @@ function train!(art::DVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fals
     if isempty(art.W)
         # Set the first label as either 1 or the first provided label
         y_hat = supervised ? y : 1
+        # Initialize the module with the first sample and label
         initialize!(art, sample, y=y_hat)
+        # Return the selected label
         return y_hat
     end
 
     # If label is new, break to make new category
     if supervised && !(y in art.labels)
-        y_hat = y
-        # Update sample labels
-        push!(art.labels, y)
-        # Fast commit the sample
-        # art.W = hcat(art.W, sample)
-        append!(art.W, sample)
-        art.n_categories += 1
-        art.n_clusters += 1
-        return y_hat
+        create_category!(art, sample, y)
+        return y
     end
 
     # Compute the activation and match for all categories
@@ -289,12 +285,12 @@ function train!(art::DVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fals
     for j = 1:art.n_categories
         # Best matching unit
         bmu = index[j]
+        # If supervised and the label differs, trigger mismatch
+        if supervised && (art.labels[bmu] != y)
+            break
+        end
         # Vigilance test upper bound
         if art.M[bmu] >= art.threshold_ub
-            # If supervised and the label differs, trigger mismatch
-            if supervised && (art.labels[bmu] != y)
-                break
-            end
             # Learn the sample
             learn!(art, sample, bmu)
             # Update sample label for output
@@ -305,17 +301,10 @@ function train!(art::DVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fals
             break
         # Vigilance test lower bound
         elseif art.M[bmu] >= art.threshold_lb
-            # If supervised and the label differs, trigger mismatch
-            if supervised && (art.labels[bmu] != y)
-                break
-            end
             # Update sample labels
             y_hat = supervised ? y : art.labels[bmu]
-            push!(art.labels, y_hat)
-            # Fast commit the sample
-            # art.W = hcat(art.W, sample)
-            append!(art.W, sample)
-            art.n_categories += 1
+            # Create a new category in the same cluster
+            create_category!(art, sample, y_hat, new_cluster=false)
             # No mismatch
             mismatch_flag = false
             break
@@ -326,13 +315,8 @@ function train!(art::DVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fals
     if mismatch_flag
         # Create a new category-to-cluster label
         y_hat = supervised ? y : art.n_clusters + 1
-        push!(art.labels, y_hat)
-        # Fast commit the sample
-        # art.W = hcat(art.W, sample)
-        append!(art.W, sample)
-        # Increment the number of categories and clusters
-        art.n_categories += 1
-        art.n_clusters += 1
+        # Create a new category
+        create_category!(art, sample, y_hat)
     end
 
     return y_hat
