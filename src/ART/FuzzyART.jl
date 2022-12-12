@@ -246,10 +246,10 @@ function initialize!(art::FuzzyART, x::RealVector ; y::Integer=0)
     set_threshold!(art)
 
     # Fast commit the weight
-    art.W = ElasticMatrix{Float}(undef, art.config.dim_comp, 1)
+    art.W = ARTMatrix{Float}(undef, art.config.dim_comp, 0)
 
-    # Assign the contents, valid this way for 1-D or 2-D arrays
-    art.W[:, 1] = x
+    # Assign the contents
+    append!(art.W, x)
 
     # Set the label to either the supervised label or 1 if unsupervised
     label = !iszero(y) ? y : 1

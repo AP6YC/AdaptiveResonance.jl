@@ -59,6 +59,16 @@ AdaptiveResonance.jl convention for which 2-D dimension contains the number of s
 """
 const ART_SAMPLES = 2
 
+"""
+The type of matrix used by the AdaptiveResonance.jl package, used to configure matrix growth behavior.
+"""
+const ARTMatrix = ElasticMatrix
+
+"""
+The type of vector used by the AdaptiveResonance.jl package, used to configure vector growth behvior.
+"""
+const ARTVector = Vector
+
 # --------------------------------------------------------------------------- #
 # ABSTRACT TYPES
 # --------------------------------------------------------------------------- #
@@ -87,16 +97,6 @@ abstract type ARTMAP <: ARTModule end   # ARTMAP (supervised)
 Acceptable iterators for ART module training and inference
 """
 const ARTIterator = Union{UnitRange, ProgressBar}
-
-"""
-The type of matrix used by the AdaptiveResonance.jl package, used to configure matrix growth behavior.
-"""
-const ARTMatrix = ElasticMatrix
-
-"""
-The type of vector used by the AdaptiveResonance.jl package, used to configure vector growth behvior.
-"""
-const ARTVector = Vector
 
 # --------------------------------------------------------------------------- #
 # COMPOSITE TYPES
