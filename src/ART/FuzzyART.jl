@@ -93,28 +93,28 @@ mutable struct FuzzyART <: ART
     """
     Incremental list of labels corresponding to each F2 node, self-prescribed or supervised.
     """
-    labels::Vector{Int}
+    labels::ARTVector{Int}
 
     """
     Activation values for every weight for a given sample.
     """
-    T::Vector{Float}
+    T::ARTVector{Float}
 
     """
     Match values for every weight for a given sample.
     """
-    M::Vector{Float}
+    M::ARTVector{Float}
 
     # "Private" working variables
     """
     Category weight matrix.
     """
-    W::ElasticMatrix{Float}
+    W::ARTMatrix{Float}
 
     """
     Number of weights associated with each category.
     """
-    n_instance::Vector{Int}
+    n_instance::ARTVector{Int}
 
     """
     Number of category weights (F2 nodes).
@@ -178,11 +178,11 @@ function FuzzyART(opts::opts_FuzzyART)
         opts,                           # opts
         DataConfig(),                   # config
         0.0,                            # threshold
-        Array{Int}(undef, 0),            # labels
-        Array{Float}(undef, 0),         # T
-        Array{Float}(undef, 0),         # M
-        ElasticArray{Float}(undef, 0, 0),      # W
-        Array{Int}(undef, 0),           # n_instance
+        ARTVector{Int}(undef, 0),       # labels
+        ARTVector{Float}(undef, 0),     # T
+        ARTVector{Float}(undef, 0),     # M
+        ARTMatrix{Float}(undef, 0, 0),  # W
+        ARTVector{Int}(undef, 0),       # n_instance
         0,                              # n_categories
         0                               # epoch
     )

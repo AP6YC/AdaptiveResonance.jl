@@ -88,6 +88,16 @@ Acceptable iterators for ART module training and inference
 """
 const ARTIterator = Union{UnitRange, ProgressBar}
 
+"""
+The type of matrix used by the AdaptiveResonance.jl package, used to configure matrix growth behavior.
+"""
+const ARTMatrix = ElasticMatrix
+
+"""
+The type of vector used by the AdaptiveResonance.jl package, used to configure vector growth behvior.
+"""
+const ARTVector = Vector
+
 # --------------------------------------------------------------------------- #
 # COMPOSITE TYPES
 # --------------------------------------------------------------------------- #
