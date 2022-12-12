@@ -218,7 +218,7 @@ function initialize!(art::DVFA, x::RealVector ; y::Integer=0)
     # Set the label to either the supervised label or 1 if unsupervised
     label = !iszero(y) ? y : 1
     # Create a new category
-    create_category(art, x, label)
+    create_category!(art, x, label)
 end
 
 """
@@ -229,7 +229,7 @@ Creates a new category for the DVFA modules.
 - `x::RealVector`: the sample to use for adding a category.
 - `y::Integer`: the new label for the new category.
 """
-function create_category(art::DVFA, x::RealVector, y::Integer)
+function create_category!(art::DVFA, x::RealVector, y::Integer)
     # Increment the number of categories
     art.n_categories += 1
     art.n_clusters += 1

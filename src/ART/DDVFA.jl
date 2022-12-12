@@ -251,7 +251,7 @@ function train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fal
         # Set the first label as either 1 or the first provided label
         y_hat = supervised ? y : 1
         # Create a new category
-        create_category(art, sample, y_hat)
+        create_category!(art, sample, y_hat)
         return y_hat
     end
 
@@ -297,7 +297,7 @@ function train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fal
         art.T = T[bmu]
         # Get the correct label
         y_hat = supervised ? y : art.n_categories + 1
-        create_category(art, sample, y_hat)
+        create_category!(art, sample, y_hat)
     end
 
     return y_hat
@@ -365,7 +365,7 @@ Create a new category by appending and initializing a new FuzzyART node to F2.
 - `sample::RealVector`: the sample to use for instantiating the new category.
 - `label::Integer`: the new label to use for the new category.
 """
-function create_category(art::DDVFA, sample::RealVector, label::Integer)
+function create_category!(art::DDVFA, sample::RealVector, label::Integer)
     # Global Fuzzy ART
     art.n_categories += 1
     push!(art.labels, label)

@@ -283,7 +283,7 @@ function train!(art::FuzzyART, x::RealVector ; y::Integer=0, preprocessed::Bool=
 
     # If we have a new supervised category, create a new category
     if supervised && !(y in art.labels)
-        create_category(art, sample, y)
+        create_category!(art, sample, y)
         return y
     end
 
@@ -319,7 +319,7 @@ function train!(art::FuzzyART, x::RealVector ; y::Integer=0, preprocessed::Bool=
         # Get the correct label for the new category
         y_hat = supervised ? y : art.n_categories + 1
         # Create a new category
-        create_category(art, sample, y_hat)
+        create_category!(art, sample, y_hat)
     end
 
     return y_hat
@@ -365,7 +365,7 @@ Creates a category for the FuzzyART module, expanding the weights and incrementi
 - `x::RealVector`: the sample to use for adding a category.
 - `y::Integer`: the new label for the new category.
 """
-function create_category(art::FuzzyART, x::RealVector, y::Integer)
+function create_category!(art::FuzzyART, x::RealVector, y::Integer)
     # Increment the number of categories
     art.n_categories += 1
 
