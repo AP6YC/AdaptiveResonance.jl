@@ -85,22 +85,22 @@ mutable struct DVFA <: ART
     """
     Incremental list of labels corresponding to each F2 node, self-prescribed or supervised.
     """
-    labels::Vector{Int}
+    labels::ARTVector{Int}
 
     """
     Category weight matrix.
     """
-    W::Matrix{Float}
+    W::ARTMatrix{Float}
 
     """
     Activation values for every weight for a given sample.
     """
-    T::Vector{Float}
+    T::ARTVector{Float}
 
     """
     Match values for every weight for a given sample.
     """
-    M::Vector{Float}
+    M::ARTVector{Float}
 
     """
     Number of category weights (F2 nodes).
@@ -171,10 +171,10 @@ function DVFA(opts::opts_DVFA)
         DataConfig(),                   # config
         0.0,                            # threshold_ub
         0.0,                            # threshold_lb
-        Array{Int}(undef, 0),           # labels
-        Array{Float}(undef, 0, 0),      # W
-        Array{Float}(undef, 0),         # M
-        Array{Float}(undef, 0),         # T
+        ARTVector{Int}(undef, 0),       # labels
+        ARTMatrix{Float}(undef, 0, 0),  # W
+        ARTVector{Float}(undef, 0),     # M
+        ARTVector{Float}(undef, 0),     # T
         0,                              # n_categories
         0,                              # n_clusters
         0                               # epoch
@@ -192,6 +192,48 @@ function set_threshold!(art::DVFA)
     art.threshold_lb = art.opts.rho_lb * art.config.dim
 end
 
+"""
+Initializes a DVFA learner with an initial sample 'x'.
+
+This function is used during the first training iteraction when the DVFA module is empty.
+
+# Arguments
+- `art::DVFA`: the DVFA module to initialize.
+- `x::RealVector`: the sample to use for initialization.
+- `y::Integer=0`: the optional new label for the first weight of the FuzzyART module. If not specified, defaults the new label to 1.
+"""
+function initialize!(art::DVFA, x::RealVector ; y::Integer=0)
+
+    # Set the threshold
+    set_threshold!(art)
+
+    # Create a new category and cluster
+    art.W = ARTMatrix{Float}(undef, art.config.dim_comp, 0)
+    # Set the label to either the supervised label or 1 if unsupervised
+    label = !iszero(y) ? y : 1
+
+    # append!(art.W, ones(art.config.dim_comp, 1))
+    # art.W = ones(art.config.dim_comp, 1)
+    append!(art.W, x)
+
+    # Initialize the category counters
+    art.n_categories = 1
+    art.n_clusters = 1
+
+    push!(art.labels, label)
+end
+
+function create_category(art::DVFA, x::RealVector, y::Integer)
+    # Increment the number of categories
+    art.n_categories += 1
+    art.n_clusters += 1
+    # Fast commit the sample
+    # art.W = hcat(art.W, sample)
+    append!(art.W, x)
+    # Update sample labels
+    push!(art.labels, y)
+end
+
 # COMMON DOC: Incremental DVFA training method
 function train!(art::DVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=false)
     # Flag for if training in supervised mode
@@ -202,15 +244,9 @@ function train!(art::DVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fals
 
     # Initialization
     if isempty(art.W)
-        # Set the threshold
-        set_threshold!(art)
         # Set the first label as either 1 or the first provided label
         y_hat = supervised ? y : 1
-        # Create a new category and cluster
-        art.W = ones(art.config.dim_comp, 1)
-        art.n_categories = 1
-        art.n_clusters = 1
-        push!(art.labels, y_hat)
+        initialize!(art, sample, y=y_hat)
         return y_hat
     end
 
@@ -220,7 +256,8 @@ function train!(art::DVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fals
         # Update sample labels
         push!(art.labels, y)
         # Fast commit the sample
-        art.W = hcat(art.W, sample)
+        # art.W = hcat(art.W, sample)
+        append!(art.W, sample)
         art.n_categories += 1
         art.n_clusters += 1
         return y_hat
@@ -261,7 +298,8 @@ function train!(art::DVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fals
             y_hat = supervised ? y : art.labels[bmu]
             push!(art.labels, y_hat)
             # Fast commit the sample
-            art.W = hcat(art.W, sample)
+            # art.W = hcat(art.W, sample)
+            append!(art.W, sample)
             art.n_categories += 1
             # No mismatch
             mismatch_flag = false
@@ -275,7 +313,8 @@ function train!(art::DVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fals
         y_hat = supervised ? y : art.n_clusters + 1
         push!(art.labels, y_hat)
         # Fast commit the sample
-        art.W = hcat(art.W, sample)
+        # art.W = hcat(art.W, sample)
+        append!(art.W, sample)
         # Increment the number of categories and clusters
         art.n_categories += 1
         art.n_clusters += 1
