@@ -55,7 +55,7 @@ $(opts_docstring)
     If true, new weights are created with ones(dim) and learn on the complement-coded sample.
     If false, fast-committing is used where the new weight is simply the complement-coded sample.
     """
-    uncommited::Bool = false
+    uncommitted::Bool = false
 end
 
 """

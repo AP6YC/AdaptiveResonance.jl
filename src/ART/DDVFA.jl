@@ -68,6 +68,14 @@ $(opts_docstring)
     Flag to normalize the threshold by the feature dimension.
     """
     gamma_normalization::Bool = true
+
+    """
+    Flag to use an uncommitted node when learning.
+
+    If true, new weights are created with ones(dim) and learn on the complement-coded sample.
+    If false, fast-committing is used where the new weight is simply the complement-coded sample.
+    """
+    uncommitted::Bool = false
 end
 
 # --------------------------------------------------------------------------- #
@@ -194,6 +202,7 @@ function DDVFA(opts::opts_DDVFA)
         gamma=opts.gamma,
         gamma_ref=opts.gamma_ref,
         gamma_normalization=opts.gamma_normalization,
+        uncommitted=opts.uncommitted,
         display=false
     )
 
