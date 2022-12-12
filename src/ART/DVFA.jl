@@ -235,7 +235,7 @@ function create_category(art::DVFA, x::RealVector, y::Integer)
     art.n_clusters += 1
 
     # If we use an uncommitted node
-    if art.opts.uncommited
+    if art.opts.uncommitted
         # Add a new weight of ones
         append!(art.W, ones(art.config.dim_comp, 1))
         # Learn the uncommitted node on the sample
