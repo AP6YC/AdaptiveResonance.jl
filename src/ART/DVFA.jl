@@ -48,6 +48,14 @@ $(opts_docstring)
     Display flag.
     """
     display::Bool = true
+
+    """
+    Flag to use an uncommitted node when learning.
+
+    If true, new weights are created with ones(dim) and learn on the complement-coded sample.
+    If false, fast-committing is used where the new weight is simply the complement-coded sample.
+    """
+    uncommited::Bool = false
 end
 
 """
@@ -203,33 +211,40 @@ This function is used during the first training iteraction when the DVFA module 
 - `y::Integer=0`: the optional new label for the first weight of the FuzzyART module. If not specified, defaults the new label to 1.
 """
 function initialize!(art::DVFA, x::RealVector ; y::Integer=0)
-
     # Set the threshold
     set_threshold!(art)
-
-    # Create a new category and cluster
+    # Initialize the empty weight matrix to the correct dimension
     art.W = ARTMatrix{Float}(undef, art.config.dim_comp, 0)
     # Set the label to either the supervised label or 1 if unsupervised
     label = !iszero(y) ? y : 1
-
-    # append!(art.W, ones(art.config.dim_comp, 1))
-    # art.W = ones(art.config.dim_comp, 1)
-    append!(art.W, x)
-
-    # Initialize the category counters
-    art.n_categories = 1
-    art.n_clusters = 1
-
-    push!(art.labels, label)
+    # Create a new category
+    create_category(art, x, label)
 end
 
+"""
+Creates a new category for the DVFA modules.
+
+# Arguments
+- `art::DVFA`: the DVFA module to add a category to.
+- `x::RealVector`: the sample to use for adding a category.
+- `y::Integer`: the new label for the new category.
+"""
 function create_category(art::DVFA, x::RealVector, y::Integer)
     # Increment the number of categories
     art.n_categories += 1
     art.n_clusters += 1
-    # Fast commit the sample
-    # art.W = hcat(art.W, sample)
-    append!(art.W, x)
+
+    # If we use an uncommitted node
+    if art.opts.uncommited
+        # Add a new weight of ones
+        append!(art.W, ones(art.config.dim_comp, 1))
+        # Learn the uncommitted node on the sample
+        learn!(art.W, sample, art.n_categories)
+    else
+        # Fast commit the sample
+        append!(art.W, x)
+    end
+
     # Update sample labels
     push!(art.labels, y)
 end

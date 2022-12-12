@@ -57,6 +57,14 @@ $(opts_docstring)
     Flag to normalize the threshold by the feature dimension.
     """
     gamma_normalization::Bool = false
+
+    """
+    Flag to use an uncommitted node when learning.
+
+    If true, new weights are created with ones(dim) and learn on the complement-coded sample.
+    If false, fast-committing is used where the new weight is simply the complement-coded sample.
+    """
+    uncommited::Bool = false
 end
 
 # --------------------------------------------------------------------------- #
@@ -360,9 +368,18 @@ Creates a category for the FuzzyART module, expanding the weights and incrementi
 function create_category(art::FuzzyART, x::RealVector, y::Integer)
     # Increment the number of categories
     art.n_categories += 1
-    # Fast commit
-    # art.W = hcat(art.W, x)
-    append!(art.W, x)
+
+    # If we use an uncommitted node
+    if art.opts.uncommited
+        # Add a new weight of ones
+        append!(art.W, ones(art.config.dim_comp, 1))
+        # Learn the uncommitted node on the sample
+        learn!(art.W, sample, art.n_categories)
+    else
+        # Fast commit the sample
+        append!(art.W, x)
+    end
+
     # Increment number of samples associated with new category
     push!(art.n_instance, 1)
     # Add the label for the ategory
