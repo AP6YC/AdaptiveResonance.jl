@@ -52,6 +52,11 @@ $(opts_docstring)
     Display flag.
     """
     display::Bool = true
+
+    """
+    Flag to use the choice-by-difference activation function from Default ARTMAP.
+    """
+    choice_by_difference::Bool = false
 end
 
 # --------------------------------------------------------------------------- #
@@ -280,7 +285,16 @@ and sample x.
 """
 function activation(art::SFAM, x::RealVector, W::RealVector)
     # Compute T and return
-    return norm(element_min(x, W), 1) / (art.opts.alpha + norm(W, 1))
+    if art.opts.choice_by_difference
+        T = (
+            norm(element_min(x, W), 1)
+                + (1 - art.opts.alpha) * (art.config.dim - norm(W, 1))
+        )
+    else
+        T = norm(element_min(x, W), 1) / (art.opts.alpha + norm(W, 1))
+    end
+
+    return T
 end
 
 """
