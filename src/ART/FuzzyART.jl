@@ -140,10 +140,10 @@ end
 # --------------------------------------------------------------------------- #
 
 """
-Implements a Gamma-Normalized Fuzzy ART learner with optional keyword arguments.
+Implements a Fuzzy ART learner with optional keyword arguments.
 
 # Arguments
-- `kwargs`: keyword arguments of valid FuzzyART options.
+- `kwargs`: keyword arguments of FuzzyART options (see [`AdaptiveResonance.opts_FuzzyART`](@ref)).
 
 # Examples
 By default:
@@ -168,10 +168,10 @@ function FuzzyART(;kwargs...)
 end
 
 """
-Implements a Gamma-Normalized Fuzzy ART learner with specified options.
+Implements a Fuzzy ART learner with specified options.
 
 # Arguments
-- `opts::opts_FuzzyART`: the FuzzyART options struct with specified options.
+- `opts::opts_FuzzyART`: the FuzzyART options struct with specified options (see [`AdaptiveResonance.opts_FuzzyART`](@ref)).
 
 # Examples
 ```julia-repl
