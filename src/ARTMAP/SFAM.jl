@@ -64,7 +64,7 @@ $(OPTS_DOCSTRING)
     """
     Selected activation function.
     """
-    activation::Symbol = :sfam_activation
+    activation::Symbol = :basic_activation
 end
 
 # --------------------------------------------------------------------------- #
@@ -237,8 +237,7 @@ function train!(art::SFAM, x::RealVector, y::Integer ; preprocessed::Bool=false)
             # Current winner
             if M >= rho_baseline
                 if y == art.labels[index[jx]]
-                    # Learn
-                    @debug "Learning"
+                    # Update the weight and break
                     art.W[:, index[jx]] = learn(art, sample, art.W[:, index[jx]])
                     mismatch_flag = false
                     break

@@ -676,15 +676,20 @@ function basic_match(art::ARTModule, x::RealVector, W::RealVector)
 end
 
 """
-Basic activation function.
+Simplified FuzzyARTMAP activation function.
 
 $(ART_X_W_ARGS)
 """
 function basic_activation(art::ARTModule, x::RealVector, W::RealVector)
-    return (
-        norm(element_min(x, W), 1)
-            + (1 - art.opts.alpha) * (art.config.dim - norm(W, 1))
-    )
+    return norm(element_min(x, W), 1) / (art.opts.alpha + norm(W, 1))
+end
+
+function gamma_match(art::ARTModule, x::RealVector, W::RealVector)
+    return (norm(W, 1) ^ art.opts.gamma_ref) * gamma_activation(art, x, W)
+end
+
+function gamma_activation(art::ARTModule, x::RealVector, W::RealVector)
+    return basic_activation(art, x, W)^art.opts.gamma
 end
 
 """
@@ -697,15 +702,6 @@ function choice_by_difference(art::ARTModule, x::RealVector, W::RealVector)
         norm(element_min(x, W), 1)
             + (1 - art.opts.alpha) * (art.config.dim - norm(W, 1))
     )
-end
-
-"""
-Simplified FuzzyARTMAP activation function.
-
-$(ART_X_W_ARGS)
-"""
-function sfam_activation(art::ARTModule, x::RealVector, W::RealVector)
-    return norm(element_min(x, W), 1) / (art.opts.alpha + norm(W, 1))
 end
 
 """
@@ -738,7 +734,6 @@ Enumerates all of the activation functions available in the package.
 """
 const ACTIVATION_FUNCTIONS = [
     :basic_activation,
-    :sfam_activation,
     :choice_by_difference,
 ]
 

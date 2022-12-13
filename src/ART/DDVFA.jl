@@ -76,6 +76,16 @@ $(OPTS_DOCSTRING)
     If false, fast-committing is used where the new weight is simply the complement-coded sample.
     """
     uncommitted::Bool = false
+
+    """
+    Selected match function.
+    """
+    match::Symbol = :gamma_match
+
+    """
+    Selected activation function.
+    """
+    activation::Symbol = :gamma_activation
 end
 
 # --------------------------------------------------------------------------- #
@@ -122,7 +132,7 @@ mutable struct DDVFA <: ART
     """
     Incremental list of labels corresponding to each F2 node, self-prescribed or supervised.
     """
-    labels::Vector{Int}
+    labels::ARTVector{Int}
 
     """
     Number of total categories.
@@ -203,7 +213,9 @@ function DDVFA(opts::opts_DDVFA)
         gamma_ref=opts.gamma_ref,
         gamma_normalization=opts.gamma_normalization,
         uncommitted=opts.uncommitted,
-        display=false
+        display=false,
+        activation=opts.activation,
+        match=opts.match
     )
 
     # Construct the DDVFA module
@@ -211,8 +223,8 @@ function DDVFA(opts::opts_DDVFA)
           subopts,
           DataConfig(),
           0.0,
-          Array{FuzzyART}(undef, 0),
-          Array{Int}(undef, 0),
+          Vector{FuzzyART}(undef, 0),
+          ARTVector{Int}(undef, 0),
           0,
           0,
           0.0,
@@ -269,16 +281,16 @@ function train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fal
     index = sortperm(T, rev=true)
     for jx = 1:art.n_categories
         bmu = index[jx]
+        # If supervised and the label differs, trigger mismatch
+        if supervised && (art.labels[bmu] != y)
+            break
+        end
         M = similarity(art.opts.method, art.F2[bmu], "M", sample)
         # If we got a match, then learn (update the category)
         if M >= art.threshold
             # Update the stored match and activation values
             art.M = M
             art.T = T[bmu]
-            # If supervised and the label differs, trigger mismatch
-            if supervised && (art.labels[bmu] != y)
-                break
-            end
             # Update the weights with the sample
             train!(art.F2[bmu], sample, preprocessed=true)
             # Save the output label for the sample

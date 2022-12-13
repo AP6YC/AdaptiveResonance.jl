@@ -65,6 +65,16 @@ $(OPTS_DOCSTRING)
     If false, fast-committing is used where the new weight is simply the complement-coded sample.
     """
     uncommitted::Bool = false
+
+    """
+    Selected match function.
+    """
+    match::Symbol = :basic_match
+
+    """
+    Selected activation function.
+    """
+    activation::Symbol = :basic_activation
 end
 
 # --------------------------------------------------------------------------- #
@@ -80,8 +90,6 @@ For module options, see [`AdaptiveResonance.opts_FuzzyART`](@ref).
 1. G. Carpenter, S. Grossberg, and D. Rosen, 'Fuzzy ART: Fast stable learning and categorization of analog patterns by an adaptive resonance system,' Neural Networks, vol. 4, no. 6, pp. 759-771, 1991.
 """
 mutable struct FuzzyART <: ART
-    # Option Parameters
-    # Assign numerical parameters from options
     """
     FuzzyART options struct.
     """
@@ -92,7 +100,6 @@ mutable struct FuzzyART <: ART
     """
     config::DataConfig
 
-    # Working variables
     """
     Operating module threshold value, a function of the vigilance parameter.
     """
@@ -113,7 +120,6 @@ mutable struct FuzzyART <: ART
     """
     M::ARTVector{Float}
 
-    # "Private" working variables
     """
     Category weight matrix.
     """
@@ -182,6 +188,12 @@ FuzzyART
 ```
 """
 function FuzzyART(opts::opts_FuzzyART)
+    # Enforce dependent options for gamma normalization
+    if opts.gamma_normalization
+        opts.activation = :gamma_activation
+        opts.match = :gamma_match
+    end
+
     FuzzyART(
         opts,                           # opts
         DataConfig(),                   # config
@@ -349,8 +361,6 @@ function classify(art::FuzzyART, x::RealVector ; preprocessed::Bool=false, get_b
     end
     # If we did not find a match
     if mismatch_flag
-        # Create new weight vector
-        @debug "Mismatch"
         # Report either the best matching unit or the mismatch label -1
         y_hat = get_bmu ? art.labels[index[1]] : -1
     end
@@ -380,16 +390,33 @@ function activation_match!(art::FuzzyART, x::RealVector)
     art.T = zeros(art.n_categories)
     art.M = zeros(art.n_categories)
     for i = 1:art.n_categories
-        W_norm = norm(art.W[:, i], 1)
-        numerator = norm(element_min(x, art.W[:, i]), 1)
-        art.T[i] = (numerator / (art.opts.alpha + W_norm))^art.opts.gamma
-        if art.opts.gamma_normalization
-            art.M[i] = (W_norm^art.opts.gamma_ref) * art.T[i]
-        else
-            art.M[i] = numerator / norm(x, 1)
-        end
+        art.T[i] = art_activation(art, x, art.W[:, i])
+        art.M[i] = art_match(art, x, art.W[:, i])
+        # W_norm = norm(art.W[:, i], 1)
+        # numerator = norm(element_min(x, art.W[:, i]), 1)
+
+        # art.T[i] = (numerator / (art.opts.alpha + W_norm))^art.opts.gamma
+        # if art.opts.gamma_normalization
+        #     art.M[i] = (W_norm^art.opts.gamma_ref) * art.T[i]
+        # else
+        #     art.M[i] = numerator / norm(x, 1)
+        # end
     end
 end
+# function activation_match!(art::FuzzyART, x::RealVector)
+#     art.T = zeros(art.n_categories)
+#     art.M = zeros(art.n_categories)
+#     for i = 1:art.n_categories
+#         W_norm = norm(art.W[:, i], 1)
+#         numerator = norm(element_min(x, art.W[:, i]), 1)
+#         art.T[i] = (numerator / (art.opts.alpha + W_norm))^art.opts.gamma
+#         if art.opts.gamma_normalization
+#             art.M[i] = (W_norm^art.opts.gamma_ref) * art.T[i]
+#         else
+#             art.M[i] = numerator / norm(x, 1)
+#         end
+#     end
+# end
 
 """
 Return the modified weight of the art module conditioned by sample x.
