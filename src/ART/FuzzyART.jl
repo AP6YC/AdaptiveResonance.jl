@@ -15,7 +15,7 @@ References:
 """
 Gamma-Normalized Fuzzy ART options struct.
 
-$(opts_docstring)
+$(OPTS_DOCSTRING)
 """
 @with_kw mutable struct opts_FuzzyART <: ARTOpts @deftype Float
     """

@@ -12,7 +12,7 @@ Description:
 # Shared variant statement for Default ARTMAP
 variant_statment = """
 Default ARTMAP is a variant of SFAM, usign the [`AdaptiveResonance.opts_SFAM`](@ref) options.
-This constructor passes 'choice_by_difference=true' in addition to the keyword argument options you provide
+This constructor sets the activation to `:choice_by_difference` in addition to the keyword argument options you provide.
 """
 
 """
@@ -27,7 +27,7 @@ $(variant_statment)
 1. G. P. Amis and G. A. Carpenter, 'Default ARTMAP 2,' IEEE Int. Conf. Neural Networks - Conf. Proc., vol. 2, no. September 2007, pp. 777-782, Mar. 2007, doi: 10.1109/IJCNN.2007.4371056.
 """
 function DAM(;kwargs...)
-    return SFAM(;choice_by_difference=true, kwargs...)
+    return SFAM(;activation=:choice_by_difference, kwargs...)
 end
 
 """
@@ -47,8 +47,8 @@ Implements a Default ARTMAP module's options.
 
 $(variant_statment)
 
-$(opts_docstring)
+$(OPTS_DOCSTRING)
 """
 function opts_DAM(;kwargs...)
-    return opts_SFAM(;choice_by_difference=true, kwargs...)
+    return opts_SFAM(;activation=:choice_by_difference, kwargs...)
 end

@@ -15,7 +15,7 @@ Options, structures, and logic for the Fuzzy ARTMAP (FAM) module.
 """
 Implements a Fuzzy ARTMAP learner's options.
 
-$(opts_docstring)
+$(OPTS_DOCSTRING)
 """
 @with_kw mutable struct opts_FAM <: ARTOpts @deftype Float
     """

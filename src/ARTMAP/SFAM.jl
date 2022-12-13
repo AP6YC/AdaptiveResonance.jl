@@ -15,7 +15,7 @@ Options, structures, and logic for the Simplified Fuzzy ARTMAP (SFAM) module.
 """
 Implements a Simple Fuzzy ARTMAP learner's options.
 
-$(opts_docstring)
+$(OPTS_DOCSTRING)
 """
 @with_kw mutable struct opts_SFAM <: ARTOpts @deftype Float
     """
@@ -49,17 +49,22 @@ $(opts_docstring)
     display::Bool = true
 
     """
-    Flag to use the choice-by-difference activation function from Default ARTMAP.
-    """
-    choice_by_difference::Bool = false
-
-    """
     Flag to use an uncommitted node when learning.
 
     If true, new weights are created with ones(dim) and learn on the complement-coded sample.
     If false, fast-committing is used where the new weight is simply the complement-coded sample.
     """
     uncommitted::Bool = false
+
+    """
+    Selected match function.
+    """
+    match::Symbol = :basic_match
+
+    """
+    Selected activation function.
+    """
+    activation::Symbol = :sfam_activation
 end
 
 # --------------------------------------------------------------------------- #
@@ -220,7 +225,7 @@ function train!(art::SFAM, x::RealVector, y::Integer ; preprocessed::Bool=false)
         # Compute activation function
         T = zeros(art.n_categories)
         for jx in 1:art.n_categories
-            T[jx] = activation(art, sample, art.W[:, jx])
+            T[jx] = art_activation(art, sample, art.W[:, jx])
         end
 
         # Sort activation function values in descending order
@@ -264,7 +269,7 @@ function classify(art::SFAM, x::RealVector ; preprocessed::Bool=false, get_bmu::
     # Compute activation function
     T = zeros(art.n_categories)
     for jx in 1:art.n_categories
-        T[jx] = activation(art, sample, art.W[:, jx])
+        T[jx] = art_activation(art, sample, art.W[:, jx])
     end
 
     # Sort activation function values in descending order
@@ -306,24 +311,6 @@ vector W and sample x.
 function learn(art::SFAM, x::RealVector, W::RealVector)
     # Update W
     return art.opts.beta .* element_min(x, W) .+ W .* (1 - art.opts.beta)
-end
-
-"""
-Returns the activation value of the Simple Fuzzy ARTMAP module with weight W
-and sample x.
-"""
-function activation(art::SFAM, x::RealVector, W::RealVector)
-    # Compute T and return
-    if art.opts.choice_by_difference
-        T = (
-            norm(element_min(x, W), 1)
-                + (1 - art.opts.alpha) * (art.config.dim - norm(W, 1))
-        )
-    else
-        T = norm(element_min(x, W), 1) / (art.opts.alpha + norm(W, 1))
-    end
-
-    return T
 end
 
 """

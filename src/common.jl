@@ -325,7 +325,7 @@ Convenience method for setting up the DataConfig of an ART module in advance.
 function data_setup!(art::ARTModule, data::RealMatrix)
     # Modify the DataConfig of the ART module directly
     data_setup!(art.config, data)
-end # data_setup!(art::ART, data::RealMatrix)
+end
 
 """
 Get the characteristics of the data, taking account if a data config is passed.
@@ -512,7 +512,7 @@ function init_train!(x::RealVector, art::ARTModule, preprocessed::Bool)
         art.config = DataConfig(0, 1, dim)
     end
     return x
-end # init_train!(x::RealVector, art::ARTModule, preprocessed::Bool)
+end
 
 """
 Initializes the training loop for batch learning.
@@ -647,7 +647,107 @@ create_category!(art::ARTModule, x::RealVector, y::Integer)
 # --------------------------------------------------------------------------- #
 
 # Shared options docstring, inserted at the end of `opts_<...>` structs.
-const opts_docstring = """
+const OPTS_DOCSTRING = """
 These options are a [`Parameters.jl`](https://github.com/mauro3/Parameters.jl) struct, taking custom options keyword arguments.
 Each field has a default value listed below.
 """
+
+"""
+Shared arguments string for methods using an ART module, sample 'x', and weight vector 'W'.
+"""
+const ART_X_W_ARGS = """
+# Arguments
+- `art::ARTModule`: the ARTModule module.
+- `x::RealVector`: the sample to use.
+- `W::RealVector`: the weight vector to use.
+"""
+
+# --------------------------------------------------------------------------- #
+# COMMON ALGORITHMIC FUNCTIONS
+# --------------------------------------------------------------------------- #
+
+"""
+Basic match function.
+
+$(ART_X_W_ARGS)
+"""
+function basic_match(art::ARTModule, x::RealVector, W::RealVector)
+    return norm(element_min(x, W), 1) / art.config.dim
+end
+
+"""
+Basic activation function.
+
+$(ART_X_W_ARGS)
+"""
+function basic_activation(art::ARTModule, x::RealVector, W::RealVector)
+    return (
+        norm(element_min(x, W), 1)
+            + (1 - art.opts.alpha) * (art.config.dim - norm(W, 1))
+    )
+end
+
+"""
+Default ARTMAP's choice-by-difference activation function.
+
+$(ART_X_W_ARGS)
+"""
+function choice_by_difference(art::ARTModule, x::RealVector, W::RealVector)
+    return (
+        norm(element_min(x, W), 1)
+            + (1 - art.opts.alpha) * (art.config.dim - norm(W, 1))
+    )
+end
+
+"""
+Simplified FuzzyARTMAP activation function.
+
+$(ART_X_W_ARGS)
+"""
+function sfam_activation(art::ARTModule, x::RealVector, W::RealVector)
+    return norm(element_min(x, W), 1) / (art.opts.alpha + norm(W, 1))
+end
+
+"""
+Evaluates the match function of the ART/ARTMAP module on sample 'x' with weight 'W'.
+
+$(ART_X_W_ARGS)
+"""
+function art_match(art::ARTModule, x::RealVector, W::RealVector)
+    return eval(art.opts.match)(art, x, W)
+end
+
+"""
+Evaluates the activation function of the ART/ARTMAP module on the sample 'x' with weight 'W'.
+
+$(ART_X_W_ARGS)
+"""
+function art_activation(art::ARTModule, x::RealVector, W::RealVector)
+    return eval(art.opts.activation)(art, x, W)
+end
+
+"""
+Enumerates all of the match functions available in the package.
+"""
+const MATCH_FUNCTIONS = [
+    :basic_match,
+]
+
+"""
+Enumerates all of the activation functions available in the package.
+"""
+const ACTIVATION_FUNCTIONS = [
+    :basic_activation,
+    :sfam_activation,
+    :choice_by_difference,
+]
+
+"""
+Common docstring for listing available match functions.
+"""
+const MATCH_FUNCTIONS_DOCS = join(MATCH_FUNCTIONS, ", ", " and ")
+
+"""
+Common docstring for listing available activation functions.
+"""
+const ACTIVATION_FUNCTIONS_DOCS = join(ACTIVATION_FUNCTIONS, ", ", " and ")
