@@ -621,6 +621,7 @@ Returns predicted category 'y_hat.'
 """
 classify(art::ARTModule, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
 
+# Common function for setting the threshold (sometimes just vigilance, sometimes a function of vigilance).
 @doc raw"""
 Sets the match threshold of the ART/ARTMAP module as a function of the vigilance parameter.
 
@@ -631,8 +632,22 @@ Depending on selected ART/ARTMAP module and its options, this may be a function 
 """
 set_threshold!(art::ARTModule)
 
+@doc raw"""
+Creates a category for the ARTModule module, expanding the weights and incrementing the category labels.
+
+# Arguments
+- `art::ARTModule`: the ARTModule module to add a category to.
+- `x::RealVector`: the sample to use for adding a category.
+- `y::Integer`: the new label for the new category.
+"""
+create_category!(art::ARTModule, x::RealVector, y::Integer)
+
+# --------------------------------------------------------------------------- #
+# COMMON DOCUMENTATION CONSTANTS
+# --------------------------------------------------------------------------- #
+
 # Shared options docstring, inserted at the end of `opts_<...>` structs.
-opts_docstring = """
+const opts_docstring = """
 These options are a [`Parameters.jl`](https://github.com/mauro3/Parameters.jl) struct, taking custom options keyword arguments.
 Each field has a default value listed below.
 """

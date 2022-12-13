@@ -73,3 +73,23 @@ Train the ART model on a single sample of features 'x' with an optional supervis
 - `preprocessed::Bool=false`: optional, flag if the data has already been complement coded or not.
 """
 train!(art::ART, x::RealVector ; y::Integer=0, preprocessed::Bool=false)
+
+@doc raw"""
+Initializes the ART module for training with sample 'x' and optional label 'y', setting up the data configuration and instantiating the first category.
+
+This function is used during the first training iteration when the ART module is empty.
+
+# Arguments
+- `art::ART`: the ART module to initialize.
+- `x::RealVector`: the sample to use for initialization.
+- `y::Integer=0`: the optional new label for the first weight of the ART module. If not specified, defaults the new label to 1.
+
+# Examples
+```julia-repl
+julia> my_FuzzyART = FuzzyART()
+FuzzyART
+    opts: opts_FuzzyART
+    ...
+julia> initialize!(my_FuzzyART, [1, 2, 3, 4])
+"""
+initialize!(art::ART, x::RealVector ; y::Integer=0)

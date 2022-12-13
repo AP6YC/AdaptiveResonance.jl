@@ -44,11 +44,6 @@ $(opts_docstring)
     max_epochs::Int = 1
 
     """
-    Uncommitted node flag.
-    """
-    uncommitted::Bool = true
-
-    """
     Display flag.
     """
     display::Bool = true
@@ -57,6 +52,14 @@ $(opts_docstring)
     Flag to use the choice-by-difference activation function from Default ARTMAP.
     """
     choice_by_difference::Bool = false
+
+    """
+    Flag to use an uncommitted node when learning.
+
+    If true, new weights are created with ones(dim) and learn on the complement-coded sample.
+    If false, fast-committing is used where the new weight is simply the complement-coded sample.
+    """
+    uncommitted::Bool = false
 end
 
 # --------------------------------------------------------------------------- #
@@ -85,12 +88,12 @@ mutable struct SFAM <: ARTMAP
     """
     Category weight matrix.
     """
-    W::Matrix{Float}
+    W::ARTMatrix{Float}
 
     """
     Incremental list of labels corresponding to each F2 node, self-prescribed or supervised.
     """
-    labels::Vector{Int}
+    labels::ARTVector{Int}
 
     """
     Number of category weights (F2 nodes).
@@ -154,8 +157,8 @@ function SFAM(opts::opts_SFAM)
     SFAM(
         opts,                           # opts_SFAM
         DataConfig(),                   # config
-        Array{Float}(undef, 0, 0),      # W
-        Array{Int}(undef, 0),           # labels
+        ARTMatrix{Float}(undef, 0, 0),  # W
+        ARTVector{Int}(undef, 0),       # labels
         0,                              # n_categories
         0                               # epoch
     )
@@ -165,22 +168,51 @@ end
 # ALGORITHMIC METHODS
 # --------------------------------------------------------------------------- #
 
+# COMMON DOC: SFAM initialization
+function initialize!(art::SFAM, x::RealVector, y::Integer)
+    # Initialize the weight matrix feature dimension
+    art.W = ARTMatrix{Float}(undef, art.config.dim_comp, 0)
+    # Create a new category from the sample
+    create_category!(art, x, y)
+end
+
+# COMMON DOC: SFAM category creation
+function create_category!(art::SFAM, x::RealVector, y::Integer)
+    # Increment the number of categories
+    art.n_categories += 1
+
+    # If we use an uncommitted node
+    if art.opts.uncommitted
+        # Add a new weight of ones
+        append!(art.W, ones(art.config.dim_comp, 1))
+        # Learn the uncommitted node on the sample
+        learn!(art.W, sample, art.n_categories)
+    else
+        # Fast commit the sample
+        append!(art.W, x)
+    end
+
+    # Increment number of samples associated with new category
+    # push!(art.n_instance, 1)
+    # Add the label for the category
+    push!(art.labels, y)
+end
+
 # SFAM incremental training method
 function train!(art::SFAM, x::RealVector, y::Integer ; preprocessed::Bool=false)
     # Run the sequential initialization procedure
     sample = init_train!(x, art, preprocessed)
 
     # Initialization
+    if isempty(art.W)
+        initialize!(art, sample, y)
+        return y
+    end
+
+    # If we don't have the label, create a new category immediately
     if !(y in art.labels)
-        # Initialize W and labels
-        if isempty(art.W)
-            art.W = Array{Float64}(undef, art.config.dim_comp, 1)
-            art.W[:, 1] = sample
-        else
-            art.W = [art.W sample]
-        end
-        push!(art.labels, y)
-        art.n_categories += 1
+        create_category!(art, sample, y)
+    # Otherwise, test for a match
     else
         # Baseline vigilance parameter
         rho_baseline = art.opts.rho
@@ -216,10 +248,7 @@ function train!(art::SFAM, x::RealVector, y::Integer ; preprocessed::Bool=false)
         # If we triggered a mismatch
         if mismatch_flag
             # Create new weight vector
-            @debug "Mismatch"
-            art.W = hcat(art.W, sample)
-            push!(art.labels, y)
-            art.n_categories += 1
+            create_category!(art, sample, y)
         end
     end
 

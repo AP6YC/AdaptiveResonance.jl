@@ -62,8 +62,6 @@ end
 # --------------------------------------------------------------------------- #
 
 @doc raw"""
-    train!(art::ARTMAP, x::RealVector, y::Integer ; preprocessed::Bool=false)
-
 Train the supervised ARTMAP model on a single sample of features 'x' with supervisory label 'y'.
 
 # Arguments
@@ -73,3 +71,21 @@ Train the supervised ARTMAP model on a single sample of features 'x' with superv
 - `preprocessed::Bool=false`: optional, flag if the data has already been complement coded or not.
 """
 train!(art::ARTMAP, x::RealVector, y::Integer ; preprocessed::Bool=false)
+
+@doc raw"""
+Initializes the supervised ARTMAP module for training with sample 'x' and label 'y', setting up the data configuration and instantiating the first category.
+
+# Arguments
+- `art::ARTMAP`: the ARTMAP module to initialize.
+- `x::RealVector`: the sample to use for initialization.
+- `y::Integer`: the initial supervised label.
+
+# Examples
+```julia-repl
+julia> my_sfam = SFAM()
+SFAM
+    opts: opts_SFAM
+    ...
+julia> initialize!(my_SFAM, [1, 2, 3, 4])
+"""
+initialize!(art::ARTMAP, x::RealVector, y::Integer)

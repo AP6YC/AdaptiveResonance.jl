@@ -226,44 +226,41 @@ function set_threshold!(art::FuzzyART)
     end
 end
 
-"""
-Initializes a FuzzyART learner with an intial sample 'x'.
-
-This function is used during the first training iteration when the FuzzyART module is empty.
-
-# Arguments
-- `art::FuzzyART`: the FuzzyART module to initialize.
-- `x::RealVector`: the sample to use for initialization.
-- `y::Integer=0`: the optional new label for the first weight of the FuzzyART module. If not specified, defaults the new label to 1.
-
-# Examples
-```julia-repl
-julia> my_FuzzyART = FuzzyART()
-FuzzyART
-    opts: opts_FuzzyART
-    ...
-julia> initialize!(my_FuzzyART, [1 2 3 4])
-```
-"""
+# COMMON DOC: FuzzyART initialization function
 function initialize!(art::FuzzyART, x::RealVector ; y::Integer=0)
-    # Initialize the instance and categories counters
-    art.n_instance = [1]
-    art.n_categories = 1
-
     # Set the threshold
     set_threshold!(art)
 
-    # Fast commit the weight
+    # Initialize the feature dimension of the weights
     art.W = ARTMatrix{Float}(undef, art.config.dim_comp, 0)
-
-    # Assign the contents
-    append!(art.W, x)
 
     # Set the label to either the supervised label or 1 if unsupervised
     label = !iszero(y) ? y : 1
 
-    # Add the label to the label list
-    push!(art.labels, label)
+    # Create a category with the given label
+    create_category!(art, x, label)
+end
+
+# COMMON DOC: create_category! function
+function create_category!(art::FuzzyART, x::RealVector, y::Integer)
+    # Increment the number of categories
+    art.n_categories += 1
+
+    # If we use an uncommitted node
+    if art.opts.uncommitted
+        # Add a new weight of ones
+        append!(art.W, ones(art.config.dim_comp, 1))
+        # Learn the uncommitted node on the sample
+        learn!(art.W, sample, art.n_categories)
+    else
+        # Fast commit the sample
+        append!(art.W, x)
+    end
+
+    # Increment number of samples associated with new category
+    push!(art.n_instance, 1)
+    # Add the label for the category
+    push!(art.labels, y)
 end
 
 # COMMON DOC: FuzzyART incremental training method
@@ -326,9 +323,9 @@ function train!(art::FuzzyART, x::RealVector ; y::Integer=0, preprocessed::Bool=
     end
 
     return y_hat
-end # train!(art::FuzzyART, x::RealVector ; y::Integer=0, preprocessed::Bool=false)
+end
 
-# FuzzyART incremental classification method
+# COMMON DOC: FuzzyART incremental classification method
 function classify(art::FuzzyART, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
     # Preprocess the data
     x = init_classify!(x, art, preprocessed)
@@ -358,35 +355,6 @@ function classify(art::FuzzyART, x::RealVector ; preprocessed::Bool=false, get_b
         y_hat = get_bmu ? art.labels[index[1]] : -1
     end
     return y_hat
-end
-
-"""
-Creates a category for the FuzzyART module, expanding the weights and incrementing the category labels.
-
-# Arguments
-- `art::FuzzyART`: the FuzzyART module to add a category to.
-- `x::RealVector`: the sample to use for adding a category.
-- `y::Integer`: the new label for the new category.
-"""
-function create_category!(art::FuzzyART, x::RealVector, y::Integer)
-    # Increment the number of categories
-    art.n_categories += 1
-
-    # If we use an uncommitted node
-    if art.opts.uncommitted
-        # Add a new weight of ones
-        append!(art.W, ones(art.config.dim_comp, 1))
-        # Learn the uncommitted node on the sample
-        learn!(art.W, sample, art.n_categories)
-    else
-        # Fast commit the sample
-        append!(art.W, x)
-    end
-
-    # Increment number of samples associated with new category
-    push!(art.n_instance, 1)
-    # Add the label for the ategory
-    push!(art.labels, y)
 end
 
 """
