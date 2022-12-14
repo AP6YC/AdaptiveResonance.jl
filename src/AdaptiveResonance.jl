@@ -157,11 +157,14 @@ export
     FuzzyART, opts_FuzzyART,
     DDVFA, opts_DDVFA, get_W,
     DVFA, opts_DVFA,
+    # ART variants
+    GammaNormalizedFuzzyART, opts_GammaNormalizedFuzzyART,
 
     # ARTMAP (supervised)
     FAM, opts_FAM,
-    DAM, opts_DAM,
     SFAM, opts_SFAM,
+    # ARTMAP variants
+    DAM, opts_DAM,
 
     # Useful constants
     ART_MODULES,                # List of (default) unsupervised ART modules

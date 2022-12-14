@@ -19,7 +19,6 @@ CurrentModule=AdaptiveResonance
 - ARTMAP
   - [`SFAM`](@ref): Simplified Fuzzy ARTMAP
   - [`FAM`](@ref): Fuzzy ARTMAP
-  - [`DAM`](@ref): Default ARTMAP
 
 ## [Variants](@id modules-variants)
 
@@ -32,10 +31,14 @@ These variants are:
 
 ### Gamma-Normalized FuzzyART
 
-A Gamma-Normalized FuzzyART is a FuzzyART module where the gamma normalization option is set on `gamma_normalization=true` and the kernel width parameter is set to $$\gamma >= 1.0$$ ($$\gamma_{ref}$$ is 1.0 by default):
+A [Gamma-Normalized FuzzyART](@ref GammaNormalizedFuzzyART) is a FuzzyART module where the gamma normalization option is set on `gamma_normalization=true` and the kernel width parameter is set to $$\gamma >= 1.0$$ ($$\gamma_{ref}$$ is 1.0 by default):
 
 ```julia
 my_gnfa = FuzzyART(gamma_normalization=true, gamma=5.0)
 ```
 
 The `gamma_normalization` flag must be set high here because it also changes the thresholding value and match function of the module.
+
+### Default ARTMAP
+
+[`DAM`](@ref): Default ARTMAP

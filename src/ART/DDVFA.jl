@@ -50,7 +50,7 @@ $(OPTS_DOCSTRING)
     gamma_ref = 1.0; @assert 0.0 <= gamma_ref && gamma_ref < gamma
 
     """
-    Similarity method (activation and match): similarity ∈ ["single", "average", "complete", "median", "weighted", "centroid"].
+    Similarity method (activation and match): similarity ∈ [:single, :average, :complete, :median, :weighted, :centroid].
     """
     similarity::Symbol = :single
 
