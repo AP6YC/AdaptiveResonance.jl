@@ -53,7 +53,6 @@ $(OPTS_DOCSTRING)
     Similarity method (activation and match): similarity ∈ ["single", "average", "complete", "median", "weighted", "centroid"].
     """
     similarity::Symbol = :single
-    # method::String = "single"
 
     """
     Maximum number of epochs during training: max_epochs ∈ (1, Inf).
@@ -275,12 +274,7 @@ function train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fal
     T = zeros(art.n_categories)
     for jx = 1:art.n_categories
         activation_match!(art.F2[jx], sample)
-        # T[jx] = similarity(art.opts.method, art.F2[jx], "T", sample)
-        if !(art.opts.similarity === :centroid)
-            T[jx] = eval(art.opts.similarity)(art.F2[jx].T)
-        else
-            T[jx] = eval(art.opts.similarity)(art.F2[jx], sample, true)
-        end
+        T[jx] = similarity(art.opts.similarity, art.F2[jx], sample, true)
     end
 
     # Compute the match for each category in the order of greatest activation
@@ -291,7 +285,7 @@ function train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fal
         if supervised && (art.labels[bmu] != y)
             break
         end
-        M = similarity(art.opts.method, art.F2[bmu], "M", sample)
+        M = similarity(art.opts.similarity, art.F2[jx], sample, false)
         # If we got a match, then learn (update the category)
         if M >= art.threshold
             # Update the stored match and activation values
@@ -311,7 +305,7 @@ function train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fal
     if mismatch_flag
         # Update the stored match and activation values
         bmu = index[1]
-        art.M = similarity(art.opts.method, art.F2[bmu], "M", sample)
+        M = similarity(art.opts.similarity, art.F2[bmu], sample, false)
         art.T = T[bmu]
         # Get the correct label
         y_hat = supervised ? y : art.n_categories + 1
@@ -330,7 +324,7 @@ function classify(art::DDVFA, x::RealVector ; preprocessed::Bool=false, get_bmu:
     T = zeros(art.n_categories)
     for jx = 1:art.n_categories
         activation_match!(art.F2[jx], sample)
-        T[jx] = similarity(art.opts.method, art.F2[jx], "T", sample)
+        T[jx] = similarity(art.opts.similarity, art.F2[jx], sample, true)
     end
 
     # Sort by highest activation
@@ -344,7 +338,7 @@ function classify(art::DDVFA, x::RealVector ; preprocessed::Bool=false, get_bmu:
         # Get the best-matching unit
         bmu = index[jx]
         # Get the match value of this activation
-        M = similarity(art.opts.method, art.F2[bmu], "M", sample)
+        M = similarity(art.opts.similarity, art.F2[bmu], sample, false)
         # If the match satisfies the threshold criterion, then report that label
         if M >= art.threshold
             # Update the stored match and activation values
@@ -362,7 +356,7 @@ function classify(art::DDVFA, x::RealVector ; preprocessed::Bool=false, get_bmu:
         @debug "Mismatch"
         # Update the stored match and activation values of the best matching unit
         bmu = index[1]
-        art.M = similarity(art.opts.method, art.F2[bmu], "M", sample)
+        art.M = similarity(art.opts.similarity, art.F2[bmu], sample, false)
         art.T = T[bmu]
         # Report either the best matching unit or the mismatch label -1
         y_hat = get_bmu ? art.labels[bmu] : -1
@@ -404,78 +398,59 @@ function stopping_conditions(art::DDVFA)
     return art.epoch >= art.opts.max_epoch
 end
 
+# --------------------------------------------------------------------------- #
+# DDVFA LINKAGE METHODS
+# --------------------------------------------------------------------------- #
+
+# Argument docstring for the activation flag
+const ACTIVATION_DOCSTRING = """
+- `activation::Bool`: flag to use the activation function. False uses the match function.
+"""
+
+# Argument docstring for the sample vector
+const SAMPLE_DOCSTRING = """
+- `sample::RealVector`: the sample to use for computing the linkage to the F2 module.
+"""
+
+# Argument docstring for the F2 docstring
+const F2_DOCSTRING = """
+- `F2::FuzzyART`: the DDVFA FuzzyART F2 node to compute the linkage method within.
+"""
+
+# Argument docstring for the F2 field, includes the argument header
+const FIELD_DOCSTRING = """
+# Arguments
+- `field::RealVector`: the DDVFA FuzzyART F2 node field (F2.T or F2.M) to compute the linkage for.
+"""
+
 """
 Compute the similarity metric depending on method with explicit comparisons for the field name.
 
 # Arguments
-- `method::AbstractString`: the selected DDVFA linkage method.
-- `F2::FuzzyART`: the FuzzyART module to compute the linkage method within.
-- `field_name::AbstractString`: the activation or match value to compute, field_name ∈ ["T", "M"]
-- `sample::RealVector`: the sample to use for computing the linkage to the F2 module, sample ∈ DDVFA_METHODS.
+- `method::Symbol`: the linkage method to use.
+$F2_DOCSTRING
+$SAMPLE_DOCSTRING
+$ACTIVATION_DOCSTRING
 """
-function similarity(method::AbstractString, F2::FuzzyART, field_name::AbstractString, sample::RealVector)
-    @debug "Computing similarity"
-
-    if field_name != "T" && field_name != "M"
-        error("Incorrect field name for similarity metric.")
-    end
-    # Single linkage
-    if method == "single"
-        if field_name == "T"
-            value = maximum(F2.T)
-        elseif field_name == "M"
-            value = maximum(F2.M)
-        end
-    # Average linkage
-    elseif method == "average"
-        if field_name == "T"
-            value = statistics_mean(F2.T)
-        elseif field_name == "M"
-            value = statistics_mean(F2.M)
-        end
-    # Complete linkage
-    elseif method == "complete"
-        if field_name == "T"
-            value = minimum(F2.T)
-        elseif field_name == "M"
-            value = minimum(F2.M)
-        end
-    # Median linkage
-    elseif method == "median"
-        if field_name == "T"
-            value = statistics_median(F2.T)
-        elseif field_name == "M"
-            value = statistics_median(F2.M)
-        end
-    # Weighted linkage
-    elseif method == "weighted"
-        if field_name == "T"
-            value = F2.T' * (F2.n_instance ./ sum(F2.n_instance))
-        elseif field_name == "M"
-            value = F2.M' * (F2.n_instance ./ sum(F2.n_instance))
-        end
-    # Centroid linkage
-    elseif method == "centroid"
-        # Get the minimum of each weight element, cast to a 1-D vector
-        Wc = vec(minimum(F2.W, dims=2))
-        T = norm(element_min(sample, Wc), 1) / (F2.opts.alpha + norm(Wc, 1))^F2.opts.gamma
-        if field_name == "T"
-            value = T
-        elseif field_name == "M"
-            value = (norm(Wc, 1)^F2.opts.gamma_ref) * T
-        end
+function similarity(method::Symbol, F2::FuzzyART, sample::RealVector, activation::Bool)
+    # Handle :centroid usage
+    if method === :centroid
+        value = eval(method)(F2, sample, activation)
+    # Handle :weighted usage
+    elseif method === :weighted
+        value = eval(method)(F2, activation)
+    # Handle common usage
     else
-        error("Invalid/unimplemented similarity method")
+        value = eval(method)(activation ? F2.T : F2.M)
     end
 
     return value
 end
 
-
 """
-Enumerates all similarity methods
+A list of all DDVFA similarity linkage methods.
 """
-const SIMILARITY_METHODS = [
+const DDVFA_METHODS = [
     :single,
     :average,
     :complete,
@@ -484,22 +459,67 @@ const SIMILARITY_METHODS = [
     :centroid,
 ]
 
+"""
+Single linkage DDVFA similarity function.
+
+$FIELD_DOCSTRING
+"""
 function single(field::RealVector)
     return maximum(field)
 end
 
+"""
+Average linkage DDVFA similarity function.
+
+$FIELD_DOCSTRING
+"""
 function average(field::RealVector)
     return statistics_mean(field)
 end
 
+"""
+Complete linkage DDVFA similarity function.
+
+$FIELD_DOCSTRING
+"""
 function complete(field::RealVector)
     return minimum(field)
 end
 
+"""
+Median linkage DDVFA similarity function.
+
+$FIELD_DOCSTRING
+"""
 function median(field::RealVector)
     return statistics_median(field)
 end
 
+"""
+Weighted linkage DDVFA similarity function.
+
+# Arguments:
+$F2_DOCSTRING
+$ACTIVATION_DOCSTRING
+"""
+function weighted(F2::FuzzyART, activation::Bool)
+    if activation
+        value = F2.T' * (F2.n_instance ./ sum(F2.n_instance))
+    else
+        value = F2.M' * (F2.n_instance ./ sum(F2.n_instance))
+    end
+
+    return value
+end
+
+"""
+Centroid linkage DDVFA similarity function.
+
+# Arguments:
+$F2_DOCSTRING
+$SAMPLE_DOCSTRING
+$ACTIVATION_DOCSTRING
+"""
 function centroid(F2::FuzzyART, sample::RealVector, activation::Bool)
     Wc = vec(minimum(F2.W, dims=2))
     T = norm(element_min(sample, Wc), 1) / (F2.opts.alpha + norm(Wc, 1))^F2.opts.gamma

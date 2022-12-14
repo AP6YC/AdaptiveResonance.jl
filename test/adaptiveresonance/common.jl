@@ -37,16 +37,6 @@ end # @testset "common.jl"
 
 @testset "constants.jl" begin
     @info "------- Constants Tests -------"
-    ddvfa_methods = [
-        "single",
-        "average",
-        "complete",
-        "median",
-        "weighted",
-        "centroid",
-    ]
-    @test AdaptiveResonance.DDVFA_METHODS == ddvfa_methods
-
     # Test that constants are exported
     art_constants = [
         ADAPTIVERESONANCE_VERSION,

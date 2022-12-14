@@ -111,7 +111,6 @@ using Statistics: mean as statistics_mean
 # Include all files
 include("common.jl")        # Objects shared by all modules
 include("version.jl")       # Exported constant for the version of the package
-include("constants.jl")     # Global constants and references for convenience
 include("ARTMAP/ARTMAP.jl") # Supervised ART modules
 include("ART/ART.jl")       # Unsupervised ART modules
 
