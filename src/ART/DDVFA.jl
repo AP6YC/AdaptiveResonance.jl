@@ -1,7 +1,7 @@
 """
     DDVFA.jl
 
-# Description:
+# Description
 Includes all of the structures and logic for running a Distributed Dual-Vigilance Fuzzy ART (DDVFA) module.
 
 # References
