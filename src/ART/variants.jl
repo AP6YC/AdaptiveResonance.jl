@@ -1,8 +1,8 @@
 """
     variants.jl
 
-Description:
-    Includes convenience constructors for common variants of various ART modules.
+# Description
+Includes convenience constructors for common variants of various ART modules.
 """
 
 # --------------------------------------------------------------------------- #
@@ -11,8 +11,8 @@ Description:
 
 # Shared variant statement for GNFA
 variant_statement = """
-GammaNormalizedFuzzyART is a variant of FuzzyART, using the [`AdaptiveResonance.opts_Fuzzy`](@ref) options.
-This constructor passes `gamma_normalization=true` in addition to the keyword argument options you provide.
+GammaNormalizedFuzzyART is a variant of FuzzyART, using the [`AdaptiveResonance.opts_FuzzyART`](@ref) options.
+This constructor passes `gamma_normalization=true`, which internally uses `match=:gamma_match` and `activation=:gamma_activation` in addition to the keyword argument options you provide.
 """
 
 """

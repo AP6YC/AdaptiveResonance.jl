@@ -27,11 +27,11 @@ using Pkg
 Pkg.add("AdaptiveResonance")
 ```
 
-If you wish to have the latest changes between releases, you can directly add the GitHub repo as a dependency with
+If you wish to have the latest changes between releases, you can directly add the GitHub repo at an arbitrary branch (such as `develop`) as a dependency with
 
 ```julia-repl
 julia> ]
-(@v1.8) pkg> add https://github.com/AP6YC/AdaptiveResonance.jl
+(@v1.8) pkg> add https://github.com/AP6YC/AdaptiveResonance.jl#develop
 ```
 
 ## [ART Modules](@id art_modules)
@@ -238,6 +238,8 @@ Otherwise, most ART and ARTMAP modules share the following nomenclature for algo
 - `alpha::Float`: Choice parameter > 0.
 - `beta::Float`: Learning parameter (0, 1].
 - `epsilon::Float`: Match tracking parameter (0, 1).
+- `match::Symbol`: A symbolic name of the match function used (i.e., `:basic_match`). Valid names are listed in [`MATCH_FUNCTIONS`](@ref).
+- `activation::Symbol`: A symbolic name of the activation function used (i.e., `:basic_activation`). Valid names are listed in [`ACTIVATION_FUNCTIONS`](@ref).
 
 ## [ART vs. ARTMAP](@id art_vs_artmap)
 

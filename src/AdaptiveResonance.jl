@@ -172,14 +172,10 @@ export
     ADAPTIVE_RESONANCE_MODULES, # Combined list of ART and ARTMAP modules
     DDVFA_METHODS,              # DDVFA linkage methods
     ADAPTIVERESONANCE_VERSION,  # Version of the package
+    MATCH_FUNCTIONS,            # All match functions as symbols
+    ACTIVATION_FUNCTIONS,       # All activation functions as symbols
 
     # ARTSCENE filter functions
-    color_to_gray,
-    contrast_normalization,
-    contrast_sensitive_oriented_filtering,
-    contrast_insensitive_oriented_filtering,
-    orientation_competition,
-    patch_orientation_color,
     artscene_filter     # Runs all of the above in one step, returning features
 
 end # module
