@@ -98,9 +98,11 @@ using
     Parameters,             # ARTopts are parameters (@with_kw)
     ProgressBars            # Provides progress bars for training and inference
 
-# Partial usings (which does not yet support comma-separated import notation)
+# Specific identifiers
 using LinearAlgebra: norm   # Trace and norms
-using Statistics: median, mean  # Medians and mean for linkage methods
+# Medians and mean for linkage methods
+using Statistics: median as statistics_median
+using Statistics: mean as statistics_mean
 
 # --------------------------------------------------------------------------- #
 # INCLUDES

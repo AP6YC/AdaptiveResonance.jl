@@ -608,7 +608,7 @@ end
 # COMMON DOCUMENTATION
 # --------------------------------------------------------------------------- #
 
-@doc raw"""
+@doc """
 Predict categories of a single sample of features 'x' using the ART model.
 
 Returns predicted category 'y_hat.'
@@ -622,7 +622,7 @@ Returns predicted category 'y_hat.'
 classify(art::ARTModule, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
 
 # Common function for setting the threshold (sometimes just vigilance, sometimes a function of vigilance).
-@doc raw"""
+@doc """
 Sets the match threshold of the ART/ARTMAP module as a function of the vigilance parameter.
 
 Depending on selected ART/ARTMAP module and its options, this may be a function of other parameters as well.
@@ -632,7 +632,7 @@ Depending on selected ART/ARTMAP module and its options, this may be a function 
 """
 set_threshold!(art::ARTModule)
 
-@doc raw"""
+@doc """
 Creates a category for the ARTModule module, expanding the weights and incrementing the category labels.
 
 # Arguments
@@ -684,12 +684,22 @@ function basic_activation(art::ARTModule, x::RealVector, W::RealVector)
     return norm(element_min(x, W), 1) / (art.opts.alpha + norm(W, 1))
 end
 
+"""
+Gamma-normalized match function.
+
+$(ART_X_W_ARGS)
+"""
 function gamma_match(art::ARTModule, x::RealVector, W::RealVector)
     return (norm(W, 1) ^ art.opts.gamma_ref) * gamma_activation(art, x, W)
 end
 
+"""
+Gamma-normalized activation funtion.
+
+$(ART_X_W_ARGS)
+"""
 function gamma_activation(art::ARTModule, x::RealVector, W::RealVector)
-    return basic_activation(art, x, W)^art.opts.gamma
+    return basic_activation(art, x, W) ^ art.opts.gamma
 end
 
 """
@@ -727,6 +737,7 @@ Enumerates all of the match functions available in the package.
 """
 const MATCH_FUNCTIONS = [
     :basic_match,
+    :gamma_match,
 ]
 
 """
@@ -735,6 +746,7 @@ Enumerates all of the activation functions available in the package.
 const ACTIVATION_FUNCTIONS = [
     :basic_activation,
     :choice_by_difference,
+    :gamma_activation,
 ]
 
 """

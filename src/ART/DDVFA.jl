@@ -50,9 +50,10 @@ $(OPTS_DOCSTRING)
     gamma_ref = 1.0; @assert 0.0 <= gamma_ref && gamma_ref < gamma
 
     """
-    Similarity method (activation and match): method ∈ ["single", "average", "complete", "median", "weighted", "centroid"].
+    Similarity method (activation and match): similarity ∈ ["single", "average", "complete", "median", "weighted", "centroid"].
     """
-    method::String = "single"
+    similarity::Symbol = :single
+    # method::String = "single"
 
     """
     Maximum number of epochs during training: max_epochs ∈ (1, Inf).
@@ -274,7 +275,12 @@ function train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fal
     T = zeros(art.n_categories)
     for jx = 1:art.n_categories
         activation_match!(art.F2[jx], sample)
-        T[jx] = similarity(art.opts.method, art.F2[jx], "T", sample)
+        # T[jx] = similarity(art.opts.method, art.F2[jx], "T", sample)
+        if !art.opts.similarity === :centroid
+            T[jx] = eval(art.opts.similarity)(art.F2[jx], true)
+        else
+            T[jx] = eval(art.opts.similarity)(art.opts.method, art.F2[jx], "T", sample)
+        end
     end
 
     # Compute the match for each category in the order of greatest activation
@@ -423,8 +429,10 @@ function similarity(method::AbstractString, F2::FuzzyART, field_name::AbstractSt
     # Average linkage
     elseif method == "average"
         if field_name == "T"
+            value = statistics_median(F2.M)
             value = mean(F2.T)
         elseif field_name == "M"
+            value = statistics_median(F2.M)
             value = mean(F2.M)
         end
     # Complete linkage
@@ -437,9 +445,9 @@ function similarity(method::AbstractString, F2::FuzzyART, field_name::AbstractSt
     # Median linkage
     elseif method == "median"
         if field_name == "T"
-            value = median(F2.T)
+            value = statistics_median(F2.T)
         elseif field_name == "M"
-            value = median(F2.M)
+            value = statistics_median(F2.M)
         end
     # Weighted linkage
     elseif method == "weighted"
@@ -460,6 +468,48 @@ function similarity(method::AbstractString, F2::FuzzyART, field_name::AbstractSt
         end
     else
         error("Invalid/unimplemented similarity method")
+    end
+
+    return value
+end
+
+
+"""
+Enumerates all similarity methods
+"""
+const SIMILARITY_METHODS = [
+    :single,
+    :average,
+    :complete,
+    :median,
+    :weighted,
+    :centroid,
+]
+
+function single(field::RealVector)
+    return maximum(field)
+end
+
+function average(field::RealVector)
+    return statistics_mean(field)
+end
+
+function complete(field::RealVector)
+    return minimum(field)
+end
+
+function median(field::RealVector)
+    return statistics_median(field)
+end
+
+function centroid(F2::FuzzyART, sample::RealVector, activation::Bool)
+    Wc = vec(minimum(F2.W, dims=2))
+    T = norm(element_min(sample, Wc), 1) / (F2.opts.alpha + norm(Wc, 1))^F2.opts.gamma
+
+    if activation
+        value = T
+    else
+        value = (norm(Wc, 1)^F2.opts.gamma_ref) * T
     end
 
     return value
