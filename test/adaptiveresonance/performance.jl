@@ -10,7 +10,7 @@ A test of the performance of every ART and ARTMAP module.
     @info "------- Training test -------"
 
     # All ART modules
-    arts = ADAPTIVE_RESONANCE_MODULES
+    arts = ADAPTIVERESONANCE_MODULES
     n_arts = length(arts)
 
     # All common ART options

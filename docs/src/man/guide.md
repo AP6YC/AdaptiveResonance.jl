@@ -227,6 +227,8 @@ However, it is possible to change these parameter values beyond their predefined
     You must be careful when changing option values during or after training, as it may result in some undefined behavior.
     Modify the ART module options after instantiation at your own risk and discretion.
 
+### [ART Options Summary](@id art_options_summary)
+
 Though most parameters differ between each ART and ARTMAP module, they all share some quality-of-life options and parameters shared by all ART algorithms:
 
 - `display::Bool`: a flag to display or suppress progress bars and logging messages during training and testing.
@@ -240,6 +242,17 @@ Otherwise, most ART and ARTMAP modules share the following nomenclature for algo
 - `epsilon::Float`: Match tracking parameter (0, 1).
 - `match::Symbol`: A symbolic name of the match function used (i.e., `:basic_match`). Valid names are listed in [`MATCH_FUNCTIONS`](@ref).
 - `activation::Symbol`: A symbolic name of the activation function used (i.e., `:basic_activation`). Valid names are listed in [`ACTIVATION_FUNCTIONS`](@ref).
+
+### [ART Activation and Match Functions](@id art_activation_match_functions)
+
+Most ART and ARTMAP modules can now swap out their activation and match functions thanks to Julia's metaprogramming capabilities.
+This is done by setting the `match` or `activation` options of the [ART options struct](@ref art_options_summary) with a symbol of the function to use, such as with
+
+```julia
+my_opts = opts_FuzzyART(match=:choice_by_difference, activation=:basic_activation)
+```
+
+A list of all available activation and match functions is provided in the [`ACTIVATION_FUNCTIONS`](@ref) and [`MATCH_FUNCTIONS`] constants, respectively.
 
 ## [ART vs. ARTMAP](@id art_vs_artmap)
 

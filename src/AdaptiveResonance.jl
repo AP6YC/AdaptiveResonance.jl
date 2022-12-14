@@ -121,7 +121,7 @@ include("ART/ART.jl")       # Unsupervised ART modules
 """
 A combined list of all unsupervised ART and supervised ARTMAP modules from the `AdaptiveResonance.jl` package.
 """
-const ADAPTIVE_RESONANCE_MODULES = [
+const ADAPTIVERESONANCE_MODULES = [
     ART_MODULES;
     ARTMAP_MODULES;
 ]
@@ -169,7 +169,7 @@ export
     # Useful constants
     ART_MODULES,                # List of (default) unsupervised ART modules
     ARTMAP_MODULES,             # List of supervised ARTMAP modules
-    ADAPTIVE_RESONANCE_MODULES, # Combined list of ART and ARTMAP modules
+    ADAPTIVERESONANCE_MODULES, # Combined list of ART and ARTMAP modules
     DDVFA_METHODS,              # DDVFA linkage methods
     ADAPTIVERESONANCE_VERSION,  # Version of the package
     MATCH_FUNCTIONS,            # All match functions as symbols
