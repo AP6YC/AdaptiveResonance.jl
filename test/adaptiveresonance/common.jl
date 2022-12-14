@@ -43,6 +43,9 @@ end # @testset "common.jl"
         ART_MODULES,
         ARTMAP_MODULES,
         ADAPTIVERESONANCE_MODULES,
+        DDVFA_METHODS,
+        MATCH_FUNCTIONS,
+        ACTIVATION_FUNCTIONS,
     ]
     for local_constant in art_constants
         @test @isdefined local_constant

@@ -49,9 +49,9 @@ $(OPTS_DOCSTRING)
     uncommitted::Bool = true
 
     """
-    Display flag.
+    Display flag for progress bars.
     """
-    display::Bool = true
+    display::Bool = false
 end
 
 # --------------------------------------------------------------------------- #

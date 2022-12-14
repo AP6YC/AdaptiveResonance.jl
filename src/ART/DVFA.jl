@@ -45,9 +45,9 @@ $(OPTS_DOCSTRING)
     max_epochs::Int = 1
 
     """
-    Display flag.
+    Display flag for progress bars.
     """
-    display::Bool = true
+    display::Bool = false
 
     """
     Flag to use an uncommitted node when learning.

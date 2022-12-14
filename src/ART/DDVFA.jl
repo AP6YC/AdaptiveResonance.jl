@@ -60,9 +60,9 @@ $(OPTS_DOCSTRING)
     max_epoch::Int = 1
 
     """
-    Display flag.
+    Display flag for progress bars.
     """
-    display::Bool = true
+    display::Bool = false
 
     """
     Flag to normalize the threshold by the feature dimension.

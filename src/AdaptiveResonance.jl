@@ -178,4 +178,4 @@ export
     # ARTSCENE filter functions
     artscene_filter     # Runs all of the above in one step, returning features
 
-end # module
+end

@@ -15,8 +15,8 @@ A test of the performance of every ART and ARTMAP module.
 
     # All common ART options
     art_opts = [
-        (display = true,),
-        # (display = false,),
+        # (display = true,),
+        (display = false,),
     ]
 
     # Specific ART options
