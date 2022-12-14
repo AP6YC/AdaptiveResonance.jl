@@ -276,10 +276,10 @@ function train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fal
     for jx = 1:art.n_categories
         activation_match!(art.F2[jx], sample)
         # T[jx] = similarity(art.opts.method, art.F2[jx], "T", sample)
-        if !art.opts.similarity === :centroid
-            T[jx] = eval(art.opts.similarity)(art.F2[jx], true)
+        if !(art.opts.similarity === :centroid)
+            T[jx] = eval(art.opts.similarity)(art.F2[jx].T)
         else
-            T[jx] = eval(art.opts.similarity)(art.opts.method, art.F2[jx], "T", sample)
+            T[jx] = eval(art.opts.similarity)(art.F2[jx], sample, true)
         end
     end
 
@@ -429,11 +429,9 @@ function similarity(method::AbstractString, F2::FuzzyART, field_name::AbstractSt
     # Average linkage
     elseif method == "average"
         if field_name == "T"
-            value = statistics_median(F2.M)
-            value = mean(F2.T)
+            value = statistics_mean(F2.T)
         elseif field_name == "M"
-            value = statistics_median(F2.M)
-            value = mean(F2.M)
+            value = statistics_mean(F2.M)
         end
     # Complete linkage
     elseif method == "complete"
