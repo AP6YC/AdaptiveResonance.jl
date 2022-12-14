@@ -28,9 +28,9 @@ Some of these options are used to modulate the internals of the module, such as 
 These variants are:
 
 - ART
-  - [`Gamma-Normalized FuzzyART`](@ref GammaNormalizedFuzzyART)
+  - [`GammaNormalizedFuzzyART`](@ref): Gamma-Normalized FuzzyART
 - ARTMAP
-  - [`Default ARTMAP`](@ref DAM)
+  - [`DAM`](@ref): Default ARTMAP
 
 ### Gamma-Normalized FuzzyART
 
