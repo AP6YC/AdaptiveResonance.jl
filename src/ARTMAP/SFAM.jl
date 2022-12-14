@@ -191,7 +191,7 @@ function create_category!(art::SFAM, x::RealVector, y::Integer)
         # Add a new weight of ones
         append!(art.W, ones(art.config.dim_comp, 1))
         # Learn the uncommitted node on the sample
-        learn!(art.W, sample, art.n_categories)
+        learn!(art, x, art.n_categories)
     else
         # Fast commit the sample
         append!(art.W, x)
@@ -310,6 +310,14 @@ vector W and sample x.
 function learn(art::SFAM, x::RealVector, W::RealVector)
     # Update W
     return art.opts.beta .* element_min(x, W) .+ W .* (1 - art.opts.beta)
+end
+
+"""
+In-place learning function.
+"""
+function learn!(art::SFAM, x::RealVector, index::Integer)
+    # Update W at the index
+    art.W[:, index] = learn(art, x, art.W[:, index])
 end
 
 """

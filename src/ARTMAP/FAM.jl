@@ -52,7 +52,7 @@ $(OPTS_DOCSTRING)
     Display flag.
     """
     display::Bool = true
-end # opts_FAM()
+end
 
 # --------------------------------------------------------------------------- #
 # STRUCTS
@@ -80,12 +80,12 @@ mutable struct FAM <: ARTMAP
     """
     Category weight matrix.
     """
-    W::Matrix{Float}
+    W::ARTMatrix{Float}
 
     """
     Incremental list of labels corresponding to each F2 node, self-prescribed or supervised.
     """
-    labels::Vector{Int}
+    labels::ARTVector{Int}
 
     """
     Number of category weights (F2 nodes).
@@ -96,7 +96,7 @@ mutable struct FAM <: ARTMAP
     Current training epoch.
     """
     epoch::Int
-end # FAM <: ARTMAP
+end
 
 # --------------------------------------------------------------------------- #
 # CONSTRUCTORS
@@ -125,7 +125,7 @@ FAM
 function FAM(;kwargs...)
     opts = opts_FAM(;kwargs...)
     FAM(opts)
-end # FAM(;kwargs...)
+end
 
 """
 Implements a Fuzzy ARTMAP learner with specified options.
@@ -141,11 +141,11 @@ FAM
 """
 function FAM(opts::opts_FAM)
     FAM(
-        opts,                       # opts_FAM
-        DataConfig(),               # config
-        Array{Float}(undef, 0, 0),  # W
-        Array{Int}(undef, 0),       # labels
-        0,                          # n_categories
-        0                           # epoch
+        opts,                           # opts_FAM
+        DataConfig(),                   # config
+        ARTMatrix{Float}(undef, 0, 0),  # W
+        ARTVector{Int}(undef, 0),       # labels
+        0,                              # n_categories
+        0                               # epoch
     )
-end # FAM(opts::opts_FAM)
+end

@@ -240,7 +240,7 @@ function create_category!(art::DVFA, x::RealVector, y::Integer ; new_cluster::Bo
         # Add a new weight of ones
         append!(art.W, ones(art.config.dim_comp, 1))
         # Learn the uncommitted node on the sample
-        learn!(art.W, sample, art.n_categories)
+        learn!(art, x, art.n_categories)
     else
         # Fast commit the sample
         append!(art.W, x)
@@ -379,7 +379,7 @@ end
 In place learning function.
 """
 function learn!(art::DVFA, x::RealVector, index::Integer)
-    # Update W
+    # Update W at the index
     art.W[:, index] = learn(art, x, art.W[:, index])
 end
 

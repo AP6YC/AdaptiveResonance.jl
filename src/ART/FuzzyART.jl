@@ -257,20 +257,20 @@ end
 function create_category!(art::FuzzyART, x::RealVector, y::Integer)
     # Increment the number of categories
     art.n_categories += 1
+    # Increment number of samples associated with new category
+    push!(art.n_instance, 1)
 
     # If we use an uncommitted node
     if art.opts.uncommitted
         # Add a new weight of ones
         append!(art.W, ones(art.config.dim_comp, 1))
         # Learn the uncommitted node on the sample
-        learn!(art.W, sample, art.n_categories)
+        learn!(art, x, art.n_categories)
     else
         # Fast commit the sample
         append!(art.W, x)
     end
 
-    # Increment number of samples associated with new category
-    push!(art.n_instance, 1)
     # Add the label for the category
     push!(art.labels, y)
 end
