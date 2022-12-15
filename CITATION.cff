@@ -25,6 +25,8 @@ identifiers:
 url: https://doi.org/10.5281/zenodo.5748453
 repository-code: https://github.com/AP6YC/AdaptiveResonance.jl
 license: MIT
+institution:
+  name: "Missouri University of Science and Technology"
 
 # Preferred citation of the JOSS paper
 message: "Please cite this software using the metadata from 'preferred-citation'."
