@@ -37,22 +37,15 @@ end # @testset "common.jl"
 
 @testset "constants.jl" begin
     @info "------- Constants Tests -------"
-    ddvfa_methods = [
-        "single",
-        "average",
-        "complete",
-        "median",
-        "weighted",
-        "centroid",
-    ]
-    @test AdaptiveResonance.DDVFA_METHODS == ddvfa_methods
-
     # Test that constants are exported
     art_constants = [
         ADAPTIVERESONANCE_VERSION,
         ART_MODULES,
         ARTMAP_MODULES,
-        ADAPTIVE_RESONANCE_MODULES,
+        ADAPTIVERESONANCE_MODULES,
+        DDVFA_METHODS,
+        MATCH_FUNCTIONS,
+        ACTIVATION_FUNCTIONS,
     ]
     for local_constant in art_constants
         @test @isdefined local_constant
@@ -63,7 +56,7 @@ end
     @info "------- Kwargs test -------"
 
     # Iterate over all modules
-    for art in ADAPTIVE_RESONANCE_MODULES
+    for art in ADAPTIVERESONANCE_MODULES
         art_module = art(alpha=1e-3, display=false)
     end
 end

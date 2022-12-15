@@ -59,6 +59,16 @@ AdaptiveResonance.jl convention for which 2-D dimension contains the number of s
 """
 const ART_SAMPLES = 2
 
+"""
+The type of matrix used by the AdaptiveResonance.jl package, used to configure matrix growth behavior.
+"""
+const ARTMatrix = ElasticMatrix
+
+"""
+The type of vector used by the AdaptiveResonance.jl package, used to configure vector growth behvior.
+"""
+const ARTVector = Vector
+
 # --------------------------------------------------------------------------- #
 # ABSTRACT TYPES
 # --------------------------------------------------------------------------- #
@@ -84,8 +94,6 @@ Abstract supertype for all supervised ARTMAP modules.
 abstract type ARTMAP <: ARTModule end   # ARTMAP (supervised)
 
 """
-    const ARTIterator = Union{UnitRange, ProgressBar}
-
 Acceptable iterators for ART module training and inference
 """
 const ARTIterator = Union{UnitRange, ProgressBar}
@@ -317,7 +325,7 @@ Convenience method for setting up the DataConfig of an ART module in advance.
 function data_setup!(art::ARTModule, data::RealMatrix)
     # Modify the DataConfig of the ART module directly
     data_setup!(art.config, data)
-end # data_setup!(art::ART, data::RealMatrix)
+end
 
 """
 Get the characteristics of the data, taking account if a data config is passed.
@@ -504,7 +512,7 @@ function init_train!(x::RealVector, art::ARTModule, preprocessed::Bool)
         art.config = DataConfig(0, 1, dim)
     end
     return x
-end # init_train!(x::RealVector, art::ARTModule, preprocessed::Bool)
+end
 
 """
 Initializes the training loop for batch learning.
@@ -600,7 +608,7 @@ end
 # COMMON DOCUMENTATION
 # --------------------------------------------------------------------------- #
 
-@doc raw"""
+@doc """
 Predict categories of a single sample of features 'x' using the ART model.
 
 Returns predicted category 'y_hat.'
@@ -613,7 +621,8 @@ Returns predicted category 'y_hat.'
 """
 classify(art::ARTModule, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
 
-@doc raw"""
+# Common function for setting the threshold (sometimes just vigilance, sometimes a function of vigilance).
+@doc """
 Sets the match threshold of the ART/ARTMAP module as a function of the vigilance parameter.
 
 Depending on selected ART/ARTMAP module and its options, this may be a function of other parameters as well.
@@ -623,8 +632,129 @@ Depending on selected ART/ARTMAP module and its options, this may be a function 
 """
 set_threshold!(art::ARTModule)
 
+@doc """
+Creates a category for the ARTModule module, expanding the weights and incrementing the category labels.
+
+# Arguments
+- `art::ARTModule`: the ARTModule module to add a category to.
+- `x::RealVector`: the sample to use for adding a category.
+- `y::Integer`: the new label for the new category.
+"""
+create_category!(art::ARTModule, x::RealVector, y::Integer)
+
+# --------------------------------------------------------------------------- #
+# COMMON DOCUMENTATION CONSTANTS
+# --------------------------------------------------------------------------- #
+
 # Shared options docstring, inserted at the end of `opts_<...>` structs.
-opts_docstring = """
+const OPTS_DOCSTRING = """
 These options are a [`Parameters.jl`](https://github.com/mauro3/Parameters.jl) struct, taking custom options keyword arguments.
 Each field has a default value listed below.
 """
+
+"""
+Shared arguments string for methods using an ART module, sample 'x', and weight vector 'W'.
+"""
+const ART_X_W_ARGS = """
+# Arguments
+- `art::ARTModule`: the ARTModule module.
+- `x::RealVector`: the sample to use.
+- `W::RealVector`: the weight vector to use.
+"""
+
+# --------------------------------------------------------------------------- #
+# COMMON ALGORITHMIC FUNCTIONS
+# --------------------------------------------------------------------------- #
+
+"""
+Basic match function.
+
+$(ART_X_W_ARGS)
+"""
+function basic_match(art::ARTModule, x::RealVector, W::RealVector)
+    return norm(element_min(x, W), 1) / art.config.dim
+end
+
+"""
+Simplified FuzzyARTMAP activation function.
+
+$(ART_X_W_ARGS)
+"""
+function basic_activation(art::ARTModule, x::RealVector, W::RealVector)
+    return norm(element_min(x, W), 1) / (art.opts.alpha + norm(W, 1))
+end
+
+"""
+Gamma-normalized match function.
+
+$(ART_X_W_ARGS)
+"""
+function gamma_match(art::ARTModule, x::RealVector, W::RealVector)
+    return (norm(W, 1) ^ art.opts.gamma_ref) * gamma_activation(art, x, W)
+end
+
+"""
+Gamma-normalized activation funtion.
+
+$(ART_X_W_ARGS)
+"""
+function gamma_activation(art::ARTModule, x::RealVector, W::RealVector)
+    return basic_activation(art, x, W) ^ art.opts.gamma
+end
+
+"""
+Default ARTMAP's choice-by-difference activation function.
+
+$(ART_X_W_ARGS)
+"""
+function choice_by_difference(art::ARTModule, x::RealVector, W::RealVector)
+    return (
+        norm(element_min(x, W), 1)
+            + (1 - art.opts.alpha) * (art.config.dim - norm(W, 1))
+    )
+end
+
+"""
+Evaluates the match function of the ART/ARTMAP module on sample 'x' with weight 'W'.
+
+$(ART_X_W_ARGS)
+"""
+function art_match(art::ARTModule, x::RealVector, W::RealVector)
+    return eval(art.opts.match)(art, x, W)
+end
+
+"""
+Evaluates the activation function of the ART/ARTMAP module on the sample 'x' with weight 'W'.
+
+$(ART_X_W_ARGS)
+"""
+function art_activation(art::ARTModule, x::RealVector, W::RealVector)
+    return eval(art.opts.activation)(art, x, W)
+end
+
+"""
+Enumerates all of the match functions available in the package.
+"""
+const MATCH_FUNCTIONS = [
+    :basic_match,
+    :gamma_match,
+]
+
+"""
+Enumerates all of the activation functions available in the package.
+"""
+const ACTIVATION_FUNCTIONS = [
+    :basic_activation,
+    :choice_by_difference,
+    :gamma_activation,
+]
+
+"""
+Common docstring for listing available match functions.
+"""
+const MATCH_FUNCTIONS_DOCS = join(MATCH_FUNCTIONS, ", ", " and ")
+
+"""
+Common docstring for listing available activation functions.
+"""
+const ACTIVATION_FUNCTIONS_DOCS = join(ACTIVATION_FUNCTIONS, ", ", " and ")

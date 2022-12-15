@@ -19,7 +19,6 @@ CurrentModule=AdaptiveResonance
 - ARTMAP
   - [`SFAM`](@ref): Simplified Fuzzy ARTMAP
   - [`FAM`](@ref): Fuzzy ARTMAP
-  - [`DAM`](@ref): Default ARTMAP
 
 ## [Variants](@id modules-variants)
 
@@ -28,14 +27,39 @@ Some of these options are used to modulate the internals of the module, such as 
 
 These variants are:
 
-- [`Gamma-Normalized FuzzyART`](@ref Gamma-Normalized-FuzzyART)
+- ART
+  - [`GammaNormalizedFuzzyART`](@ref): Gamma-Normalized FuzzyART
+- ARTMAP
+  - [`DAM`](@ref): Default ARTMAP
 
 ### Gamma-Normalized FuzzyART
 
-A Gamma-Normalized FuzzyART is a FuzzyART module where the gamma normalization option is set on `gamma_normalization=true` and the kernel width parameter is set to $$\gamma >= 1.0$$ ($$\gamma_{ref}$$ is 1.0 by default):
+A [`Gamma-Normalized FuzzyART`](@ref GammaNormalizedFuzzyART) is implemented as a [`FuzzyART`](@ref) module where the gamma normalization option is set on `gamma_normalization=true` and the kernel width parameter is set to $$\gamma >= 1.0$$ ($$\gamma_{ref}$$ is 1.0 by default).
+It can be created with the convenience constructor:
 
 ```julia
-my_gnfa = FuzzyART(gamma_normalization=true, gamma=5.0)
+my_gnfa = GammaNormalizedFuzzyART()
 ```
 
-The `gamma_normalization` flag must be set high here because it also changes the thresholding value and match function of the module.
+Under the hood, this simply does
+
+```julia
+my_gnfa = FuzzyART(gamma_normalization=true)
+```
+
+which also sets the match and activation function options to `match=:gamma_match` and `activation=:gamma_activation`, respectively.
+
+### Default ARTMAP
+
+A [`Default ARTMAP`](@ref DAM) is implemented as a [`Simplified FuzzyARTMAP`](@ref SFAM) module where the activation function is set to Default ARTMAP's choice-by difference function via `activation=:choice_by_difference`.
+It can be created with the convenience constructor:
+
+```julia
+my_dam = DAM()
+```
+
+Under the hood, this simply does
+
+```julia
+my_dam = SFAM(activation=:choice_by_difference)
+```

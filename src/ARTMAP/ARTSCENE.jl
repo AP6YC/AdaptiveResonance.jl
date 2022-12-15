@@ -9,8 +9,9 @@ Description:
 # DEPENDENCIES
 # --------------------------------------------------------------------------- #
 
-using Distributed
-using SharedArrays
+using
+    Distributed,
+    SharedArrays
 
 # --------------------------------------------------------------------------- #
 # FUNCTIONS
@@ -35,16 +36,13 @@ end
 """
 Time rate of change of LGN network (ARTSCENE Stage 2).
 """
-function ddt_x(x::RealArray, image::RealArray, sigma_s::RealArray, distributed::Bool)
+function ddt_x(x::RealArray, image::RealArray, sigma_s::RealArray)
     n_row, n_column = size(x)
     n_g = length(sigma_s)
     kernel_r = 5
 
-    # dx = zeros(n_row, n_column, 4)
-    # for g = 1:n_g
-    if distributed
-        dx = SharedArray{Float64, 3}((n_row, n_column, n_g))
-        @sync @distributed for g = 1:n_g
+    dx = SharedArray{Float, 3}((n_row, n_column, n_g))
+    @sync @distributed for g = 1:n_g
         for i = 1:n_row
         for j = 1:n_column
             # Compute the surround kernel
@@ -56,15 +54,15 @@ function ddt_x(x::RealArray, image::RealArray, sigma_s::RealArray, distributed::
             dx[i,j,g] = - x[i,j,g] + (1 - x[i,j,g])*image[i,j] - (1 + x[i,j,g])*S_ijg_I
         end
         end
-        end
     end
+
     return dx
 end
 
 """
 ARTSCENE Stage 2: Constrast normalization.
 """
-function contrast_normalization(image::RealArray ; distributed::Bool=true)
+function contrast_normalization(image::RealArray)
     # All scale parameters
     sigma_s = [1, 4, 8, 12]
     n_g = length(sigma_s)
@@ -80,7 +78,7 @@ function contrast_normalization(image::RealArray ; distributed::Bool=true)
     end
 
     for i = 1:n_iterations
-        x += ddt_x(x, image, sigma_s, distributed)
+        x += ddt_x(x, image, sigma_s)
     end
 
     return x
@@ -111,7 +109,7 @@ end
 """
 Shunting equation for ARTSCENE Stage 3.
 """
-function ddt_y(y::RealArray, X_plus::RealArray, X_minus::RealArray, alpha::Real, distributed::Bool)
+function ddt_y(y::RealArray, X_plus::RealArray, X_minus::RealArray, alpha::Real)
     # n_row, n_column = size(x) # TODO: SOURCE OF WRONGNESS
     n_row, n_column = size(y)
     n_k = 4
@@ -122,9 +120,8 @@ function ddt_y(y::RealArray, X_plus::RealArray, X_minus::RealArray, alpha::Real,
 
     # dy = zeros(n_row, n_column, n_k, n_g)
     # for k = 1:n_k
-    if distributed
-        dy = SharedArray{Float64, 4}((n_row, n_column, n_k, n_g))
-        @sync @distributed for k = 1:n_k
+    dy = SharedArray{Float, 4}((n_row, n_column, n_k, n_g))
+    @sync @distributed for k = 1:n_k
         for g = 1:n_g
         for i = 1:n_row
         for j = 1:n_column
@@ -143,15 +140,15 @@ function ddt_y(y::RealArray, X_plus::RealArray, X_minus::RealArray, alpha::Real,
         end
         end
         end
-        end
     end
+
     return dy
 end
 
 """
 ARTSCENE Stage 3: Contrast-sensitive oriented filtering.
 """
-function contrast_sensitive_oriented_filtering(image::RealArray, x::RealArray ; distributed::Bool=true)
+function contrast_sensitive_oriented_filtering(image::RealArray, x::RealArray)
     # Get the size of the field
     n_row, n_column = size(x)
 
@@ -173,7 +170,7 @@ function contrast_sensitive_oriented_filtering(image::RealArray, x::RealArray ; 
     end
 
     for _ = 1:n_iterations
-        y += ddt_y(y, X_plus, X_minus, alpha, distributed)
+        y += ddt_y(y, X_plus, X_minus, alpha)
     end
 
     return y
@@ -211,15 +208,12 @@ end
 """
 Time rate of change for ARTSCENE: Stage 5.
 """
-function ddt_z(z::RealArray ; distributed::Bool=true)
+function ddt_z(z::RealArray)
     n_row, n_column, n_g, n_k = size(z)
     kernel_r = 5
 
-    # dz = zeros(n_row, n_column, n_k, n_g)
-    # for k = 1:n_k
-    if distributed
-        dz = SharedArray{Float64, 4}((n_row, n_column, n_k, n_g))
-        @sync @distributed for k = 1:n_k
+    dz = SharedArray{Float, 4}((n_row, n_column, n_k, n_g))
+    @sync @distributed for k = 1:n_k
         for g = 1:n_g
         for i = 1:n_row
         for j = 1:n_column
@@ -228,7 +222,6 @@ function ddt_z(z::RealArray ; distributed::Bool=true)
             dz[i,j,g,k] = (- z[i,j,g,k]
                         + (1 - z[i,j,g,k]*zgp)
                         - (1 + z[i,j,g,k]*zgm))
-        end
         end
         end
         end
@@ -241,7 +234,6 @@ end
 ARTSCENE Stage 5: Orientation competition at the same position.
 """
 function orientation_competition(z::RealArray)
-
     # Parameters
     n_iterations = 4    # Number if iterations to settle on contrast result
 
@@ -276,8 +268,8 @@ function patch_orientation_color(z::RealArray, image::RealArray)
     for p_i = 1:patch_i
         for p_j = 1:patch_j
             # Get the correct range objects for the grid
-            i_range = Integer(floor(size_i*(p_i-1)+1)):Integer(floor(size_i*p_i))
-            j_range = Integer(floor(size_j*(p_j-1)+1)):Integer(floor(size_j*p_j))
+            i_range = Int(floor(size_i*(p_i-1)+1)):Int(floor(size_i*p_i))
+            j_range = Int(floor(size_j*(p_j-1)+1)):Int(floor(size_j*p_j))
             # Compute the color averages
             for c = 1:n_colors
                 C[p_i,p_j,c] = 1/size_patch*sum(image[c, i_range, j_range])
@@ -298,53 +290,52 @@ Process the full artscene filter toolchain on an image.
 
 # Arguments
 - `raw_image::Array{Real, 3}`: the raw RGB image to process with the ARTSCENE filter.
-- `distributed::Bool=true`: flag to process the filter with parallel processing.
 """
-function artscene_filter(raw_image::Array{T, 3} ;  distributed::Bool=true) where T <: RealFP
+function artscene_filter(raw_image::Array{T, 3}) where T <: RealFP
 
     # Get the number of workers
     n_processes = nprocs()
     n_workers = nworkers()
-    @debug "Processes: $n_processes, Workers: $n_workers"
+    @debug "ARTSCENE - Parallel processes: $n_processes, Workers: $n_workers"
 
     # Random image
     image_size = size(raw_image)
     image_type =  typeof(raw_image)
-    @debug "Original: Size = $image_size, Type = $image_type"
+    @debug "ARTSCENE - Original: Size = $image_size, Type = $image_type"
 
     # Stage 1: Grayscale
     image = color_to_gray(raw_image)
     image_size = size(image)
     image_type = typeof(image)
-    @debug "Stage 1 Complete: Grayscale: Size = $image_size, Type = $image_type"
+    @debug "ARTSCENE - Stage 1 Complete: Grayscale: Size = $image_size, Type = $image_type"
 
     # Stage 2: Contrast normalization
-    x = contrast_normalization(image, distributed=distributed)
+    x = contrast_normalization(image)
     image_size = size(x)
     image_type = typeof(x)
-    @debug "Stage 2 Complete: Contrast: Size = $image_size, Type = $image_type"
+    @debug "ARTSCENE - Stage 2 Complete: Contrast: Size = $image_size, Type = $image_type"
 
     # Stage 3: Contrast-sensitive oriented filtering
     y = contrast_sensitive_oriented_filtering(image, x)
     image_size = size(y)
     image_type = typeof(y)
-    @debug "Stage 3 Complete: Sensitive Oriented: Size = $image_size, Type = $image_type"
+    @debug "ARTSCENE - Stage 3 Complete: Sensitive Oriented: Size = $image_size, Type = $image_type"
 
     # Stage 4: Contrast-insensitive oriented filtering
     z = contrast_insensitive_oriented_filtering(y)
     image_size = size(z)
     image_type = typeof(z)
-    @debug "Stage 4 Complete: Insensitive Oriented: Size = $image_size, Type = $image_type"
+    @debug "ARTSCENE - Stage 4 Complete: Insensitive Oriented: Size = $image_size, Type = $image_type"
 
     # Stage 5: Orientation competition
     z = orientation_competition(z)
     image_size = size(z)
     image_type = typeof(z)
-    @debug "Stage 5 Complete: Orientation Competition: Size = $image_size, Type = $image_type"
+    @debug "ARTSCENE - Stage 5 Complete: Orientation Competition: Size = $image_size, Type = $image_type"
 
     # *Stage 6*: Compute patch vectors (orientation and color)
     O, C = patch_orientation_color(z, raw_image)
-    @debug "Stage 6 Complete"
+    @debug "ARTSCENE - Stage 6 Complete"
 
     return O, C
 end
