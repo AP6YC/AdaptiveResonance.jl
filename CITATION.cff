@@ -1,4 +1,7 @@
+# CFF version for the document
 cff-version: 1.2.0
+
+# Authors list
 authors:
   - family-names: Petrenko
     given-names: Sasha
@@ -7,8 +10,10 @@ authors:
     email: sap625@mst.edu
     alias: AP6YC
     affiliation: "Missouri University of Science and Technology"
-abstract: "This software is a Julia package for Adaptive Resonance Theory (ART) algorithms."
+
+# Repository title and descriptors
 title: "AP6YC/AdaptiveResonance.jl"
+abstract: "This software is a Julia package for Adaptive Resonance Theory (ART) algorithms."
 keywords:
   - ART
   - "Adaptive Resonance Theory"
@@ -20,8 +25,12 @@ identifiers:
 url: https://doi.org/10.5281/zenodo.5748453
 repository-code: https://github.com/AP6YC/AdaptiveResonance.jl
 license: MIT
+
+# Preferred citation of the JOSS paper
 message: "Please cite this software using the metadata from 'preferred-citation'."
 preferred-citation:
+
+  # Authors list for the JOSS paper
   authors:
     - family-names: Petrenko
       given-names: Sasha
@@ -38,6 +47,8 @@ preferred-citation:
       email: dwunsch@mst.edu
       alias: dwunsch
       affiliation: "Missouri University of Science and Technology"
+
+  # Title, DOI, and journal details for the JOSS paper
   title: "AdaptiveResonance.jl: A Julia Implementation of Adaptive Resonance Theory (ART) Algorithms"
   publisher: "The Open Journal"
   journal: "Journal of Open Source Software"
