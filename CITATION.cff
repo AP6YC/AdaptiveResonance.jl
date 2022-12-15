@@ -1,0 +1,69 @@
+# CFF version for the document
+cff-version: 1.2.0
+
+# Authors list
+authors:
+  - family-names: "Petrenko"
+    given-names: "Sasha"
+    orcid: "https://orcid.org/0000-0003-2442-8901"
+    website: "https://ap6yc.github.io/"
+    email: "sap625@mst.edu"
+    alias: "AP6YC"
+    affiliation: "Missouri University of Science and Technology"
+
+# Repository title and descriptors
+title: "AP6YC/AdaptiveResonance.jl"
+abstract: "This software is a Julia package for Adaptive Resonance Theory (ART) algorithms."
+keywords:
+  - "ART"
+  - "Adaptive Resonance Theory"
+  - "Adaptive Resonance"
+identifiers:
+  - description: "The DOI of the latest AdaptiveResonance.jl Zenodo archive."
+    type: "doi"
+    value: "10.5281/zenodo.5748453"
+url: "https://doi.org/10.5281/zenodo.5748453"
+repository-code: "https://github.com/AP6YC/AdaptiveResonance.jl"
+license: "MIT"
+institution:
+  name: "Missouri University of Science and Technology"
+
+# Preferred citation of the JOSS paper
+message: "Please cite this software using the metadata from 'preferred-citation'."
+preferred-citation:
+
+  # Authors list for the JOSS paper
+  authors:
+    - family-names: "Petrenko"
+      given-names: "Sasha"
+      orcid: "https://orcid.org/0000-0003-2442-8901"
+      website: "https://ap6yc.github.io/"
+      email: "sap625@mst.edu"
+      alias: "AP6YC"
+      affiliation: "Missouri University of Science and Technology"
+    - family-names: "Wunsch"
+      given-names: "Donald"
+      name-suffix: "II"
+      orcid: "https://orcid.org/0000-0002-9726-9051"
+      website: "https://people.mst.edu/faculty/dwunsch/"
+      email: "dwunsch@mst.edu"
+      alias: "dwunsch"
+      affiliation: "Missouri University of Science and Technology"
+
+  # Title, DOI, and journal details for the JOSS paper
+  title: "AdaptiveResonance.jl: A Julia Implementation of Adaptive Resonance Theory (ART) Algorithms"
+  publisher: "The Open Journal"
+  journal: "Journal of Open Source Software"
+  year: 2022
+  month: 4
+  volume: 7
+  number: 73
+  pages: 3671
+  type: "article"
+  identifiers:
+    - description: "The DOI of the AdaptiveResonance.jl JOSS paper."
+      type: "doi"
+      value: "10.21105/joss.03671"
+  url: "https://doi.org/10.21105/joss.03671"
+  institution:
+    name: "Missouri University of Science and Technology"
