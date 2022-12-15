@@ -8,6 +8,7 @@ authors:
     alias: AP6YC
     affiliation: "Missouri University of Science and Technology"
 abstract: "This software is a Julia package for Adaptive Resonance Theory (ART) algorithms."
+title: "AP6YC/AdaptiveResonance.jl"
 keywords:
   - ART
   - "Adaptive Resonance Theory"
