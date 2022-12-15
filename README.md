@@ -64,6 +64,7 @@ Please read the [documentation](https://ap6yc.github.io/AdaptiveResonance.jl/dev
   - [Software](#software)
   - [Datasets](#datasets)
 - [License](#license)
+- [Citation](#citation)
 
 ## Overview
 
@@ -269,3 +270,24 @@ Boilerplate clustering datasets are periodically used to test, verify, and provi
 ## License
 
 This software is openly maintained by the ACIL of the Missouri University of Science and Technology under the [MIT License](LICENSE).
+
+## Citation
+
+This project has a [citation file](CITATION.cff) file that generates citation information for the package and corresponding JOSS paper, which can be accessed at the "Cite this repository button" under the "About" section of the GitHub page.
+
+You may also cite this repository with the following BibTeX entry:
+
+```bibtex
+@article{Petrenko2022,
+  doi = {10.21105/joss.03671},
+  url = {https://doi.org/10.21105/joss.03671},
+  year = {2022},
+  publisher = {The Open Journal},
+  volume = {7},
+  number = {73},
+  pages = {3671},
+  author = {Sasha Petrenko and Donald C. Wunsch},
+  title = {AdaptiveResonance.jl: A Julia Implementation of Adaptive Resonance Theory (ART) Algorithms},
+  journal = {Journal of Open Source Software}
+}
+```
