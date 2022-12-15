@@ -63,8 +63,8 @@ Please read the [documentation](https://ap6yc.github.io/AdaptiveResonance.jl/dev
   - [Authors](#authors)
   - [Software](#software)
   - [Datasets](#datasets)
-- [License](#license)
-- [Citation](#citation)
+  - [License](#license)
+  - [Citation](#citation)
 
 ## Overview
 
@@ -267,11 +267,11 @@ Boilerplate clustering datasets are periodically used to test, verify, and provi
 4. Clustering basic benchmark:
 <http://cs.uef.fi/sipu/datasets>
 
-## License
+### License
 
 This software is openly maintained by the ACIL of the Missouri University of Science and Technology under the [MIT License](LICENSE).
 
-## Citation
+### Citation
 
 This project has a [citation file](CITATION.cff) file that generates citation information for the package and corresponding JOSS paper, which can be accessed at the "Cite this repository button" under the "About" section of the GitHub page.
 
