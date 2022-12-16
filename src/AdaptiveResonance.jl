@@ -92,14 +92,17 @@ module AdaptiveResonance
 # Full usings (which supports comma-separated import notation)
 using
     DocStringExtensions,    # Docstring utilities
+    ElasticArrays,          # Fast resizable arrays
     Logging,                # Logging utils used as main method of terminal reporting
     NumericalTypeAliases,   # Abstract type aliases
     Parameters,             # ARTopts are parameters (@with_kw)
     ProgressBars            # Provides progress bars for training and inference
 
-# Partial usings (which does not yet support comma-separated import notation)
+# Specific identifiers
 using LinearAlgebra: norm   # Trace and norms
-using Statistics: median, mean  # Medians and mean for linkage methods
+# Medians and mean for linkage methods
+using Statistics: median as statistics_median
+using Statistics: mean as statistics_mean
 
 # --------------------------------------------------------------------------- #
 # INCLUDES
@@ -107,7 +110,7 @@ using Statistics: median, mean  # Medians and mean for linkage methods
 
 # Include all files
 include("common.jl")        # Objects shared by all modules
-include("constants.jl")     # Global constants and references for convenience
+include("version.jl")       # Exported constant for the version of the package
 include("ARTMAP/ARTMAP.jl") # Supervised ART modules
 include("ART/ART.jl")       # Unsupervised ART modules
 
@@ -118,7 +121,7 @@ include("ART/ART.jl")       # Unsupervised ART modules
 """
 A combined list of all unsupervised ART and supervised ARTMAP modules from the `AdaptiveResonance.jl` package.
 """
-const ADAPTIVE_RESONANCE_MODULES = [
+const ADAPTIVERESONANCE_MODULES = [
     ART_MODULES;
     ARTMAP_MODULES;
 ]
@@ -149,32 +152,30 @@ export
     complement_code,            # Map x -> [x, 1 - x] and normalize to [0, 1]
     get_data_characteristics,   # Get characteristics of x, used by data configs
     linear_normalization,       # Normalize x to [0, 1]
-    get_data_shape,             # Get the dim, n_samples of x (accepts 1-D and 2-D)
-    get_n_samples,              # Get the number of samples (1-D interpreted as one sample)
 
     # ART (unsupervised)
     FuzzyART, opts_FuzzyART,
     DDVFA, opts_DDVFA, get_W,
     DVFA, opts_DVFA,
+    # ART variants
+    GammaNormalizedFuzzyART, opts_GammaNormalizedFuzzyART,
 
     # ARTMAP (supervised)
     FAM, opts_FAM,
-    DAM, opts_DAM,
     SFAM, opts_SFAM,
+    # ARTMAP variants
+    DAM, opts_DAM,
 
     # Useful constants
     ART_MODULES,                # List of (default) unsupervised ART modules
     ARTMAP_MODULES,             # List of supervised ARTMAP modules
-    ADAPTIVE_RESONANCE_MODULES, # Combined list of ART and ARTMAP modules
+    ADAPTIVERESONANCE_MODULES, # Combined list of ART and ARTMAP modules
     DDVFA_METHODS,              # DDVFA linkage methods
+    ADAPTIVERESONANCE_VERSION,  # Version of the package
+    MATCH_FUNCTIONS,            # All match functions as symbols
+    ACTIVATION_FUNCTIONS,       # All activation functions as symbols
 
     # ARTSCENE filter functions
-    color_to_gray,
-    contrast_normalization,
-    contrast_sensitive_oriented_filtering,
-    contrast_insensitive_oriented_filtering,
-    orientation_competition,
-    patch_orientation_color,
     artscene_filter     # Runs all of the above in one step, returning features
 
-end # module
+end

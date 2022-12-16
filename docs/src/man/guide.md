@@ -15,8 +15,9 @@ To work with `AdaptiveResonance.jl`, you should know:
 The AdaptiveResonance package can be installed using the Julia package manager.
 From the Julia REPL, type `]` to enter the Pkg REPL mode and run
 
-```julia
-pkg> add AdaptiveResonance
+```julia-repl
+julia> ]
+(@v1.8) pkg> add AdaptiveResonance
 ```
 
 Alternatively, it can be added to your environment in a script with
@@ -26,10 +27,11 @@ using Pkg
 Pkg.add("AdaptiveResonance")
 ```
 
-If you wish to have the latest changes between releases, you can directly add the GitHub repo as a dependency with
+If you wish to have the latest changes between releases, you can directly add the GitHub repo at an arbitrary branch (such as `develop`) as a dependency with
 
-```julia
-pkg> add https://github.com/AP6YC/AdaptiveResonance.jl
+```julia-repl
+julia> ]
+(@v1.8) pkg> add https://github.com/AP6YC/AdaptiveResonance.jl#develop
 ```
 
 ## [ART Modules](@id art_modules)
@@ -113,7 +115,7 @@ Batch and incremental modes can be used interchangably after module instantiatio
 
     ```julia
     # Manually setup the data config with the data itself
-    data_setup!(art.config, data.train_x)
+    data_setup!(art, data.train_x)
     ```
 
     If you do not have the batch data available, you can directly create a `DataConfig` with the minimums and maximums (inferring the number of features from the lengths of these vectors):
@@ -205,12 +207,11 @@ The options are objects from the [Parameters.jl](https://github.com/mauro3/Param
 my_art_opts = opts_DDVFA(gamma = 3)
 ```
 
-!!! note "Note"
-    As of version `0.3.6`, you can pass these keyword arguments directly to the ART model when constructing it with
+You can also pass these keyword arguments directly to the ART model when constructing it with
 
-    ```julia
-    my_art = DDVFA(gamma = 3)
-    ```
+```julia
+my_art = DDVFA(gamma = 3)
+```
 
 You can even modify the parameters on the fly after the ART module has been instantiated by directly modifying the options within the module:
 
@@ -226,10 +227,12 @@ However, it is possible to change these parameter values beyond their predefined
     You must be careful when changing option values during or after training, as it may result in some undefined behavior.
     Modify the ART module options after instantiation at your own risk and discretion.
 
+### [ART Options Summary](@id art_options_summary)
+
 Though most parameters differ between each ART and ARTMAP module, they all share some quality-of-life options and parameters shared by all ART algorithms:
 
 - `display::Bool`: a flag to display or suppress progress bars and logging messages during training and testing.
-- `max_epochs::Integer`: the maximum number of epochs to train over the data, regardless if other stopping conditions have not been met yet.
+- `max_epochs::Int`: the maximum number of epochs to train over the data, regardless if other stopping conditions have not been met yet.
 
 Otherwise, most ART and ARTMAP modules share the following nomenclature for algorithmic parameters:
 
@@ -237,6 +240,19 @@ Otherwise, most ART and ARTMAP modules share the following nomenclature for algo
 - `alpha::Float`: Choice parameter > 0.
 - `beta::Float`: Learning parameter (0, 1].
 - `epsilon::Float`: Match tracking parameter (0, 1).
+- `match::Symbol`: A symbolic name of the match function used (i.e., `:basic_match`). Valid names are listed in [`MATCH_FUNCTIONS`](@ref).
+- `activation::Symbol`: A symbolic name of the activation function used (i.e., `:basic_activation`). Valid names are listed in [`ACTIVATION_FUNCTIONS`](@ref).
+
+### [ART Activation and Match Functions](@id art_activation_match_functions)
+
+Most ART and ARTMAP modules can now swap out their activation and match functions thanks to Julia's metaprogramming capabilities.
+This is done by setting the `match` or `activation` options of the [ART options struct](@ref art_options_summary) with a symbol of the function to use, such as with
+
+```julia
+my_opts = opts_FuzzyART(match=:choice_by_difference, activation=:basic_activation)
+```
+
+A list of all available activation and match functions is provided in the [`ACTIVATION_FUNCTIONS`](@ref) and [`MATCH_FUNCTIONS`] constants, respectively.
 
 ## [ART vs. ARTMAP](@id art_vs_artmap)
 
@@ -258,7 +274,7 @@ This can also be done incrementally with the same function:
 ```julia
 # Get the number of training samples and create a results container
 n_train = length(train_y)
-y_hat_train_incremental = zeros(Integer, n_train)
+y_hat_train_incremental = zeros(Int, n_train)
 
 # Train incrementally over all training samples
 for i = 1:n_train

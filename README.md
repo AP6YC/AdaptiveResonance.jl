@@ -54,16 +54,18 @@ Please read the [documentation](https://ap6yc.github.io/AdaptiveResonance.jl/dev
 
 - [Contents](#contents)
 - [Overview](#overview)
-- [Contributing](#contributing)
-- [Installation](#installation)
-- [Quickstart](#quickstart)
-- [Implemented Modules](#implemented-modules)
-- [History](#history)
+- [Usage](#usage)
+  - [Installation](#installation)
+  - [Quickstart](#quickstart)
+  - [Implemented Modules](#implemented-modules)
+  - [Contributing](#contributing)
 - [Acknowledgements](#acknowledgements)
   - [Authors](#authors)
+  - [History](#history)
   - [Software](#software)
   - [Datasets](#datasets)
-- [License](#license)
+  - [License](#license)
+  - [Citation](#citation)
 
 ## Overview
 
@@ -74,21 +76,9 @@ This package provides implementations of many of these algorithms in Julia for b
 Basic installation is outlined in [Installation](#installation), while a quickstart is provided in [Quickstart](#quickstart).
 Detailed usage and examples are provided in the [documentation](https://ap6yc.github.io/AdaptiveResonance.jl/dev/).
 
-## Contributing
+## Usage
 
-If you have a question or concern, please raise an [issue][issues-url].
-For more details on how to work with the project, propose changes, or even contribute code, please see the [Developer Notes][contrib-url] in the project's documentation.
-
-In summary:
-
-1. Questions and requested changes should all be made in the [issues][issues-url] page.
-These are preferred because they are publicly viewable and could assist or educate others with similar issues or questions.
-2. For changes, this project accepts pull requests (PRs) from `feature/<my-feature>` branches onto the `develop` branch using the [GitFlow](https://nvie.com/posts/a-successful-git-branching-model/) methodology.
-If unit tests pass and the changes are beneficial, these PRs are merged into `develop` and eventually folded into versioned releases.
-3. The project follows the [Semantic Versioning](https://semver.org/) convention of `major.minor.patch` incremental versioning numbers.
-Patch versions are for bug fixes, minor versions are for backward-compatible changes, and major versions are for new and incompatible usage changes.
-
-## Installation
+### Installation
 
 This project is distributed as a Julia package, available on [JuliaHub](https://juliahub.com/).
 Its usage follows the usual Julia package installation procedure, interactively:
@@ -112,7 +102,7 @@ julia> ]
 (@v1.8) pkg> add https://github.com/AP6YC/AdaptiveResonance.jl
 ```
 
-## Quickstart
+### Quickstart
 
 Load the module with
 
@@ -178,7 +168,7 @@ These modules also support retrieving the "best-matching unit" in the case of co
 y_hat_bmu = classify(art, test_x, get_bmu=true)
 ```
 
-## Implemented Modules
+### Implemented Modules
 
 This project has implementations of the following ART (unsupervised) and ARTMAP (supervised) modules:
 
@@ -208,14 +198,19 @@ In addition to these modules, this package contains the following accessory meth
 However, training and classification methods complement code their inputs unless they are passed `preprocessed=true`.
 - **linear_normalization**: the first step to complement coding, `linear_normalization` normalizes input arrays within [0, 1].
 
-## History
+### Contributing
 
-- 7/10/2020 - Begin project.
-- 11/3/2020 - Complete baseline modules and tests.
-- 2/8/2021 - Formalize usage documentation.
-- 10/13/2021 - Initiate GitFlow contribution.
-- 5/4/2022 - [Acceptance to JOSS](https://doi.org/10.21105/joss.03671).
-- 10/11/2022 - v0.6.0
+If you have a question or concern, please raise an [issue][issues-url].
+For more details on how to work with the project, propose changes, or even contribute code, please see the [Developer Notes][contrib-url] in the project's documentation.
+
+In summary:
+
+1. Questions and requested changes should all be made in the [issues][issues-url] page.
+These are preferred because they are publicly viewable and could assist or educate others with similar issues or questions.
+2. For changes, this project accepts pull requests (PRs) from `feature/<my-feature>` branches onto the `develop` branch using the [GitFlow](https://nvie.com/posts/a-successful-git-branching-model/) methodology.
+If unit tests pass and the changes are beneficial, these PRs are merged into `develop` and eventually folded into versioned releases.
+3. The project follows the [Semantic Versioning](https://semver.org/) convention of `major.minor.patch` incremental versioning numbers.
+Patch versions are for bug fixes, minor versions are for backward-compatible changes, and major versions are for new and incompatible usage changes.
 
 ## Acknowledgements
 
@@ -225,6 +220,15 @@ This package is developed and maintained by [Sasha Petrenko](https://github.com/
 The material, findings, and conclusions here do not necessarily reflect the views of these entities.
 
 The users [@aaronpeikert](https://github.com/aaronpeikert), [@hayesall](https://github.com/hayesall), and [@markNZed](https://github.com/markNZed) have graciously contributed their time with reviews and feedback that has greatly improved the project.
+
+### History
+
+- 7/10/2020 - Begin project.
+- 11/3/2020 - Complete baseline modules and tests.
+- 2/8/2021 - Formalize usage documentation.
+- 10/13/2021 - Initiate GitFlow contribution.
+- 5/4/2022 - [Acceptance to JOSS](https://doi.org/10.21105/joss.03671).
+- 10/11/2022 - v0.6.0
 
 ### Software
 
@@ -266,6 +270,27 @@ Boilerplate clustering datasets are periodically used to test, verify, and provi
 4. Clustering basic benchmark:
 <http://cs.uef.fi/sipu/datasets>
 
-## License
+### License
 
 This software is openly maintained by the ACIL of the Missouri University of Science and Technology under the [MIT License](LICENSE).
+
+### Citation
+
+This project has a [citation file](CITATION.cff) file that generates citation information for the package and corresponding JOSS paper, which can be accessed at the "Cite this repository button" under the "About" section of the GitHub page.
+
+You may also cite this repository with the following BibTeX entry:
+
+```bibtex
+@article{Petrenko2022,
+  doi = {10.21105/joss.03671},
+  url = {https://doi.org/10.21105/joss.03671},
+  year = {2022},
+  publisher = {The Open Journal},
+  volume = {7},
+  number = {73},
+  pages = {3671},
+  author = {Sasha Petrenko and Donald C. Wunsch},
+  title = {AdaptiveResonance.jl: A Julia Implementation of Adaptive Resonance Theory (ART) Algorithms},
+  journal = {Journal of Open Source Software}
+}
+```

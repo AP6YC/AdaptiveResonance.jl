@@ -6,16 +6,17 @@ Description:
 """
 
 include("common.jl")    # train!
-include("DAM.jl")       # Default ARTMAP
 include("FAM.jl")       # Fuzzy ARTMAP
 include("SFAM.jl")      # Simplified Fuzzy ARTMAP
 include("ARTSCENE.jl")  # ARTSCENE filters
+include("variants.jl")  # ARTMAP variants
 
 """
 A list of supervised ARTMAP modules that are available in the `AdaptiveResonance.jl` package.
 """
 const ARTMAP_MODULES = [
-    DAM,
-    # FAM,
+    # Core modules
     SFAM,
+    # Variants
+    DAM,
 ]

@@ -10,13 +10,13 @@ A test of the performance of every ART and ARTMAP module.
     @info "------- Training test -------"
 
     # All ART modules
-    arts = ADAPTIVE_RESONANCE_MODULES
+    arts = ADAPTIVERESONANCE_MODULES
     n_arts = length(arts)
 
     # All common ART options
     art_opts = [
-        (display = true,),
-        # (display = false,),
+        # (display = true,),
+        (display = false,),
     ]
 
     # Specific ART options
@@ -24,17 +24,22 @@ A test of the performance of every ART and ARTMAP module.
         DDVFA => [
             (gamma_normalization=true,),
             (gamma_normalization=false,),
+            (uncommitted=true,),
         ],
         FuzzyART => [
             (gamma_normalization=true,),
             (gamma_normalization=false,),
+            (uncommitted=true,),
         ],
+        SFAM => [
+            (uncommitted=true,),
+        ]
     )
 
     # All test option permutations
     test_opts = [
         (get_bmu = true,),
-        (get_bmu = false,)
+        (get_bmu = false,),
     ]
     n_test_opts = length(test_opts)
 

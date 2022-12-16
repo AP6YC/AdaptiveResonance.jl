@@ -60,7 +60,7 @@ julia> ]
 
 ## GitFlow
 
-As of verson `0.3.7`, the `AdaptiveResonance.jl` package follows the [GitFlow](https://nvie.com/posts/a-successful-git-branching-model/) git working model.
+The `AdaptiveResonance.jl` package follows the [GitFlow](https://nvie.com/posts/a-successful-git-branching-model/) git working model.
 The [original post](https://nvie.com/posts/a-successful-git-branching-model/) by Vincent Driessen outlines this methodology quite well, while [Atlassian](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow) has a good tutorial as well.
 In summary:
 
@@ -76,7 +76,7 @@ In summary:
 ### Documentation
 
 These docs are currently hosted as a static site on the GitHub pages platform.
-They are setup to be built and served in a separate branch `gh-pages` from the master/development branch of the project.
+They are setup to be built and served in a separate branch called `gh-pages` from the master/development branches of the project.
 
 ### Package Structure
 
@@ -116,14 +116,14 @@ To write an ART module for this project, it will require the following:
 1. A `train!` and `classify` method (within the module).
 2. An keyword-options struct using the `Parameters.jl` macro `@with_kw` with assertions to keep the parameters within correct ranges.
 3. Three constructors:
-   1. A default constructor (i.e. `DDVFA()`).
+   1. An empty constructor (i.e. `DDVFA()`).
    2. A keyword argument constructor (passing the kwargs to the options struct defined above).
    3. A constructor with the options struct passed itself.
 4. Use of [common type aliases](@ref Type-Aliases) in method definitions.
 5. An internal [`DataConfig`](@ref incremental_vs_batch) for setting up the data configuration, especially with `data_setup!` (`src/common.jl`).
 6. An `update_iter` evaluation for each iteration (`src/common.jl`).
 7. Inclusion to the correct ART index file (i.e., `src/ART/ART.jl`).
-8. Exports of the names for the options and module constructors in the module definition (`src/AdaptiveResonance.jl`).
+8. Exports of the names for the options and types in the top-level module definition (`src/AdaptiveResonance.jl`).
 
 #### DataConfig
 
@@ -134,31 +134,13 @@ This is reflected in the `DataConfig` struct in the common file `src/common.jl`.
 
 #### Type Aliases
 
-In the pursuit of an architecture-agnostic implementation (i.e., support for both 32- and 64-bit systems), type aliases and other special Julia types are used in this project.
-
-This module borrows a convention from the `StatsBase.jl` package by defining a variety of aliases for numerical types used throughout the package to standardize usage.
-This has the benefits of readability and speed by explicitly
-These are defined in `src/common.jl` and are currently as follows:
-
-```julia
-# Real-numbered aliases
-const RealArray{T<:Real, N} = AbstractArray{T, N}
-const RealVector{T<:Real} = AbstractArray{T, 1}
-const RealMatrix{T<:Real} = AbstractArray{T, 2}
-
-# Integered aliases
-const IntegerArray{T<:Integer, N} = AbstractArray{T, N}
-const IntegerVector{T<:Integer} = AbstractArray{T, 1}
-const IntegerMatrix{T<:Integer} = AbstractArray{T, 2}
-
-# Specifically floating-point aliases
-const RealFP = Union{Float32, Float64}
-```
+For convenience in when defining types and function signatures, this package uses the [`NumericalTypeAliases.jl`](https://github.com/AP6YC/NumericalTypeAliases.jl) package and the aliases therein.
+The documentation for the abstract and concrete types provided by `NumericalTypeAliases.jl` can be found [here](https://ap6yc.github.io/NumericalTypeAliases.jl/dev/).
 
 In this package, data samples are always `Real`-valued (with the notable exception of [ART1](@ref incremental_vs_batch)), while class labels are integered.
 Furthermore, independent class labels are always `Int` because of the [Julia native support](https://docs.julialang.org/en/v1/manual/integers-and-floating-point-numbers/#Integers) for a given system's signed native integer type.
 
-This project does not currently test for the support of [arbitrary precision arithmetic](https://docs.julialang.org/en/v1/manual/integers-and-floating-point-numbers/#Arbitrary-Precision-Arithmetic) because learning algorithms *in general* do not have a significant need for precision beyond even 32-bit floats.
+This project does not currently test for the support of [arbitrary precision arithmetic](https://docs.julialang.org/en/v1/manual/integers-and-floating-point-numbers/#Arbitrary-Precision-Arithmetic) because learning algorithms *in general* do not have a significant need for precision.
 
 ## Authors
 

@@ -5,7 +5,7 @@
 Options, structures, and logic for the Simplified Fuzzy ARTMAP (SFAM) module.
 
 # References:
-[1] G. A. Carpenter, S. Grossberg, N. Markuzon, J. H. Reynolds, and D. B. Rosen, “Fuzzy ARTMAP: A Neural Network Architecture for Incremental Supervised Learning of Analog Multidimensional Maps,” IEEE Trans. Neural Networks, vol. 3, no. 5, pp. 698-713, 1992, doi: 10.1109/72.159059.
+1. G. A. Carpenter, S. Grossberg, N. Markuzon, J. H. Reynolds, and D. B. Rosen, “Fuzzy ARTMAP: A Neural Network Architecture for Incremental Supervised Learning of Analog Multidimensional Maps,” IEEE Trans. Neural Networks, vol. 3, no. 5, pp. 698-713, 1992, doi: 10.1109/72.159059.
 """
 
 # --------------------------------------------------------------------------- #
@@ -15,7 +15,7 @@ Options, structures, and logic for the Simplified Fuzzy ARTMAP (SFAM) module.
 """
 Implements a Simple Fuzzy ARTMAP learner's options.
 
-$(opts_docstring)
+$(OPTS_DOCSTRING)
 """
 @with_kw mutable struct opts_SFAM <: ARTOpts @deftype Float
     """
@@ -44,14 +44,27 @@ $(opts_docstring)
     max_epochs::Int = 1
 
     """
-    Uncommitted node flag.
+    Display flag for progress bars.
     """
-    uncommitted::Bool = true
+    display::Bool = false
 
     """
-    Display flag.
+    Flag to use an uncommitted node when learning.
+
+    If true, new weights are created with ones(dim) and learn on the complement-coded sample.
+    If false, fast-committing is used where the new weight is simply the complement-coded sample.
     """
-    display::Bool = true
+    uncommitted::Bool = false
+
+    """
+    Selected match function.
+    """
+    match::Symbol = :basic_match
+
+    """
+    Selected activation function.
+    """
+    activation::Symbol = :basic_activation
 end
 
 # --------------------------------------------------------------------------- #
@@ -80,12 +93,12 @@ mutable struct SFAM <: ARTMAP
     """
     Category weight matrix.
     """
-    W::Matrix{Float}
+    W::ARTMatrix{Float}
 
     """
     Incremental list of labels corresponding to each F2 node, self-prescribed or supervised.
     """
-    labels::Vector{Int}
+    labels::ARTVector{Int}
 
     """
     Number of category weights (F2 nodes).
@@ -149,8 +162,8 @@ function SFAM(opts::opts_SFAM)
     SFAM(
         opts,                           # opts_SFAM
         DataConfig(),                   # config
-        Array{Float}(undef, 0, 0),      # W
-        Array{Int}(undef, 0),           # labels
+        ARTMatrix{Float}(undef, 0, 0),  # W
+        ARTVector{Int}(undef, 0),       # labels
         0,                              # n_categories
         0                               # epoch
     )
@@ -160,22 +173,51 @@ end
 # ALGORITHMIC METHODS
 # --------------------------------------------------------------------------- #
 
+# COMMON DOC: SFAM initialization
+function initialize!(art::SFAM, x::RealVector, y::Integer)
+    # Initialize the weight matrix feature dimension
+    art.W = ARTMatrix{Float}(undef, art.config.dim_comp, 0)
+    # Create a new category from the sample
+    create_category!(art, x, y)
+end
+
+# COMMON DOC: SFAM category creation
+function create_category!(art::SFAM, x::RealVector, y::Integer)
+    # Increment the number of categories
+    art.n_categories += 1
+
+    # If we use an uncommitted node
+    if art.opts.uncommitted
+        # Add a new weight of ones
+        append!(art.W, ones(art.config.dim_comp, 1))
+        # Learn the uncommitted node on the sample
+        learn!(art, x, art.n_categories)
+    else
+        # Fast commit the sample
+        append!(art.W, x)
+    end
+
+    # Increment number of samples associated with new category
+    # push!(art.n_instance, 1)
+    # Add the label for the category
+    push!(art.labels, y)
+end
+
 # SFAM incremental training method
 function train!(art::SFAM, x::RealVector, y::Integer ; preprocessed::Bool=false)
     # Run the sequential initialization procedure
     sample = init_train!(x, art, preprocessed)
 
     # Initialization
+    if isempty(art.W)
+        initialize!(art, sample, y)
+        return y
+    end
+
+    # If we don't have the label, create a new category immediately
     if !(y in art.labels)
-        # Initialize W and labels
-        if isempty(art.W)
-            art.W = Array{Float64}(undef, art.config.dim_comp, 1)
-            art.W[:, 1] = sample
-        else
-            art.W = [art.W sample]
-        end
-        push!(art.labels, y)
-        art.n_categories += 1
+        create_category!(art, sample, y)
+    # Otherwise, test for a match
     else
         # Baseline vigilance parameter
         rho_baseline = art.opts.rho
@@ -183,7 +225,7 @@ function train!(art::SFAM, x::RealVector, y::Integer ; preprocessed::Bool=false)
         # Compute activation function
         T = zeros(art.n_categories)
         for jx in 1:art.n_categories
-            T[jx] = activation(art, sample, art.W[:, jx])
+            T[jx] = art_activation(art, sample, art.W[:, jx])
         end
 
         # Sort activation function values in descending order
@@ -195,8 +237,7 @@ function train!(art::SFAM, x::RealVector, y::Integer ; preprocessed::Bool=false)
             # Current winner
             if M >= rho_baseline
                 if y == art.labels[index[jx]]
-                    # Learn
-                    @debug "Learning"
+                    # Update the weight and break
                     art.W[:, index[jx]] = learn(art, sample, art.W[:, index[jx]])
                     mismatch_flag = false
                     break
@@ -211,10 +252,7 @@ function train!(art::SFAM, x::RealVector, y::Integer ; preprocessed::Bool=false)
         # If we triggered a mismatch
         if mismatch_flag
             # Create new weight vector
-            @debug "Mismatch"
-            art.W = hcat(art.W, sample)
-            push!(art.labels, y)
-            art.n_categories += 1
+            create_category!(art, sample, y)
         end
     end
 
@@ -230,7 +268,7 @@ function classify(art::SFAM, x::RealVector ; preprocessed::Bool=false, get_bmu::
     # Compute activation function
     T = zeros(art.n_categories)
     for jx in 1:art.n_categories
-        T[jx] = activation(art, sample, art.W[:, jx])
+        T[jx] = art_activation(art, sample, art.W[:, jx])
     end
 
     # Sort activation function values in descending order
@@ -275,12 +313,11 @@ function learn(art::SFAM, x::RealVector, W::RealVector)
 end
 
 """
-Returns the activation value of the Simple Fuzzy ARTMAP module with weight W
-and sample x.
+In-place learning function.
 """
-function activation(art::SFAM, x::RealVector, W::RealVector)
-    # Compute T and return
-    return norm(element_min(x, W), 1) / (art.opts.alpha + norm(W, 1))
+function learn!(art::SFAM, x::RealVector, index::Integer)
+    # Update W at the index
+    art.W[:, index] = learn(art, x, art.W[:, index])
 end
 
 """

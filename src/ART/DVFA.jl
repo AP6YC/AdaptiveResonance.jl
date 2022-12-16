@@ -9,17 +9,14 @@ Authors:
     Julia port: Sasha Petrenko <sap625@mst.edu>
 
 References:
-[1] L. E. Brito da Silva, I. Elnabarawy and D. C. Wunsch II, "Dual
-Vigilance Fuzzy ART," Neural Networks Letters. To appear.
-[2] G. Carpenter, S. Grossberg, and D. Rosen, "Fuzzy ART: Fast
-stable learning and categorization of analog patterns by an adaptive
-resonance system," Neural Networks, vol. 4, no. 6, pp. 759-771, 1991.
+1. L. E. Brito da Silva, I. Elnabarawy and D. C. Wunsch II, 'Dual Vigilance Fuzzy ART,' Neural Networks Letters. To appear.
+2. G. Carpenter, S. Grossberg, and D. Rosen, 'Fuzzy ART: Fast stable learning and categorization of analog patterns by an adaptive resonance system,' Neural Networks, vol. 4, no. 6, pp. 759-771, 1991.
 """
 
 """
 Dual Vigilance Fuzzy ART options struct.
 
-$(opts_docstring)
+$(OPTS_DOCSTRING)
 """
 @with_kw mutable struct opts_DVFA <: ARTOpts @deftype Float
     """
@@ -48,9 +45,17 @@ $(opts_docstring)
     max_epochs::Int = 1
 
     """
-    Display flag.
+    Display flag for progress bars.
     """
-    display::Bool = true
+    display::Bool = false
+
+    """
+    Flag to use an uncommitted node when learning.
+
+    If true, new weights are created with ones(dim) and learn on the complement-coded sample.
+    If false, fast-committing is used where the new weight is simply the complement-coded sample.
+    """
+    uncommitted::Bool = false
 end
 
 """
@@ -59,8 +64,8 @@ Dual Vigilance Fuzzy ARTMAP module struct.
 For module options, see [`AdaptiveResonance.opts_DVFA`](@ref).
 
 # References:
-1. L. E. Brito da Silva, I. Elnabarawy and D. C. Wunsch II, "Dual Vigilance Fuzzy ART," Neural Networks Letters. To appear.
-2. G. Carpenter, S. Grossberg, and D. Rosen, "Fuzzy ART: Fast stable learning and categorization of analog patterns by an adaptive resonance system," Neural Networks, vol. 4, no. 6, pp. 759-771, 1991.
+1. L. E. Brito da Silva, I. Elnabarawy and D. C. Wunsch II, 'Dual Vigilance Fuzzy ART,' Neural Networks Letters. To appear.
+2. G. Carpenter, S. Grossberg, and D. Rosen, 'Fuzzy ART: Fast stable learning and categorization of analog patterns by an adaptive resonance system,' Neural Networks, vol. 4, no. 6, pp. 759-771, 1991.
 """
 mutable struct DVFA <: ART
     # Get parameters
@@ -88,22 +93,22 @@ mutable struct DVFA <: ART
     """
     Incremental list of labels corresponding to each F2 node, self-prescribed or supervised.
     """
-    labels::Vector{Int}
+    labels::ARTVector{Int}
 
     """
     Category weight matrix.
     """
-    W::Matrix{Float}
+    W::ARTMatrix{Float}
 
     """
     Activation values for every weight for a given sample.
     """
-    T::Vector{Float}
+    T::ARTVector{Float}
 
     """
     Match values for every weight for a given sample.
     """
-    M::Vector{Float}
+    M::ARTVector{Float}
 
     """
     Number of category weights (F2 nodes).
@@ -174,10 +179,10 @@ function DVFA(opts::opts_DVFA)
         DataConfig(),                   # config
         0.0,                            # threshold_ub
         0.0,                            # threshold_lb
-        Array{Int}(undef, 0),           # labels
-        Array{Float}(undef, 0, 0),      # W
-        Array{Float}(undef, 0),         # M
-        Array{Float}(undef, 0),         # T
+        ARTVector{Int}(undef, 0),       # labels
+        ARTMatrix{Float}(undef, 0, 0),  # W
+        ARTVector{Float}(undef, 0),     # M
+        ARTVector{Float}(undef, 0),     # T
         0,                              # n_categories
         0,                              # n_clusters
         0                               # epoch
@@ -195,6 +200,56 @@ function set_threshold!(art::DVFA)
     art.threshold_lb = art.opts.rho_lb * art.config.dim
 end
 
+"""
+Initializes a DVFA learner with an initial sample 'x'.
+
+This function is used during the first training iteraction when the DVFA module is empty.
+
+# Arguments
+- `art::DVFA`: the DVFA module to initialize.
+- `x::RealVector`: the sample to use for initialization.
+- `y::Integer=0`: the optional new label for the first weight of the FuzzyART module. If not specified, defaults the new label to 1.
+"""
+function initialize!(art::DVFA, x::RealVector ; y::Integer=0)
+    # Set the threshold
+    set_threshold!(art)
+    # Initialize the empty weight matrix to the correct dimension
+    art.W = ARTMatrix{Float}(undef, art.config.dim_comp, 0)
+    # Set the label to either the supervised label or 1 if unsupervised
+    label = !iszero(y) ? y : 1
+    # Create a new category
+    create_category!(art, x, label)
+end
+
+"""
+Creates a new category for the DVFA modules.
+
+# Arguments
+- `art::DVFA`: the DVFA module to add a category to.
+- `x::RealVector`: the sample to use for adding a category.
+- `y::Integer`: the new label for the new category.
+"""
+function create_category!(art::DVFA, x::RealVector, y::Integer ; new_cluster::Bool=true)
+    # Increment the number of categories
+    art.n_categories += 1
+    # If we are creating a new cluster altogether, increment that
+    new_cluster && (art.n_clusters += 1)
+
+    # If we use an uncommitted node
+    if art.opts.uncommitted
+        # Add a new weight of ones
+        append!(art.W, ones(art.config.dim_comp, 1))
+        # Learn the uncommitted node on the sample
+        learn!(art, x, art.n_categories)
+    else
+        # Fast commit the sample
+        append!(art.W, x)
+    end
+
+    # Update sample labels
+    push!(art.labels, y)
+end
+
 # COMMON DOC: Incremental DVFA training method
 function train!(art::DVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=false)
     # Flag for if training in supervised mode
@@ -205,28 +260,18 @@ function train!(art::DVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fals
 
     # Initialization
     if isempty(art.W)
-        # Set the threshold
-        set_threshold!(art)
         # Set the first label as either 1 or the first provided label
         y_hat = supervised ? y : 1
-        # Create a new category and cluster
-        art.W = ones(art.config.dim_comp, 1)
-        art.n_categories = 1
-        art.n_clusters = 1
-        push!(art.labels, y_hat)
+        # Initialize the module with the first sample and label
+        initialize!(art, sample, y=y_hat)
+        # Return the selected label
         return y_hat
     end
 
     # If label is new, break to make new category
     if supervised && !(y in art.labels)
-        y_hat = y
-        # Update sample labels
-        push!(art.labels, y)
-        # Fast commit the sample
-        art.W = hcat(art.W, sample)
-        art.n_categories += 1
-        art.n_clusters += 1
-        return y_hat
+        create_category!(art, sample, y)
+        return y
     end
 
     # Compute the activation and match for all categories
@@ -240,12 +285,12 @@ function train!(art::DVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fals
     for j = 1:art.n_categories
         # Best matching unit
         bmu = index[j]
+        # If supervised and the label differs, trigger mismatch
+        if supervised && (art.labels[bmu] != y)
+            break
+        end
         # Vigilance test upper bound
         if art.M[bmu] >= art.threshold_ub
-            # If supervised and the label differs, trigger mismatch
-            if supervised && (art.labels[bmu] != y)
-                break
-            end
             # Learn the sample
             learn!(art, sample, bmu)
             # Update sample label for output
@@ -256,16 +301,10 @@ function train!(art::DVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fals
             break
         # Vigilance test lower bound
         elseif art.M[bmu] >= art.threshold_lb
-            # If supervised and the label differs, trigger mismatch
-            if supervised && (art.labels[bmu] != y)
-                break
-            end
             # Update sample labels
             y_hat = supervised ? y : art.labels[bmu]
-            push!(art.labels, y_hat)
-            # Fast commit the sample
-            art.W = hcat(art.W, sample)
-            art.n_categories += 1
+            # Create a new category in the same cluster
+            create_category!(art, sample, y_hat, new_cluster=false)
             # No mismatch
             mismatch_flag = false
             break
@@ -276,12 +315,8 @@ function train!(art::DVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fals
     if mismatch_flag
         # Create a new category-to-cluster label
         y_hat = supervised ? y : art.n_clusters + 1
-        push!(art.labels, y_hat)
-        # Fast commit the sample
-        art.W = hcat(art.W, sample)
-        # Increment the number of categories and clusters
-        art.n_categories += 1
-        art.n_clusters += 1
+        # Create a new category
+        create_category!(art, sample, y_hat)
     end
 
     return y_hat
@@ -344,7 +379,7 @@ end
 In place learning function.
 """
 function learn!(art::DVFA, x::RealVector, index::Integer)
-    # Update W
+    # Update W at the index
     art.W[:, index] = learn(art, x, art.W[:, index])
 end
 
