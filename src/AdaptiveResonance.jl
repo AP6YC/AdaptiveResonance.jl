@@ -103,6 +103,8 @@ using LinearAlgebra: norm   # Trace and norms
 # Medians and mean for linkage methods
 using Statistics: median as statistics_median
 using Statistics: mean as statistics_mean
+# Precompile concrete type methods
+using PrecompileSignatures: @precompile_signatures
 
 # --------------------------------------------------------------------------- #
 # INCLUDES
@@ -177,5 +179,12 @@ export
 
     # ARTSCENE filter functions
     artscene_filter     # Runs all of the above in one step, returning features
+
+# -----------------------------------------------------------------------------
+# PRECOMPILE
+# -----------------------------------------------------------------------------
+
+# Precompile any concrete-type function signatures
+@precompile_signatures(AdaptiveResonance)
 
 end
