@@ -390,8 +390,12 @@ function activation_match!(art::FuzzyART, x::RealVector)
     art.T = zeros(art.n_categories)
     art.M = zeros(art.n_categories)
     for i = 1:art.n_categories
-        art.T[i] = art_activation(art, x, art.W[:, i])
-        art.M[i] = art_match(art, x, art.W[:, i])
+
+        # art.T[i] = art_activation(art, x, art.W[:, i])
+        # art.M[i] = art_match(art, x, art.W[:, i])
+        art.T[i] = art_activation(art, x, art.W, i)
+        art.M[i] = art_match(art, x, art.W, i)
+
         # W_norm = norm(art.W[:, i], 1)
         # numerator = norm(element_min(x, art.W[:, i]), 1)
 
@@ -441,7 +445,8 @@ In place learning function with instance counting.
 """
 function learn!(art::FuzzyART, x::RealVector, index::Integer)
     # Update W
-    art.W[:, index] = learn(art, x, art.W[:, index])
+    # art.W[:, index] = learn(art, x, art.W[:, index])
+    art.W[:, index] = learn(art, x, get_sample(art.W, index))
     art.n_instance[index] += 1
 end
 

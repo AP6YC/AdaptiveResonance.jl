@@ -671,8 +671,8 @@ Basic match function.
 
 $(ART_X_W_ARGS)
 """
-function basic_match(art::ARTModule, x::RealVector, W::RealVector)
-    return norm(element_min(x, W), 1) / art.config.dim
+function basic_match(art::ARTModule, x::RealVector, W::ARTMatrix, index::Integer)
+    return norm(element_min(x, get_sample(W, index)), 1) / art.config.dim
 end
 
 """
@@ -680,8 +680,8 @@ Simplified FuzzyARTMAP activation function.
 
 $(ART_X_W_ARGS)
 """
-function basic_activation(art::ARTModule, x::RealVector, W::RealVector)
-    return norm(element_min(x, W), 1) / (art.opts.alpha + norm(W, 1))
+function basic_activation(art::ARTModule, x::RealVector, W::ARTMatrix, index::Integer)
+    return norm(element_min(x, get_sample(W, index)), 1) / (art.opts.alpha + norm(get_sample(W, index), 1))
 end
 
 """
@@ -689,8 +689,8 @@ Gamma-normalized match function.
 
 $(ART_X_W_ARGS)
 """
-function gamma_match(art::ARTModule, x::RealVector, W::RealVector)
-    return (norm(W, 1) ^ art.opts.gamma_ref) * gamma_activation(art, x, W)
+function gamma_match(art::ARTModule, x::RealVector, W::ARTMatrix, index::Integer)
+    return (norm(get_sample(W, index), 1) ^ art.opts.gamma_ref) * gamma_activation(art, x, W, index)
 end
 
 """
@@ -698,8 +698,8 @@ Gamma-normalized activation funtion.
 
 $(ART_X_W_ARGS)
 """
-function gamma_activation(art::ARTModule, x::RealVector, W::RealVector)
-    return basic_activation(art, x, W) ^ art.opts.gamma
+function gamma_activation(art::ARTModule, x::RealVector, W::ARTMatrix, index::Integer)
+    return basic_activation(art, x, W, index) ^ art.opts.gamma
 end
 
 """
@@ -707,10 +707,10 @@ Default ARTMAP's choice-by-difference activation function.
 
 $(ART_X_W_ARGS)
 """
-function choice_by_difference(art::ARTModule, x::RealVector, W::RealVector)
+function choice_by_difference(art::ARTModule, x::RealVector, W::ARTMatrix, index::Integer)
     return (
-        norm(element_min(x, W), 1)
-            + (1 - art.opts.alpha) * (art.config.dim - norm(W, 1))
+        norm(element_min(x, get_sample(W, index)), 1)
+            + (1 - art.opts.alpha) * (art.config.dim - norm(get_sample(W, index), 1))
     )
 end
 
@@ -719,8 +719,8 @@ Evaluates the match function of the ART/ARTMAP module on sample 'x' with weight 
 
 $(ART_X_W_ARGS)
 """
-function art_match(art::ARTModule, x::RealVector, W::RealVector)
-    return eval(art.opts.match)(art, x, W)
+function art_match(art::ARTModule, x::RealVector, W::ARTMatrix, index::Integer)
+    return eval(art.opts.match)(art, x, W, index)
 end
 
 """
@@ -728,8 +728,8 @@ Evaluates the activation function of the ART/ARTMAP module on the sample 'x' wit
 
 $(ART_X_W_ARGS)
 """
-function art_activation(art::ARTModule, x::RealVector, W::RealVector)
-    return eval(art.opts.activation)(art, x, W)
+function art_activation(art::ARTModule, x::RealVector, W::ARTMatrix, index::Integer)
+    return eval(art.opts.activation)(art, x, W, index)
 end
 
 """
