@@ -311,8 +311,12 @@ function data_setup!(config::DataConfig, data::RealMatrix)
     config.dim_comp = 2 * config.dim
 
     # Compute the ranges of each feature
-    config.mins = [minimum(data[i, :]) for i in 1:config.dim]
-    config.maxs = [maximum(data[i, :]) for i in 1:config.dim]
+    config.mins = zeros(config.dim)
+    config.maxs = zeros(config.dim)
+    for ix = 1:config.dim
+        config.mins[ix] = minimum(data[ix, :])
+        config.maxs[ix] = maximum(data[ix, :])
+    end
 end
 
 """
@@ -349,8 +353,12 @@ function get_data_characteristics(data::RealMatrix ; config::DataConfig=DataConf
         # Get the feature dimension and number of samples
         dim, n_samples = get_data_shape(data)
         # Get the ranges for each feature
-        mins = [minimum(data[i, :]) for i in 1:dim]
-        maxs = [maximum(data[i, :]) for i in 1:dim]
+        mins = zeros(dim)
+        maxs = zeros(dim)
+        for ix = 1:dim
+            mins[ix] = minimum(data[ix, :])
+            maxs[ix] = maximum(data[ix, :])
+        end
     end
     return dim, n_samples, mins, maxs
 end
