@@ -660,19 +660,67 @@ These options are a [`Parameters.jl`](https://github.com/mauro3/Parameters.jl) s
 Each field has a default value listed below.
 """
 
+const ART_ARG_DOCSTRING = """
+- `art::ARTModule`: the ARTModule module.
+"""
+
+const X_ARG_DOCSTRING = """
+- `x::RealVector`: the sample to use.
+"""
+
+const W_ARG_DOCSTING = """
+- `W::ARTMatrix`: the weight matrix to use.
+"""
+
+const INDEX_ARG_DOCSTRING = """
+- `index::Integer`: the index of the weight to use.
+"""
+
 """
 Shared arguments string for methods using an ART module, sample 'x', and weight vector 'W'.
 """
 const ART_X_W_ARGS = """
 # Arguments
-- `art::ARTModule`: the ARTModule module.
-- `x::RealVector`: the sample to use.
-- `W::RealVector`: the weight vector to use.
+ART_ARG_DOCSTRING
+X_ARG_DOCSTRING
+W_ARG_DOCSTING
+INDEX_ARG_DOCSTRING
 """
+
+# const ART_X_W_ARGS = """
+# # Arguments
+# - `art::ARTModule`: the ARTModule module.
+# - `x::RealVector`: the sample to use.
+# - `W::ARTMatrix`: the weight matrix to use.
+# - `index::Integer`: the index of the weight to use.
+# """
 
 # --------------------------------------------------------------------------- #
 # COMMON ALGORITHMIC FUNCTIONS
 # --------------------------------------------------------------------------- #
+
+"""
+Low-level common function for computing the 1-norm of the element minimum of a sample and weights.
+
+# Arguments
+X_ARG_DOCSTRING
+W_ARG_DOCSTING
+INDEX_ARG_DOCSTRING
+"""
+function x_W_min_norm(x::RealVector, W::ARTMatrix, index::Integer)
+    return norm(element_min(x, get_sample(W, index)), 1)
+end
+
+"""
+Low-level common function for computing the 1-norm of just the weight vector.
+
+# Arguments
+W_ARG_DOCSTING
+INDEX_ARG_DOCSTRING
+"""
+function W_norm(W::ARTMatrix, index::Integer)
+    return norm(get_sample(W, index), 1)
+end
 
 """
 Basic match function.
@@ -680,7 +728,8 @@ Basic match function.
 $(ART_X_W_ARGS)
 """
 function basic_match(art::ARTModule, x::RealVector, W::ARTMatrix, index::Integer)
-    return norm(element_min(x, get_sample(W, index)), 1) / art.config.dim
+    # return norm(element_min(x, get_sample(W, index)), 1) / art.config.dim
+    return x_W_min_norm(x, W, index) / art.config.dim
 end
 
 """
@@ -689,8 +738,18 @@ Simplified FuzzyARTMAP activation function.
 $(ART_X_W_ARGS)
 """
 function basic_activation(art::ARTModule, x::RealVector, W::ARTMatrix, index::Integer)
-    return norm(element_min(x, get_sample(W, index)), 1) / (art.opts.alpha + norm(get_sample(W, index), 1))
+    # return norm(element_min(x, get_sample(W, index)), 1) / (art.opts.alpha + norm(get_sample(W, index), 1))
+    return x_W_min_norm(x, W, index) / (art.opts.alpha + W_norm(W, index))
 end
+
+# """
+# Simplified FuzzyARTMAP activation function.
+
+# $(ART_X_W_ARGS)
+# """
+# function fast_basic_activation(art::ARTModule, x::RealVector, W::ARTMatrix, index::Integer)
+
+# end
 
 """
 Gamma-normalized match function.
@@ -698,7 +757,8 @@ Gamma-normalized match function.
 $(ART_X_W_ARGS)
 """
 function gamma_match(art::ARTModule, x::RealVector, W::ARTMatrix, index::Integer)
-    return (norm(get_sample(W, index), 1) ^ art.opts.gamma_ref) * gamma_activation(art, x, W, index)
+    # return (norm(get_sample(W, index), 1) ^ art.opts.gamma_ref) * gamma_activation(art, x, W, index)
+    return (W_norm(W, index) ^ art.opts.gamma_ref) * gamma_activation(art, x, W, index)
 end
 
 """
@@ -717,8 +777,10 @@ $(ART_X_W_ARGS)
 """
 function choice_by_difference(art::ARTModule, x::RealVector, W::ARTMatrix, index::Integer)
     return (
-        norm(element_min(x, get_sample(W, index)), 1)
-            + (1 - art.opts.alpha) * (art.config.dim - norm(get_sample(W, index), 1))
+        # norm(element_min(x, get_sample(W, index)), 1)
+        #     + (1 - art.opts.alpha) * (art.config.dim - norm(get_sample(W, index), 1))
+        x_W_min_norm(x, W, index)
+            + (1 - art.opts.alpha) * (art.config.dim - W_norm(W, index))
     )
 end
 
