@@ -681,10 +681,10 @@ Shared arguments string for methods using an ART module, sample 'x', and weight 
 """
 const ART_X_W_ARGS = """
 # Arguments
-ART_ARG_DOCSTRING
-X_ARG_DOCSTRING
-W_ARG_DOCSTING
-INDEX_ARG_DOCSTRING
+$(ART_ARG_DOCSTRING)
+$(X_ARG_DOCSTRING)
+$(W_ARG_DOCSTING)
+$(INDEX_ARG_DOCSTRING)
 """
 
 # const ART_X_W_ARGS = """
@@ -703,9 +703,9 @@ INDEX_ARG_DOCSTRING
 Low-level common function for computing the 1-norm of the element minimum of a sample and weights.
 
 # Arguments
-X_ARG_DOCSTRING
-W_ARG_DOCSTING
-INDEX_ARG_DOCSTRING
+$(X_ARG_DOCSTRING)
+$(W_ARG_DOCSTING)
+$(INDEX_ARG_DOCSTRING)
 """
 function x_W_min_norm(x::RealVector, W::ARTMatrix, index::Integer)
     return norm(element_min(x, get_sample(W, index)), 1)
@@ -715,8 +715,8 @@ end
 Low-level common function for computing the 1-norm of just the weight vector.
 
 # Arguments
-W_ARG_DOCSTING
-INDEX_ARG_DOCSTRING
+$(W_ARG_DOCSTING)
+$(INDEX_ARG_DOCSTRING)
 """
 function W_norm(W::ARTMatrix, index::Integer)
     return norm(get_sample(W, index), 1)
