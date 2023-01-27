@@ -257,6 +257,8 @@ function create_category!(art::FuzzyART, x::RealVector, y::Integer)
         append!(art.W, ones(art.config.dim_comp, 1))
         # Learn the uncommitted node on the sample
         learn!(art, x, art.n_categories)
+        # Increment the instance counting
+        # art.n_instance[1] += 1
     else
         # Fast commit the sample
         append!(art.W, x)
@@ -309,6 +311,8 @@ function train!(art::FuzzyART, x::RealVector ; y::Integer=0, preprocessed::Bool=
             end
             # Learn the sample
             learn!(art, sample, bmu)
+            # Increment the instance counting
+            art.n_instance[bmu] += 1
             # Save the output label for the sample
             y_hat = art.labels[bmu]
             # No mismatch
@@ -356,40 +360,6 @@ function classify(art::FuzzyART, x::RealVector ; preprocessed::Bool=false, get_b
         y_hat = get_bmu ? art.labels[index[1]] : -1
     end
     return y_hat
-end
-
-# """
-# Return the modified weight of the art module conditioned by sample x.
-
-# # Arguments
-# - `art::FuzzyART`: the FuzzyART module containing learning options.
-# - `x::RealVector`: the sample to learn from.
-# - `W::RealVector`: the weight vector to update against the sample.
-# """
-# function learn(art::FuzzyART, x::RealVector, W::RealVector)
-#     # Update W
-#     # return art.opts.beta .* element_min(x, W) .+ W .* (1 - art.opts.beta)
-#     return art.opts.beta * element_min(x, W) + W * (1.0 - art.opts.beta)
-# end
-
-"""
-In place learning function with instance counting.
-
-# Arguments
-- `art::FuzzyART`: the FuzzyART module to update.
-- `x::RealVector`: the sample to learn from.
-- `index::Integer`: the index of the FuzzyART weight to update.
-"""
-function learn!(art::FuzzyART, x::RealVector, index::Integer)
-    # Compute the updated weight W
-    # new_vec = learn(art, x, get_sample(art.W, index))
-    new_vec = art_learn(art, x, index)
-    # Replace the weight in place
-    replace_mat_index!(art.W, new_vec, index)
-    # Increment the instance counting
-    art.n_instance[index] += 1
-    # Return empty
-    return
 end
 
 """

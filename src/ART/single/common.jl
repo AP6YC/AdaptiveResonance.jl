@@ -96,3 +96,22 @@ end
 #         art.M[jx] = art_match(art, x, jx)
 #     end
 # end
+
+"""
+In place learning function.
+
+# Arguments
+- `art::AbstractFuzzyART`: the FuzzyART module to update.
+- `x::RealVector`: the sample to learn from.
+- `index::Integer`: the index of the FuzzyART weight to update.
+"""
+function learn!(art::AbstractFuzzyART, x::RealVector, index::Integer)
+    # Compute the updated weight W
+    new_vec = art_learn(art, x, index)
+    # Replace the weight in place
+    replace_mat_index!(art.W, new_vec, index)
+    # # Increment the instance counting
+    # art.n_instance[index] += 1
+    # Return empty
+    return
+end
