@@ -226,7 +226,7 @@ function train!(art::SFAM, x::RealVector, y::Integer ; preprocessed::Bool=false)
         T = zeros(art.n_categories)
         for jx in 1:art.n_categories
             # T[jx] = art_activation(art, sample, art.W[:, jx])
-            T[jx] = art_activation(art, sample, art.W, jx)
+            T[jx] = art_activation(art, sample, jx)
         end
 
         # Sort activation function values in descending order
@@ -235,7 +235,7 @@ function train!(art::SFAM, x::RealVector, y::Integer ; preprocessed::Bool=false)
         for jx in 1:art.n_categories
             # Compute match function
             # M = art_match(art, sample, art.W[:, index[jx]])
-            M = art_match(art, sample, art.W, index[jx])
+            M = art_match(art, sample, index[jx])
             # Current winner
             if M >= rho_baseline
                 if y == art.labels[index[jx]]
@@ -271,7 +271,7 @@ function classify(art::SFAM, x::RealVector ; preprocessed::Bool=false, get_bmu::
     T = zeros(art.n_categories)
     for jx in 1:art.n_categories
         # T[jx] = art_activation(art, sample, art.W[:, jx])
-        T[jx] = art_activation(art, sample, art.W, jx)
+        T[jx] = art_activation(art, sample, jx)
     end
 
     # Sort activation function values in descending order
@@ -280,7 +280,7 @@ function classify(art::SFAM, x::RealVector ; preprocessed::Bool=false, get_bmu::
     for jx in 1:art.n_categories
         # Compute match function
         # M = art_match(art, sample, art.W[:, index[jx]])
-        M = art_match(art, sample, art.W, index[jx])
+        M = art_match(art, sample, index[jx])
         # Current winner
         if M >= art.opts.rho
             y_hat = art.labels[index[jx]]
@@ -324,11 +324,11 @@ function learn!(art::SFAM, x::RealVector, index::Integer)
     art.W[:, index] = learn(art, x, art.W[:, index])
 end
 
-"""
-Returns the match function for the Simple Fuzzy ARTMAP module with weight W and
-sample x.
-"""
-function art_match(art::SFAM, x::RealVector, W::RealVector)
-    # Compute M and return
-    return norm(element_min(x, W), 1) / art.config.dim
-end
+# """
+# Returns the match function for the Simple Fuzzy ARTMAP module with weight W and
+# sample x.
+# """
+# function art_match(art::SFAM, x::RealVector, W::RealVector)
+#     # Compute M and return
+#     return norm(element_min(x, W), 1) / art.config.dim
+# end

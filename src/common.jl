@@ -789,8 +789,8 @@ Evaluates the match function of the ART/ARTMAP module on sample 'x' with weight 
 
 $(ART_X_W_ARGS)
 """
-function art_match(art::ARTModule, x::RealVector, W::ARTMatrix, index::Integer)
-    return eval(art.opts.match)(art, x, W, index)
+function art_match(art::ARTModule, x::RealVector, index::Integer)
+    return eval(art.opts.match)(art, x, art.W, index)
 end
 
 """
@@ -798,8 +798,8 @@ Evaluates the activation function of the ART/ARTMAP module on the sample 'x' wit
 
 $(ART_X_W_ARGS)
 """
-function art_activation(art::ARTModule, x::RealVector, W::ARTMatrix, index::Integer)
-    return eval(art.opts.activation)(art, x, W, index)
+function art_activation(art::ARTModule, x::RealVector, index::Integer)
+    return eval(art.opts.activation)(art, x, art.W, index)
 end
 
 """
@@ -828,3 +828,18 @@ const MATCH_FUNCTIONS_DOCS = join(MATCH_FUNCTIONS, ", ", " and ")
 Common docstring for listing available activation functions.
 """
 const ACTIVATION_FUNCTIONS_DOCS = join(ACTIVATION_FUNCTIONS, ", ", " and ")
+
+"""
+Extends a vector to a goal length with zeros of its element type to accommodate in-place updates.
+
+# Arguments
+- `vec::Vector{T}`: a vector of arbitrary element type.
+- `goal_len::Integer`: the length that the vector should be.
+"""
+function accommodate_vector!(vec::Vector{T}, goal_len::Integer) where {T}
+    # While the the vector is not the correct length
+    while length(vec) < goal_len
+        # Push a zero of the type of the vector elements
+        push!(vec, zero(T))
+    end
+end

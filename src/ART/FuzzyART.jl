@@ -387,14 +387,16 @@ julia> activation_match!(my_FuzzyART, x_sample)
 ```
 """
 function activation_match!(art::FuzzyART, x::RealVector)
-    art.T = zeros(art.n_categories)
-    art.M = zeros(art.n_categories)
+    # art.T = zeros(art.n_categories)
+    # art.M = zeros(art.n_categories)
+    accommodate_vector!(art.T, art.n_categories)
+    accommodate_vector!(art.M, art.n_categories)
     for i = 1:art.n_categories
 
         # art.T[i] = art_activation(art, x, art.W[:, i])
         # art.M[i] = art_match(art, x, art.W[:, i])
-        art.T[i] = art_activation(art, x, art.W, i)
-        art.M[i] = art_match(art, x, art.W, i)
+        art.T[i] = art_activation(art, x, i)
+        art.M[i] = art_match(art, x, i)
 
         # W_norm = norm(art.W[:, i], 1)
         # numerator = norm(element_min(x, art.W[:, i]), 1)
@@ -407,6 +409,7 @@ function activation_match!(art::FuzzyART, x::RealVector)
         # end
     end
 end
+
 # function activation_match!(art::FuzzyART, x::RealVector)
 #     art.T = zeros(art.n_categories)
 #     art.M = zeros(art.n_categories)
