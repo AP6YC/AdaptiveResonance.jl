@@ -210,27 +210,6 @@ function set_threshold!(art::DVFA)
     art.threshold_lb = art.opts.rho_lb * art.config.dim
 end
 
-# """
-# Initializes a DVFA learner with an initial sample 'x'.
-
-# This function is used during the first training iteraction when the DVFA module is empty.
-
-# # Arguments
-# - `art::DVFA`: the DVFA module to initialize.
-# - `x::RealVector`: the sample to use for initialization.
-# - `y::Integer=0`: the optional new label for the first weight of the FuzzyART module. If not specified, defaults the new label to 1.
-# """
-# function initialize!(art::DVFA, x::RealVector ; y::Integer=0)
-#     # Set the threshold
-#     set_threshold!(art)
-#     # Initialize the empty weight matrix to the correct dimension
-#     art.W = ARTMatrix{Float}(undef, art.config.dim_comp, 0)
-#     # Set the label to either the supervised label or 1 if unsupervised
-#     label = !iszero(y) ? y : 1
-#     # Create a new category
-#     create_category!(art, x, label)
-# end
-
 """
 Creates a new category for the DVFA modules.
 
@@ -362,19 +341,6 @@ function classify(art::DVFA, x::RealVector ; preprocessed::Bool=false, get_bmu::
     end
 
     return y_hat
-end
-
-"""
-Compute and store the activation and match values for the DVFA module.
-"""
-function activation_match!(art::DVFA, x::RealVector)
-    # Expand the destination activation and match vectors
-    accommodate_vector!(art.T, art.n_categories)
-    accommodate_vector!(art.M, art.n_categories)
-    for jx = 1:art.n_categories
-        art.T[jx] = art_activation(art, x, jx)
-        art.M[jx] = art_match(art, x, jx)
-    end
 end
 
 """

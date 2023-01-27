@@ -194,6 +194,7 @@ function FuzzyART(opts::opts_FuzzyART)
         opts.match = :gamma_match
     end
 
+    # Construct an empty FuzzyART module
     FuzzyART(
         opts,                           # opts
         DataConfig(),                   # config
@@ -237,21 +238,6 @@ function set_threshold!(art::FuzzyART)
         art.threshold = art.opts.rho
     end
 end
-
-# # COMMON DOC: FuzzyART initialization function
-# function initialize!(art::FuzzyART, x::RealVector ; y::Integer=0)
-#     # Set the threshold
-#     set_threshold!(art)
-
-#     # Initialize the feature dimension of the weights
-#     art.W = ARTMatrix{Float}(undef, art.config.dim_comp, 0)
-
-#     # Set the label to either the supervised label or 1 if unsupervised
-#     label = !iszero(y) ? y : 1
-
-#     # Create a category with the given label
-#     create_category!(art, x, label)
-# end
 
 # COMMON DOC: create_category! function
 function create_category!(art::FuzzyART, x::RealVector, y::Integer)
@@ -366,55 +352,6 @@ function classify(art::FuzzyART, x::RealVector ; preprocessed::Bool=false, get_b
     end
     return y_hat
 end
-
-"""
-Computes the activation and match functions of the art module against sample x.
-
-# Arguments
-- `art::FuzzyART`: the FuzzyART module to compute the activation and match values for all weights.
-- `x::RealVector`: the sample to compute the activation and match functions against.
-
-# Examples
-```julia-repl
-julia> my_FuzzyART = FuzzyART()
-FuzzyART
-    opts: opts_FuzzyART
-    ...
-julia> x, y = load_data()
-julia> train!(my_FuzzyART, x)
-julia> x_sample = x[:, 1]
-julia> activation_match!(my_FuzzyART, x_sample)
-```
-"""
-function activation_match!(art::FuzzyART, x::RealVector)
-    # Expand the destination activation and match vectors
-    accommodate_vector!(art.T, art.n_categories)
-    accommodate_vector!(art.M, art.n_categories)
-    for i = 1:art.n_categories
-        art.T[i] = art_activation(art, x, i)
-        # If we are using gamma normalization, save some computation
-        if (art.opts.match == :gamma_match) && (art.opts.activation == :gamma_activation)
-            art.M[i] = art_match(art, x, i, art.T[i])
-        else
-            art.M[i] = art_match(art, x, i)
-        end
-    end
-end
-
-# function activation_match!(art::FuzzyART, x::RealVector)
-#     art.T = zeros(art.n_categories)
-#     art.M = zeros(art.n_categories)
-#     for i = 1:art.n_categories
-#         W_norm = norm(art.W[:, i], 1)
-#         numerator = norm(element_min(x, art.W[:, i]), 1)
-#         art.T[i] = (numerator / (art.opts.alpha + W_norm))^art.opts.gamma
-#         if art.opts.gamma_normalization
-#             art.M[i] = (W_norm^art.opts.gamma_ref) * art.T[i]
-#         else
-#             art.M[i] = numerator / norm(x, 1)
-#         end
-#     end
-# end
 
 """
 Return the modified weight of the art module conditioned by sample x.
