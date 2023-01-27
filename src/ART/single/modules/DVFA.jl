@@ -347,10 +347,3 @@ function classify(art::DVFA, x::RealVector ; preprocessed::Bool=false, get_bmu::
 
     return y_hat
 end
-
-"""
-Stopping conditions for a DVFA module.
-"""
-function stopping_conditions(art::DVFA)
-    return art.epoch >= art.opts.max_epochs
-end

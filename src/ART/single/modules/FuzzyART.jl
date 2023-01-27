@@ -361,13 +361,3 @@ function classify(art::FuzzyART, x::RealVector ; preprocessed::Bool=false, get_b
     end
     return y_hat
 end
-
-"""
-Stopping conditions for a FuzzyART module.
-
-# Arguments
-- `art::FuzzyART`: the FuzzyART module to check stopping conditions for.
-"""
-function stopping_conditions(art::FuzzyART)
-    return art.epoch >= art.opts.max_epochs
-end
