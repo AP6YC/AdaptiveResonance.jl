@@ -448,11 +448,11 @@ In place learning function with instance counting.
 - `index::Integer`: the index of the FuzzyART weight to update.
 """
 function learn!(art::FuzzyART, x::RealVector, index::Integer)
-    # Update W
-    # art.W[:, index] = learn(art, x, art.W[:, index])
-    # art.W[:, index] = learn(art, x, get_sample(art.W, index))
+    # Compute the updated weight W
     new_vec = learn(art, x, get_sample(art.W, index))
+    # Replace the weight in place
     replace_mat_index!(art.W, new_vec, index)
+    # Increment the instance counting
     art.n_instance[index] += 1
 end
 

@@ -1,6 +1,7 @@
 """
     test_utils.jl
 
+# Description
 A set of common struct and function utilities for AdaptiveResonance.jl unit tests.
 """
 
@@ -41,9 +42,7 @@ struct DataSplit
     A vector of testing labels.
     """
     test_y::Vector{Int}
-
-    DataSplit(train_x, test_x, train_y, test_y) = new(train_x, test_x, train_y, test_y)
-end # DataSplit
+end
 
 # -----------------------------------------------------------------------------
 # METHODS
@@ -67,7 +66,7 @@ function DataSplit(data_x::RealMatrix, data_y::RealVector, ratio::Real)
     test_y = data_y[split_ind + 1:end]
 
     return DataSplit(train_x, test_x, train_y, test_y)
-end # DataSplit(data_x::RealMatrix, data_y::RealVector, ratio::Real)
+end
 
 # -----------------------------------------------------------------------------
 # FUNCTIONS
@@ -154,4 +153,4 @@ function load_iris(data_path::AbstractString ; split_ratio::Real = 0.8)
     data = DataSplit(raw_x, raw_y, split_ratio)
 
     return data
-end # load_iris(data_path::AbstractString ; split_ratio::Real = 0.8)
+end
