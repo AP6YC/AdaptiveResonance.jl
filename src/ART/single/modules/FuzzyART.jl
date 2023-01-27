@@ -75,6 +75,11 @@ $(OPTS_DOCSTRING)
     Selected match function.
     """
     match::Symbol = :basic_match
+
+    """
+    Selected weight update function.
+    """
+    update::Symbol = :basic_update
 end
 
 # -----------------------------------------------------------------------------
@@ -377,7 +382,8 @@ In place learning function with instance counting.
 """
 function learn!(art::FuzzyART, x::RealVector, index::Integer)
     # Compute the updated weight W
-    new_vec = learn(art, x, get_sample(art.W, index))
+    # new_vec = learn(art, x, get_sample(art.W, index))
+    new_vec = art_learn(art, x, index)
     # Replace the weight in place
     replace_mat_index!(art.W, new_vec, index)
     # Increment the instance counting

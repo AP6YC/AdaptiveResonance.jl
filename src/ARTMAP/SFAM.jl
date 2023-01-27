@@ -313,7 +313,8 @@ vector W and sample x.
 """
 function learn(art::SFAM, x::RealVector, W::RealVector)
     # Update W
-    return art.opts.beta .* element_min(x, W) .+ W .* (1 - art.opts.beta)
+    # return art.opts.beta .* element_min(x, W) .+ W .* (1 - art.opts.beta)
+    return art.opts.beta * element_min(x, W) + W * (1 - art.opts.beta)
 end
 
 """

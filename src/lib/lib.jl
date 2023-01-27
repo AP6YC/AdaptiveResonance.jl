@@ -676,15 +676,15 @@ const ART_ARG_DOCSTRING = """
 """
 
 const X_ARG_DOCSTRING = """
-- `x::RealVector`: the sample to use.
+- `x::RealVector`: the sample vector to use.
 """
 
 const W_ARG_DOCSTING = """
-- `W::RealVEctor`: the weight vector to use.
+- `W::RealVector`: the weight vector to use.
 """
 
 const INDEX_ARG_DOCSTRING = """
-- `index::Integer`: the index of the weight to use.
+- `index::Integer`: the index of the weight column to use.
 """
 
 """
@@ -900,6 +900,29 @@ $(INDEX_ARG_DOCSTRING)
 """
 function art_activation(art::ARTModule, x::RealVector, index::Integer, args...)
     return eval(art.opts.activation)(art, x, get_sample(art.W, index), args...)
+end
+
+"""
+Basic weight update function.
+
+$(ART_X_W_ARGS)
+"""
+function basic_update(art::ARTModule, x::RealVector, W::RealVector)
+    # Update W
+    # return art.opts.beta .* element_min(x, W) .+ W .* (1 - art.opts.beta)
+    return art.opts.beta * element_min(x, W) + W * (1.0 - art.opts.beta)
+end
+
+"""
+Evaluates the ART module's learning/update method.
+
+# Arguments
+$(ART_ARG_DOCSTRING)
+$(X_ARG_DOCSTRING)
+$(INDEX_ARG_DOCSTRING)
+"""
+function art_learn(art::ARTModule, x::RealVector, index::Integer)
+    return eval(art.opts.update)(art, x, get_sample(art.W, index))
 end
 
 """
