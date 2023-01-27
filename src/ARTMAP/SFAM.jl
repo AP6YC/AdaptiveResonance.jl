@@ -65,6 +65,11 @@ $(OPTS_DOCSTRING)
     Selected activation function.
     """
     activation::Symbol = :basic_activation
+
+    """
+    Selected weight update function.
+    """
+    update::Symbol = :basic_update
 end
 
 # -----------------------------------------------------------------------------
@@ -225,7 +230,6 @@ function train!(art::SFAM, x::RealVector, y::Integer ; preprocessed::Bool=false)
         # Compute activation function
         T = zeros(art.n_categories)
         for jx in 1:art.n_categories
-            # T[jx] = art_activation(art, sample, art.W[:, jx])
             T[jx] = art_activation(art, sample, jx)
         end
 
@@ -233,14 +237,16 @@ function train!(art::SFAM, x::RealVector, y::Integer ; preprocessed::Bool=false)
         index = sortperm(T, rev=true)
         mismatch_flag = true
         for jx in 1:art.n_categories
+            # Set the best-matching-unit index
+            bmu = index[jx]
             # Compute match function
-            # M = art_match(art, sample, art.W[:, index[jx]])
-            M = art_match(art, sample, index[jx])
+            M = art_match(art, sample, bmu)
             # Current winner
             if M >= rho_baseline
-                if y == art.labels[index[jx]]
+                if y == art.labels[bmu]
                     # Update the weight and break
-                    art.W[:, index[jx]] = learn(art, sample, art.W[:, index[jx]])
+                    # art.W[:, index[jx]] = learn(art, sample, art.W[:, index[jx]])
+                    learn!(art, sample, bmu)
                     mismatch_flag = false
                     break
                 else
@@ -270,7 +276,6 @@ function classify(art::SFAM, x::RealVector ; preprocessed::Bool=false, get_bmu::
     # Compute activation function
     T = zeros(art.n_categories)
     for jx in 1:art.n_categories
-        # T[jx] = art_activation(art, sample, art.W[:, jx])
         T[jx] = art_activation(art, sample, jx)
     end
 
@@ -278,12 +283,13 @@ function classify(art::SFAM, x::RealVector ; preprocessed::Bool=false, get_bmu::
     index = sortperm(T, rev=true)
     mismatch_flag = true
     for jx in 1:art.n_categories
+        # Set the best-matching-unit index
+        bmu = index[jx]
         # Compute match function
-        # M = art_match(art, sample, art.W[:, index[jx]])
-        M = art_match(art, sample, index[jx])
+        M = art_match(art, sample, bmu)
         # Current winner
         if M >= art.opts.rho
-            y_hat = art.labels[index[jx]]
+            y_hat = art.labels[bmu]
             mismatch_flag = false
             break
         end
@@ -300,28 +306,13 @@ function classify(art::SFAM, x::RealVector ; preprocessed::Bool=false, get_bmu::
 end
 
 """
-Returns a single updated weight for the Simple Fuzzy ARTMAP module for weight
-vector W and sample x.
-"""
-function learn(art::SFAM, x::RealVector, W::RealVector)
-    # Update W
-    # return art.opts.beta .* element_min(x, W) .+ W .* (1 - art.opts.beta)
-    return art.opts.beta * element_min(x, W) + W * (1 - art.opts.beta)
-end
-
-"""
 In-place learning function.
 """
 function learn!(art::SFAM, x::RealVector, index::Integer)
-    # Update W at the index
-    art.W[:, index] = learn(art, x, art.W[:, index])
+    # Compute the updated weight W
+    new_vec = art_learn(art, x, index)
+    # Replace the weight in place
+    replace_mat_index!(art.W, new_vec, index)
+    # Return empty
+    return
 end
-
-# """
-# Returns the match function for the Simple Fuzzy ARTMAP module with weight W and
-# sample x.
-# """
-# function art_match(art::SFAM, x::RealVector, W::RealVector)
-#     # Compute M and return
-#     return norm(element_min(x, W), 1) / art.config.dim
-# end

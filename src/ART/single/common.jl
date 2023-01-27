@@ -18,7 +18,7 @@ abstract type AbstractFuzzyART <: ART end
 # FUNCTIONS
 # -----------------------------------------------------------------------------
 
-# COMMON DOC: FuzzyART initialization function
+# COMMON DOC: AbstractFuzzyART initialization function
 function initialize!(art::AbstractFuzzyART, x::RealVector ; y::Integer=0)
     # Set the threshold
     set_threshold!(art)
@@ -29,27 +29,6 @@ function initialize!(art::AbstractFuzzyART, x::RealVector ; y::Integer=0)
     # Create a category with the given label
     create_category!(art, x, label)
 end
-
-# """
-# Initializes a DVFA learner with an initial sample 'x'.
-
-# This function is used during the first training iteraction when the DVFA module is empty.
-
-# # Arguments
-# - `art::DVFA`: the DVFA module to initialize.
-# - `x::RealVector`: the sample to use for initialization.
-# - `y::Integer=0`: the optional new label for the first weight of the FuzzyART module. If not specified, defaults the new label to 1.
-# """
-# function initialize!(art::DVFA, x::RealVector ; y::Integer=0)
-#     # Set the threshold
-#     set_threshold!(art)
-#     # Initialize the empty weight matrix to the correct dimension
-#     art.W = ARTMatrix{Float}(undef, art.config.dim_comp, 0)
-#     # Set the label to either the supervised label or 1 if unsupervised
-#     label = !iszero(y) ? y : 1
-#     # Create a new category
-#     create_category!(art, x, label)
-# end
 
 """
 Computes the activation and match functions of the ART module against sample x.
@@ -84,19 +63,6 @@ function activation_match!(art::AbstractFuzzyART, x::RealVector)
     end
 end
 
-# """
-# Compute and store the activation and match values for the DVFA module.
-# """
-# function activation_match!(art::DVFA, x::RealVector)
-#     # Expand the destination activation and match vectors
-#     accommodate_vector!(art.T, art.n_categories)
-#     accommodate_vector!(art.M, art.n_categories)
-#     for jx = 1:art.n_categories
-#         art.T[jx] = art_activation(art, x, jx)
-#         art.M[jx] = art_match(art, x, jx)
-#     end
-# end
-
 """
 In place learning function.
 
@@ -110,8 +76,6 @@ function learn!(art::AbstractFuzzyART, x::RealVector, index::Integer)
     new_vec = art_learn(art, x, index)
     # Replace the weight in place
     replace_mat_index!(art.W, new_vec, index)
-    # # Increment the instance counting
-    # art.n_instance[index] += 1
     # Return empty
     return
 end
