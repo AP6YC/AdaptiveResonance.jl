@@ -115,13 +115,3 @@ function learn!(art::AbstractFuzzyART, x::RealVector, index::Integer)
     # Return empty
     return
 end
-
-"""
-Stopping conditions for a FuzzyART module.
-
-# Arguments
-- `art::AbstractFuzzyART`: the FuzzyART module to check stopping conditions for.
-"""
-function stopping_conditions(art::AbstractFuzzyART)
-    return art.epoch >= art.opts.max_epochs
-end

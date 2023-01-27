@@ -39,9 +39,9 @@ $(OPTS_DOCSTRING)
     beta = 1.0; @assert beta > 0.0 && beta <= 1.0
 
     """
-    Maximum number of epochs during training: max_epochs ∈ [1, Inf).
+    Maximum number of epochs during training: max_epoch ∈ [1, Inf).
     """
-    max_epochs::Int = 1
+    max_epoch::Int = 1
 
     """
     Display flag for progress bars.
@@ -304,7 +304,7 @@ Stopping conditions for Simple Fuzzy ARTMAP, checked at the end of every epoch.
 """
 function stopping_conditions(art::SFAM)
     # Compute the stopping condition, return a bool
-    return art.epoch >= art.opts.max_epochs
+    return art.epoch >= art.opts.max_epoch
 end
 
 """

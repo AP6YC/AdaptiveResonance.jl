@@ -46,7 +46,7 @@ $(OPTS_DOCSTRING)
     """
     Maximum number of epochs during training: max_epochs ∈ (1, Inf).
     """
-    max_epochs::Int = 1
+    max_epoch::Int = 1
 
     """
     Display flag for progress bars.
