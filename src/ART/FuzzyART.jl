@@ -89,7 +89,7 @@ For module options, see [`AdaptiveResonance.opts_FuzzyART`](@ref).
 # References
 1. G. Carpenter, S. Grossberg, and D. Rosen, 'Fuzzy ART: Fast stable learning and categorization of analog patterns by an adaptive resonance system,' Neural Networks, vol. 4, no. 6, pp. 759-771, 1991.
 """
-mutable struct FuzzyART <: ART
+mutable struct FuzzyART <: AbstractFuzzyART
     """
     FuzzyART options struct.
     """
@@ -238,20 +238,20 @@ function set_threshold!(art::FuzzyART)
     end
 end
 
-# COMMON DOC: FuzzyART initialization function
-function initialize!(art::FuzzyART, x::RealVector ; y::Integer=0)
-    # Set the threshold
-    set_threshold!(art)
+# # COMMON DOC: FuzzyART initialization function
+# function initialize!(art::FuzzyART, x::RealVector ; y::Integer=0)
+#     # Set the threshold
+#     set_threshold!(art)
 
-    # Initialize the feature dimension of the weights
-    art.W = ARTMatrix{Float}(undef, art.config.dim_comp, 0)
+#     # Initialize the feature dimension of the weights
+#     art.W = ARTMatrix{Float}(undef, art.config.dim_comp, 0)
 
-    # Set the label to either the supervised label or 1 if unsupervised
-    label = !iszero(y) ? y : 1
+#     # Set the label to either the supervised label or 1 if unsupervised
+#     label = !iszero(y) ? y : 1
 
-    # Create a category with the given label
-    create_category!(art, x, label)
-end
+#     # Create a category with the given label
+#     create_category!(art, x, label)
+# end
 
 # COMMON DOC: create_category! function
 function create_category!(art::FuzzyART, x::RealVector, y::Integer)
@@ -445,6 +445,8 @@ function learn!(art::FuzzyART, x::RealVector, index::Integer)
     replace_mat_index!(art.W, new_vec, index)
     # Increment the instance counting
     art.n_instance[index] += 1
+    # Return empty
+    return
 end
 
 """

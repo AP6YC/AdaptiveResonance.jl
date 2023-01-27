@@ -6,6 +6,15 @@ Includes all of the unsupervised ART modules common code.
 """
 
 # -----------------------------------------------------------------------------
+# TYPES
+# -----------------------------------------------------------------------------
+
+"""
+Abstract supertype of FuzzyART modules.
+"""
+abstract type AbstractFuzzyART <: ART end
+
+# -----------------------------------------------------------------------------
 # FUNCTIONS
 # -----------------------------------------------------------------------------
 
@@ -15,10 +24,10 @@ Train the ART model on a batch of data 'x' with optional supervisory labels 'y.'
 # Arguments
 - `art::ART`: the unsupervised ART model to train.
 - `x::RealMatrix`: the 2-D dataset containing columns of samples with rows of features.
-- `y::IntegerVector=Vector{Int}()`: optional, labels for simple supervisory training.
+- `y::IntegerVector=Int[]`: optional, labels for simple supervisory training.
 - `preprocessed::Bool=false`: optional, flag if the data has already been complement coded or not.
 """
-function train!(art::ART, x::RealMatrix ; y::IntegerVector = Vector{Int}(), preprocessed::Bool=false)
+function train!(art::ART, x::RealMatrix ; y::IntegerVector = Int[], preprocessed::Bool=false)
     # Show a message if display is on
     art.opts.display && @info "Training $(typeof(art))"
 
@@ -93,3 +102,15 @@ FuzzyART
 julia> initialize!(my_FuzzyART, [1, 2, 3, 4])
 """
 initialize!(art::ART, x::RealVector ; y::Integer=0)
+
+# COMMON DOC: FuzzyART initialization function
+function initialize!(art::AbstractFuzzyART, x::RealVector ; y::Integer=0)
+    # Set the threshold
+    set_threshold!(art)
+    # Initialize the feature dimension of the weights
+    art.W = ARTMatrix{Float}(undef, art.config.dim_comp, 0)
+    # Set the label to either the supervised label or 1 if unsupervised
+    label = !iszero(y) ? y : 1
+    # Create a category with the given label
+    create_category!(art, x, label)
+end

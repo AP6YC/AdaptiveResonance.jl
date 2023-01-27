@@ -77,7 +77,7 @@ For module options, see [`AdaptiveResonance.opts_DVFA`](@ref).
 1. L. E. Brito da Silva, I. Elnabarawy and D. C. Wunsch II, 'Dual Vigilance Fuzzy ART,' Neural Networks Letters. To appear.
 2. G. Carpenter, S. Grossberg, and D. Rosen, 'Fuzzy ART: Fast stable learning and categorization of analog patterns by an adaptive resonance system,' Neural Networks, vol. 4, no. 6, pp. 759-771, 1991.
 """
-mutable struct DVFA <: ART
+mutable struct DVFA <: AbstractFuzzyART
     # Get parameters
     """
     DVFA options struct.
@@ -210,26 +210,26 @@ function set_threshold!(art::DVFA)
     art.threshold_lb = art.opts.rho_lb * art.config.dim
 end
 
-"""
-Initializes a DVFA learner with an initial sample 'x'.
+# """
+# Initializes a DVFA learner with an initial sample 'x'.
 
-This function is used during the first training iteraction when the DVFA module is empty.
+# This function is used during the first training iteraction when the DVFA module is empty.
 
-# Arguments
-- `art::DVFA`: the DVFA module to initialize.
-- `x::RealVector`: the sample to use for initialization.
-- `y::Integer=0`: the optional new label for the first weight of the FuzzyART module. If not specified, defaults the new label to 1.
-"""
-function initialize!(art::DVFA, x::RealVector ; y::Integer=0)
-    # Set the threshold
-    set_threshold!(art)
-    # Initialize the empty weight matrix to the correct dimension
-    art.W = ARTMatrix{Float}(undef, art.config.dim_comp, 0)
-    # Set the label to either the supervised label or 1 if unsupervised
-    label = !iszero(y) ? y : 1
-    # Create a new category
-    create_category!(art, x, label)
-end
+# # Arguments
+# - `art::DVFA`: the DVFA module to initialize.
+# - `x::RealVector`: the sample to use for initialization.
+# - `y::Integer=0`: the optional new label for the first weight of the FuzzyART module. If not specified, defaults the new label to 1.
+# """
+# function initialize!(art::DVFA, x::RealVector ; y::Integer=0)
+#     # Set the threshold
+#     set_threshold!(art)
+#     # Initialize the empty weight matrix to the correct dimension
+#     art.W = ARTMatrix{Float}(undef, art.config.dim_comp, 0)
+#     # Set the label to either the supervised label or 1 if unsupervised
+#     label = !iszero(y) ? y : 1
+#     # Create a new category
+#     create_category!(art, x, label)
+# end
 
 """
 Creates a new category for the DVFA modules.
@@ -368,16 +368,12 @@ end
 Compute and store the activation and match values for the DVFA module.
 """
 function activation_match!(art::DVFA, x::RealVector)
-    # art.T = zeros(art.n_categories)
-    # art.M = zeros(art.n_categories)
+    # Expand the destination activation and match vectors
     accommodate_vector!(art.T, art.n_categories)
     accommodate_vector!(art.M, art.n_categories)
     for jx = 1:art.n_categories
         art.T[jx] = art_activation(art, x, jx)
         art.M[jx] = art_match(art, x, jx)
-        # numerator = norm(element_min(x, art.W[:, jx]), 1)
-        # art.T[jx] = numerator/(art.opts.alpha + norm(art.W[:, jx], 1))
-        # art.M[jx] = numerator
     end
 end
 
@@ -386,15 +382,22 @@ Return the modified weight of the DVFA module conditioned by sample x.
 """
 function learn(art::DVFA, x::RealVector, W::RealVector)
     # Update W
-    return art.opts.beta .* element_min(x, W) .+ W .* (1 - art.opts.beta)
+    # return art.opts.beta .* element_min(x, W) .+ W .* (1 - art.opts.beta)
+    return art.opts.beta * element_min(x, W) + W * (1 - art.opts.beta)
 end
 
 """
 In place learning function.
 """
 function learn!(art::DVFA, x::RealVector, index::Integer)
+    # Compute the updated weight W
+    new_vec = learn(art, x, get_sample(art.W, index))
+    # Replace the weight in place
+    replace_mat_index!(art.W, new_vec, index)
     # Update W at the index
-    art.W[:, index] = learn(art, x, art.W[:, index])
+    # art.W[:, index] = learn(art, x, art.W[:, index])
+    # Return empty
+    return
 end
 
 """
