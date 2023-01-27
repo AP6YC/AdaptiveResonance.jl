@@ -78,14 +78,14 @@ $(OPTS_DOCSTRING)
     uncommitted::Bool = false
 
     """
-    Selected match function.
-    """
-    match::Symbol = :gamma_match
-
-    """
     Selected activation function.
     """
     activation::Symbol = :gamma_activation
+
+    """
+    Selected match function.
+    """
+    match::Symbol = :gamma_match
 end
 
 # -----------------------------------------------------------------------------

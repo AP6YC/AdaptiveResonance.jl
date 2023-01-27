@@ -56,6 +56,16 @@ $(OPTS_DOCSTRING)
     If false, fast-committing is used where the new weight is simply the complement-coded sample.
     """
     uncommitted::Bool = false
+
+    """
+    Selected activation function.
+    """
+    activation::Symbol = :basic_activation
+
+    """
+    Selected match function.
+    """
+    match::Symbol = :unnormalized_match
 end
 
 """
@@ -358,12 +368,16 @@ end
 Compute and store the activation and match values for the DVFA module.
 """
 function activation_match!(art::DVFA, x::RealVector)
-    art.T = zeros(art.n_categories)
-    art.M = zeros(art.n_categories)
+    # art.T = zeros(art.n_categories)
+    # art.M = zeros(art.n_categories)
+    accommodate_vector!(art.T, art.n_categories)
+    accommodate_vector!(art.M, art.n_categories)
     for jx = 1:art.n_categories
-        numerator = norm(element_min(x, art.W[:, jx]), 1)
-        art.T[jx] = numerator/(art.opts.alpha + norm(art.W[:, jx], 1))
-        art.M[jx] = numerator
+        art.T[jx] = art_activation(art, x, jx)
+        art.M[jx] = art_match(art, x, jx)
+        # numerator = norm(element_min(x, art.W[:, jx]), 1)
+        # art.T[jx] = numerator/(art.opts.alpha + norm(art.W[:, jx], 1))
+        # art.M[jx] = numerator
     end
 end
 

@@ -788,6 +788,16 @@ function basic_match(art::ARTModule, x::RealVector, W::RealVector)
 end
 
 """
+Unnormalized match function.
+
+$(ART_X_W_ARGS)
+"""
+function unnormalized_match(_::ARTModule, x::RealVector, W::RealVector)
+    # return norm(element_min(x, get_sample(W, index)), 1) / art.config.dim
+    return x_W_min_norm(x, W)
+end
+
+"""
 Simplified FuzzyARTMAP activation function.
 
 $(ART_X_W_ARGS)
@@ -905,6 +915,7 @@ Enumerates all of the activation functions available in the package.
 """
 const ACTIVATION_FUNCTIONS = [
     :basic_activation,
+    :unnormalized_match,
     :choice_by_difference,
     :gamma_activation,
 ]
