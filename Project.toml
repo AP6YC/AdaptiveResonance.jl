@@ -23,6 +23,7 @@ DocStringExtensions = "0.8, 0.9"
 ElasticArrays = "1"
 NumericalTypeAliases = "0.1, 0.2"
 Parameters = "0.12"
+PrecompileSignatures = "3"
 ProgressBars = "0.7, 0.8, 1"
 julia = "1"
 
