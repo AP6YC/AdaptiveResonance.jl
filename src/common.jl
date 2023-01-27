@@ -708,7 +708,8 @@ $(W_ARG_DOCSTING)
 $(INDEX_ARG_DOCSTRING)
 """
 function x_W_min_norm(x::RealVector, W::ARTMatrix, index::Integer)
-    return norm(element_min(x, get_sample(W, index)), 1)
+    # return norm(element_min(x, get_sample(W, index)), 1)
+    return @inbounds norm(element_min(x, get_sample(W, index)), 1)
 end
 
 """
