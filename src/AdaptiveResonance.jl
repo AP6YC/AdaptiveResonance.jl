@@ -172,14 +172,15 @@ export
     # Useful constants
     ART_MODULES,                # List of (default) unsupervised ART modules
     ARTMAP_MODULES,             # List of supervised ARTMAP modules
-    ADAPTIVERESONANCE_MODULES, # Combined list of ART and ARTMAP modules
+    ADAPTIVERESONANCE_MODULES,  # Combined list of ART and ARTMAP modules
     DDVFA_METHODS,              # DDVFA linkage methods
     ADAPTIVERESONANCE_VERSION,  # Version of the package
-    MATCH_FUNCTIONS,            # All match functions as symbols
-    ACTIVATION_FUNCTIONS,       # All activation functions as symbols
+    MATCH_FUNCTIONS,            # All match functions as a list of symbols
+    ACTIVATION_FUNCTIONS,       # All activation functions as a list of symbols
+    UPDATE_FUNCTIONS,           # All update functions as a list of symbols
 
     # ARTSCENE filter functions
-    artscene_filter     # Runs all of the above in one step, returning features
+    artscene_filter     # Runs all of the ARTSCENE functions in one step, returning features
 
 # -----------------------------------------------------------------------------
 # PRECOMPILE
