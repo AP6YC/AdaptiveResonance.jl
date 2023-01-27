@@ -756,6 +756,16 @@ end
 # -----------------------------------------------------------------------------
 
 """
+Checks the stopping conditions for an ART module.
+
+# Arguments
+- `art::ART`: the ART module to check stopping conditions for.
+"""
+function stopping_conditions(art::ARTModule)
+    return art.epoch >= art.opts.max_epoch
+end
+
+"""
 Low-level common function for computing the 1-norm of the element minimum of a sample and weights.
 
 # Arguments

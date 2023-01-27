@@ -416,19 +416,6 @@ function create_category!(art::DDVFA, sample::RealVector, label::Integer)
     push!(art.F2, FuzzyART(art.subopts, sample, preprocessed=true))
 end
 
-# """
-# Stopping conditions for Distributed Dual Vigilance Fuzzy ARTMAP.
-
-# Returns true if there is no change in weights during the epoch or the maxmimum epochs has been reached.
-
-# # Arguments
-# - `art::DDVFA`: the DDVFA module for checking stopping conditions.
-# """
-# function stopping_conditions(art::DDVFA)
-#     # Compute the stopping condition, return a bool
-#     return art.epoch >= art.opts.max_epoch
-# end
-
 # -----------------------------------------------------------------------------
 # DDVFA LINKAGE METHODS
 # -----------------------------------------------------------------------------

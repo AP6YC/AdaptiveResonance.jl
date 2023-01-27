@@ -300,14 +300,6 @@ function classify(art::SFAM, x::RealVector ; preprocessed::Bool=false, get_bmu::
 end
 
 """
-Stopping conditions for Simple Fuzzy ARTMAP, checked at the end of every epoch.
-"""
-function stopping_conditions(art::SFAM)
-    # Compute the stopping condition, return a bool
-    return art.epoch >= art.opts.max_epoch
-end
-
-"""
 Returns a single updated weight for the Simple Fuzzy ARTMAP module for weight
 vector W and sample x.
 """

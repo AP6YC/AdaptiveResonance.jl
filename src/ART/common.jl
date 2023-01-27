@@ -59,26 +59,13 @@ function train!(art::ART, x::RealMatrix ; y::IntegerVector = Int[], preprocessed
     return y_hat
 end
 
-"""
-Checks the stopping conditions for an ART module.
-
-# Arguments
-- `art::ART`: the ART module to check stopping conditions for.
-"""
-function stopping_conditions(art::ART)
-    return art.epoch >= art.opts.max_epoch
-end
-
 # """
-# Stopping conditions for Distributed Dual Vigilance Fuzzy ARTMAP.
-
-# Returns true if there is no change in weights during the epoch or the maxmimum epochs has been reached.
+# Checks the stopping conditions for an ART module.
 
 # # Arguments
-# - `art::DDVFA`: the DDVFA module for checking stopping conditions.
+# - `art::ART`: the ART module to check stopping conditions for.
 # """
-# function stopping_conditions(art::DDVFA)
-#     # Compute the stopping condition, return a bool
+# function stopping_conditions(art::ART)
 #     return art.epoch >= art.opts.max_epoch
 # end
 
