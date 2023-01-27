@@ -242,17 +242,19 @@ Otherwise, most ART and ARTMAP modules share the following nomenclature for algo
 - `epsilon::Float`: Match tracking parameter (0, 1).
 - `match::Symbol`: A symbolic name of the match function used (i.e., `:basic_match`). Valid names are listed in [`MATCH_FUNCTIONS`](@ref).
 - `activation::Symbol`: A symbolic name of the activation function used (i.e., `:basic_activation`). Valid names are listed in [`ACTIVATION_FUNCTIONS`](@ref).
+- `update::Symbol`: A symbolic name of the weight update function used (i.e., `:basic_update`). Valid names are listed in [`UPDATE_FUNCTIONS`](@ref).
 
-### [ART Activation and Match Functions](@id art_activation_match_functions)
+### [ART Activation, Match, and Update Functions](@id art_activation_match_update_functions)
 
-Most ART and ARTMAP modules can now swap out their activation and match functions thanks to Julia's metaprogramming capabilities.
-This is done by setting the `match` or `activation` options of the [ART options struct](@ref art_options_summary) with a symbol of the function to use, such as with
+Though their implementations may vary, all ART and ARTMAP modules require the computation of a match function, and activation function, and a method of updating weights when learning.
+Both ART and ARTMAP modules can now swap out their activation, match, and update functions thanks to Julia's metaprogramming capabilities.
+This is done by setting the `match`, `activation`, or `update` options of the [ART options struct](@ref art_options_summary) with a symbol of the function to use, such as with
 
 ```julia
-my_opts = opts_FuzzyART(match=:choice_by_difference, activation=:basic_activation)
+my_opts = opts_FuzzyART(match=:choice_by_difference, activation=:basic_activation, update=:basic_update)
 ```
 
-A list of all available activation and match functions is provided in the [`ACTIVATION_FUNCTIONS`](@ref) and [`MATCH_FUNCTIONS`] constants, respectively.
+A list of all available activation, match, and update functions is provided in the [`ACTIVATION_FUNCTIONS`](@ref), [`MATCH_FUNCTIONS`], and [`UPDATE_FUNCTIONS`](@ref) constants, respectively.
 
 ## [ART vs. ARTMAP](@id art_vs_artmap)
 

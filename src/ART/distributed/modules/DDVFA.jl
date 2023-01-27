@@ -86,6 +86,11 @@ $(OPTS_DOCSTRING)
     Selected match function.
     """
     match::Symbol = :gamma_match
+
+    """
+    Selected weight update function.
+    """
+    update::Symbol = :basic_update
 end
 
 # -----------------------------------------------------------------------------
@@ -225,7 +230,8 @@ function DDVFA(opts::opts_DDVFA)
         uncommitted=opts.uncommitted,
         display=false,
         activation=opts.activation,
-        match=opts.match
+        match=opts.match,
+        update=opts.update,
     )
 
     # Construct the DDVFA module
@@ -283,7 +289,6 @@ function train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fal
     mismatch_flag = true
 
     # Compute the activation for all categories
-    # T = zeros(art.n_categories)
     accommodate_vector!(art.T, art.n_categories)
     accommodate_vector!(art.M, art.n_categories)
     for jx = 1:art.n_categories
@@ -300,15 +305,11 @@ function train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fal
             break
         end
 
-        # M = similarity(art.opts.similarity, art.F2[jx], sample, false)
-        # art.M[jx] = similarity(art.opts.similarity, art.F2[jx], sample, false)
+        # Compute the match with the similarity linkage method
         art.M[bmu] = similarity(art.opts.similarity, art.F2[bmu], sample, false)
         # If we got a match, then learn (update the category)
-        # if M >= art.threshold
         if art.M[bmu] >= art.threshold
             # Update the stored match and activation values
-            # art.M_win = M
-            # art.T_win = T[bmu]
             art.M_win = art.M[bmu]
             art.T_win = art.T[bmu]
             # Update the weights with the sample
@@ -325,8 +326,6 @@ function train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fal
     if mismatch_flag
         # Update the stored match and activation values
         bmu = index[1]
-        # art.M = similarity(art.opts.similarity, art.F2[bmu], sample, false)
-        # art.T_win = T[bmu]
         art.M_win = similarity(art.opts.similarity, art.F2[bmu], sample, false)
         art.T_win = art.T[bmu]
         # Get the correct label
@@ -343,17 +342,16 @@ function classify(art::DDVFA, x::RealVector ; preprocessed::Bool=false, get_bmu:
     sample = init_classify!(x, art, preprocessed)
 
     # Calculate all global activations
-    # T = zeros(art.n_categories)
     accommodate_vector!(art.T, art.n_categories)
     accommodate_vector!(art.M, art.n_categories)
     for jx = 1:art.n_categories
+        # Update the F2 node's activation and match values
         activation_match!(art.F2[jx], sample)
-        # T[jx] = similarity(art.opts.similarity, art.F2[jx], sample, true)
+        # Update the DDVFA activation with the similarity linkage method
         art.T[jx] = similarity(art.opts.similarity, art.F2[jx], sample, true)
     end
 
     # Sort by highest activation
-    # index = sortperm(T, rev=true)
     index = sortperm(art.T, rev=true)
 
     # Default to mismatch
@@ -364,15 +362,10 @@ function classify(art::DDVFA, x::RealVector ; preprocessed::Bool=false, get_bmu:
         # Get the best-matching unit
         bmu = index[jx]
         # Get the match value of this activation
-        # M = similarity(art.opts.similarity, art.F2[bmu], sample, false)
-        # art.M[jx] = similarity(art.opts.similarity, art.F2[bmu], sample, false)
         art.M[bmu] = similarity(art.opts.similarity, art.F2[bmu], sample, false)
         # If the match satisfies the threshold criterion, then report that label
-        # if M >= art.threshold
         if art.M[bmu] >= art.threshold
             # Update the stored match and activation values
-            # art.M_win = M
-            # art.T_win = T[bmu]
             art.M_win = art.M[bmu]
             art.T_win = art.T[bmu]
             # Current winner
