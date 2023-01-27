@@ -181,6 +181,14 @@ y_hat_bmu = classify(my_art, test_x, get_bmu=true)
 
 ## [ART Options](@id art_options)
 
+This section contains:
+
+- [An overview of ART options](@ref art_options_overview)
+- [A summary of all available options](@ref art_options_summary)
+- [Advanced `activation`, `match`, and `update` usage](@ref art_activation_match_update_functions)
+
+### [Options Overview](@id art_options_overview)
+
 The AdaptiveResonance package is designed for maximum flexibility for scientific research, even though this may come at the cost of learning instability if misused.
 Because of the diversity of ART modules, the package is structured around instantiating separate modules and using them for training and inference.
 Due to this diversity, each module has its own options struct with keyword arguments.
