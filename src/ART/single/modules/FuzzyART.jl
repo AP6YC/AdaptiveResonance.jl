@@ -358,19 +358,19 @@ function classify(art::FuzzyART, x::RealVector ; preprocessed::Bool=false, get_b
     return y_hat
 end
 
-"""
-Return the modified weight of the art module conditioned by sample x.
+# """
+# Return the modified weight of the art module conditioned by sample x.
 
-# Arguments
-- `art::FuzzyART`: the FuzzyART module containing learning options.
-- `x::RealVector`: the sample to learn from.
-- `W::RealVector`: the weight vector to update against the sample.
-"""
-function learn(art::FuzzyART, x::RealVector, W::RealVector)
-    # Update W
-    # return art.opts.beta .* element_min(x, W) .+ W .* (1 - art.opts.beta)
-    return art.opts.beta * element_min(x, W) + W * (1.0 - art.opts.beta)
-end
+# # Arguments
+# - `art::FuzzyART`: the FuzzyART module containing learning options.
+# - `x::RealVector`: the sample to learn from.
+# - `W::RealVector`: the weight vector to update against the sample.
+# """
+# function learn(art::FuzzyART, x::RealVector, W::RealVector)
+#     # Update W
+#     # return art.opts.beta .* element_min(x, W) .+ W .* (1 - art.opts.beta)
+#     return art.opts.beta * element_min(x, W) + W * (1.0 - art.opts.beta)
+# end
 
 """
 In place learning function with instance counting.

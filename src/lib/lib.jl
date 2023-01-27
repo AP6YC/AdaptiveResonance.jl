@@ -807,15 +807,6 @@ function basic_activation(art::ARTModule, x::RealVector, W::RealVector)
     return x_W_min_norm(x, W) / (art.opts.alpha + W_norm(W))
 end
 
-# """
-# Simplified FuzzyARTMAP activation function.
-
-# $(ART_X_W_ARGS)
-# """
-# function fast_basic_activation(art::ARTModule, x::RealVector, W::ARTMatrix, index::Integer)
-
-# end
-
 """
 Low-level subroutine for the gamma match function with a precomputed gamma activation.
 
@@ -834,8 +825,6 @@ Gamma-normalized match function, recomputing the gamma activation value.
 $(ART_X_W_ARGS)
 """
 function gamma_match(art::ARTModule, x::RealVector, W::RealVector)
-    # return (norm(get_sample(W, index), 1) ^ art.opts.gamma_ref) * gamma_activation(art, x, W, index)
-    # return (W_norm(W) ^ art.opts.gamma_ref) * gamma_activation(art, x, W)
     return gamma_match_sub(art, W, gamma_activation(art, x, W))
 end
 
@@ -846,8 +835,6 @@ $(ART_X_W_ARGS)
 - `gamma_act::Real`: the precomputed gamma activation value.
 """
 function gamma_match(art::ARTModule, _::RealVector, W::RealVector, gamma_act::Real)
-    # return (norm(get_sample(W, index), 1) ^ art.opts.gamma_ref) * gamma_activation(art, x, W, index)
-    # return (W_norm(W) ^ art.opts.gamma_ref) * gamma_activation(art, x, W)
     return gamma_match_sub(art, W, gamma_act::Real)
 end
 
@@ -867,8 +854,6 @@ $(ART_X_W_ARGS)
 """
 function choice_by_difference(art::ARTModule, x::RealVector, W::RealVector)
     return (
-        # norm(element_min(x, get_sample(W, index)), 1)
-        #     + (1 - art.opts.alpha) * (art.config.dim - norm(get_sample(W, index), 1))
         x_W_min_norm(x, W)
             + (1 - art.opts.alpha) * (art.config.dim - W_norm(W))
     )
@@ -908,8 +893,6 @@ Basic weight update function.
 $(ART_X_W_ARGS)
 """
 function basic_update(art::ARTModule, x::RealVector, W::RealVector)
-    # Update W
-    # return art.opts.beta .* element_min(x, W) .+ W .* (1 - art.opts.beta)
     return art.opts.beta * element_min(x, W) + W * (1.0 - art.opts.beta)
 end
 
@@ -924,6 +907,13 @@ $(INDEX_ARG_DOCSTRING)
 function art_learn(art::ARTModule, x::RealVector, index::Integer)
     return eval(art.opts.update)(art, x, get_sample(art.W, index))
 end
+
+"""
+Enumerates all of the update functions available in the package.
+"""
+const UPDATE_FUNCTIONS = [
+    :basic_update,
+]
 
 """
 Enumerates all of the match functions available in the package.

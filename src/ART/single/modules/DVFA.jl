@@ -66,6 +66,11 @@ $(OPTS_DOCSTRING)
     Selected match function.
     """
     match::Symbol = :unnormalized_match
+
+    """
+    Selected weight update function.
+    """
+    update::Symbol = :basic_update
 end
 
 """
@@ -343,21 +348,22 @@ function classify(art::DVFA, x::RealVector ; preprocessed::Bool=false, get_bmu::
     return y_hat
 end
 
-"""
-Return the modified weight of the DVFA module conditioned by sample x.
-"""
-function learn(art::DVFA, x::RealVector, W::RealVector)
-    # Update W
-    # return art.opts.beta .* element_min(x, W) .+ W .* (1 - art.opts.beta)
-    return art.opts.beta * element_min(x, W) + W * (1 - art.opts.beta)
-end
+# """
+# Return the modified weight of the DVFA module conditioned by sample x.
+# """
+# function learn(art::DVFA, x::RealVector, W::RealVector)
+#     # Update W
+#     # return art.opts.beta .* element_min(x, W) .+ W .* (1 - art.opts.beta)
+#     return art.opts.beta * element_min(x, W) + W * (1 - art.opts.beta)
+# end
 
 """
 In place learning function.
 """
 function learn!(art::DVFA, x::RealVector, index::Integer)
     # Compute the updated weight W
-    new_vec = learn(art, x, get_sample(art.W, index))
+    # new_vec = learn(art, x, get_sample(art.W, index))
+    new_vec = art_learn(art, x, index)
     # Replace the weight in place
     replace_mat_index!(art.W, new_vec, index)
     # Update W at the index
