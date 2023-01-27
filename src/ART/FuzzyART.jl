@@ -435,7 +435,8 @@ Return the modified weight of the art module conditioned by sample x.
 """
 function learn(art::FuzzyART, x::RealVector, W::RealVector)
     # Update W
-    return art.opts.beta .* element_min(x, W) .+ W .* (1 - art.opts.beta)
+    # return art.opts.beta .* element_min(x, W) .+ W .* (1 - art.opts.beta)
+    return art.opts.beta * element_min(x, W) + W * (1.0 - art.opts.beta)
 end
 
 """
@@ -449,7 +450,9 @@ In place learning function with instance counting.
 function learn!(art::FuzzyART, x::RealVector, index::Integer)
     # Update W
     # art.W[:, index] = learn(art, x, art.W[:, index])
-    art.W[:, index] = learn(art, x, get_sample(art.W, index))
+    # art.W[:, index] = learn(art, x, get_sample(art.W, index))
+    new_vec = learn(art, x, get_sample(art.W, index))
+    replace_mat_index!(art.W, new_vec, index)
     art.n_instance[index] += 1
 end
 

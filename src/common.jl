@@ -221,7 +221,18 @@ Returns the element-wise minimum between sample x and weight W.
 """
 function element_min(x::RealVector, W::RealVector)
     # Compute the element-wise minimum of two vectors
-    return minimum([x W], dims = 2)
+    n_el = length(x)
+    min_vec = zero(x)
+    for ix = 1:n_el
+        @inbounds min_vec[ix] = min(x[ix], W[ix])
+    end
+    return min_vec
+    # mat = zeros(n_el, 2)
+    # replace_mat_index!(mat, x, 1)
+    # replace_mat_index!(mat, W, 2)
+    # return vec(minimum(mat, dims = 2))
+    # return minimum([x W], dims = 2)
+    # return @inbounds vec(minimum([x W], dims = 2))
 end
 
 """
@@ -485,7 +496,8 @@ This function implements the convention that columns are samples while rows are 
 """
 function get_sample(x::RealMatrix, i::Integer)
     # Return the sample at location
-    return x[:, i]
+    # return x[:, i]
+    return @inbounds x[:, i]
 end
 
 """
@@ -843,4 +855,12 @@ function accommodate_vector!(vec::Vector{T}, goal_len::Integer) where {T}
         # Push a zero of the type of the vector elements
         push!(vec, zero(T))
     end
+end
+
+function replace_mat_index!(mat::RealMatrix, vec::RealVector, index::Integer)
+    unsafe_replace_mat_index!(mat, vec, index)
+end
+
+function unsafe_replace_mat_index!(mat::RealMatrix, vec::RealVector, index::Integer)
+    @inbounds mat[:, index] = vec
 end

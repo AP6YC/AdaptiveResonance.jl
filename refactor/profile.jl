@@ -1,3 +1,4 @@
+using Revise
 using AdaptiveResonance
 
 include("lib.jl")
