@@ -8,9 +8,9 @@ Types and functions that are used throughout AdaptiveResonance.jl.
 - Sasha Petrenko <sap625@mst.edu>
 """
 
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 # DOCSTRING TEMPLATES
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 
 # Constants template
 @template CONSTANTS =
@@ -45,9 +45,9 @@ $(DOCSTRING)
 $(METHODLIST)
 """
 
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 # CONSTANTS AND CONVENTIONS
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 
 """
 AdaptiveResonance.jl convention for which 2-D dimension contains the feature dimension.
@@ -69,9 +69,9 @@ The type of vector used by the AdaptiveResonance.jl package, used to configure v
 """
 const ARTVector = Vector
 
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 # ABSTRACT TYPES
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 
 """
 Abstract supertype for all ART module options.
@@ -98,9 +98,9 @@ Acceptable iterators for ART module training and inference
 """
 const ARTIterator = Union{UnitRange, ProgressBar}
 
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 # COMPOSITE TYPES
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 
 """
 Container to standardize training/testing data configuration.
@@ -208,9 +208,9 @@ function DataConfig(data::RealMatrix)
     return config
 end
 
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 # FUNCTIONS
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 
 """
 Returns the element-wise minimum between sample x and weight W.
@@ -624,9 +624,9 @@ function classify(art::ARTModule, x::RealMatrix ; preprocessed::Bool=false, get_
     return y_hat
 end
 
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 # COMMON DOCUMENTATION
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 
 @doc """
 Predict categories of a single sample of features 'x' using the ART model.
@@ -662,9 +662,9 @@ Creates a category for the ARTModule module, expanding the weights and increment
 """
 create_category!(art::ARTModule, x::RealVector, y::Integer)
 
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 # COMMON DOCUMENTATION CONSTANTS
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 
 # Shared options docstring, inserted at the end of `opts_<...>` structs.
 const OPTS_DOCSTRING = """
@@ -707,9 +707,55 @@ $(INDEX_ARG_DOCSTRING)
 # - `index::Integer`: the index of the weight to use.
 # """
 
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
+# COMMON LOW-LEVEL FUNCTIONS
+# -----------------------------------------------------------------------------
+
+const MATRIX_REPLACE_ARGS_DOCSTRING = """
+# Arguments
+- `mat::RealMatrix`: the matrix to update with a replaced column vector.
+- `vec::RealVector`: the vector to put in the matrix at the column index.
+- `index::Integer`: the column index to put the vector.
+"""
+
+"""
+Replaces a matrix element with a vector at the column index.
+
+This function dispatches to the low-level replacement strategy.
+
+$MATRIX_REPLACE_ARGS_DOCSTRING
+"""
+function replace_mat_index!(mat::RealMatrix, vec::RealVector, index::Integer)
+    unsafe_replace_mat_index!(mat, vec, index)
+end
+
+"""
+Low-level function for unsafely replacing a matrix column with a given vector.
+
+$MATRIX_REPLACE_ARGS_DOCSTRING
+"""
+function unsafe_replace_mat_index!(mat::RealMatrix, vec::RealVector, index::Integer)
+    @inbounds mat[:, index] = vec
+end
+
+"""
+Extends a vector to a goal length with zeros of its element type to accommodate in-place updates.
+
+# Arguments
+- `vec::Vector{T}`: a vector of arbitrary element type.
+- `goal_len::Integer`: the length that the vector should be.
+"""
+function accommodate_vector!(vec::Vector{T}, goal_len::Integer) where {T}
+    # While the the vector is not the correct length
+    while length(vec) < goal_len
+        # Push a zero of the type of the vector elements
+        push!(vec, zero(T))
+    end
+end
+
+# -----------------------------------------------------------------------------
 # COMMON ALGORITHMIC FUNCTIONS
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 
 """
 Low-level common function for computing the 1-norm of the element minimum of a sample and weights.
@@ -841,26 +887,3 @@ const MATCH_FUNCTIONS_DOCS = join(MATCH_FUNCTIONS, ", ", " and ")
 Common docstring for listing available activation functions.
 """
 const ACTIVATION_FUNCTIONS_DOCS = join(ACTIVATION_FUNCTIONS, ", ", " and ")
-
-"""
-Extends a vector to a goal length with zeros of its element type to accommodate in-place updates.
-
-# Arguments
-- `vec::Vector{T}`: a vector of arbitrary element type.
-- `goal_len::Integer`: the length that the vector should be.
-"""
-function accommodate_vector!(vec::Vector{T}, goal_len::Integer) where {T}
-    # While the the vector is not the correct length
-    while length(vec) < goal_len
-        # Push a zero of the type of the vector elements
-        push!(vec, zero(T))
-    end
-end
-
-function replace_mat_index!(mat::RealMatrix, vec::RealVector, index::Integer)
-    unsafe_replace_mat_index!(mat, vec, index)
-end
-
-function unsafe_replace_mat_index!(mat::RealMatrix, vec::RealVector, index::Integer)
-    @inbounds mat[:, index] = vec
-end
