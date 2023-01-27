@@ -220,18 +220,17 @@ Returns the element-wise minimum between sample x and weight W.
 - `W::RealVector`: the weight vector to compare the sample against.
 """
 function element_min(x::RealVector, W::RealVector)
-    # Compute the element-wise minimum of two vectors
+    # Get the length of the sample
     n_el = length(x)
+    # Create a destination in memory of zeros of type and size like the sample
     min_vec = zero(x)
+    # Iterate over every element of the sample
     for ix = 1:n_el
+        # Get and assign the minimum of the sample and weight at index ix
         @inbounds min_vec[ix] = min(x[ix], W[ix])
     end
+    # Return the element-minimum vector
     return min_vec
-    # mat = zeros(n_el, 2)
-    # replace_mat_index!(mat, x, 1)
-    # replace_mat_index!(mat, W, 2)
-    # return vec(minimum(mat, dims = 2))
-    # return minimum([x W], dims = 2)
     # return @inbounds vec(minimum([x W], dims = 2))
 end
 
@@ -764,8 +763,6 @@ $(X_ARG_DOCSTRING)
 $(W_ARG_DOCSTING)
 """
 function x_W_min_norm(x::RealVector, W::RealVector)
-# function x_W_min_norm(x::RealVector, W::ARTMatrix, index::Integer)
-    # return norm(element_min(x, get_sample(W, index)), 1)
     # return @inbounds norm(element_min(x, get_sample(W, index)), 1)
     return norm(element_min(x, W), 1)
 end
@@ -777,7 +774,6 @@ Low-level common function for computing the 1-norm of just the weight vector.
 $(W_ARG_DOCSTING)
 """
 function W_norm(W::RealVector)
-# function W_norm(W::ARTMatrix, index::Integer)
     return norm(W, 1)
 end
 
@@ -811,13 +807,38 @@ end
 # end
 
 """
-Gamma-normalized match function.
+Low-level subroutine for the gamma match function with a precomputed gamma activation.
+
+# Arguments
+$(ART_ARG_DOCSTRING)
+$(W_ARG_DOCSTING)
+- `gamma_act::Real`: the precomputed gamma activation value.
+"""
+function gamma_match_sub(art::ARTModule, W::RealVector, gamma_act::Real)
+    return (W_norm(W) ^ art.opts.gamma_ref) * gamma_act
+end
+
+"""
+Gamma-normalized match function, recomputing the gamma activation value.
 
 $(ART_X_W_ARGS)
 """
 function gamma_match(art::ARTModule, x::RealVector, W::RealVector)
     # return (norm(get_sample(W, index), 1) ^ art.opts.gamma_ref) * gamma_activation(art, x, W, index)
-    return (W_norm(W) ^ art.opts.gamma_ref) * gamma_activation(art, x, W)
+    # return (W_norm(W) ^ art.opts.gamma_ref) * gamma_activation(art, x, W)
+    return gamma_match_sub(art, W, gamma_activation(art, x, W))
+end
+
+"""
+Gamma-normalized match function, passing a precomputed gamma activation value.
+
+$(ART_X_W_ARGS)
+- `gamma_act::Real`: the precomputed gamma activation value.
+"""
+function gamma_match(art::ARTModule, _::RealVector, W::RealVector, gamma_act::Real)
+    # return (norm(get_sample(W, index), 1) ^ art.opts.gamma_ref) * gamma_activation(art, x, W, index)
+    # return (W_norm(W) ^ art.opts.gamma_ref) * gamma_activation(art, x, W)
+    return gamma_match_sub(art, W, gamma_act::Real)
 end
 
 """
@@ -846,22 +867,29 @@ end
 """
 Evaluates the match function of the ART/ARTMAP module on sample 'x' with weight 'W'.
 
-$(ART_X_W_ARGS)
-"""
-function art_match(art::ARTModule, x::RealVector, index::Integer)
-    return eval(art.opts.match)(art, x, get_sample(art.W, index))
-end
-
-"""
-Evaluates the activation function of the ART/ARTMAP module on the sample 'x' with weight 'W'.
+Passes additional arguments for low-level optimizations using function dispatch.
 
 # Arguments
 $(ART_ARG_DOCSTRING)
 $(X_ARG_DOCSTRING)
 $(INDEX_ARG_DOCSTRING)
 """
-function art_activation(art::ARTModule, x::RealVector, index::Integer)
-    return eval(art.opts.activation)(art, x, get_sample(art.W, index))
+function art_match(art::ARTModule, x::RealVector, index::Integer, args...)
+    return eval(art.opts.match)(art, x, get_sample(art.W, index), args...)
+end
+
+"""
+Evaluates the activation function of the ART/ARTMAP module on the sample 'x' with weight 'W'.
+
+Passes additional arguments for low-level optimizations using function dispatch.
+
+# Arguments
+$(ART_ARG_DOCSTRING)
+$(X_ARG_DOCSTRING)
+$(INDEX_ARG_DOCSTRING)
+"""
+function art_activation(art::ARTModule, x::RealVector, index::Integer, args...)
+    return eval(art.opts.activation)(art, x, get_sample(art.W, index), args...)
 end
 
 """

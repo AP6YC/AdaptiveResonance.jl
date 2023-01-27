@@ -387,26 +387,17 @@ julia> activation_match!(my_FuzzyART, x_sample)
 ```
 """
 function activation_match!(art::FuzzyART, x::RealVector)
-    # art.T = zeros(art.n_categories)
-    # art.M = zeros(art.n_categories)
+    # Expand the destination activation and match vectors
     accommodate_vector!(art.T, art.n_categories)
     accommodate_vector!(art.M, art.n_categories)
     for i = 1:art.n_categories
-
-        # art.T[i] = art_activation(art, x, art.W[:, i])
-        # art.M[i] = art_match(art, x, art.W[:, i])
         art.T[i] = art_activation(art, x, i)
-        art.M[i] = art_match(art, x, i)
-
-        # W_norm = norm(art.W[:, i], 1)
-        # numerator = norm(element_min(x, art.W[:, i]), 1)
-
-        # art.T[i] = (numerator / (art.opts.alpha + W_norm))^art.opts.gamma
-        # if art.opts.gamma_normalization
-        #     art.M[i] = (W_norm^art.opts.gamma_ref) * art.T[i]
-        # else
-        #     art.M[i] = numerator / norm(x, 1)
-        # end
+        # If we are using gamma normalization, save some computation
+        if (art.opts.match == :gamma_match) && (art.opts.activation == :gamma_activation)
+            art.M[i] = art_match(art, x, i, art.T[i])
+        else
+            art.M[i] = art_match(art, x, i)
+        end
     end
 end
 

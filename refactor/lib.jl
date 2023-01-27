@@ -1,5 +1,6 @@
 function random_test_train(dim::Integer, n_samples::Integer)
-    art = DDVFA()
+    # art = DDVFA()
+    art = FuzzyART()
     features = rand(dim, n_samples)
     labels = rand(1:20, n_samples)
 

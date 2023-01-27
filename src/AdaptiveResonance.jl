@@ -111,7 +111,8 @@ using PrecompileSignatures: @precompile_signatures
 # -----------------------------------------------------------------------------
 
 # Include all files
-include("common.jl")        # Objects shared by all modules
+# include("common.jl")        # Objects shared by all modules
+include("lib/lib.jl")       # Common objects and functions shared by all modules
 include("version.jl")       # Exported constant for the version of the package
 include("ARTMAP/ARTMAP.jl") # Supervised ART modules
 include("ART/ART.jl")       # Unsupervised ART modules
