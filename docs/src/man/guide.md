@@ -9,6 +9,7 @@ To work with `AdaptiveResonance.jl`, you should know:
 - [ART module basics](@ref art_modules)
 - [How to use ART module options](@ref art_options)
 - [ART vs. ARTMAP](@ref art_vs_artmap)
+- [ART stats logging](@ref art_stats)
 
 ## [Installation](@id installation)
 
@@ -181,6 +182,14 @@ y_hat_bmu = classify(my_art, test_x, get_bmu=true)
 
 ## [ART Options](@id art_options)
 
+This section contains:
+
+- [An overview of ART options](@ref art_options_overview)
+- [A summary of all available options](@ref art_options_summary)
+- [Advanced `activation`, `match`, and `update` usage](@ref art_activation_match_update_functions)
+
+### [Options Overview](@id art_options_overview)
+
 The AdaptiveResonance package is designed for maximum flexibility for scientific research, even though this may come at the cost of learning instability if misused.
 Because of the diversity of ART modules, the package is structured around instantiating separate modules and using them for training and inference.
 Due to this diversity, each module has its own options struct with keyword arguments.
@@ -242,17 +251,19 @@ Otherwise, most ART and ARTMAP modules share the following nomenclature for algo
 - `epsilon::Float`: Match tracking parameter (0, 1).
 - `match::Symbol`: A symbolic name of the match function used (i.e., `:basic_match`). Valid names are listed in [`MATCH_FUNCTIONS`](@ref).
 - `activation::Symbol`: A symbolic name of the activation function used (i.e., `:basic_activation`). Valid names are listed in [`ACTIVATION_FUNCTIONS`](@ref).
+- `update::Symbol`: A symbolic name of the weight update function used (i.e., `:basic_update`). Valid names are listed in [`UPDATE_FUNCTIONS`](@ref).
 
-### [ART Activation and Match Functions](@id art_activation_match_functions)
+### [ART Activation, Match, and Update Functions](@id art_activation_match_update_functions)
 
-Most ART and ARTMAP modules can now swap out their activation and match functions thanks to Julia's metaprogramming capabilities.
-This is done by setting the `match` or `activation` options of the [ART options struct](@ref art_options_summary) with a symbol of the function to use, such as with
+Though their implementations may vary, all ART and ARTMAP modules require the computation of a match function, and activation function, and a method of updating weights when learning.
+Both ART and ARTMAP modules can now swap out their activation, match, and update functions thanks to Julia's metaprogramming capabilities.
+This is done by setting the `match`, `activation`, or `update` options of the [ART options struct](@ref art_options_summary) with a symbol of the function to use, such as with
 
 ```julia
-my_opts = opts_FuzzyART(match=:choice_by_difference, activation=:basic_activation)
+my_opts = opts_FuzzyART(match=:choice_by_difference, activation=:basic_activation, update=:basic_update)
 ```
 
-A list of all available activation and match functions is provided in the [`ACTIVATION_FUNCTIONS`](@ref) and [`MATCH_FUNCTIONS`] constants, respectively.
+A list of all available activation, match, and update functions is provided in the [`ACTIVATION_FUNCTIONS`](@ref), [`MATCH_FUNCTIONS`], and [`UPDATE_FUNCTIONS`](@ref) constants, respectively.
 
 ## [ART vs. ARTMAP](@id art_vs_artmap)
 
@@ -283,3 +294,36 @@ end
 ```
 
 Without provided labels, the ART modules behave as expected, incrementally creating categories when necessary during the training phase.
+
+## [ART Stats Logging](@id art_stats)
+
+If you are curious about what the activation and match values were after either incremental training or classifiation, all ART modules implement basic statistics dictionaries in their `stats` field with the following entries:
+
+- `T`: the activation value of the most recent winning node (i.e., the best-matching unit).
+- `M`: the match value of the most recent winning node.
+- `bmu`: the integer index of the best-matching unit.
+- `mismatch`: whether a mismatch occurred during the most recent training/classification iteration.
+
+These fields are useful if you wish to know the degree to which a sample is recognized by your ART module and agrees with its understanding of the data.
+
+For example, you may train a model on some random data (rather inneffectually, but simply for illustration purposes):
+
+```julia
+# Create a FuzzyART module with default options
+my_art = FuzzyART()
+# Use three feature dimensions
+dim = 3
+# Create ten random samples
+n_samples = 10
+# Create random features and integer labels
+features = rand(dim, n_samples)
+labels = rand(1:3, n_samples)
+# Train the module in simple supervised mode
+train!(my_art, features, y=labels)
+# See what the activation and match values were for the last sample
+T_bmu = my_art.stats["T"]
+M_bmu = my_art.stats["M"]
+# We can also see which node was the best-matching unit and whether mismatch occured
+bmu_index = my_art.stats["bmu"]
+mismatch_flag = my_art.stats["mismatch"]
+```

@@ -42,7 +42,7 @@ $(OPTS_DOCSTRING)
     """
     Maximum number of epochs during training.
     """
-    max_epochs::Int = 1
+    max_epoch::Int = 1
 
     """
     Display flag for progress bars.
@@ -56,6 +56,21 @@ $(OPTS_DOCSTRING)
     If false, fast-committing is used where the new weight is simply the complement-coded sample.
     """
     uncommitted::Bool = false
+
+    """
+    Selected activation function.
+    """
+    activation::Symbol = :basic_activation
+
+    """
+    Selected match function.
+    """
+    match::Symbol = :unnormalized_match
+
+    """
+    Selected weight update function.
+    """
+    update::Symbol = :basic_update
 end
 
 """
@@ -67,7 +82,7 @@ For module options, see [`AdaptiveResonance.opts_DVFA`](@ref).
 1. L. E. Brito da Silva, I. Elnabarawy and D. C. Wunsch II, 'Dual Vigilance Fuzzy ART,' Neural Networks Letters. To appear.
 2. G. Carpenter, S. Grossberg, and D. Rosen, 'Fuzzy ART: Fast stable learning and categorization of analog patterns by an adaptive resonance system,' Neural Networks, vol. 4, no. 6, pp. 759-771, 1991.
 """
-mutable struct DVFA <: ART
+mutable struct DVFA <: AbstractFuzzyART
     # Get parameters
     """
     DVFA options struct.
@@ -124,11 +139,17 @@ mutable struct DVFA <: ART
     Current training epoch.
     """
     epoch::Int
+
+    """
+    Runtime statistics for the module, implemented as a dictionary containing entries at the end of each training iteration.
+    These entries include the best-matching unit index and the activation and match values of the winning node.
+    """
+    stats::ARTStats
 end
 
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 # CONSTRUCTORS
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 
 """
 Implements a DVFA learner with optional keyword arguments.
@@ -185,40 +206,20 @@ function DVFA(opts::opts_DVFA)
         ARTVector{Float}(undef, 0),     # T
         0,                              # n_categories
         0,                              # n_clusters
-        0                               # epoch
+        0,                              # epoch
+        build_art_stats(),              # stats
     )
 end
 
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 # FUNCTIONS
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 
 # COMMON DOC: Set threshold function
 function set_threshold!(art::DVFA)
     # DVFA thresholds
     art.threshold_ub = art.opts.rho_ub * art.config.dim
     art.threshold_lb = art.opts.rho_lb * art.config.dim
-end
-
-"""
-Initializes a DVFA learner with an initial sample 'x'.
-
-This function is used during the first training iteraction when the DVFA module is empty.
-
-# Arguments
-- `art::DVFA`: the DVFA module to initialize.
-- `x::RealVector`: the sample to use for initialization.
-- `y::Integer=0`: the optional new label for the first weight of the FuzzyART module. If not specified, defaults the new label to 1.
-"""
-function initialize!(art::DVFA, x::RealVector ; y::Integer=0)
-    # Set the threshold
-    set_threshold!(art)
-    # Initialize the empty weight matrix to the correct dimension
-    art.W = ARTMatrix{Float}(undef, art.config.dim_comp, 0)
-    # Set the label to either the supervised label or 1 if unsupervised
-    label = !iszero(y) ? y : 1
-    # Create a new category
-    create_category!(art, x, label)
 end
 
 """
@@ -313,11 +314,16 @@ function train!(art::DVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fals
 
     # If there was no resonant category, make a new one
     if mismatch_flag
+        # Keep the bmu as the top activation despite creating a new category
+        bmu = index[1]
         # Create a new category-to-cluster label
         y_hat = supervised ? y : art.n_clusters + 1
         # Create a new category
         create_category!(art, sample, y_hat)
     end
+
+    # Update the stored match and activation values
+    log_art_stats!(art, bmu, mismatch_flag)
 
     return y_hat
 end
@@ -346,46 +352,14 @@ function classify(art::DVFA, x::RealVector ; preprocessed::Bool=false, get_bmu::
     # If we did not find a resonant category
     if mismatch_flag
         # Create new weight vector
-        @debug "Mismatch"
+        bmu = index[1]
         # Report either the best matching unit or the mismatch label -1
-        y_hat = get_bmu ? art.labels[index[1]] : -1
+        y_hat = get_bmu ? art.labels[bmu] : -1
     end
 
+    # Update the stored match and activation values
+    log_art_stats!(art, bmu, mismatch_flag)
+
+    # Return the inferred label
     return y_hat
-end
-
-"""
-Compute and store the activation and match values for the DVFA module.
-"""
-function activation_match!(art::DVFA, x::RealVector)
-    art.T = zeros(art.n_categories)
-    art.M = zeros(art.n_categories)
-    for jx = 1:art.n_categories
-        numerator = norm(element_min(x, art.W[:, jx]), 1)
-        art.T[jx] = numerator/(art.opts.alpha + norm(art.W[:, jx], 1))
-        art.M[jx] = numerator
-    end
-end
-
-"""
-Return the modified weight of the DVFA module conditioned by sample x.
-"""
-function learn(art::DVFA, x::RealVector, W::RealVector)
-    # Update W
-    return art.opts.beta .* element_min(x, W) .+ W .* (1 - art.opts.beta)
-end
-
-"""
-In place learning function.
-"""
-function learn!(art::DVFA, x::RealVector, index::Integer)
-    # Update W at the index
-    art.W[:, index] = learn(art, x, art.W[:, index])
-end
-
-"""
-Stopping conditions for a DVFA module.
-"""
-function stopping_conditions(art::DVFA)
-    return art.epoch >= art.opts.max_epochs
 end

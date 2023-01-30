@@ -13,7 +13,7 @@ These pages serve as the official documentation for the AdaptiveResonance.jl Jul
 Adaptive Resonance Theory (ART) began as a neurocognitive theory of how fields of cells can continuously learn stable representations, and it evolved into the basis for a myriad of practical machine learning algorithms.
 Pioneered by Stephen Grossberg and Gail Carpenter, the field has had contributions across many years and from many disciplines, resulting in a plethora of engineering applications and theoretical advancements that have enabled ART-based algorithms to compete with many other modern learning and clustering algorithms.
 
-The purpose of this package is to provide a home for the development and use of these ART-based machine learning algorithms.
+The purpose of this package is to provide a home for the development and use of these ART-based machine learning algorithms in the Julia programming language.
 
 See the [Index](@ref main-index) for the complete list of documented functions and types.
 

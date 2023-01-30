@@ -1,20 +1,21 @@
 """
     test_utils.jl
 
+# Description
 A set of common struct and function utilities for AdaptiveResonance.jl unit tests.
 """
 
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 # IMPORTS
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 
 using
     DelimitedFiles,
     NumericalTypeAliases
 
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 # STRUCTS
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 
 """
 A basic struct for encapsulating the four components of supervised training.
@@ -41,13 +42,11 @@ struct DataSplit
     A vector of testing labels.
     """
     test_y::Vector{Int}
+end
 
-    DataSplit(train_x, test_x, train_y, test_y) = new(train_x, test_x, train_y, test_y)
-end # DataSplit
-
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 # METHODS
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 
 """
 Return a DataSplit struct that is split by the ratio (e.g. 0.8).
@@ -67,11 +66,11 @@ function DataSplit(data_x::RealMatrix, data_y::RealVector, ratio::Real)
     test_y = data_y[split_ind + 1:end]
 
     return DataSplit(train_x, test_x, train_y, test_y)
-end # DataSplit(data_x::RealMatrix, data_y::RealVector, ratio::Real)
+end
 
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 # FUNCTIONS
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 
 """
 Train and test an ART module.
@@ -154,4 +153,4 @@ function load_iris(data_path::AbstractString ; split_ratio::Real = 0.8)
     data = DataSplit(raw_x, raw_y, split_ratio)
 
     return data
-end # load_iris(data_path::AbstractString ; split_ratio::Real = 0.8)
+end

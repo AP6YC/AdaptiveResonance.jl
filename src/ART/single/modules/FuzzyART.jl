@@ -8,9 +8,9 @@ References:
 [1] G. Carpenter, S. Grossberg, and D. Rosen, 'Fuzzy ART: Fast stable learning and categorization of analog patterns by an adaptive resonance system,' Neural Networks, vol. 4, no. 6, pp. 759-771, 1991.
 """
 
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 # OPTIONS
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 
 """
 Gamma-Normalized Fuzzy ART options struct.
@@ -46,7 +46,7 @@ $(OPTS_DOCSTRING)
     """
     Maximum number of epochs during training: max_epochs ∈ (1, Inf).
     """
-    max_epochs::Int = 1
+    max_epoch::Int = 1
 
     """
     Display flag for progress bars.
@@ -55,6 +55,8 @@ $(OPTS_DOCSTRING)
 
     """
     Flag to normalize the threshold by the feature dimension.
+
+    **NOTE**: this flag overwrites the `activation` and `match` settings here to their gamma-normalized equivalents along with adjusting the thresold.
     """
     gamma_normalization::Bool = false
 
@@ -67,19 +69,24 @@ $(OPTS_DOCSTRING)
     uncommitted::Bool = false
 
     """
+    Selected activation function.
+    """
+    activation::Symbol = :basic_activation
+
+    """
     Selected match function.
     """
     match::Symbol = :basic_match
 
     """
-    Selected activation function.
+    Selected weight update function.
     """
-    activation::Symbol = :basic_activation
+    update::Symbol = :basic_update
 end
 
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 # STRUCTS
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 
 """
 Gamma-Normalized Fuzzy ART learner struct
@@ -89,7 +96,7 @@ For module options, see [`AdaptiveResonance.opts_FuzzyART`](@ref).
 # References
 1. G. Carpenter, S. Grossberg, and D. Rosen, 'Fuzzy ART: Fast stable learning and categorization of analog patterns by an adaptive resonance system,' Neural Networks, vol. 4, no. 6, pp. 759-771, 1991.
 """
-mutable struct FuzzyART <: ART
+mutable struct FuzzyART <: AbstractFuzzyART
     """
     FuzzyART options struct.
     """
@@ -139,11 +146,17 @@ mutable struct FuzzyART <: ART
     Current training epoch.
     """
     epoch::Int
+
+    """
+    Runtime statistics for the module, implemented as a dictionary containing entries at the end of each training iteration.
+    These entries include the best-matching unit index and the activation and match values of the winning node.
+    """
+    stats::ARTStats
 end
 
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 # CONSTRUCTORS
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 
 """
 Implements a Fuzzy ART learner with optional keyword arguments.
@@ -194,6 +207,7 @@ function FuzzyART(opts::opts_FuzzyART)
         opts.match = :gamma_match
     end
 
+    # Construct an empty FuzzyART module
     FuzzyART(
         opts,                           # opts
         DataConfig(),                   # config
@@ -204,7 +218,8 @@ function FuzzyART(opts::opts_FuzzyART)
         ARTMatrix{Float}(undef, 0, 0),  # W
         ARTVector{Int}(undef, 0),       # n_instance
         0,                              # n_categories
-        0                               # epoch
+        0,                              # epoch
+        build_art_stats(),              # stats
     )
 end
 
@@ -225,9 +240,9 @@ function FuzzyART(opts::opts_FuzzyART, sample::RealVector ; preprocessed::Bool=f
     return art
 end
 
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 # ALGORITHMIC METHODS
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 
 # COMMON DOC: Set threshold function
 function set_threshold!(art::FuzzyART)
@@ -236,21 +251,6 @@ function set_threshold!(art::FuzzyART)
     else
         art.threshold = art.opts.rho
     end
-end
-
-# COMMON DOC: FuzzyART initialization function
-function initialize!(art::FuzzyART, x::RealVector ; y::Integer=0)
-    # Set the threshold
-    set_threshold!(art)
-
-    # Initialize the feature dimension of the weights
-    art.W = ARTMatrix{Float}(undef, art.config.dim_comp, 0)
-
-    # Set the label to either the supervised label or 1 if unsupervised
-    label = !iszero(y) ? y : 1
-
-    # Create a category with the given label
-    create_category!(art, x, label)
 end
 
 # COMMON DOC: create_category! function
@@ -318,6 +318,8 @@ function train!(art::FuzzyART, x::RealVector ; y::Integer=0, preprocessed::Bool=
             end
             # Learn the sample
             learn!(art, sample, bmu)
+            # Increment the instance counting
+            art.n_instance[bmu] += 1
             # Save the output label for the sample
             y_hat = art.labels[bmu]
             # No mismatch
@@ -328,11 +330,16 @@ function train!(art::FuzzyART, x::RealVector ; y::Integer=0, preprocessed::Bool=
 
     # If there was no resonant category, make a new one
     if mismatch_flag
+        # Keep the bmu as the top activation despite creating a new category
+        bmu = index[1]
         # Get the correct label for the new category
         y_hat = supervised ? y : art.n_categories + 1
         # Create a new category
         create_category!(art, sample, y_hat)
     end
+
+    # Update the stored match and activation values
+    log_art_stats!(art, bmu, mismatch_flag)
 
     return y_hat
 end
@@ -362,95 +369,14 @@ function classify(art::FuzzyART, x::RealVector ; preprocessed::Bool=false, get_b
     # If we did not find a match
     if mismatch_flag
         # Report either the best matching unit or the mismatch label -1
-        y_hat = get_bmu ? art.labels[index[1]] : -1
+        bmu = index[1]
+        # Report either the best matching unit or the mismatch label -1
+        y_hat = get_bmu ? art.labels[bmu] : -1
     end
+
+    # Update the stored match and activation values
+    log_art_stats!(art, bmu, mismatch_flag)
+
+    # Return the inferred label
     return y_hat
-end
-
-"""
-Computes the activation and match functions of the art module against sample x.
-
-# Arguments
-- `art::FuzzyART`: the FuzzyART module to compute the activation and match values for all weights.
-- `x::RealVector`: the sample to compute the activation and match functions against.
-
-# Examples
-```julia-repl
-julia> my_FuzzyART = FuzzyART()
-FuzzyART
-    opts: opts_FuzzyART
-    ...
-julia> x, y = load_data()
-julia> train!(my_FuzzyART, x)
-julia> x_sample = x[:, 1]
-julia> activation_match!(my_FuzzyART, x_sample)
-```
-"""
-function activation_match!(art::FuzzyART, x::RealVector)
-    art.T = zeros(art.n_categories)
-    art.M = zeros(art.n_categories)
-    for i = 1:art.n_categories
-        art.T[i] = art_activation(art, x, art.W[:, i])
-        art.M[i] = art_match(art, x, art.W[:, i])
-        # W_norm = norm(art.W[:, i], 1)
-        # numerator = norm(element_min(x, art.W[:, i]), 1)
-
-        # art.T[i] = (numerator / (art.opts.alpha + W_norm))^art.opts.gamma
-        # if art.opts.gamma_normalization
-        #     art.M[i] = (W_norm^art.opts.gamma_ref) * art.T[i]
-        # else
-        #     art.M[i] = numerator / norm(x, 1)
-        # end
-    end
-end
-# function activation_match!(art::FuzzyART, x::RealVector)
-#     art.T = zeros(art.n_categories)
-#     art.M = zeros(art.n_categories)
-#     for i = 1:art.n_categories
-#         W_norm = norm(art.W[:, i], 1)
-#         numerator = norm(element_min(x, art.W[:, i]), 1)
-#         art.T[i] = (numerator / (art.opts.alpha + W_norm))^art.opts.gamma
-#         if art.opts.gamma_normalization
-#             art.M[i] = (W_norm^art.opts.gamma_ref) * art.T[i]
-#         else
-#             art.M[i] = numerator / norm(x, 1)
-#         end
-#     end
-# end
-
-"""
-Return the modified weight of the art module conditioned by sample x.
-
-# Arguments
-- `art::FuzzyART`: the FuzzyART module containing learning options.
-- `x::RealVector`: the sample to learn from.
-- `W::RealVector`: the weight vector to update against the sample.
-"""
-function learn(art::FuzzyART, x::RealVector, W::RealVector)
-    # Update W
-    return art.opts.beta .* element_min(x, W) .+ W .* (1 - art.opts.beta)
-end
-
-"""
-In place learning function with instance counting.
-
-# Arguments
-- `art::FuzzyART`: the FuzzyART module to update.
-- `x::RealVector`: the sample to learn from.
-- `index::Integer`: the index of the FuzzyART weight to update.
-"""
-function learn!(art::FuzzyART, x::RealVector, index::Integer)
-    # Update W
-    art.W[:, index] = learn(art, x, art.W[:, index])
-    art.n_instance[index] += 1
-end
-
-"""
-Stopping conditions for a FuzzyART module.
-
-# Arguments
-- `art::FuzzyART`: the FuzzyART module to check stopping conditions for.
-"""
-function stopping_conditions(art::FuzzyART)
-    return art.epoch >= art.opts.max_epochs
 end
