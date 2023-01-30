@@ -160,14 +160,10 @@ mutable struct DDVFA <: ART
     M::ARTVector
 
     """
-    Winning activation value from most recent sample.
+    Runtime statistics for the module, implemented as a dictionary containing entries at the end of each training iteration.
+    These entries include the best-matching unit index and the activation and match values of the winning node.
     """
-    T_win::Float
-
-    """
-    Winning match value from most recent sample.
-    """
-    M_win::Float
+    stats::ARTStats
 end
 
 # -----------------------------------------------------------------------------
@@ -235,18 +231,17 @@ function DDVFA(opts::opts_DDVFA)
     )
 
     # Construct the DDVFA module
-    DDVFA(opts,
-          subopts,
-          DataConfig(),
-          0.0,
-          Vector{FuzzyART}(undef, 0),
-          ARTVector{Int}(undef, 0),
-          0,
-          0,
-          ARTVector{Float}(undef, 0),
-          ARTVector{Float}(undef, 0),
-          0.0,
-          0.0
+    DDVFA(opts,                         # opts
+          subopts,                      # subopts
+          DataConfig(),                 # config
+          0.0,                          # threshold
+          Vector{FuzzyART}(undef, 0),   # F2
+          ARTVector{Int}(undef, 0),     # labels
+          0,                            # n_categories
+          0,                            # epoch
+          ARTVector{Float}(undef, 0),   # T
+          ARTVector{Float}(undef, 0),   # M
+          ARTStats(),                   # stats
     )
 end
 
@@ -299,19 +294,22 @@ function train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fal
     # Compute the match for each category in the order of greatest activation
     index = sortperm(art.T, rev=true)
     for jx = 1:art.n_categories
+        # Best matching unit
         bmu = index[jx]
-        # If supervised and the label differs, trigger mismatch
-        if supervised && (art.labels[bmu] != y)
-            break
-        end
-
+        # # If supervised and the label differs, trigger mismatch
+        # if supervised && (art.labels[bmu] != y)
+        #     break
+        # end
         # Compute the match with the similarity linkage method
         art.M[bmu] = similarity(art.opts.similarity, art.F2[bmu], sample, false)
         # If we got a match, then learn (update the category)
         if art.M[bmu] >= art.threshold
+            # If supervised and the label differs, trigger mismatch
+            if supervised && (art.labels[bmu] != y)
+                break
+            end
             # Update the stored match and activation values
-            art.M_win = art.M[bmu]
-            art.T_win = art.T[bmu]
+            log_art_stats!(art, bmu, false)
             # Update the weights with the sample
             train!(art.F2[bmu], sample, preprocessed=true)
             # Save the output label for the sample
@@ -326,10 +324,10 @@ function train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fal
     if mismatch_flag
         # Update the stored match and activation values
         bmu = index[1]
-        art.M_win = similarity(art.opts.similarity, art.F2[bmu], sample, false)
-        art.T_win = art.T[bmu]
+        log_art_stats!(art, bmu, true)
         # Get the correct label
         y_hat = supervised ? y : art.n_categories + 1
+        # Create a new category
         create_category!(art, sample, y_hat)
     end
 
@@ -366,8 +364,7 @@ function classify(art::DDVFA, x::RealVector ; preprocessed::Bool=false, get_bmu:
         # If the match satisfies the threshold criterion, then report that label
         if art.M[bmu] >= art.threshold
             # Update the stored match and activation values
-            art.M_win = art.M[bmu]
-            art.T_win = art.T[bmu]
+            log_art_stats!(art, bmu, false)
             # Current winner
             y_hat = art.labels[bmu]
             mismatch_flag = false
@@ -380,8 +377,7 @@ function classify(art::DDVFA, x::RealVector ; preprocessed::Bool=false, get_bmu:
         @debug "Mismatch"
         # Update the stored match and activation values of the best matching unit
         bmu = index[1]
-        art.M_win = similarity(art.opts.similarity, art.F2[bmu], sample, false)
-        art.T_win = art.T[bmu]
+        log_art_stats!(art, bmu, true)
         # Report either the best matching unit or the mismatch label -1
         y_hat = get_bmu ? art.labels[bmu] : -1
     end

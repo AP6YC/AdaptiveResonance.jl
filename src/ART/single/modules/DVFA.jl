@@ -139,6 +139,12 @@ mutable struct DVFA <: AbstractFuzzyART
     Current training epoch.
     """
     epoch::Int
+
+    """
+    Runtime statistics for the module, implemented as a dictionary containing entries at the end of each training iteration.
+    These entries include the best-matching unit index and the activation and match values of the winning node.
+    """
+    stats::ARTStats
 end
 
 # -----------------------------------------------------------------------------
@@ -200,7 +206,8 @@ function DVFA(opts::opts_DVFA)
         ARTVector{Float}(undef, 0),     # T
         0,                              # n_categories
         0,                              # n_clusters
-        0                               # epoch
+        0,                              # epoch
+        ARTStats(),                     # stats
     )
 end
 

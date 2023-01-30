@@ -6,6 +6,12 @@ Common algorithmic types and functions used throughout the package.
 """
 
 # -----------------------------------------------------------------------------
+# TYPE ALIASES
+# -----------------------------------------------------------------------------
+
+const ARTStats = Dict{String, Any}
+
+# -----------------------------------------------------------------------------
 # TYPES
 # -----------------------------------------------------------------------------
 
@@ -122,6 +128,22 @@ end
 # -----------------------------------------------------------------------------
 # FUNCTIONS
 # -----------------------------------------------------------------------------
+
+"""
+Logs common statistics of an ART module after a training/classification iteration.
+
+# Arguments
+- `art::ARTModule`: the ART module that just underwent training/classification.
+- `bmu::Integer`: the best-matching unit integer index.
+- `mismatch::Bool`: flag of whether there was a mismatch in this iteration.
+"""
+function log_art_stats!(art::ARTModule, bmu::Integer, mismatch::Bool)
+    art.stats["M"] = art.M[bmu]
+    art.stats["T"] = art.T[bmu]
+    art.stats["bmu"] = bmu
+    art.stats["mismatch"] = mismatch
+    return
+end
 
 """
 Returns the element-wise minimum between sample x and weight W.
