@@ -21,21 +21,23 @@ features = iris.features</code></pre><pre class="documenter-example-output"><cod
   display: Bool false
   gamma_normalization: Bool true
   uncommitted: Bool false
-  match: Symbol gamma_match
   activation: Symbol gamma_activation
+  match: Symbol gamma_match
+  update: Symbol basic_update
 , opts_FuzzyART
   rho: Float64 0.75
   alpha: Float64 0.001
   beta: Float64 1.0
   gamma: Float64 3.0
   gamma_ref: Float64 1.0
-  max_epochs: Int64 1
+  max_epoch: Int64 1
   display: Bool false
   gamma_normalization: Bool true
   uncommitted: Bool false
-  match: Symbol gamma_match
   activation: Symbol gamma_activation
-, DataConfig(false, Float64[], Float64[], 0, 0), 0.0, FuzzyART[], Int64[], 0, 0, 0.0, 0.0)</code></pre><p>To train the module on the training data, we use <code>train!</code>. The train method returns the prescribed cluster labels, which are just what the algorithm believes are unique/separate cluster. This is because we are doing <em>unsupervised</em> learning rather than supervised learning with known labels.</p><pre><code class="language-julia hljs">y_hat_train = train!(art, features)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">150-element Vector{Int64}:
+  match: Symbol gamma_match
+  update: Symbol basic_update
+, DataConfig(false, Float64[], Float64[], 0, 0), 0.0, FuzzyART[], Int64[], 0, 0, Float64[], Float64[], 0.0, 0.0)</code></pre><p>To train the module on the training data, we use <code>train!</code>. The train method returns the prescribed cluster labels, which are just what the algorithm believes are unique/separate cluster. This is because we are doing <em>unsupervised</em> learning rather than supervised learning with known labels.</p><pre><code class="language-julia hljs">y_hat_train = train!(art, features)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">150-element Vector{Int64}:
  1
  1
  1
@@ -48,12 +50,12 @@ features = iris.features</code></pre><pre class="documenter-example-output"><cod
  1
  ⋮
  5
- 2
+ 3
  5
  5
  5
- 2
+ 3
  3
  5
  3</code></pre><p>Though we could inspect the unique entries in the list above, we can see the number of categories directly from the art module.</p><pre><code class="language-julia hljs">art.n_categories</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">5</code></pre><p>Because DDVFA actually has FuzzyART modules for F2 nodes, each category has its own category prototypes. We can see the total number of weights in the DDVFA module by summing <code>n_categories</code> across all F2 nodes.</p><pre><code class="language-julia hljs">total_vec = [art.F2[i].n_categories for i = 1:art.n_categories]
-total_cat = sum(total_vec)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">25</code></pre><hr/><p><em>This page was generated using <a href="https://github.com/johnnychen94/DemoCards.jl">DemoCards.jl</a> and <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.23 on <span class="colophon-date" title="Monday 19 December 2022 23:03">Monday 19 December 2022</span>. Using Julia version 1.8.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+total_cat = sum(total_vec)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">21</code></pre><hr/><p><em>This page was generated using <a href="https://github.com/johnnychen94/DemoCards.jl">DemoCards.jl</a> and <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.24 on <span class="colophon-date" title="Monday 30 January 2023 14:49">Monday 30 January 2023</span>. Using Julia version 1.8.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
