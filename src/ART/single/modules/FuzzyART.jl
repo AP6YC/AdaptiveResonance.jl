@@ -55,6 +55,8 @@ $(OPTS_DOCSTRING)
 
     """
     Flag to normalize the threshold by the feature dimension.
+
+    **NOTE**: this flag overwrites the `activation` and `match` settings here to their gamma-normalized equivalents along with adjusting the thresold.
     """
     gamma_normalization::Bool = false
 
@@ -144,6 +146,12 @@ mutable struct FuzzyART <: AbstractFuzzyART
     Current training epoch.
     """
     epoch::Int
+
+    """
+    Runtime statistics for the module, implemented as a dictionary containing entries at the end of each training iteration.
+    These entries include the best-matching unit index and the activation and match values of the winning node.
+    """
+    stats::ARTStats
 end
 
 # -----------------------------------------------------------------------------
@@ -210,7 +218,8 @@ function FuzzyART(opts::opts_FuzzyART)
         ARTMatrix{Float}(undef, 0, 0),  # W
         ARTVector{Int}(undef, 0),       # n_instance
         0,                              # n_categories
-        0                               # epoch
+        0,                              # epoch
+        build_art_stats(),              # stats
     )
 end
 
@@ -257,8 +266,6 @@ function create_category!(art::FuzzyART, x::RealVector, y::Integer)
         append!(art.W, ones(art.config.dim_comp, 1))
         # Learn the uncommitted node on the sample
         learn!(art, x, art.n_categories)
-        # Increment the instance counting
-        # art.n_instance[1] += 1
     else
         # Fast commit the sample
         append!(art.W, x)
@@ -323,11 +330,16 @@ function train!(art::FuzzyART, x::RealVector ; y::Integer=0, preprocessed::Bool=
 
     # If there was no resonant category, make a new one
     if mismatch_flag
+        # Keep the bmu as the top activation despite creating a new category
+        bmu = index[1]
         # Get the correct label for the new category
         y_hat = supervised ? y : art.n_categories + 1
         # Create a new category
         create_category!(art, sample, y_hat)
     end
+
+    # Update the stored match and activation values
+    log_art_stats!(art, bmu, mismatch_flag)
 
     return y_hat
 end
@@ -357,7 +369,14 @@ function classify(art::FuzzyART, x::RealVector ; preprocessed::Bool=false, get_b
     # If we did not find a match
     if mismatch_flag
         # Report either the best matching unit or the mismatch label -1
-        y_hat = get_bmu ? art.labels[index[1]] : -1
+        bmu = index[1]
+        # Report either the best matching unit or the mismatch label -1
+        y_hat = get_bmu ? art.labels[bmu] : -1
     end
+
+    # Update the stored match and activation values
+    log_art_stats!(art, bmu, mismatch_flag)
+
+    # Return the inferred label
     return y_hat
 end

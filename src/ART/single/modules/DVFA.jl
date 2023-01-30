@@ -139,6 +139,12 @@ mutable struct DVFA <: AbstractFuzzyART
     Current training epoch.
     """
     epoch::Int
+
+    """
+    Runtime statistics for the module, implemented as a dictionary containing entries at the end of each training iteration.
+    These entries include the best-matching unit index and the activation and match values of the winning node.
+    """
+    stats::ARTStats
 end
 
 # -----------------------------------------------------------------------------
@@ -200,7 +206,8 @@ function DVFA(opts::opts_DVFA)
         ARTVector{Float}(undef, 0),     # T
         0,                              # n_categories
         0,                              # n_clusters
-        0                               # epoch
+        0,                              # epoch
+        build_art_stats(),              # stats
     )
 end
 
@@ -307,11 +314,16 @@ function train!(art::DVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fals
 
     # If there was no resonant category, make a new one
     if mismatch_flag
+        # Keep the bmu as the top activation despite creating a new category
+        bmu = index[1]
         # Create a new category-to-cluster label
         y_hat = supervised ? y : art.n_clusters + 1
         # Create a new category
         create_category!(art, sample, y_hat)
     end
+
+    # Update the stored match and activation values
+    log_art_stats!(art, bmu, mismatch_flag)
 
     return y_hat
 end
@@ -340,10 +352,14 @@ function classify(art::DVFA, x::RealVector ; preprocessed::Bool=false, get_bmu::
     # If we did not find a resonant category
     if mismatch_flag
         # Create new weight vector
-        @debug "Mismatch"
+        bmu = index[1]
         # Report either the best matching unit or the mismatch label -1
-        y_hat = get_bmu ? art.labels[index[1]] : -1
+        y_hat = get_bmu ? art.labels[bmu] : -1
     end
 
+    # Update the stored match and activation values
+    log_art_stats!(art, bmu, mismatch_flag)
+
+    # Return the inferred label
     return y_hat
 end

@@ -114,6 +114,22 @@ mutable struct SFAM <: ARTMAP
     Current training epoch.
     """
     epoch::Int
+
+    """
+    DDVFA activation values.
+    """
+    T::ARTVector
+
+    """
+    DDVFA match values.
+    """
+    M::ARTVector
+
+    """
+    Runtime statistics for the module, implemented as a dictionary containing entries at the end of each training iteration.
+    These entries include the best-matching unit index and the activation and match values of the winning node.
+    """
+    stats::ARTStats
 end
 
 # -----------------------------------------------------------------------------
@@ -170,7 +186,10 @@ function SFAM(opts::opts_SFAM)
         ARTMatrix{Float}(undef, 0, 0),  # W
         ARTVector{Int}(undef, 0),       # labels
         0,                              # n_categories
-        0                               # epoch
+        0,                              # epoch
+        ARTVector{Float}(undef, 0),     # T
+        ARTVector{Float}(undef, 0),     # M
+        build_art_stats(),              # stats
     )
 end
 
@@ -227,22 +246,23 @@ function train!(art::SFAM, x::RealVector, y::Integer ; preprocessed::Bool=false)
         # Baseline vigilance parameter
         rho_baseline = art.opts.rho
 
-        # Compute activation function
-        T = zeros(art.n_categories)
+        # Compute the activation for all categories
+        accommodate_vector!(art.T, art.n_categories)
         for jx in 1:art.n_categories
-            T[jx] = art_activation(art, sample, jx)
+            art.T[jx] = art_activation(art, sample, jx)
         end
 
         # Sort activation function values in descending order
-        index = sortperm(T, rev=true)
+        index = sortperm(art.T, rev=true)
         mismatch_flag = true
+        accommodate_vector!(art.M, art.n_categories)
         for jx in 1:art.n_categories
             # Set the best-matching-unit index
             bmu = index[jx]
             # Compute match function
-            M = art_match(art, sample, bmu)
+            art.M[bmu] = art_match(art, sample, bmu)
             # Current winner
-            if M >= rho_baseline
+            if art.M[bmu] >= rho_baseline
                 if y == art.labels[bmu]
                     # Update the weight and break
                     # art.W[:, index[jx]] = learn(art, sample, art.W[:, index[jx]])
@@ -252,16 +272,21 @@ function train!(art::SFAM, x::RealVector, y::Integer ; preprocessed::Bool=false)
                 else
                     # Match tracking
                     @debug "Match tracking"
-                    rho_baseline = M + art.opts.epsilon
+                    rho_baseline = art.M[bmu] + art.opts.epsilon
                 end
             end
         end
 
         # If we triggered a mismatch
         if mismatch_flag
+            # Keep the bmu as the top activation despite creating a new category
+            bmu = index[1]
             # Create new weight vector
             create_category!(art, sample, y)
         end
+
+        # Update the stored match and activation values
+        log_art_stats!(art, bmu, mismatch_flag)
     end
 
     # ARTMAP guarantees correct training classification, so just return the label
@@ -273,22 +298,27 @@ function classify(art::SFAM, x::RealVector ; preprocessed::Bool=false, get_bmu::
     # Run the sequential initialization procedure
     sample = init_classify!(x, art, preprocessed)
 
-    # Compute activation function
-    T = zeros(art.n_categories)
+    # Compute the activation for all categories
+    accommodate_vector!(art.T, art.n_categories)
     for jx in 1:art.n_categories
-        T[jx] = art_activation(art, sample, jx)
+        art.T[jx] = art_activation(art, sample, jx)
     end
 
     # Sort activation function values in descending order
-    index = sortperm(T, rev=true)
+    index = sortperm(art.T, rev=true)
+
+    # Default to mismatch
     mismatch_flag = true
+
+    # Iterate over the list of activations
+    accommodate_vector!(art.M, art.n_categories)
     for jx in 1:art.n_categories
         # Set the best-matching-unit index
         bmu = index[jx]
         # Compute match function
-        M = art_match(art, sample, bmu)
+        art.M[bmu] = art_match(art, sample, bmu)
         # Current winner
-        if M >= art.opts.rho
+        if art.M[bmu] >= art.opts.rho
             y_hat = art.labels[bmu]
             mismatch_flag = false
             break
@@ -297,10 +327,14 @@ function classify(art::SFAM, x::RealVector ; preprocessed::Bool=false, get_bmu::
 
     # If we did not find a resonant category
     if mismatch_flag
-        @debug "Mismatch"
+        # Keep the bmu as the top activation
+        bmu = index[1]
         # Report either the best matching unit or the mismatch label -1
-        y_hat = get_bmu ? art.labels[index[1]] : -1
+        y_hat = get_bmu ? art.labels[bmu] : -1
     end
+
+    # Update the stored match and activation values
+    log_art_stats!(art, bmu, mismatch_flag)
 
     return y_hat
 end
