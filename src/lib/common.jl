@@ -130,6 +130,18 @@ end
 # -----------------------------------------------------------------------------
 
 """
+Initializes an ARTStats dictionary with zero entries.
+"""
+function build_art_stats()
+    stats = ARTStats()
+    stats["M"] = 0.0
+    stats["T"] = 0.0
+    stats["bmu"] = 0
+    stats["mismatch"] = false
+    return stats
+end
+
+"""
 Logs common statistics of an ART module after a training/classification iteration.
 
 # Arguments

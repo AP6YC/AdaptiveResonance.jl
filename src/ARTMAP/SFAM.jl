@@ -189,7 +189,7 @@ function SFAM(opts::opts_SFAM)
         0,                              # epoch
         ARTVector{Float}(undef, 0),     # T
         ARTVector{Float}(undef, 0),     # M
-        ARTStats(),                     # stats
+        build_art_stats(),              # stats
     )
 end
 

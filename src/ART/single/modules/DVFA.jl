@@ -207,7 +207,7 @@ function DVFA(opts::opts_DVFA)
         0,                              # n_categories
         0,                              # n_clusters
         0,                              # epoch
-        ARTStats(),                     # stats
+        build_art_stats(),              # stats
     )
 end
 
@@ -324,7 +324,6 @@ function train!(art::DVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fals
 
     # Update the stored match and activation values
     log_art_stats!(art, bmu, mismatch_flag)
-
 
     return y_hat
 end

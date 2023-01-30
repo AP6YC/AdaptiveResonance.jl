@@ -219,7 +219,7 @@ function FuzzyART(opts::opts_FuzzyART)
         ARTVector{Int}(undef, 0),       # n_instance
         0,                              # n_categories
         0,                              # epoch
-        ARTStats(),                     # stats
+        build_art_stats(),              # stats
     )
 end
 
