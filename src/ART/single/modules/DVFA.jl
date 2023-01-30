@@ -42,7 +42,7 @@ $(OPTS_DOCSTRING)
     """
     Maximum number of epochs during training.
     """
-    max_epochs::Int = 1
+    max_epoch::Int = 1
 
     """
     Display flag for progress bars.
@@ -56,6 +56,21 @@ $(OPTS_DOCSTRING)
     If false, fast-committing is used where the new weight is simply the complement-coded sample.
     """
     uncommitted::Bool = false
+
+    """
+    Selected activation function.
+    """
+    activation::Symbol = :basic_activation
+
+    """
+    Selected match function.
+    """
+    match::Symbol = :unnormalized_match
+
+    """
+    Selected weight update function.
+    """
+    update::Symbol = :basic_update
 end
 
 """
@@ -67,7 +82,7 @@ For module options, see [`AdaptiveResonance.opts_DVFA`](@ref).
 1. L. E. Brito da Silva, I. Elnabarawy and D. C. Wunsch II, 'Dual Vigilance Fuzzy ART,' Neural Networks Letters. To appear.
 2. G. Carpenter, S. Grossberg, and D. Rosen, 'Fuzzy ART: Fast stable learning and categorization of analog patterns by an adaptive resonance system,' Neural Networks, vol. 4, no. 6, pp. 759-771, 1991.
 """
-mutable struct DVFA <: ART
+mutable struct DVFA <: AbstractFuzzyART
     # Get parameters
     """
     DVFA options struct.
@@ -126,9 +141,9 @@ mutable struct DVFA <: ART
     epoch::Int
 end
 
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 # CONSTRUCTORS
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 
 """
 Implements a DVFA learner with optional keyword arguments.
@@ -189,36 +204,15 @@ function DVFA(opts::opts_DVFA)
     )
 end
 
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 # FUNCTIONS
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 
 # COMMON DOC: Set threshold function
 function set_threshold!(art::DVFA)
     # DVFA thresholds
     art.threshold_ub = art.opts.rho_ub * art.config.dim
     art.threshold_lb = art.opts.rho_lb * art.config.dim
-end
-
-"""
-Initializes a DVFA learner with an initial sample 'x'.
-
-This function is used during the first training iteraction when the DVFA module is empty.
-
-# Arguments
-- `art::DVFA`: the DVFA module to initialize.
-- `x::RealVector`: the sample to use for initialization.
-- `y::Integer=0`: the optional new label for the first weight of the FuzzyART module. If not specified, defaults the new label to 1.
-"""
-function initialize!(art::DVFA, x::RealVector ; y::Integer=0)
-    # Set the threshold
-    set_threshold!(art)
-    # Initialize the empty weight matrix to the correct dimension
-    art.W = ARTMatrix{Float}(undef, art.config.dim_comp, 0)
-    # Set the label to either the supervised label or 1 if unsupervised
-    label = !iszero(y) ? y : 1
-    # Create a new category
-    create_category!(art, x, label)
 end
 
 """
@@ -352,40 +346,4 @@ function classify(art::DVFA, x::RealVector ; preprocessed::Bool=false, get_bmu::
     end
 
     return y_hat
-end
-
-"""
-Compute and store the activation and match values for the DVFA module.
-"""
-function activation_match!(art::DVFA, x::RealVector)
-    art.T = zeros(art.n_categories)
-    art.M = zeros(art.n_categories)
-    for jx = 1:art.n_categories
-        numerator = norm(element_min(x, art.W[:, jx]), 1)
-        art.T[jx] = numerator/(art.opts.alpha + norm(art.W[:, jx], 1))
-        art.M[jx] = numerator
-    end
-end
-
-"""
-Return the modified weight of the DVFA module conditioned by sample x.
-"""
-function learn(art::DVFA, x::RealVector, W::RealVector)
-    # Update W
-    return art.opts.beta .* element_min(x, W) .+ W .* (1 - art.opts.beta)
-end
-
-"""
-In place learning function.
-"""
-function learn!(art::DVFA, x::RealVector, index::Integer)
-    # Update W at the index
-    art.W[:, index] = learn(art, x, art.W[:, index])
-end
-
-"""
-Stopping conditions for a DVFA module.
-"""
-function stopping_conditions(art::DVFA)
-    return art.epoch >= art.opts.max_epochs
 end

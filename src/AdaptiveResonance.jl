@@ -83,9 +83,9 @@ $(EXPORTS)
 """
 module AdaptiveResonance
 
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 # DEPENDENCIES
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 
 # Usings/imports for the whole package declared once
 
@@ -106,19 +106,20 @@ using Statistics: mean as statistics_mean
 # Precompile concrete type methods
 using PrecompileSignatures: @precompile_signatures
 
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 # INCLUDES
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 
 # Include all files
-include("common.jl")        # Objects shared by all modules
+# include("common.jl")        # Objects shared by all modules
+include("lib/lib.jl")       # Common objects and functions shared by all modules
 include("version.jl")       # Exported constant for the version of the package
 include("ARTMAP/ARTMAP.jl") # Supervised ART modules
 include("ART/ART.jl")       # Unsupervised ART modules
 
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 # DERIVATIVE TYPES AND CONSTANTS
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 
 """
 A combined list of all unsupervised ART and supervised ARTMAP modules from the `AdaptiveResonance.jl` package.
@@ -128,9 +129,9 @@ const ADAPTIVERESONANCE_MODULES = [
     ARTMAP_MODULES;
 ]
 
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 # EXPORTS
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 
 # Export all public names
 export
@@ -171,14 +172,15 @@ export
     # Useful constants
     ART_MODULES,                # List of (default) unsupervised ART modules
     ARTMAP_MODULES,             # List of supervised ARTMAP modules
-    ADAPTIVERESONANCE_MODULES, # Combined list of ART and ARTMAP modules
+    ADAPTIVERESONANCE_MODULES,  # Combined list of ART and ARTMAP modules
     DDVFA_METHODS,              # DDVFA linkage methods
     ADAPTIVERESONANCE_VERSION,  # Version of the package
-    MATCH_FUNCTIONS,            # All match functions as symbols
-    ACTIVATION_FUNCTIONS,       # All activation functions as symbols
+    MATCH_FUNCTIONS,            # All match functions as a list of symbols
+    ACTIVATION_FUNCTIONS,       # All activation functions as a list of symbols
+    UPDATE_FUNCTIONS,           # All update functions as a list of symbols
 
     # ARTSCENE filter functions
-    artscene_filter     # Runs all of the above in one step, returning features
+    artscene_filter     # Runs all of the ARTSCENE functions in one step, returning features
 
 # -----------------------------------------------------------------------------
 # PRECOMPILE

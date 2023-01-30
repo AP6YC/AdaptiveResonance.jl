@@ -5,9 +5,9 @@
 Includes all of the unsupervised ART modules common code.
 """
 
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 # FUNCTIONS
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 
 """
 Train the ART model on a batch of data 'x' with optional supervisory labels 'y.'
@@ -15,10 +15,10 @@ Train the ART model on a batch of data 'x' with optional supervisory labels 'y.'
 # Arguments
 - `art::ART`: the unsupervised ART model to train.
 - `x::RealMatrix`: the 2-D dataset containing columns of samples with rows of features.
-- `y::IntegerVector=Vector{Int}()`: optional, labels for simple supervisory training.
+- `y::IntegerVector=Int[]`: optional, labels for simple supervisory training.
 - `preprocessed::Bool=false`: optional, flag if the data has already been complement coded or not.
 """
-function train!(art::ART, x::RealMatrix ; y::IntegerVector = Vector{Int}(), preprocessed::Bool=false)
+function train!(art::ART, x::RealMatrix ; y::IntegerVector = Int[], preprocessed::Bool=false)
     # Show a message if display is on
     art.opts.display && @info "Training $(typeof(art))"
 
@@ -59,9 +59,19 @@ function train!(art::ART, x::RealMatrix ; y::IntegerVector = Vector{Int}(), prep
     return y_hat
 end
 
-# --------------------------------------------------------------------------- #
+# """
+# Checks the stopping conditions for an ART module.
+
+# # Arguments
+# - `art::ART`: the ART module to check stopping conditions for.
+# """
+# function stopping_conditions(art::ART)
+#     return art.epoch >= art.opts.max_epoch
+# end
+
+# -----------------------------------------------------------------------------
 # COMMON DOCUMENTATION
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 
 @doc raw"""
 Train the ART model on a single sample of features 'x' with an optional supervisory label.

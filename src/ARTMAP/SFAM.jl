@@ -8,9 +8,9 @@ Options, structures, and logic for the Simplified Fuzzy ARTMAP (SFAM) module.
 1. G. A. Carpenter, S. Grossberg, N. Markuzon, J. H. Reynolds, and D. B. Rosen, “Fuzzy ARTMAP: A Neural Network Architecture for Incremental Supervised Learning of Analog Multidimensional Maps,” IEEE Trans. Neural Networks, vol. 3, no. 5, pp. 698-713, 1992, doi: 10.1109/72.159059.
 """
 
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 # OPTIONS
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 
 """
 Implements a Simple Fuzzy ARTMAP learner's options.
@@ -39,9 +39,9 @@ $(OPTS_DOCSTRING)
     beta = 1.0; @assert beta > 0.0 && beta <= 1.0
 
     """
-    Maximum number of epochs during training: max_epochs ∈ [1, Inf).
+    Maximum number of epochs during training: max_epoch ∈ [1, Inf).
     """
-    max_epochs::Int = 1
+    max_epoch::Int = 1
 
     """
     Display flag for progress bars.
@@ -65,11 +65,16 @@ $(OPTS_DOCSTRING)
     Selected activation function.
     """
     activation::Symbol = :basic_activation
+
+    """
+    Selected weight update function.
+    """
+    update::Symbol = :basic_update
 end
 
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 # STRUCTS
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 
 """
 Simple Fuzzy ARTMAP struct.
@@ -111,9 +116,9 @@ mutable struct SFAM <: ARTMAP
     epoch::Int
 end
 
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 # CONSTRUCTORS
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 
 """
 Implements a Simple Fuzzy ARTMAP learner with optional keyword arguments.
@@ -169,9 +174,9 @@ function SFAM(opts::opts_SFAM)
     )
 end
 
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 # ALGORITHMIC METHODS
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 
 # COMMON DOC: SFAM initialization
 function initialize!(art::SFAM, x::RealVector, y::Integer)
@@ -225,20 +230,23 @@ function train!(art::SFAM, x::RealVector, y::Integer ; preprocessed::Bool=false)
         # Compute activation function
         T = zeros(art.n_categories)
         for jx in 1:art.n_categories
-            T[jx] = art_activation(art, sample, art.W[:, jx])
+            T[jx] = art_activation(art, sample, jx)
         end
 
         # Sort activation function values in descending order
         index = sortperm(T, rev=true)
         mismatch_flag = true
         for jx in 1:art.n_categories
+            # Set the best-matching-unit index
+            bmu = index[jx]
             # Compute match function
-            M = art_match(art, sample, art.W[:, index[jx]])
+            M = art_match(art, sample, bmu)
             # Current winner
             if M >= rho_baseline
-                if y == art.labels[index[jx]]
+                if y == art.labels[bmu]
                     # Update the weight and break
-                    art.W[:, index[jx]] = learn(art, sample, art.W[:, index[jx]])
+                    # art.W[:, index[jx]] = learn(art, sample, art.W[:, index[jx]])
+                    learn!(art, sample, bmu)
                     mismatch_flag = false
                     break
                 else
@@ -268,18 +276,20 @@ function classify(art::SFAM, x::RealVector ; preprocessed::Bool=false, get_bmu::
     # Compute activation function
     T = zeros(art.n_categories)
     for jx in 1:art.n_categories
-        T[jx] = art_activation(art, sample, art.W[:, jx])
+        T[jx] = art_activation(art, sample, jx)
     end
 
     # Sort activation function values in descending order
     index = sortperm(T, rev=true)
     mismatch_flag = true
     for jx in 1:art.n_categories
+        # Set the best-matching-unit index
+        bmu = index[jx]
         # Compute match function
-        M = art_match(art, sample, art.W[:, index[jx]])
+        M = art_match(art, sample, bmu)
         # Current winner
         if M >= art.opts.rho
-            y_hat = art.labels[index[jx]]
+            y_hat = art.labels[bmu]
             mismatch_flag = false
             break
         end
@@ -296,35 +306,13 @@ function classify(art::SFAM, x::RealVector ; preprocessed::Bool=false, get_bmu::
 end
 
 """
-Stopping conditions for Simple Fuzzy ARTMAP, checked at the end of every epoch.
-"""
-function stopping_conditions(art::SFAM)
-    # Compute the stopping condition, return a bool
-    return art.epoch >= art.opts.max_epochs
-end
-
-"""
-Returns a single updated weight for the Simple Fuzzy ARTMAP module for weight
-vector W and sample x.
-"""
-function learn(art::SFAM, x::RealVector, W::RealVector)
-    # Update W
-    return art.opts.beta .* element_min(x, W) .+ W .* (1 - art.opts.beta)
-end
-
-"""
 In-place learning function.
 """
 function learn!(art::SFAM, x::RealVector, index::Integer)
-    # Update W at the index
-    art.W[:, index] = learn(art, x, art.W[:, index])
-end
-
-"""
-Returns the match function for the Simple Fuzzy ARTMAP module with weight W and
-sample x.
-"""
-function art_match(art::SFAM, x::RealVector, W::RealVector)
-    # Compute M and return
-    return norm(element_min(x, W), 1) / art.config.dim
+    # Compute the updated weight W
+    new_vec = art_learn(art, x, index)
+    # Replace the weight in place
+    replace_mat_index!(art.W, new_vec, index)
+    # Return empty
+    return
 end

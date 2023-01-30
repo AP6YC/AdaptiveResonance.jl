@@ -2,105 +2,12 @@
     common.jl
 
 # Description
-Types and functions that are used throughout AdaptiveResonance.jl.
-
-# Authors
-- Sasha Petrenko <sap625@mst.edu>
+Common algorithmic types and functions used throughout the package.
 """
 
-# --------------------------------------------------------------------------- #
-# DOCSTRING TEMPLATES
-# --------------------------------------------------------------------------- #
-
-# Constants template
-@template CONSTANTS =
-"""
-$(FUNCTIONNAME)
-
-# Description
-$(DOCSTRING)
-"""
-
-# Types template
-@template TYPES =
-"""
-$(TYPEDEF)
-
-# Summary
-$(DOCSTRING)
-
-# Fields
-$(TYPEDFIELDS)
-"""
-
-# Template for functions, macros, and methods (i.e., constructors)
-@template (FUNCTIONS, METHODS, MACROS) =
-"""
-$(TYPEDSIGNATURES)
-
-# Summary
-$(DOCSTRING)
-
-# Method List / Definition Locations
-$(METHODLIST)
-"""
-
-# --------------------------------------------------------------------------- #
-# CONSTANTS AND CONVENTIONS
-# --------------------------------------------------------------------------- #
-
-"""
-AdaptiveResonance.jl convention for which 2-D dimension contains the feature dimension.
-"""
-const ART_DIM = 1
-
-"""
-AdaptiveResonance.jl convention for which 2-D dimension contains the number of samples.
-"""
-const ART_SAMPLES = 2
-
-"""
-The type of matrix used by the AdaptiveResonance.jl package, used to configure matrix growth behavior.
-"""
-const ARTMatrix = ElasticMatrix
-
-"""
-The type of vector used by the AdaptiveResonance.jl package, used to configure vector growth behvior.
-"""
-const ARTVector = Vector
-
-# --------------------------------------------------------------------------- #
-# ABSTRACT TYPES
-# --------------------------------------------------------------------------- #
-
-"""
-Abstract supertype for all ART module options.
-"""
-abstract type ARTOpts end               # ART module options
-
-"""
-Abstract supertype for both ART (unsupervised) and ARTMAP (supervised) modules.
-"""
-abstract type ARTModule end             # ART modules
-
-"""
-Abstract supertype for all default unsupervised ART modules.
-"""
-abstract type ART <: ARTModule end      # ART (unsupervised)
-
-"""
-Abstract supertype for all supervised ARTMAP modules.
-"""
-abstract type ARTMAP <: ARTModule end   # ARTMAP (supervised)
-
-"""
-Acceptable iterators for ART module training and inference
-"""
-const ARTIterator = Union{UnitRange, ProgressBar}
-
-# --------------------------------------------------------------------------- #
-# COMPOSITE TYPES
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
+# TYPES
+# -----------------------------------------------------------------------------
 
 """
 Container to standardize training/testing data configuration.
@@ -133,6 +40,10 @@ mutable struct DataConfig
     """
     dim_comp::Int
 end
+
+# -----------------------------------------------------------------------------
+# CONSTRUCTORS
+# -----------------------------------------------------------------------------
 
 """
 Default constructor for a data configuration, not set up.
@@ -208,9 +119,9 @@ function DataConfig(data::RealMatrix)
     return config
 end
 
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 # FUNCTIONS
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 
 """
 Returns the element-wise minimum between sample x and weight W.
@@ -220,8 +131,18 @@ Returns the element-wise minimum between sample x and weight W.
 - `W::RealVector`: the weight vector to compare the sample against.
 """
 function element_min(x::RealVector, W::RealVector)
-    # Compute the element-wise minimum of two vectors
-    return minimum([x W], dims = 2)
+    # Get the length of the sample
+    n_el = length(x)
+    # Create a destination in memory of zeros of type and size like the sample
+    min_vec = zero(x)
+    # Iterate over every element of the sample
+    for ix = 1:n_el
+        # Get and assign the minimum of the sample and weight at index ix
+        @inbounds min_vec[ix] = min(x[ix], W[ix])
+    end
+    # Return the element-minimum vector
+    return min_vec
+    # return @inbounds vec(minimum([x W], dims = 2))
 end
 
 """
@@ -311,8 +232,12 @@ function data_setup!(config::DataConfig, data::RealMatrix)
     config.dim_comp = 2 * config.dim
 
     # Compute the ranges of each feature
-    config.mins = [minimum(data[i, :]) for i in 1:config.dim]
-    config.maxs = [maximum(data[i, :]) for i in 1:config.dim]
+    config.mins = zeros(config.dim)
+    config.maxs = zeros(config.dim)
+    for ix = 1:config.dim
+        config.mins[ix] = minimum(data[ix, :])
+        config.maxs[ix] = maximum(data[ix, :])
+    end
 end
 
 """
@@ -349,8 +274,12 @@ function get_data_characteristics(data::RealMatrix ; config::DataConfig=DataConf
         # Get the feature dimension and number of samples
         dim, n_samples = get_data_shape(data)
         # Get the ranges for each feature
-        mins = [minimum(data[i, :]) for i in 1:dim]
-        maxs = [maximum(data[i, :]) for i in 1:dim]
+        mins = zeros(dim)
+        maxs = zeros(dim)
+        for ix = 1:dim
+            mins[ix] = minimum(data[ix, :])
+            maxs[ix] = maximum(data[ix, :])
+        end
     end
     return dim, n_samples, mins, maxs
 end
@@ -477,7 +406,8 @@ This function implements the convention that columns are samples while rows are 
 """
 function get_sample(x::RealMatrix, i::Integer)
     # Return the sample at location
-    return x[:, i]
+    # return x[:, i]
+    return @inbounds x[:, i]
 end
 
 """
@@ -604,157 +534,12 @@ function classify(art::ARTModule, x::RealMatrix ; preprocessed::Bool=false, get_
     return y_hat
 end
 
-# --------------------------------------------------------------------------- #
-# COMMON DOCUMENTATION
-# --------------------------------------------------------------------------- #
-
-@doc """
-Predict categories of a single sample of features 'x' using the ART model.
-
-Returns predicted category 'y_hat.'
+"""
+Checks the stopping conditions for an ART module.
 
 # Arguments
-- `art::ARTModule`: ART or ARTMAP module to use for batch inference.
-- `x::RealVector`: the single sample of features to classify.
-- `preprocessed::Bool=false`: optional, flag if the data has already been complement coded or not.
-- `get_bmu::Bool=false`: optional, flag if the model should return the best-matching-unit label in the case of total mismatch.
+- `art::ART`: the ART module to check stopping conditions for.
 """
-classify(art::ARTModule, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
-
-# Common function for setting the threshold (sometimes just vigilance, sometimes a function of vigilance).
-@doc """
-Sets the match threshold of the ART/ARTMAP module as a function of the vigilance parameter.
-
-Depending on selected ART/ARTMAP module and its options, this may be a function of other parameters as well.
-
-# Arguments
-- `art::ARTModule`: the ART/ARTMAP module for setting a new threshold.
-"""
-set_threshold!(art::ARTModule)
-
-@doc """
-Creates a category for the ARTModule module, expanding the weights and incrementing the category labels.
-
-# Arguments
-- `art::ARTModule`: the ARTModule module to add a category to.
-- `x::RealVector`: the sample to use for adding a category.
-- `y::Integer`: the new label for the new category.
-"""
-create_category!(art::ARTModule, x::RealVector, y::Integer)
-
-# --------------------------------------------------------------------------- #
-# COMMON DOCUMENTATION CONSTANTS
-# --------------------------------------------------------------------------- #
-
-# Shared options docstring, inserted at the end of `opts_<...>` structs.
-const OPTS_DOCSTRING = """
-These options are a [`Parameters.jl`](https://github.com/mauro3/Parameters.jl) struct, taking custom options keyword arguments.
-Each field has a default value listed below.
-"""
-
-"""
-Shared arguments string for methods using an ART module, sample 'x', and weight vector 'W'.
-"""
-const ART_X_W_ARGS = """
-# Arguments
-- `art::ARTModule`: the ARTModule module.
-- `x::RealVector`: the sample to use.
-- `W::RealVector`: the weight vector to use.
-"""
-
-# --------------------------------------------------------------------------- #
-# COMMON ALGORITHMIC FUNCTIONS
-# --------------------------------------------------------------------------- #
-
-"""
-Basic match function.
-
-$(ART_X_W_ARGS)
-"""
-function basic_match(art::ARTModule, x::RealVector, W::RealVector)
-    return norm(element_min(x, W), 1) / art.config.dim
+function stopping_conditions(art::ARTModule)
+    return art.epoch >= art.opts.max_epoch
 end
-
-"""
-Simplified FuzzyARTMAP activation function.
-
-$(ART_X_W_ARGS)
-"""
-function basic_activation(art::ARTModule, x::RealVector, W::RealVector)
-    return norm(element_min(x, W), 1) / (art.opts.alpha + norm(W, 1))
-end
-
-"""
-Gamma-normalized match function.
-
-$(ART_X_W_ARGS)
-"""
-function gamma_match(art::ARTModule, x::RealVector, W::RealVector)
-    return (norm(W, 1) ^ art.opts.gamma_ref) * gamma_activation(art, x, W)
-end
-
-"""
-Gamma-normalized activation funtion.
-
-$(ART_X_W_ARGS)
-"""
-function gamma_activation(art::ARTModule, x::RealVector, W::RealVector)
-    return basic_activation(art, x, W) ^ art.opts.gamma
-end
-
-"""
-Default ARTMAP's choice-by-difference activation function.
-
-$(ART_X_W_ARGS)
-"""
-function choice_by_difference(art::ARTModule, x::RealVector, W::RealVector)
-    return (
-        norm(element_min(x, W), 1)
-            + (1 - art.opts.alpha) * (art.config.dim - norm(W, 1))
-    )
-end
-
-"""
-Evaluates the match function of the ART/ARTMAP module on sample 'x' with weight 'W'.
-
-$(ART_X_W_ARGS)
-"""
-function art_match(art::ARTModule, x::RealVector, W::RealVector)
-    return eval(art.opts.match)(art, x, W)
-end
-
-"""
-Evaluates the activation function of the ART/ARTMAP module on the sample 'x' with weight 'W'.
-
-$(ART_X_W_ARGS)
-"""
-function art_activation(art::ARTModule, x::RealVector, W::RealVector)
-    return eval(art.opts.activation)(art, x, W)
-end
-
-"""
-Enumerates all of the match functions available in the package.
-"""
-const MATCH_FUNCTIONS = [
-    :basic_match,
-    :gamma_match,
-]
-
-"""
-Enumerates all of the activation functions available in the package.
-"""
-const ACTIVATION_FUNCTIONS = [
-    :basic_activation,
-    :choice_by_difference,
-    :gamma_activation,
-]
-
-"""
-Common docstring for listing available match functions.
-"""
-const MATCH_FUNCTIONS_DOCS = join(MATCH_FUNCTIONS, ", ", " and ")
-
-"""
-Common docstring for listing available activation functions.
-"""
-const ACTIVATION_FUNCTIONS_DOCS = join(ACTIVATION_FUNCTIONS, ", ", " and ")

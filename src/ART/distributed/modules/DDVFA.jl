@@ -9,9 +9,9 @@ Includes all of the structures and logic for running a Distributed Dual-Vigilanc
 2. G. Carpenter, S. Grossberg, and D. Rosen, 'Fuzzy ART: Fast stable learning and categorization of analog patterns by an adaptive resonance system,' Neural Networks, vol. 4, no. 6, pp. 759-771, 1991.
 """
 
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 # OPTIONS
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 
 """
 Distributed Dual Vigilance Fuzzy ART options struct.
@@ -78,19 +78,24 @@ $(OPTS_DOCSTRING)
     uncommitted::Bool = false
 
     """
+    Selected activation function.
+    """
+    activation::Symbol = :gamma_activation
+
+    """
     Selected match function.
     """
     match::Symbol = :gamma_match
 
     """
-    Selected activation function.
+    Selected weight update function.
     """
-    activation::Symbol = :gamma_activation
+    update::Symbol = :basic_update
 end
 
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 # STRUCTS
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 
 """
 Distributed Dual Vigilance Fuzzy ARTMAP module struct.
@@ -145,19 +150,29 @@ mutable struct DDVFA <: ART
     epoch::Int
 
     """
+    DDVFA activation values.
+    """
+    T::ARTVector
+
+    """
+    DDVFA match values.
+    """
+    M::ARTVector
+
+    """
     Winning activation value from most recent sample.
     """
-    T::Float
+    T_win::Float
 
     """
     Winning match value from most recent sample.
     """
-    M::Float
+    M_win::Float
 end
 
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 # CONSTRUCTORS
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 
 """
 Implements a DDVFA learner with optional keyword arguments.
@@ -215,7 +230,8 @@ function DDVFA(opts::opts_DDVFA)
         uncommitted=opts.uncommitted,
         display=false,
         activation=opts.activation,
-        match=opts.match
+        match=opts.match,
+        update=opts.update,
     )
 
     # Construct the DDVFA module
@@ -227,14 +243,16 @@ function DDVFA(opts::opts_DDVFA)
           ARTVector{Int}(undef, 0),
           0,
           0,
+          ARTVector{Float}(undef, 0),
+          ARTVector{Float}(undef, 0),
           0.0,
           0.0
     )
 end
 
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 # COMMON FUNCTIONS
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 
 # COMMON DOC: Set threshold function
 function set_threshold!(art::DDVFA)
@@ -271,26 +289,29 @@ function train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fal
     mismatch_flag = true
 
     # Compute the activation for all categories
-    T = zeros(art.n_categories)
+    accommodate_vector!(art.T, art.n_categories)
+    accommodate_vector!(art.M, art.n_categories)
     for jx = 1:art.n_categories
         activation_match!(art.F2[jx], sample)
-        T[jx] = similarity(art.opts.similarity, art.F2[jx], sample, true)
+        art.T[jx] = similarity(art.opts.similarity, art.F2[jx], sample, true)
     end
 
     # Compute the match for each category in the order of greatest activation
-    index = sortperm(T, rev=true)
+    index = sortperm(art.T, rev=true)
     for jx = 1:art.n_categories
         bmu = index[jx]
         # If supervised and the label differs, trigger mismatch
         if supervised && (art.labels[bmu] != y)
             break
         end
-        M = similarity(art.opts.similarity, art.F2[jx], sample, false)
+
+        # Compute the match with the similarity linkage method
+        art.M[bmu] = similarity(art.opts.similarity, art.F2[bmu], sample, false)
         # If we got a match, then learn (update the category)
-        if M >= art.threshold
+        if art.M[bmu] >= art.threshold
             # Update the stored match and activation values
-            art.M = M
-            art.T = T[bmu]
+            art.M_win = art.M[bmu]
+            art.T_win = art.T[bmu]
             # Update the weights with the sample
             train!(art.F2[bmu], sample, preprocessed=true)
             # Save the output label for the sample
@@ -305,8 +326,8 @@ function train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fal
     if mismatch_flag
         # Update the stored match and activation values
         bmu = index[1]
-        M = similarity(art.opts.similarity, art.F2[bmu], sample, false)
-        art.T = T[bmu]
+        art.M_win = similarity(art.opts.similarity, art.F2[bmu], sample, false)
+        art.T_win = art.T[bmu]
         # Get the correct label
         y_hat = supervised ? y : art.n_categories + 1
         create_category!(art, sample, y_hat)
@@ -321,14 +342,17 @@ function classify(art::DDVFA, x::RealVector ; preprocessed::Bool=false, get_bmu:
     sample = init_classify!(x, art, preprocessed)
 
     # Calculate all global activations
-    T = zeros(art.n_categories)
+    accommodate_vector!(art.T, art.n_categories)
+    accommodate_vector!(art.M, art.n_categories)
     for jx = 1:art.n_categories
+        # Update the F2 node's activation and match values
         activation_match!(art.F2[jx], sample)
-        T[jx] = similarity(art.opts.similarity, art.F2[jx], sample, true)
+        # Update the DDVFA activation with the similarity linkage method
+        art.T[jx] = similarity(art.opts.similarity, art.F2[jx], sample, true)
     end
 
     # Sort by highest activation
-    index = sortperm(T, rev=true)
+    index = sortperm(art.T, rev=true)
 
     # Default to mismatch
     mismatch_flag = true
@@ -338,12 +362,12 @@ function classify(art::DDVFA, x::RealVector ; preprocessed::Bool=false, get_bmu:
         # Get the best-matching unit
         bmu = index[jx]
         # Get the match value of this activation
-        M = similarity(art.opts.similarity, art.F2[bmu], sample, false)
+        art.M[bmu] = similarity(art.opts.similarity, art.F2[bmu], sample, false)
         # If the match satisfies the threshold criterion, then report that label
-        if M >= art.threshold
+        if art.M[bmu] >= art.threshold
             # Update the stored match and activation values
-            art.M = M
-            art.T = T[bmu]
+            art.M_win = art.M[bmu]
+            art.T_win = art.T[bmu]
             # Current winner
             y_hat = art.labels[bmu]
             mismatch_flag = false
@@ -356,8 +380,8 @@ function classify(art::DDVFA, x::RealVector ; preprocessed::Bool=false, get_bmu:
         @debug "Mismatch"
         # Update the stored match and activation values of the best matching unit
         bmu = index[1]
-        art.M = similarity(art.opts.similarity, art.F2[bmu], sample, false)
-        art.T = T[bmu]
+        art.M_win = similarity(art.opts.similarity, art.F2[bmu], sample, false)
+        art.T_win = art.T[bmu]
         # Report either the best matching unit or the mismatch label -1
         y_hat = get_bmu ? art.labels[bmu] : -1
     end
@@ -365,9 +389,9 @@ function classify(art::DDVFA, x::RealVector ; preprocessed::Bool=false, get_bmu:
     return y_hat
 end
 
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 # INTERNAL FUNCTIONS
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 
 """
 Create a new category by appending and initializing a new FuzzyART node to F2.
@@ -385,22 +409,9 @@ function create_category!(art::DDVFA, sample::RealVector, label::Integer)
     push!(art.F2, FuzzyART(art.subopts, sample, preprocessed=true))
 end
 
-"""
-Stopping conditions for Distributed Dual Vigilance Fuzzy ARTMAP.
-
-Returns true if there is no change in weights during the epoch or the maxmimum epochs has been reached.
-
-# Arguments
-- `art::DDVFA`: the DDVFA module for checking stopping conditions.
-"""
-function stopping_conditions(art::DDVFA)
-    # Compute the stopping condition, return a bool
-    return art.epoch >= art.opts.max_epoch
-end
-
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 # DDVFA LINKAGE METHODS
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 
 # Argument docstring for the activation flag
 const ACTIVATION_DOCSTRING = """
@@ -533,9 +544,9 @@ function centroid(F2::FuzzyART, sample::RealVector, activation::Bool)
     return value
 end
 
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 # CONVENIENCE METHODS
-# --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
 
 """
 Convenience function; return a concatenated array of all DDVFA weights.
