@@ -133,11 +133,16 @@ end
 Initializes an ARTStats dictionary with zero entries.
 """
 function build_art_stats()
+    # Create the stats dictionary
     stats = ARTStats()
+
+    # Initialize zero entries for each element
     stats["M"] = 0.0
     stats["T"] = 0.0
     stats["bmu"] = 0
     stats["mismatch"] = false
+
+    # Return the zero-initialized stats dictionary
     return stats
 end
 
@@ -150,10 +155,13 @@ Logs common statistics of an ART module after a training/classification iteratio
 - `mismatch::Bool`: flag of whether there was a mismatch in this iteration.
 """
 function log_art_stats!(art::ARTModule, bmu::Integer, mismatch::Bool)
+    # Overwrite the stats entries
     art.stats["M"] = art.M[bmu]
     art.stats["T"] = art.T[bmu]
     art.stats["bmu"] = bmu
     art.stats["mismatch"] = mismatch
+
+    # Return empty
     return
 end
 
@@ -410,6 +418,7 @@ function get_iterator(opts::ARTOpts, n_samples::Integer)
     # If we want a progress bar, construct one. Otherwise, return the raw iterator
     iter = opts.display ? ProgressBar(iter_raw) : iter_raw
 
+    # Return the selected iterator
     return iter
 end
 

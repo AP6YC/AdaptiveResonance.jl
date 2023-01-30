@@ -266,8 +266,6 @@ function create_category!(art::FuzzyART, x::RealVector, y::Integer)
         append!(art.W, ones(art.config.dim_comp, 1))
         # Learn the uncommitted node on the sample
         learn!(art, x, art.n_categories)
-        # Increment the instance counting
-        # art.n_instance[1] += 1
     else
         # Fast commit the sample
         append!(art.W, x)
