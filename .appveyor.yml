@@ -1,7 +1,7 @@
 # Documentation: https://github.com/JuliaCI/Appveyor.jl
 environment:
   matrix:
-  - julia_version: 1.5
+  - julia_version: 1.6
   - julia_version: nightly
   # Set this to download test data outside of repo
   DATADEPS_ALWAYS_ACCEPT: true

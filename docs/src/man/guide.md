@@ -295,7 +295,7 @@ end
 
 Without provided labels, the ART modules behave as expected, incrementally creating categories when necessary during the training phase.
 
-## [ART Stats Logging](@ref art_stats)
+## [ART Stats Logging](@id art_stats)
 
 If you are curious about what the activation and match values were after either incremental training or classifiation, all ART modules implement basic statistics dictionaries in their `stats` field with the following entries:
 
