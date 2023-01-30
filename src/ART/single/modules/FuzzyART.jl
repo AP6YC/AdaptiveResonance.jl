@@ -312,18 +312,12 @@ function train!(art::FuzzyART, x::RealVector ; y::Integer=0, preprocessed::Bool=
     for j = 1:art.n_categories
         # Best matching unit
         bmu = index[j]
-        # # If supervised and the label differed, force mismatch
-        # if supervised && (art.labels[bmu] != y)
-        #     break
-        # end
         # Vigilance check - pass
         if art.M[bmu] >= art.threshold
             # If supervised and the label differed, force mismatch
             if supervised && (art.labels[bmu] != y)
                 break
             end
-            # Update the stored match and activation values
-            log_art_stats!(art, bmu, false)
             # Learn the sample
             learn!(art, sample, bmu)
             # Increment the instance counting
@@ -338,14 +332,16 @@ function train!(art::FuzzyART, x::RealVector ; y::Integer=0, preprocessed::Bool=
 
     # If there was no resonant category, make a new one
     if mismatch_flag
-        # Update the stored match and activation values
+        # Keep the bmu as the top activation despite creating a new category
         bmu = index[1]
-        log_art_stats!(art, bmu, true)
         # Get the correct label for the new category
         y_hat = supervised ? y : art.n_categories + 1
         # Create a new category
         create_category!(art, sample, y_hat)
     end
+
+    # Update the stored match and activation values
+    log_art_stats!(art, bmu, mismatch_flag)
 
     return y_hat
 end
@@ -366,8 +362,6 @@ function classify(art::FuzzyART, x::RealVector ; preprocessed::Bool=false, get_b
         bmu = index[jx]
         # Vigilance check - pass
         if art.M[bmu] >= art.threshold
-            # Update the stored match and activation values
-            log_art_stats!(art, bmu, false)
             # Current winner
             y_hat = art.labels[bmu]
             mismatch_flag = false
@@ -378,9 +372,13 @@ function classify(art::FuzzyART, x::RealVector ; preprocessed::Bool=false, get_b
     if mismatch_flag
         # Report either the best matching unit or the mismatch label -1
         bmu = index[1]
-        log_art_stats!(art, bmu, true)
         # Report either the best matching unit or the mismatch label -1
         y_hat = get_bmu ? art.labels[bmu] : -1
     end
+
+    # Update the stored match and activation values
+    log_art_stats!(art, bmu, mismatch_flag)
+
+    # Return the inferred label
     return y_hat
 end

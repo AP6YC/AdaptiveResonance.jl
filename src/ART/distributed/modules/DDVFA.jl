@@ -285,7 +285,6 @@ function train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fal
 
     # Compute the activation for all categories
     accommodate_vector!(art.T, art.n_categories)
-    accommodate_vector!(art.M, art.n_categories)
     for jx = 1:art.n_categories
         activation_match!(art.F2[jx], sample)
         art.T[jx] = similarity(art.opts.similarity, art.F2[jx], sample, true)
@@ -293,13 +292,10 @@ function train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fal
 
     # Compute the match for each category in the order of greatest activation
     index = sortperm(art.T, rev=true)
+    accommodate_vector!(art.M, art.n_categories)
     for jx = 1:art.n_categories
         # Best matching unit
         bmu = index[jx]
-        # # If supervised and the label differs, trigger mismatch
-        # if supervised && (art.labels[bmu] != y)
-        #     break
-        # end
         # Compute the match with the similarity linkage method
         art.M[bmu] = similarity(art.opts.similarity, art.F2[bmu], sample, false)
         # If we got a match, then learn (update the category)
@@ -308,8 +304,6 @@ function train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fal
             if supervised && (art.labels[bmu] != y)
                 break
             end
-            # Update the stored match and activation values
-            log_art_stats!(art, bmu, false)
             # Update the weights with the sample
             train!(art.F2[bmu], sample, preprocessed=true)
             # Save the output label for the sample
@@ -322,14 +316,16 @@ function train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fal
 
     # If we triggered a mismatch
     if mismatch_flag
-        # Update the stored match and activation values
+        # Keep the bmu as the top activation despite creating a new category
         bmu = index[1]
-        log_art_stats!(art, bmu, true)
         # Get the correct label
         y_hat = supervised ? y : art.n_categories + 1
         # Create a new category
         create_category!(art, sample, y_hat)
     end
+
+    # Log the
+    log_art_stats!(art, bmu, mismatch_flag)
 
     return y_hat
 end
@@ -341,7 +337,6 @@ function classify(art::DDVFA, x::RealVector ; preprocessed::Bool=false, get_bmu:
 
     # Calculate all global activations
     accommodate_vector!(art.T, art.n_categories)
-    accommodate_vector!(art.M, art.n_categories)
     for jx = 1:art.n_categories
         # Update the F2 node's activation and match values
         activation_match!(art.F2[jx], sample)
@@ -356,6 +351,7 @@ function classify(art::DDVFA, x::RealVector ; preprocessed::Bool=false, get_bmu:
     mismatch_flag = true
 
     # Iterate over the list of activations
+    accommodate_vector!(art.M, art.n_categories)
     for jx = 1:art.n_categories
         # Get the best-matching unit
         bmu = index[jx]
@@ -374,7 +370,6 @@ function classify(art::DDVFA, x::RealVector ; preprocessed::Bool=false, get_bmu:
 
     # If we did not find a resonant category
     if mismatch_flag
-        @debug "Mismatch"
         # Update the stored match and activation values of the best matching unit
         bmu = index[1]
         log_art_stats!(art, bmu, true)
