@@ -61,7 +61,7 @@ Please read the [documentation](https://ap6yc.github.io/AdaptiveResonance.jl/dev
   - [Contributing](#contributing)
 - [Acknowledgements](#acknowledgements)
   - [Authors](#authors)
-  - [Funding](#funding)
+  - [Support](#support)
   - [History](#history)
   - [Software](#software)
   - [Datasets](#datasets)
@@ -231,7 +231,7 @@ Patch versions are for bug fixes, minor versions are for backward-compatible cha
 This package is developed and maintained by [Sasha Petrenko](https://github.com/AP6YC) with sponsorship by the [Applied Computational Intelligence Laboratory (ACIL)](https://acil.mst.edu/).
 The users [@aaronpeikert](https://github.com/aaronpeikert), [@hayesall](https://github.com/hayesall), and [@markNZed](https://github.com/markNZed) have graciously contributed their time with reviews and feedback that has greatly improved the project.
 
-### Funding
+### Support
 
 This project is supported by grants from the [Night Vision Electronic Sensors Directorate](https://c5isr.ccdc.army.mil/inside_c5isr_center/nvesd/), the [DARPA Lifelong Learning Machines (L2M) program](https://www.darpa.mil/program/lifelong-learning-machines), [Teledyne Technologies](http://www.teledyne.com/), and the [National Science Foundation](https://www.nsf.gov/).
 The material, findings, and conclusions here do not necessarily reflect the views of these entities.

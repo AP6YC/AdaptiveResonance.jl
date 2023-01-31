@@ -8,6 +8,8 @@ From top to bottom, the ways of contributing are:
 - [GitFlow:](@ref GitFlow) how to directly contribute code to the package in an organized way on GitHub.
 - [Development Details:](@ref Development-Details) how the internals of the package are currently setup if you would like to directly contribute code.
 
+Please also see the [Attribution](@ref Attribution) to learn about the authors and sources of support for the project.
+
 ## Issues
 
 The main point of contact is the [GitHub issues](https://github.com/AP6YC/AdaptiveResonance.jl/issues) page for the project.
@@ -142,6 +144,24 @@ Furthermore, independent class labels are always `Int` because of the [Julia nat
 
 This project does not currently test for the support of [arbitrary precision arithmetic](https://docs.julialang.org/en/v1/manual/integers-and-floating-point-numbers/#Arbitrary-Precision-Arithmetic) because learning algorithms *in general* do not have a significant need for precision.
 
-## Authors
+## Attribution
 
-If you simply have suggestions for improvement, Sasha Petrenko (<sap625@mst.edu>) is the current developer and maintainer of the AdaptiveResonance.jl package, so please feel free to reach out with thoughts and questions.
+### Authors
+
+This package is developed and maintained by [Sasha Petrenko](https://github.com/AP6YC) with sponsorship by the [Applied Computational Intelligence Laboratory (ACIL)](https://acil.mst.edu/).
+The users [@aaronpeikert](https://github.com/aaronpeikert), [@hayesall](https://github.com/hayesall), and [@markNZed](https://github.com/markNZed) have graciously contributed their time with reviews and feedback that has greatly improved the project.
+
+If you simply have suggestions for improvement, Sasha Petrenko (<sap625@mst.edu>) is the current developer and maintainer of the `AdaptiveResonance.jl` package, so please feel free to reach out with thoughts and questions.
+
+### Support
+
+This project is supported by grants from the [Night Vision Electronic Sensors Directorate](https://c5isr.ccdc.army.mil/inside_c5isr_center/nvesd/), the [DARPA Lifelong Learning Machines (L2M) program](https://www.darpa.mil/program/lifelong-learning-machines), [Teledyne Technologies](http://www.teledyne.com/), and the [National Science Foundation](https://www.nsf.gov/).
+The material, findings, and conclusions here do not necessarily reflect the views of these entities.
+
+Research was sponsored by the Army Research Laboratory and was accomplished under
+Cooperative Agreement Number W911NF-22-2-0209.
+The views and conclusions contained in this document are
+those of the authors and should not be interpreted as representing the official policies, either expressed or implied, of
+the Army Research Laboratory or the U.S. Government.
+The U.S. Government is authorized to reproduce and
+distribute reprints for Government purposes notwithstanding any copyright notation herein.
