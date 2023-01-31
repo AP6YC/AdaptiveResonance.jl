@@ -93,6 +93,8 @@ AdaptiveResonance
 ├── examples                // Source: example usage scripts.
 ├── src                     // Source: majority of source code.
 │   ├───ART                 //      ART-based unsupervised modules.
+│   │   ├───distributed     //      Distributed ART modules
+│   │   └───single          //      Undistributed ART modules
 │   └───ARTMAP              //      ARTMAP-based supervised modules.
 ├── test                    // Test: Unit, integration, and environment tests.
 ├── .appveyor               // Appveyor: Windows-specific coverage.
