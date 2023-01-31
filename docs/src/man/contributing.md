@@ -87,16 +87,19 @@ The `AdaptiveResonance.jl` package has the following file structure:
 ```console
 AdaptiveResonance
 ├── .github/workflows       // GitHub: workflows for testing and documentation.
-├── data                    // Data: CI data location.
 ├── docs                    // Docs: documentation for the module.
 │   └───src                 //      Documentation source files.
 ├── examples                // Source: example usage scripts.
 ├── src                     // Source: majority of source code.
 │   ├───ART                 //      ART-based unsupervised modules.
-│   │   ├───distributed     //      Distributed ART modules
-│   │   └───single          //      Undistributed ART modules
+│   │   ├───distributed     //      Distributed ART modules.
+│   │   └───single          //      Undistributed ART modules.
 │   └───ARTMAP              //      ARTMAP-based supervised modules.
 ├── test                    // Test: Unit, integration, and environment tests.
+│   ├── adaptiveresonance   //      Tests common to the entire package.
+│   ├── art                 //      Tests for just ART modules.
+│   ├── artmap              //      Tests for just ARTMAP modules.
+│   └───data                //      CI test data.
 ├── .appveyor               // Appveyor: Windows-specific coverage.
 ├── .gitattributes          // Git: LFS settings, languages, etc.
 ├── .gitignore              // Git: .gitignore for the whole project.
