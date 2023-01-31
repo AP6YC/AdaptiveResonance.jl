@@ -81,8 +81,8 @@ Detailed usage and examples are provided in the [documentation](https://ap6yc.gi
 
 ### Installation
 
-This project is distributed as a Julia package, available on [JuliaHub](https://juliahub.com/).
-Its usage follows the usual Julia package installation procedure, interactively:
+This project is distributed as a [Julia](https://julialang.org/) package, available on [JuliaHub](https://juliahub.com/), so you must first [install Julia](https://julialang.org/downloads/) on your system.
+Its usage follows the usual [Julia package installation procedure](https://docs.julialang.org/en/v1/stdlib/Pkg/), interactively:
 
 ```julia-repl
 julia> ]
@@ -199,11 +199,11 @@ Variants built upon these modules are:
 
 In addition to these modules, this package contains the following accessory methods:
 
-- [**ARTSCENE**][21]: the ARTSCENE algorithm's multiple-stage filtering process is implemented as [`artscene_filter`][21]. Each filter stage is exported if further granularity is required.
+- [**ARTSCENE**][21]: the ARTSCENE algorithm's multiple-stage filtering process is implemented as [`artscene_filter`][21]. Each filter stage is implemented internally if further granularity is required.
 - [**performance**][22]: classification accuracy is implemented as [`performance`][22].
 - [**complement_code**][23]: complement coding is implemented with [`complement_code`][23].
-However, training and classification methods complement code their inputs unless they are passed `preprocessed=true`.
-- [**linear_normalization**][24]: the first step to complement coding, [`linear_normalization`][24] normalizes input arrays within [0, 1].
+However, training and classification methods complement code their inputs unless they are passed `preprocessed=true`, indicating to the model that this step has already been done.
+- [**linear_normalization**][24]: the first step to complement coding, [`linear_normalization`][24] normalizes input arrays within `[0, 1]`.
 
 [21]: https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/full-index/#AdaptiveResonance.artscene_filter-Union{Tuple{Array{T,%203}},%20Tuple{T}}%20where%20T%3C:AbstractFloat
 [22]: https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/full-index/#AdaptiveResonance.performance-Tuple{AbstractVector{T}%20where%20T%3C:Integer,%20AbstractVector{T}%20where%20T%3C:Integer}
@@ -220,7 +220,7 @@ In summary:
 1. Questions and requested changes should all be made in the [issues][issues-url] page.
 These are preferred because they are publicly viewable and could assist or educate others with similar issues or questions.
 2. For changes, this project accepts pull requests (PRs) from `feature/<my-feature>` branches onto the `develop` branch using the [GitFlow](https://nvie.com/posts/a-successful-git-branching-model/) methodology.
-If unit tests pass and the changes are beneficial, these PRs are merged into `develop` and eventually folded into versioned releases.
+If unit tests pass and the changes are beneficial, these PRs are merged into `develop` and eventually folded into versioned releases throug a `release` branch that is merged with the `master` branch.
 3. The project follows the [Semantic Versioning](https://semver.org/) convention of `major.minor.patch` incremental versioning numbers.
 Patch versions are for bug fixes, minor versions are for backward-compatible changes, and major versions are for new and incompatible usage changes.
 
