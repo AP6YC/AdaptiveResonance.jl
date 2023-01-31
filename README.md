@@ -122,7 +122,7 @@ You can pass module-specific options during construction with keyword arguments 
 art = DDVFA(rho_ub=0.75, rho_lb=0.4)
 ```
 
-For more advanced users, options for the modules are contained in `Parameters.jl` structs.
+For more advanced users, options for the modules are contained in [`Parameters.jl`](https://github.com/mauro3/Parameters.jl) structs.
 These options can be passed keyword arguments before instantiating the model:
 
 ```julia
