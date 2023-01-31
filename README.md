@@ -180,24 +180,35 @@ This project has implementations of the following ART (unsupervised) and ARTMAP 
 - ARTMAP
   - **[`SFAM`][4]**: Simplified Fuzzy ARTMAP
   - **[`FAM`][5]**: Fuzzy ARTMAP
-  - **[`DAM`][6]**: Default ARTMAP
+
+Because each of these modules is a framework for many variants in the literature, this project also implements these [variants](https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/modules/) by changing their module [options](https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/guide/#art_options).
+Variants built upon these modules are:
+
+- ART
+  - **[`GammaNormalizedFuzzyART`][7]**: Gamma-Normalized FuzzyART (variant of FuzzyART).
+- ARTMAP
+  - **[`DAM`][6]**: Default ARTMAP (variant of SFAM).
 
 [1]: https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/full-index/#AdaptiveResonance.FuzzyART
 [2]: https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/full-index/#AdaptiveResonance.DVFA
 [3]: https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/full-index/#AdaptiveResonance.DDVFA
 [4]: https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/full-index/#AdaptiveResonance.SFAM
 [5]: https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/full-index/#AdaptiveResonance.FAM
-[6]: https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/full-index/#AdaptiveResonance.DAM
-
-Because each of these modules is a framework for many variants in the literature, this project also implements these [variants](https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/modules/) by changing their module [options](https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/guide/#art_options).
+[6]: https://ap6yc.github.io/AdaptiveResonance.jl/stable/man/full-index/#AdaptiveResonance.DAM-Tuple{opts_SFAM}
+[7]: https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/full-index/#AdaptiveResonance.GammaNormalizedFuzzyART-Tuple{opts_FuzzyART}
 
 In addition to these modules, this package contains the following accessory methods:
 
-- **ARTSCENE**: the ARTSCENE algorithm's multiple-stage filtering process is implemented as `artscene_filter`. Each filter stage is exported if further granularity is required.
-- **performance**: classification accuracy is implemented as `performance`
-- **complement_code**: complement coding is implemented with `complement_code`.
+- [**ARTSCENE**][21]: the ARTSCENE algorithm's multiple-stage filtering process is implemented as [`artscene_filter`][21]. Each filter stage is exported if further granularity is required.
+- [**performance**][22]: classification accuracy is implemented as [`performance`][22].
+- [**complement_code**][23]: complement coding is implemented with [`complement_code`][23].
 However, training and classification methods complement code their inputs unless they are passed `preprocessed=true`.
-- **linear_normalization**: the first step to complement coding, `linear_normalization` normalizes input arrays within [0, 1].
+- [**linear_normalization**][24]: the first step to complement coding, [`linear_normalization`][24] normalizes input arrays within [0, 1].
+
+[21]: https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/full-index/#AdaptiveResonance.artscene_filter-Union{Tuple{Array{T,%203}},%20Tuple{T}}%20where%20T%3C:AbstractFloat
+[22]: https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/full-index/#AdaptiveResonance.performance-Tuple{AbstractVector{T}%20where%20T%3C:Integer,%20AbstractVector{T}%20where%20T%3C:Integer}
+[23]: https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/full-index/#AdaptiveResonance.complement_code-Tuple{AbstractArray{T}%20where%20T%3C:Real}
+[24]: https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/full-index/#AdaptiveResonance.linear_normalization-Tuple{AbstractMatrix{T}%20where%20T%3C:Real}
 
 ### Contributing
 
