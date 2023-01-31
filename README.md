@@ -61,6 +61,7 @@ Please read the [documentation](https://ap6yc.github.io/AdaptiveResonance.jl/dev
   - [Contributing](#contributing)
 - [Acknowledgements](#acknowledgements)
   - [Authors](#authors)
+  - [Support](#support)
   - [History](#history)
   - [Software](#software)
   - [Datasets](#datasets)
@@ -80,8 +81,8 @@ Detailed usage and examples are provided in the [documentation](https://ap6yc.gi
 
 ### Installation
 
-This project is distributed as a Julia package, available on [JuliaHub](https://juliahub.com/).
-Its usage follows the usual Julia package installation procedure, interactively:
+This project is distributed as a [Julia](https://julialang.org/) package, available on [JuliaHub](https://juliahub.com/), so you must first [install Julia](https://julialang.org/downloads/) on your system.
+Its usage follows the usual [Julia package installation procedure](https://docs.julialang.org/en/v1/stdlib/Pkg/), interactively:
 
 ```julia-repl
 julia> ]
@@ -122,7 +123,7 @@ You can pass module-specific options during construction with keyword arguments 
 art = DDVFA(rho_ub=0.75, rho_lb=0.4)
 ```
 
-For more advanced users, options for the modules are contained in `Parameters.jl` structs.
+For more advanced users, options for the modules are contained in [`Parameters.jl`](https://github.com/mauro3/Parameters.jl) structs.
 These options can be passed keyword arguments before instantiating the model:
 
 ```julia
@@ -179,24 +180,35 @@ This project has implementations of the following ART (unsupervised) and ARTMAP 
 - ARTMAP
   - **[`SFAM`][4]**: Simplified Fuzzy ARTMAP
   - **[`FAM`][5]**: Fuzzy ARTMAP
-  - **[`DAM`][6]**: Default ARTMAP
+
+Because each of these modules is a framework for many variants in the literature, this project also implements these [variants](https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/modules/) by changing their module [options](https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/guide/#art_options).
+Variants built upon these modules are:
+
+- ART
+  - **[`GammaNormalizedFuzzyART`][7]**: Gamma-Normalized FuzzyART (variant of FuzzyART).
+- ARTMAP
+  - **[`DAM`][6]**: Default ARTMAP (variant of SFAM).
 
 [1]: https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/full-index/#AdaptiveResonance.FuzzyART
 [2]: https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/full-index/#AdaptiveResonance.DVFA
 [3]: https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/full-index/#AdaptiveResonance.DDVFA
 [4]: https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/full-index/#AdaptiveResonance.SFAM
 [5]: https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/full-index/#AdaptiveResonance.FAM
-[6]: https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/full-index/#AdaptiveResonance.DAM
-
-Because each of these modules is a framework for many variants in the literature, this project also implements these [variants](https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/modules/) by changing their module [options](https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/guide/#art_options).
+[6]: https://ap6yc.github.io/AdaptiveResonance.jl/stable/man/full-index/#AdaptiveResonance.DAM-Tuple{opts_SFAM}
+[7]: https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/full-index/#AdaptiveResonance.GammaNormalizedFuzzyART-Tuple{opts_FuzzyART}
 
 In addition to these modules, this package contains the following accessory methods:
 
-- **ARTSCENE**: the ARTSCENE algorithm's multiple-stage filtering process is implemented as `artscene_filter`. Each filter stage is exported if further granularity is required.
-- **performance**: classification accuracy is implemented as `performance`
-- **complement_code**: complement coding is implemented with `complement_code`.
-However, training and classification methods complement code their inputs unless they are passed `preprocessed=true`.
-- **linear_normalization**: the first step to complement coding, `linear_normalization` normalizes input arrays within [0, 1].
+- [**ARTSCENE**][21]: the ARTSCENE algorithm's multiple-stage filtering process is implemented as [`artscene_filter`][21]. Each filter stage is implemented internally if further granularity is required.
+- [**performance**][22]: classification accuracy is implemented as [`performance`][22].
+- [**complement_code**][23]: complement coding is implemented with [`complement_code`][23].
+However, training and classification methods complement code their inputs unless they are passed `preprocessed=true`, indicating to the model that this step has already been done.
+- [**linear_normalization**][24]: the first step to complement coding, [`linear_normalization`][24] normalizes input arrays within `[0, 1]`.
+
+[21]: https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/full-index/#AdaptiveResonance.artscene_filter-Union{Tuple{Array{T,%203}},%20Tuple{T}}%20where%20T%3C:AbstractFloat
+[22]: https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/full-index/#AdaptiveResonance.performance-Tuple{AbstractVector{T}%20where%20T%3C:Integer,%20AbstractVector{T}%20where%20T%3C:Integer}
+[23]: https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/full-index/#AdaptiveResonance.complement_code-Tuple{AbstractArray{T}%20where%20T%3C:Real}
+[24]: https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/full-index/#AdaptiveResonance.linear_normalization-Tuple{AbstractMatrix{T}%20where%20T%3C:Real}
 
 ### Contributing
 
@@ -208,7 +220,7 @@ In summary:
 1. Questions and requested changes should all be made in the [issues][issues-url] page.
 These are preferred because they are publicly viewable and could assist or educate others with similar issues or questions.
 2. For changes, this project accepts pull requests (PRs) from `feature/<my-feature>` branches onto the `develop` branch using the [GitFlow](https://nvie.com/posts/a-successful-git-branching-model/) methodology.
-If unit tests pass and the changes are beneficial, these PRs are merged into `develop` and eventually folded into versioned releases.
+If unit tests pass and the changes are beneficial, these PRs are merged into `develop` and eventually folded into versioned releases throug a `release` branch that is merged with the `master` branch.
 3. The project follows the [Semantic Versioning](https://semver.org/) convention of `major.minor.patch` incremental versioning numbers.
 Patch versions are for bug fixes, minor versions are for backward-compatible changes, and major versions are for new and incompatible usage changes.
 
@@ -216,10 +228,21 @@ Patch versions are for bug fixes, minor versions are for backward-compatible cha
 
 ### Authors
 
-This package is developed and maintained by [Sasha Petrenko](https://github.com/AP6YC) with sponsorship by the [Applied Computational Intelligence Laboratory (ACIL)](https://acil.mst.edu/). This project is supported by grants from the [Night Vision Electronic Sensors Directorate](https://c5isr.ccdc.army.mil/inside_c5isr_center/nvesd/), the [DARPA Lifelong Learning Machines (L2M) program](https://www.darpa.mil/program/lifelong-learning-machines), [Teledyne Technologies](http://www.teledyne.com/), and the [National Science Foundation](https://www.nsf.gov/).
+This package is developed and maintained by [Sasha Petrenko](https://github.com/AP6YC) with sponsorship by the [Applied Computational Intelligence Laboratory (ACIL)](https://acil.mst.edu/).
+The users [@aaronpeikert](https://github.com/aaronpeikert), [@hayesall](https://github.com/hayesall), and [@markNZed](https://github.com/markNZed) have graciously contributed their time with reviews and feedback that has greatly improved the project.
+
+### Support
+
+This project is supported by grants from the [Night Vision Electronic Sensors Directorate](https://c5isr.ccdc.army.mil/inside_c5isr_center/nvesd/), the [DARPA Lifelong Learning Machines (L2M) program](https://www.darpa.mil/program/lifelong-learning-machines), [Teledyne Technologies](http://www.teledyne.com/), and the [National Science Foundation](https://www.nsf.gov/).
 The material, findings, and conclusions here do not necessarily reflect the views of these entities.
 
-The users [@aaronpeikert](https://github.com/aaronpeikert), [@hayesall](https://github.com/hayesall), and [@markNZed](https://github.com/markNZed) have graciously contributed their time with reviews and feedback that has greatly improved the project.
+Research was sponsored by the Army Research Laboratory and was accomplished under
+Cooperative Agreement Number W911NF-22-2-0209.
+The views and conclusions contained in this document are
+those of the authors and should not be interpreted as representing the official policies, either expressed or implied, of
+the Army Research Laboratory or the U.S. Government.
+The U.S. Government is authorized to reproduce and
+distribute reprints for Government purposes notwithstanding any copyright notation herein.
 
 ### History
 
@@ -229,6 +252,8 @@ The users [@aaronpeikert](https://github.com/aaronpeikert), [@hayesall](https://
 - 10/13/2021 - Initiate GitFlow contribution.
 - 5/4/2022 - [Acceptance to JOSS](https://doi.org/10.21105/joss.03671).
 - 10/11/2022 - v0.6.0
+- 12/15/2022 - v0.7.0
+- 1/30/2023 - v0.8.0
 
 ### Software
 
@@ -258,17 +283,10 @@ The code in this repository is inspired the following repositories:
 
 Boilerplate clustering datasets are periodically used to test, verify, and provide example of the functionality of the package.
 
-1. UCI machine learning repository:
-<http://archive.ics.uci.edu/ml>
-
-2. Fundamental Clustering Problems Suite (FCPS):
-<https://www.uni-marburg.de/fb12/arbeitsgruppen/datenbionik/data?language_sync=1>
-
-3. Datasets package:
-<https://www.researchgate.net/publication/239525861_Datasets_package>
-
-4. Clustering basic benchmark:
-<http://cs.uef.fi/sipu/datasets>
+1. [UCI machine learning repository](http://archive.ics.uci.edu/ml)
+2. [Fundamental Clustering Problems Suite (FCPS)](https://www.uni-marburg.de/fb12/arbeitsgruppen/datenbionik/data?language_sync=1)
+3. [Nejc Ilc's unsupervised datasets package](https://www.researchgate.net/publication/239525861_Datasets_package)
+4. [Clustering basic benchmark](http://cs.uef.fi/sipu/datasets)
 
 ### License
 
