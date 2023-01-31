@@ -11,7 +11,7 @@ Pioneered by Stephen Grossberg and Gail Carpenter, the field has had contributio
 
 Because of the high degree of interplay between the neurocognitive theory and the engineering models born of it, the term ART is frequently used to refer to both in the modern day (for better or for worse).
 
-Stephen Grossberg's has recently released a book summarizing the work of him, his wife Gail Carpenter, and his colleagues on Adaptive Resonance Theory in his book [Conscious Brain, Resonant Mind](https://www.amazon.com/Conscious-Mind-Resonant-Brain-Makes/dp/0190070552).
+Stephen Grossberg's has recently released a book summarizing the work of him, his wife and colleague Gail Carpenter, and his other colleagues on Adaptive Resonance Theory in his book [Conscious Brain, Resonant Mind](https://www.amazon.com/Conscious-Mind-Resonant-Brain-Makes/dp/0190070552).
 
 ## ART Basics
 
@@ -43,7 +43,7 @@ In addition to the dynamics typical of an ART model, you must know:
     ART modules are used for reinforcement learning by representing the mappings between state, value, and action spaces with ART dynamics.
 3. Almost all ART models face the problem of the appropriate selection of the vigilance parameter, which may depend in its optimality according to the problem.
 4. Being a class of neurogenitive neural network models, ART models gain the ability for theoretically infinite capacity along with the problem of "category proliferation," which is the undesirable increase in the number of categories as the model continues to learn, leading to increasing computational time.
-    In contrast, while the evaluation time of a deep neural network is always *exactly the same*, there exist upper bounds in their representational capacity.
+    In contrast, while the evaluation time of a fixed architecture deep neural network is always *exactly the same*, there exist upper bounds in their representational capacity.
 5. Nearly every ART model requires feature normalization (i.e., feature elements lying within $$[0,1]$$) and a process known as complement coding where the feature vector is appended to its vector complement $$[1-\bar{x}]$$.
    This is because real-numbered vectors can be arbitrarily close to one another, hindering learning performance, which requires a degree of contrast enhancement between samples to ensure their separation.
 
@@ -59,7 +59,7 @@ By representing categories as a field of instar networks, new categories could b
 However, it was shown that the learning stability of Grossberg Networks degrades as the number of represented categories increases.
 Discoveries in the neurocognitive theory and breakthroughs in their implementation led to the introduction of a recurrent connections between the two fields of the network to stabilize the learning.
 These breakthroughs were based upon the discovery that autonomous learning depends on the interplay and agreement between *perception* and *expectation*, frequently referred to as bottom-up and top-down processes.
-Furthermore, it is *resonance* between these states in the frequency domain that gives rise to conscious experiences and that permit adaptive weights to change, leading to the phenomenon of learning.
+Furthermore, it is *resonance* between these states in the frequency domain that gives rise to conscious experiences and that permit adaptive weights to change, leading to the phenomea of attention and learning.
 The theory has many explanatory consequences in psychology, such as why attention is required for learning, but its consequences in the engineering models are that it stabilizes learning in cooperative-competitive dynamics, such as interconnected fields of neurons, which are most often chaotic.
 
 Chapters 18 and 19 of the book by [Neural Network Design by Hagan, Demuth, Beale, and De Jesus](https://hagan.okstate.edu/NNDesign.pdf) provide a good theoretical basis for learning how these network models were eventually implemented into the first binary-vector implementation of ART1.
