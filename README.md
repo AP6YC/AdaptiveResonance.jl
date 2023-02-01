@@ -1,4 +1,4 @@
-[![adaptiveresonance-header](docs/src/assets/header.png)][docs-dev-url]
+[![adaptiveresonance-header](https://github.com/AP6YC/FileStorage/blob/main/AdaptiveResonance/header.png?raw=true)][docs-dev-url]
 
 A Julia package for Adaptive Resonance Theory (ART) algorithms.
 
