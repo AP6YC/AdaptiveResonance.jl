@@ -52,7 +52,7 @@ end
 # -----------------------------------------------------------------------------
 
 # Point to the raw FileStorage location on GitHub
-top_url = raw"https://github.com/AP6YC/FileStorage/raw/main/AdaptiveResonance/"
+top_url = raw"https://media.githubusercontent.com/media/AP6YC/FileStorage/main/AdaptiveResonance/"
 # List all of the files that we need to use in the docs
 files = [
     "header.png",
@@ -60,10 +60,19 @@ files = [
     "artmap.png",
     "ddvfa.png",
 ]
-
+# Make a destination for the files
+download_folder = joinpath("src", "assets", "downloads")
+mkpath(download_folder)
+download_list = []
+# Download the files one at a time
 for file in files
+    # Point to the correct file that we wish to download
     src_file = top_url * file * "?raw=true"
-    dest_file = joinpath("downloads", file)
+    # Point to the correct local destination file to download to
+    dest_file = joinpath(download_folder, file)
+    # Add the file to the list that we will append to assets
+    push!(download_list, dest_file)
+    # If the file isn't already here, download it
     if !isfile(dest_file)
         download(src_file, dest_file)
     end
@@ -78,7 +87,7 @@ end
 demopage, postprocess_cb, demo_assets = makedemos("examples")
 
 assets = [
-    joinpath("assets", "favicon.ico")
+    joinpath("assets", "favicon.ico"),
 ]
 
 # if there are generated css assets, pass it to Documenter.HTML
