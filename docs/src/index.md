@@ -4,7 +4,7 @@ DocTestSetup = quote
 end
 ```
 
-![header](https://github.com/AP6YC/FileStorage/blob/main/AdaptiveResonance/header.png?raw=true)
+![header](https://media.githubusercontent.com/media/AP6YC/FileStorage/main/AdaptiveResonance/header.png?raw=true)
 
 ---
 
