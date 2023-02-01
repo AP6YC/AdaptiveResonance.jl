@@ -48,6 +48,28 @@ if haskey(ENV, "DOCSARGS")
 end
 
 # -----------------------------------------------------------------------------
+# DOWNLOAD LARGE ASSETS
+# -----------------------------------------------------------------------------
+
+# Point to the raw FileStorage location on GitHub
+top_url = raw"https://github.com/AP6YC/FileStorage/raw/main/AdaptiveResonance/"
+# List all of the files that we need to use in the docs
+files = [
+    "header.png",
+    "art.png",
+    "artmap.png",
+    "ddvfa.png",
+]
+
+for file in files
+    src_file = top_url * file * "?raw=true"
+    dest_file = joinpath("downloads", file)
+    if !isfile(dest_file)
+        download(src_file, dest_file)
+    end
+end
+
+# -----------------------------------------------------------------------------
 # GENERATE
 # -----------------------------------------------------------------------------
 

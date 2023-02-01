@@ -8,6 +8,10 @@ _dev/
 docs/src/democards/
 docs/src/examples/
 
+# Downloads folder for files grabbed during docs generation
+docs/downloads/*
+!docs/downloads/.gitkeep
+
 # Julia package development ignores
 *.jl.*.cov
 *.jl.cov

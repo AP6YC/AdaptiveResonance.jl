@@ -1,7 +1,7 @@
 # ---
 # title: ART DataConfig Example
 # id: data_config
-# cover: https://github.com/AP6YC/FileStorage/blob/main/AdaptiveResonance/diagrams/art.png?raw=true
+# cover: ../../../downloads/art.png
 # date: 2021-12-2
 # author: "[Sasha Petrenko](https://github.com/AP6YC)"
 # julia: 1.8
