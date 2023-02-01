@@ -8,6 +8,9 @@ _dev/
 docs/src/democards/
 docs/src/examples/
 
+# Downloads folder for files grabbed during docs generation
+docs/src/assets/downloads/
+
 # Julia package development ignores
 *.jl.*.cov
 *.jl.cov

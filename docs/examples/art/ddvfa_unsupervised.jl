@@ -1,7 +1,7 @@
 # ---
 # title: Unsupervised DDVFA Example
 # id: ddvfa_unsupervised
-# cover: ../assets/ddvfa.png
+# cover: ../../assets/downloads/ddvfa.png
 # date: 2021-11-30
 # author: "[Sasha Petrenko](https://github.com/AP6YC)"
 # julia: 1.8
