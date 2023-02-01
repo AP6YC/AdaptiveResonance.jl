@@ -15,7 +15,7 @@ Stephen Grossberg's has recently released a book summarizing the work of him, hi
 
 ## ART Basics
 
-![art](../assets/figures/art.png)
+![art](https://github.com/AP6YC/FileStorage/blob/main/AdaptiveResonance/diagrams/art.png?raw=true)
 
 ### ART Dynamics
 
