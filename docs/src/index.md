@@ -4,7 +4,7 @@ DocTestSetup = quote
 end
 ```
 
-![header](../assets/downloads/header.png)
+![header](assets/downloads/header.png)
 
 ---
 
