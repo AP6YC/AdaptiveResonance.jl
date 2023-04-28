@@ -76,6 +76,7 @@ for file in files
     if !isfile(dest_file)
         download(src_file, dest_file)
     end
+    @info "Downloaded $dest_file"
 end
 
 # -----------------------------------------------------------------------------
@@ -89,6 +90,16 @@ demopage, postprocess_cb, demo_assets = makedemos("examples")
 assets = [
     joinpath("assets", "favicon.ico"),
 ]
+
+# @info "Favicon?"
+# @info isfile(joinpath("assets", "favicon.ico"))
+
+# # Add the downloaded files to the assets list
+# for file in files
+#     local_file = joinpath("assets", "downloads", file)
+#     @info isfile(local_file)
+#     push!(assets, local_file)
+# end
 
 # if there are generated css assets, pass it to Documenter.HTML
 isnothing(demo_assets) || (push!(assets, demo_assets))
