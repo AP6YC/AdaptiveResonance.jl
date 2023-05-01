@@ -76,7 +76,7 @@ for file in files
     if !isfile(dest_file)
         download(src_file, dest_file)
     end
-    @info "Downloaded $dest_file"
+    @info "Downloaded $dest_file, isfile: $(isfile(dest_file))"
 end
 
 # -----------------------------------------------------------------------------
