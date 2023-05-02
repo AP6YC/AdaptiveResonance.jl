@@ -1,6 +1,7 @@
 """
     make.jl
 
+# Description
 This file builds the documentation for the AdaptiveResonance.jl package
 using Documenter.jl and other tools.
 """
@@ -12,6 +13,7 @@ using Documenter.jl and other tools.
 using
     Documenter,
     DemoCards,
+    Logging,
     Pkg
 
 # -----------------------------------------------------------------------------
@@ -75,8 +77,22 @@ for file in files
     # If the file isn't already here, download it
     if !isfile(dest_file)
         download(src_file, dest_file)
+        @info "Downloaded $dest_file, isfile: $(isfile(dest_file))"
+    else
+        @info "File already exists: $dest_file"
     end
-    @info "Downloaded $dest_file, isfile: $(isfile(dest_file))"
+end
+
+# Debugging
+detailed_logger = Logging.ConsoleLogger(stdout, Info, show_limited=false)
+with_logger(detailed_logger) do
+    @info "Current working directory is $(pwd())"
+    @info "Assets folder is:" readdir(joinpath(pwd(), "src", "assets"), join=true)
+    full_download_folder = joinpath(pwd(), "src", "assets", "downloads")
+    @info "Downloads folder exists: $(isdir(full_download_folder))"
+    if isdir(download_folder)
+        @info "Downloads folder contains:" readdir(full_download_folder, join=true)
+    end
 end
 
 # -----------------------------------------------------------------------------
