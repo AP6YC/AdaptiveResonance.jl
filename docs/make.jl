@@ -68,8 +68,8 @@ files = [
     "ddvfa.png",
 ]
 
-# Make a destination for the files
-if basename(pwd()) == PROJECT_NAME
+# Make a destination for the files, accounting for when folder is AdaptiveResonance.jl
+if basename(pwd()) == PROJECT_NAME || basename(pwd()) == PROJECT_NAME * ".jl"
     download_folder = joinpath(DOCS_NAME, "src", "assets", "downloads")
 else
     download_folder = joinpath("src", "assets", "downloads")
