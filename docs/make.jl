@@ -20,6 +20,10 @@ using
 # SETUP
 # -----------------------------------------------------------------------------
 
+# Common variables of the script
+PROJECT_NAME = "AdaptiveResonance"
+DOCS_NAME = "docs"
+
 # Fix GR headless errors
 ENV["GKSwstype"] = "100"
 
@@ -29,10 +33,10 @@ current_dir = basename(pwd())
 
 # If using the CI method `julia --project=docs/ docs/make.jl`
 #   or `julia --startup-file=no --project=docs/ docs/make.jl`
-if occursin("AdaptiveResonance", current_dir)
+if occursin(PROJECT_NAME, current_dir)
     push!(LOAD_PATH, "../src/")
 # Otherwise, we are already in the docs project and need to dev the above package
-elseif occursin("docs", current_dir)
+elseif occursin(DOCS_NAME, current_dir)
     Pkg.develop(path="..")
 # Otherwise, building docs from the wrong path
 else
@@ -55,6 +59,7 @@ end
 
 # Point to the raw FileStorage location on GitHub
 top_url = raw"https://media.githubusercontent.com/media/AP6YC/FileStorage/main/AdaptiveResonance/"
+
 # List all of the files that we need to use in the docs
 files = [
     "header.png",
@@ -62,10 +67,16 @@ files = [
     "artmap.png",
     "ddvfa.png",
 ]
+
 # Make a destination for the files
-download_folder = joinpath("src", "assets", "downloads")
+if basename(pwd()) == PROJECT_NAME
+    download_folder = joinpath(DOCS_NAME, "src", "assets", "downloads")
+else
+    download_folder = joinpath("src", "assets", "downloads")
+end
 mkpath(download_folder)
 download_list = []
+
 # Download the files one at a time
 for file in files
     # Point to the correct file that we wish to download
@@ -83,7 +94,7 @@ for file in files
     end
 end
 
-# Debugging
+# Downloads debugging
 detailed_logger = Logging.ConsoleLogger(stdout, Info, show_limited=false)
 with_logger(detailed_logger) do
     @info "Current working directory is $(pwd())"
