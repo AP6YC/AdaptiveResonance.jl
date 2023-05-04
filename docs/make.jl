@@ -69,11 +69,12 @@ files = [
 ]
 
 # Make a destination for the files, accounting for when folder is AdaptiveResonance.jl
+assets_folder = joinpath("src", "assets")
 if basename(pwd()) == PROJECT_NAME || basename(pwd()) == PROJECT_NAME * ".jl"
-    download_folder = joinpath(DOCS_NAME, "src", "assets", "downloads")
-else
-    download_folder = joinpath("src", "assets", "downloads")
+    assets_folder = joinpath(DOCS_NAME, assets_folder)
 end
+
+download_folder = joinpath(assets_folder, "downloads")
 mkpath(download_folder)
 download_list = []
 
@@ -98,11 +99,11 @@ end
 detailed_logger = Logging.ConsoleLogger(stdout, Info, show_limited=false)
 with_logger(detailed_logger) do
     @info "Current working directory is $(pwd())"
-    @info "Assets folder is:" readdir(joinpath(pwd(), "src", "assets"), join=true)
-    full_download_folder = joinpath(pwd(), "src", "assets", "downloads")
-    @info "Downloads folder exists: $(isdir(full_download_folder))"
+    @info "Assets folder is:" readdir(assets_folder, join=true)
+    # full_download_folder = joinpath(pwd(), "src", "assets", "downloads")
+    @info "Downloads folder exists: $(isdir(download_folder))"
     if isdir(download_folder)
-        @info "Downloads folder contains:" readdir(full_download_folder, join=true)
+        @info "Downloads folder contains:" readdir(download_folder, join=true)
     end
 end
 
