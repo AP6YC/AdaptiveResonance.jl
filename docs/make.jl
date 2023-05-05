@@ -1,6 +1,7 @@
 """
     make.jl
 
+# Description
 This file builds the documentation for the AdaptiveResonance.jl package
 using Documenter.jl and other tools.
 """
@@ -12,11 +13,16 @@ using Documenter.jl and other tools.
 using
     Documenter,
     DemoCards,
+    Logging,
     Pkg
 
 # -----------------------------------------------------------------------------
 # SETUP
 # -----------------------------------------------------------------------------
+
+# Common variables of the script
+PROJECT_NAME = "AdaptiveResonance"
+DOCS_NAME = "docs"
 
 # Fix GR headless errors
 ENV["GKSwstype"] = "100"
@@ -27,10 +33,10 @@ current_dir = basename(pwd())
 
 # If using the CI method `julia --project=docs/ docs/make.jl`
 #   or `julia --startup-file=no --project=docs/ docs/make.jl`
-if occursin("AdaptiveResonance", current_dir)
+if occursin(PROJECT_NAME, current_dir)
     push!(LOAD_PATH, "../src/")
 # Otherwise, we are already in the docs project and need to dev the above package
-elseif occursin("docs", current_dir)
+elseif occursin(DOCS_NAME, current_dir)
     Pkg.develop(path="..")
 # Otherwise, building docs from the wrong path
 else
@@ -53,6 +59,7 @@ end
 
 # Point to the raw FileStorage location on GitHub
 top_url = raw"https://media.githubusercontent.com/media/AP6YC/FileStorage/main/AdaptiveResonance/"
+
 # List all of the files that we need to use in the docs
 files = [
     "header.png",
@@ -60,10 +67,17 @@ files = [
     "artmap.png",
     "ddvfa.png",
 ]
-# Make a destination for the files
-download_folder = joinpath("src", "assets", "downloads")
+
+# Make a destination for the files, accounting for when folder is AdaptiveResonance.jl
+assets_folder = joinpath("src", "assets")
+if basename(pwd()) == PROJECT_NAME || basename(pwd()) == PROJECT_NAME * ".jl"
+    assets_folder = joinpath(DOCS_NAME, assets_folder)
+end
+
+download_folder = joinpath(assets_folder, "downloads")
 mkpath(download_folder)
 download_list = []
+
 # Download the files one at a time
 for file in files
     # Point to the correct file that we wish to download
@@ -75,6 +89,21 @@ for file in files
     # If the file isn't already here, download it
     if !isfile(dest_file)
         download(src_file, dest_file)
+        @info "Downloaded $dest_file, isfile: $(isfile(dest_file))"
+    else
+        @info "File already exists: $dest_file"
+    end
+end
+
+# Downloads debugging
+detailed_logger = Logging.ConsoleLogger(stdout, Info, show_limited=false)
+with_logger(detailed_logger) do
+    @info "Current working directory is $(pwd())"
+    @info "Assets folder is:" readdir(assets_folder, join=true)
+    # full_download_folder = joinpath(pwd(), "src", "assets", "downloads")
+    @info "Downloads folder exists: $(isdir(download_folder))"
+    if isdir(download_folder)
+        @info "Downloads folder contains:" readdir(download_folder, join=true)
     end
 end
 
@@ -89,6 +118,16 @@ demopage, postprocess_cb, demo_assets = makedemos("examples")
 assets = [
     joinpath("assets", "favicon.ico"),
 ]
+
+# @info "Favicon?"
+# @info isfile(joinpath("assets", "favicon.ico"))
+
+# # Add the downloaded files to the assets list
+# for file in files
+#     local_file = joinpath("assets", "downloads", file)
+#     @info isfile(local_file)
+#     push!(assets, local_file)
+# end
 
 # if there are generated css assets, pass it to Documenter.HTML
 isnothing(demo_assets) || (push!(assets, demo_assets))
