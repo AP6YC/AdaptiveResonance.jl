@@ -231,17 +231,18 @@ function DDVFA(opts::opts_DDVFA)
     )
 
     # Construct the DDVFA module
-    DDVFA(opts,                         # opts
-          subopts,                      # subopts
-          DataConfig(),                 # config
-          0.0,                          # threshold
-          Vector{FuzzyART}(undef, 0),   # F2
-          ARTVector{Int}(undef, 0),     # labels
-          0,                            # n_categories
-          0,                            # epoch
-          ARTVector{Float}(undef, 0),   # T
-          ARTVector{Float}(undef, 0),   # M
-          build_art_stats(),            # stats
+    DDVFA(
+        opts,                           # opts
+        subopts,                        # subopts
+        DataConfig(),                   # config
+        0.0,                            # threshold
+        Vector{FuzzyART}(undef, 0),     # F2
+        ARTVector{Int}(undef, 0),       # labels
+        0,                              # n_categories
+        0,                              # epoch
+        ARTVector{Float}(undef, 0),     # T
+        ARTVector{Float}(undef, 0),     # M
+        build_art_stats(),              # stats
     )
 end
 
