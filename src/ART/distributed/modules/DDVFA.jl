@@ -325,7 +325,7 @@ function train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fal
         create_category!(art, sample, y_hat)
     end
 
-    # Log the
+    # Log the stats
     log_art_stats!(art, bmu, mismatch_flag)
 
     return y_hat
