@@ -13,7 +13,7 @@ Includes all of the structures and logic for running a Gamma-Normalized Fuzzy AR
 """
 
 # -----------------------------------------------------------------------------
-# OPTIONS
+# TYPES
 # -----------------------------------------------------------------------------
 
 """
@@ -87,10 +87,6 @@ $(OPTS_DOCSTRING)
     """
     update::Symbol = :basic_update
 end
-
-# -----------------------------------------------------------------------------
-# STRUCTS
-# -----------------------------------------------------------------------------
 
 """
 Gamma-Normalized Fuzzy ART learner struct
@@ -255,7 +251,7 @@ function FuzzyART(opts::opts_FuzzyART, sample::RealVector ; preprocessed::Bool=f
 end
 
 # -----------------------------------------------------------------------------
-# ALGORITHMIC METHODS
+# FUNCTIONS
 # -----------------------------------------------------------------------------
 
 # COMMON DOC: Set threshold function

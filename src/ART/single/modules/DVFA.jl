@@ -13,6 +13,10 @@ Includes all of the structures and logic for running a Dual-Vigilance Fuzzy ART 
 2. G. Carpenter, S. Grossberg, and D. Rosen, 'Fuzzy ART: Fast stable learning and categorization of analog patterns by an adaptive resonance system,' Neural Networks, vol. 4, no. 6, pp. 759-771, 1991.
 """
 
+# -----------------------------------------------------------------------------
+# TYPES
+# -----------------------------------------------------------------------------
+
 """
 Dual Vigilance Fuzzy ART options struct.
 

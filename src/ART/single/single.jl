@@ -6,7 +6,7 @@ Aggregates the common code and all the modules of single (i.e. not distributed) 
 """
 
 # -----------------------------------------------------------------------------
-# DEPENDENCIES
+# INCLUDES
 # -----------------------------------------------------------------------------
 
 # Single ART module common code
