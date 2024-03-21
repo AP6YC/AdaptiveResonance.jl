@@ -86,7 +86,7 @@ Its usage follows the usual [Julia package installation procedure](https://docs.
 
 ```julia-repl
 julia> ]
-(@v1.8) pkg> add AdaptiveResonance
+(@v.10) pkg> add AdaptiveResonance
 ```
 
 or programmatically:
@@ -100,7 +100,7 @@ You may also add the package directly from GitHub to get the latest changes betw
 
 ```julia-repl
 julia> ]
-(@v1.8) pkg> add https://github.com/AP6YC/AdaptiveResonance.jl
+(@v.10) pkg> add https://github.com/AP6YC/AdaptiveResonance.jl
 ```
 
 ### Quickstart
@@ -254,6 +254,7 @@ distribute reprints for Government purposes notwithstanding any copyright notati
 - 10/11/2022 - v0.6.0
 - 12/15/2022 - v0.7.0
 - 1/30/2023 - v0.8.0
+- 3/21/2024 - v0.8.3
 
 ### Software
 
