@@ -1,3 +1,9 @@
+"""
+    subroutines.jl
+
+# Description
+Common low-level functions, such as for operating on matrices and vectors.
+"""
 
 # -----------------------------------------------------------------------------
 # COMMON LOW-LEVEL FUNCTIONS

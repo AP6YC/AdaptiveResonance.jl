@@ -233,6 +233,7 @@ Creates a new category for the DVFA modules.
 function create_category!(art::DVFA, x::RealVector, y::Integer ; new_cluster::Bool=true)
     # Increment the number of categories
     art.n_categories += 1
+
     # If we are creating a new cluster altogether, increment that
     new_cluster && (art.n_clusters += 1)
 
