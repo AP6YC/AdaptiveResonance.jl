@@ -1,25 +1,28 @@
 """
     ART.jl
 
-Description:
-    Includes all of the unsupervised ART modules definitions.
+# Description
+Includes all of the unsupervised ART modules definitions.
 """
 
 # -----------------------------------------------------------------------------
-# DEPENDENCIES
+# INCLUDES
 # -----------------------------------------------------------------------------
 
 # Common code for all ART modules
 include("common.jl")
+
 # Single (not distributed) ART modules
 include("single/single.jl")
+
 # Distributed ART modules
 include("distributed/distributed.jl")
+
 # Convenience constructors of variants of ART modules
 include("variants.jl")
 
 # -----------------------------------------------------------------------------
-# CONSTANTS
+# AGGREGATIONS
 # -----------------------------------------------------------------------------
 
 """

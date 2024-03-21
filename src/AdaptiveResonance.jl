@@ -100,9 +100,11 @@ using
 
 # Specific identifiers
 using LinearAlgebra: norm   # Trace and norms
+
 # Medians and mean for linkage methods
 using Statistics: median as statistics_median
 using Statistics: mean as statistics_mean
+
 # Precompile concrete type methods
 using PrecompileSignatures: @precompile_signatures
 
@@ -112,10 +114,17 @@ using PrecompileSignatures: @precompile_signatures
 
 # Include all files
 # include("common.jl")        # Objects shared by all modules
-include("lib/lib.jl")       # Common objects and functions shared by all modules
-include("version.jl")       # Exported constant for the version of the package
-include("ARTMAP/ARTMAP.jl") # Supervised ART modules
-include("ART/ART.jl")       # Unsupervised ART modules
+# Common objects and functions shared by all modules
+include("lib/lib.jl")
+
+# Exported constant for the version of the package
+include("version.jl")
+
+# Supervised ART modules
+include("ARTMAP/ARTMAP.jl")
+
+# Unsupervised ART modules
+include("ART/ART.jl")
 
 # -----------------------------------------------------------------------------
 # DERIVATIVE TYPES AND CONSTANTS

@@ -1,15 +1,19 @@
 """
     FuzzyART.jl
 
-Description:
-    Includes all of the structures and logic for running a Gamma-Normalized Fuzzy ART module.
+# Description
+Includes all of the structures and logic for running a Gamma-Normalized Fuzzy ART module.
 
-References:
-[1] G. Carpenter, S. Grossberg, and D. Rosen, 'Fuzzy ART: Fast stable learning and categorization of analog patterns by an adaptive resonance system,' Neural Networks, vol. 4, no. 6, pp. 759-771, 1991.
+# Authors
+- MATLAB implementation: Leonardo Enzo Brito da Silva
+- Julia port: Sasha Petrenko <sap625@mst.edu>
+
+# References
+1. G. Carpenter, S. Grossberg, and D. Rosen, 'Fuzzy ART: Fast stable learning and categorization of analog patterns by an adaptive resonance system,' Neural Networks, vol. 4, no. 6, pp. 759-771, 1991.
 """
 
 # -----------------------------------------------------------------------------
-# OPTIONS
+# TYPES
 # -----------------------------------------------------------------------------
 
 """
@@ -83,10 +87,6 @@ $(OPTS_DOCSTRING)
     """
     update::Symbol = :basic_update
 end
-
-# -----------------------------------------------------------------------------
-# STRUCTS
-# -----------------------------------------------------------------------------
 
 """
 Gamma-Normalized Fuzzy ART learner struct
@@ -251,7 +251,7 @@ function FuzzyART(opts::opts_FuzzyART, sample::RealVector ; preprocessed::Bool=f
 end
 
 # -----------------------------------------------------------------------------
-# ALGORITHMIC METHODS
+# FUNCTIONS
 # -----------------------------------------------------------------------------
 
 # COMMON DOC: Set threshold function

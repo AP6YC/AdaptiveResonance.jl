@@ -11,7 +11,7 @@ Includes convenience constructors for common variants of various ART modules.
 
 # Shared variant statement for GNFA
 variant_statement = """
-GammaNormalizedFuzzyART is a variant of FuzzyART, using the [`AdaptiveResonance.opts_FuzzyART`](@ref) options.
+GammaNormalizedFuzzyART is a variant of [`FuzzyART`](@ref), using the [`AdaptiveResonance.opts_FuzzyART`](@ref) options.
 This constructor passes `gamma_normalization=true`, which internally uses `match=:gamma_match` and `activation=:gamma_activation` in addition to the keyword argument options you provide.
 """
 
