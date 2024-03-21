@@ -42,4 +42,3 @@ perf_test_bmu = performance(y_hat_bmu, y_test)
 @printf "Best-matching unit testing performance: %.4f\n" perf_test_bmu
 
 # This file was generated using Literate.jl, https://github.com/fredrikekre/Literate.jl
-

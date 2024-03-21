@@ -94,4 +94,3 @@ scatter(
 png("assets/incremental-batch-cover") #hide
 
 # This file was generated using Literate.jl, https://github.com/fredrikekre/Literate.jl
-

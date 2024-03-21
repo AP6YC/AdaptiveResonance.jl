@@ -31,4 +31,3 @@ maxs = [3, 2, 1]
 art.config = DataConfig(mins, maxs)
 
 # This file was generated using Literate.jl, https://github.com/fredrikekre/Literate.jl
-
