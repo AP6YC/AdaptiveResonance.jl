@@ -10,7 +10,7 @@ Includes convenience constructors for common variants of various ARTMAP modules.
 # -----------------------------------------------------------------------------
 
 # Shared variant statement for Default ARTMAP
-variant_statement = """
+const variant_statement = """
 Default ARTMAP is a variant of SFAM, using the [`AdaptiveResonance.opts_SFAM`](@ref) options.
 This constructor sets the activation to `:choice_by_difference` in addition to the keyword argument options you provide.
 """

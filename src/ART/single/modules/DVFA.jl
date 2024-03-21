@@ -1,14 +1,14 @@
 """
     DVFA.jl
 
-Description:
-    Includes all of the structures and logic for running a Dual-Vigilance Fuzzy ART (DVFA) module.
+# Description
+Includes all of the structures and logic for running a Dual-Vigilance Fuzzy ART (DVFA) module.
 
-Authors:
-    MATLAB implementation: Leonardo Enzo Brito da Silva
-    Julia port: Sasha Petrenko <sap625@mst.edu>
+# Authors
+- MATLAB implementation: Leonardo Enzo Brito da Silva
+- Julia port: Sasha Petrenko <sap625@mst.edu>
 
-References:
+# References
 1. L. E. Brito da Silva, I. Elnabarawy and D. C. Wunsch II, 'Dual Vigilance Fuzzy ART,' Neural Networks Letters. To appear.
 2. G. Carpenter, S. Grossberg, and D. Rosen, 'Fuzzy ART: Fast stable learning and categorization of analog patterns by an adaptive resonance system,' Neural Networks, vol. 4, no. 6, pp. 759-771, 1991.
 """

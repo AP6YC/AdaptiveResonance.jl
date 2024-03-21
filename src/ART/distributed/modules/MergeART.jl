@@ -166,4 +166,3 @@ mutable struct MergeART <: ART
     """
     stats::ARTStats
 end
-

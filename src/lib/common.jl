@@ -9,6 +9,9 @@ Common algorithmic types and functions used throughout the package.
 # TYPE ALIASES
 # -----------------------------------------------------------------------------
 
+"""
+Definition of the ART module statistics dictionary, used to generate and store various logs during training and testing.
+"""
 const ARTStats = Dict{String, Any}
 
 # -----------------------------------------------------------------------------
