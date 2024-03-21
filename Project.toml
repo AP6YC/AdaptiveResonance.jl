@@ -25,6 +25,7 @@ NumericalTypeAliases = "0.1, 0.2"
 Parameters = "0.12"
 PrecompileSignatures = "3"
 ProgressBars = "0.7, 0.8, 1"
+Statistics = "1"
 julia = "1"
 
 [extras]
