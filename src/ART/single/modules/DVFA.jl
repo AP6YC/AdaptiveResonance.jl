@@ -20,7 +20,7 @@ Includes all of the structures and logic for running a Dual-Vigilance Fuzzy ART 
 """
 Dual Vigilance Fuzzy ART options struct.
 
-$(OPTS_DOCSTRING)
+$(_OPTS_DOCSTRING)
 """
 @with_kw mutable struct opts_DVFA <: ARTOpts @deftype Float
     """
