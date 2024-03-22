@@ -40,7 +40,7 @@ julia --project=.
     ```julia-repl
     julia
     julia> ]
-    (@v1.8) pkg> activate .
+    (@v.10) pkg> activate .
     (AdaptiveResonance) pkg>
     ```
 
