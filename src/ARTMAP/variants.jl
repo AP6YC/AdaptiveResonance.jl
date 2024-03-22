@@ -10,7 +10,7 @@ Includes convenience constructors for common variants of various ARTMAP modules.
 # -----------------------------------------------------------------------------
 
 # Shared variant statement for Default ARTMAP
-const _DAM_variant_statement = """
+const _VARIANT_STATEMENT_DAM = """
 Default ARTMAP is a variant of SFAM, using the [`AdaptiveResonance.opts_SFAM`](@ref) options.
 This constructor sets the activation to `:choice_by_difference` in addition to the keyword argument options you provide.
 """
@@ -18,7 +18,7 @@ This constructor sets the activation to `:choice_by_difference` in addition to t
 """
 Constructs a Default ARTMAP module using a SFAM module using Default ARTMAP's choice-by-difference activation function.
 
-$(_DAM_variant_statement)
+$(_VARIANT_STATEMENT_DAM)
 
 # Arguments
 - `kwargs`: keyword arguments of Simplified FuzzyARTMAP options (see [`AdaptiveResonance.opts_SFAM`](@ref))
@@ -33,7 +33,7 @@ end
 """
 Implements a Default ARTMAP module with specified options.
 
-$(_DAM_variant_statement)
+$(_VARIANT_STATEMENT_DAM)
 
 # Arguments
 - `opts::opts_SFAM`: the Simplified FuzzyARTMAP options (see [`AdaptiveResonance.opts_SFAM`](@ref)).
@@ -45,7 +45,7 @@ end
 """
 Implements a Default ARTMAP module's options.
 
-$(_DAM_variant_statement)
+$(_VARIANT_STATEMENT_DAM)
 
 $(_OPTS_DOCSTRING)
 """
