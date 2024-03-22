@@ -1,3 +1,13 @@
+"""
+    symbols.jl
+
+# Description
+Symbols for macro evaluation of activation, match, and learning functions.
+"""
+
+# -----------------------------------------------------------------------------
+# FUNCTIONS
+# -----------------------------------------------------------------------------
 
 """
 Low-level common function for computing the 1-norm of the element minimum of a sample and weights.
@@ -151,6 +161,10 @@ $(INDEX_ARG_DOCSTRING)
 function art_learn(art::ARTModule, x::RealVector, index::Integer)
     return eval(art.opts.update)(art, x, get_sample(art.W, index))
 end
+
+# -----------------------------------------------------------------------------
+# ENUMERATIONS
+# -----------------------------------------------------------------------------
 
 """
 Enumerates all of the update functions available in the package.

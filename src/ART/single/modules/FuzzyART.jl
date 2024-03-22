@@ -1,15 +1,19 @@
 """
     FuzzyART.jl
 
-Description:
-    Includes all of the structures and logic for running a Gamma-Normalized Fuzzy ART module.
+# Description
+Includes all of the structures and logic for running a Gamma-Normalized Fuzzy ART module.
 
-References:
-[1] G. Carpenter, S. Grossberg, and D. Rosen, 'Fuzzy ART: Fast stable learning and categorization of analog patterns by an adaptive resonance system,' Neural Networks, vol. 4, no. 6, pp. 759-771, 1991.
+# Authors
+- MATLAB implementation: Leonardo Enzo Brito da Silva
+- Julia port: Sasha Petrenko <sap625@mst.edu>
+
+# References
+1. G. Carpenter, S. Grossberg, and D. Rosen, 'Fuzzy ART: Fast stable learning and categorization of analog patterns by an adaptive resonance system,' Neural Networks, vol. 4, no. 6, pp. 759-771, 1991.
 """
 
 # -----------------------------------------------------------------------------
-# OPTIONS
+# TYPES
 # -----------------------------------------------------------------------------
 
 """
@@ -83,10 +87,6 @@ $(OPTS_DOCSTRING)
     """
     update::Symbol = :basic_update
 end
-
-# -----------------------------------------------------------------------------
-# STRUCTS
-# -----------------------------------------------------------------------------
 
 """
 Gamma-Normalized Fuzzy ART learner struct
@@ -182,8 +182,11 @@ FuzzyART
 ```
 """
 function FuzzyART(;kwargs...)
+    # Create the options from the keyword arguments
     opts = opts_FuzzyART(;kwargs...)
-    FuzzyART(opts)
+
+    # Instantiate and return a constructed module
+    return FuzzyART(opts)
 end
 
 """
@@ -208,7 +211,7 @@ function FuzzyART(opts::opts_FuzzyART)
     end
 
     # Construct an empty FuzzyART module
-    FuzzyART(
+    return FuzzyART(
         opts,                           # opts
         DataConfig(),                   # config
         0.0,                            # threshold
@@ -234,20 +237,29 @@ Principally used as a method for initialization within DDVFA.
 - `preprocessed::Bool=false`: flag for if the sample is already complement coded and normalized.
 """
 function FuzzyART(opts::opts_FuzzyART, sample::RealVector ; preprocessed::Bool=false)
+    # Instantiate the module from the options
     art = FuzzyART(opts)
+
+    # Set up the training dependencies
     init_train!(sample, art, preprocessed)
+
+    # Initialize the module on the first sample
     initialize!(art, sample)
+
+    # Return the constructed and initialized module
     return art
 end
 
 # -----------------------------------------------------------------------------
-# ALGORITHMIC METHODS
+# FUNCTIONS
 # -----------------------------------------------------------------------------
 
 # COMMON DOC: Set threshold function
 function set_threshold!(art::FuzzyART)
+    # Set the normalized threshold
     if art.opts.gamma_normalization
         art.threshold = art.opts.rho * (art.config.dim ^ art.opts.gamma_ref)
+    # Otherwise, vigilance parameter is the threshold
     else
         art.threshold = art.opts.rho
     end
@@ -257,6 +269,7 @@ end
 function create_category!(art::FuzzyART, x::RealVector, y::Integer)
     # Increment the number of categories
     art.n_categories += 1
+
     # Increment number of samples associated with new category
     push!(art.n_instance, 1)
 
@@ -301,8 +314,10 @@ function train!(art::FuzzyART, x::RealVector ; y::Integer=0, preprocessed::Bool=
 
     # Compute activation/match functions
     activation_match!(art, sample)
+
     # Sort activation function values in descending order
     index = sortperm(art.T, rev=true)
+
     # Initialize mismatch as true
     mismatch_flag = true
 
@@ -316,12 +331,16 @@ function train!(art::FuzzyART, x::RealVector ; y::Integer=0, preprocessed::Bool=
             if supervised && (art.labels[bmu] != y)
                 break
             end
+
             # Learn the sample
             learn!(art, sample, bmu)
+
             # Increment the instance counting
             art.n_instance[bmu] += 1
+
             # Save the output label for the sample
             y_hat = art.labels[bmu]
+
             # No mismatch
             mismatch_flag = false
             break
@@ -332,8 +351,10 @@ function train!(art::FuzzyART, x::RealVector ; y::Integer=0, preprocessed::Bool=
     if mismatch_flag
         # Keep the bmu as the top activation despite creating a new category
         bmu = index[1]
+
         # Get the correct label for the new category
         y_hat = supervised ? y : art.n_categories + 1
+
         # Create a new category
         create_category!(art, sample, y_hat)
     end
@@ -341,6 +362,7 @@ function train!(art::FuzzyART, x::RealVector ; y::Integer=0, preprocessed::Bool=
     # Update the stored match and activation values
     log_art_stats!(art, bmu, mismatch_flag)
 
+    # Return the training label
     return y_hat
 end
 
@@ -351,13 +373,19 @@ function classify(art::FuzzyART, x::RealVector ; preprocessed::Bool=false, get_b
 
     # Compute activation and match functions
     activation_match!(art, x)
+
     # Sort activation function values in descending order
     index = sortperm(art.T, rev=true)
+
     # Default is mismatch
     mismatch_flag = true
     y_hat = -1
+
+    # Iterate over all categories
     for jx in 1:art.n_categories
+        # Set the best matching unit
         bmu = index[jx]
+
         # Vigilance check - pass
         if art.M[bmu] >= art.threshold
             # Current winner
@@ -370,6 +398,7 @@ function classify(art::FuzzyART, x::RealVector ; preprocessed::Bool=false, get_b
     if mismatch_flag
         # Report either the best matching unit or the mismatch label -1
         bmu = index[1]
+
         # Report either the best matching unit or the mismatch label -1
         y_hat = get_bmu ? art.labels[bmu] : -1
     end

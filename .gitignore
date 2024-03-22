@@ -3,6 +3,7 @@
 
 # Project ignores
 _dev/
+refactor/
 
 # DemoCards intermediate compilation directories
 docs/src/democards/

@@ -2,7 +2,7 @@ name = "AdaptiveResonance"
 uuid = "3d72adc0-63d3-4141-bf9b-84450dd0395b"
 authors = ["Sasha Petrenko"]
 description = "A Julia package for Adaptive Resonance Theory (ART) algorithms."
-version = "0.8.2"
+version = "0.8.3"
 
 [deps]
 Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"
@@ -25,6 +25,7 @@ NumericalTypeAliases = "0.1, 0.2"
 Parameters = "0.12"
 PrecompileSignatures = "3"
 ProgressBars = "0.7, 0.8, 1"
+Statistics = "1"
 julia = "1"
 
 [extras]

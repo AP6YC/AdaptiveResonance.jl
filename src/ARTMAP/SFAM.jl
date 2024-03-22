@@ -9,7 +9,7 @@ Options, structures, and logic for the Simplified Fuzzy ARTMAP (SFAM) module.
 """
 
 # -----------------------------------------------------------------------------
-# OPTIONS
+# TYPES
 # -----------------------------------------------------------------------------
 
 """
@@ -72,10 +72,6 @@ $(OPTS_DOCSTRING)
     update::Symbol = :basic_update
 end
 
-# -----------------------------------------------------------------------------
-# STRUCTS
-# -----------------------------------------------------------------------------
-
 """
 Simple Fuzzy ARTMAP struct.
 
@@ -118,12 +114,12 @@ mutable struct SFAM <: ARTMAP
     """
     DDVFA activation values.
     """
-    T::ARTVector
+    T::ARTVector{Float}
 
     """
     DDVFA match values.
     """
-    M::ARTVector
+    M::ARTVector{Float}
 
     """
     Runtime statistics for the module, implemented as a dictionary containing entries at the end of each training iteration.

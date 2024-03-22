@@ -152,12 +152,12 @@ mutable struct DDVFA <: ART
     """
     DDVFA activation values.
     """
-    T::ARTVector
+    T::ARTVector{Float}
 
     """
     DDVFA match values.
     """
-    M::ARTVector
+    M::ARTVector{Float}
 
     """
     Runtime statistics for the module, implemented as a dictionary containing entries at the end of each training iteration.
@@ -231,17 +231,18 @@ function DDVFA(opts::opts_DDVFA)
     )
 
     # Construct the DDVFA module
-    DDVFA(opts,                         # opts
-          subopts,                      # subopts
-          DataConfig(),                 # config
-          0.0,                          # threshold
-          Vector{FuzzyART}(undef, 0),   # F2
-          ARTVector{Int}(undef, 0),     # labels
-          0,                            # n_categories
-          0,                            # epoch
-          ARTVector{Float}(undef, 0),   # T
-          ARTVector{Float}(undef, 0),   # M
-          build_art_stats(),            # stats
+    DDVFA(
+        opts,                           # opts
+        subopts,                        # subopts
+        DataConfig(),                   # config
+        0.0,                            # threshold
+        Vector{FuzzyART}(undef, 0),     # F2
+        ARTVector{Int}(undef, 0),       # labels
+        0,                              # n_categories
+        0,                              # epoch
+        ARTVector{Float}(undef, 0),     # T
+        ARTVector{Float}(undef, 0),     # M
+        build_art_stats(),              # stats
     )
 end
 
@@ -324,7 +325,7 @@ function train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fal
         create_category!(art, sample, y_hat)
     end
 
-    # Log the
+    # Log the stats
     log_art_stats!(art, bmu, mismatch_flag)
 
     return y_hat

@@ -1,15 +1,32 @@
 """
     ARTMAP.jl
 
-Description:
-    Includes all of the ARTMAP (i.e., explicitly supervised) ART modules definitions.
+# Description
+Includes all of the ARTMAP (i.e., explicitly supervised) ART modules definitions.
 """
 
-include("common.jl")    # train!
-include("FAM.jl")       # Fuzzy ARTMAP
-include("SFAM.jl")      # Simplified Fuzzy ARTMAP
-include("ARTSCENE.jl")  # ARTSCENE filters
-include("variants.jl")  # ARTMAP variants
+# -----------------------------------------------------------------------------
+# INCLUDES
+# -----------------------------------------------------------------------------
+
+# Common code for all ARTMAP modules, including common dispatches and docstrings
+include("common.jl")
+
+# FuzzyARTMAP
+include("FAM.jl")
+
+# Simplified Fuzzy ARTMAP
+include("SFAM.jl")
+
+# ARTSCENE filters
+include("ARTSCENE.jl")
+
+# ARTMAP variants
+include("variants.jl")
+
+# -----------------------------------------------------------------------------
+# AGGREGATIONS
+# -----------------------------------------------------------------------------
 
 """
 A list of supervised ARTMAP modules that are available in the `AdaptiveResonance.jl` package.

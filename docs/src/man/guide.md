@@ -18,7 +18,7 @@ From the Julia REPL, type `]` to enter the Pkg REPL mode and run
 
 ```julia-repl
 julia> ]
-(@v1.8) pkg> add AdaptiveResonance
+(@v.10) pkg> add AdaptiveResonance
 ```
 
 Alternatively, it can be added to your environment in a script with
@@ -32,7 +32,7 @@ If you wish to have the latest changes between releases, you can directly add th
 
 ```julia-repl
 julia> ]
-(@v1.8) pkg> add https://github.com/AP6YC/AdaptiveResonance.jl#develop
+(@v.10) pkg> add https://github.com/AP6YC/AdaptiveResonance.jl#develop
 ```
 
 ## [ART Modules](@id art_modules)

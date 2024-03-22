@@ -50,7 +50,7 @@ println("AdaptiveResonance v$(ADAPTIVERESONANCE_VERSION) docs built $(Dates.now(
 
 ## Citation
 
-If you make use of this project, please generate your citation with the [CITATION.cff](../../CITATION.cff) file of the repository.
+If you make use of this project, please generate your citation with the [CITATION.cff](https://github.com/AP6YC/AdaptiveResonance.jl/blob/master/CITATION.cff) file of the repository.
 Alternatively, you may use the following BibTeX entry for the JOSS paper associated with the repository:
 
 ```bibtex

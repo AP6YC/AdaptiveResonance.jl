@@ -11,5 +11,9 @@ Aggregates common code and all modules for distributed ART modules, such as DDVF
 
 # Common code for distributed ART modules
 include("common.jl")
+
 # Distributed Dual-Vigilance FuzzyART
 include("modules/DDVFA.jl")
+
+# MergeART
+include("modules/MergeART.jl")
