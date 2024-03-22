@@ -47,7 +47,7 @@ Implements a Default ARTMAP module's options.
 
 $(_DAM_variant_statement)
 
-$(OPTS_DOCSTRING)
+$(_OPTS_DOCSTRING)
 """
 function opts_DAM(;kwargs...)
     return opts_SFAM(;activation=:choice_by_difference, kwargs...)

@@ -45,7 +45,7 @@ Implements a Gamma-Normalized FuzzyART module's options.
 
 $(_GammaNormalizedFuzzyART_variant_statement)
 
-$(OPTS_DOCSTRING)
+$(_OPTS_DOCSTRING)
 """
 function opts_GammaNormalizedFuzzyART(;kwargs...)
     return opts_FuzzyART(;choice_by_difference=true, kwargs...)

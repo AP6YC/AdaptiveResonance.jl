@@ -16,7 +16,7 @@ Includes all of the structures and logic for running a MergeART module.
 """
 MergeART options struct.
 
-$(OPTS_DOCSTRING)
+$(_OPTS_DOCSTRING)
 """
 @with_kw mutable struct opts_MergeART <: ARTOpts @deftype Float
     """

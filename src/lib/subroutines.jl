@@ -14,7 +14,7 @@ Replaces a matrix element with a vector at the column index.
 
 This function dispatches to the low-level replacement strategy.
 
-$MATRIX_REPLACE_ARGS_DOCSTRING
+$_ARGS_MATRIX_REPLACE
 """
 function replace_mat_index!(mat::RealMatrix, vec::RealVector, index::Integer)
     unsafe_replace_mat_index!(mat, vec, index)
@@ -23,7 +23,7 @@ end
 """
 Low-level function for unsafely replacing a matrix column with a given vector.
 
-$MATRIX_REPLACE_ARGS_DOCSTRING
+$_ARGS_MATRIX_REPLACE
 """
 function unsafe_replace_mat_index!(mat::RealMatrix, vec::RealVector, index::Integer)
     @inbounds mat[:, index] = vec

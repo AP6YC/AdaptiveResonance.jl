@@ -15,7 +15,7 @@ Options, structures, and logic for the Simplified Fuzzy ARTMAP (SFAM) module.
 """
 Implements a Simple Fuzzy ARTMAP learner's options.
 
-$(OPTS_DOCSTRING)
+$(_OPTS_DOCSTRING)
 """
 @with_kw mutable struct opts_SFAM <: ARTOpts @deftype Float
     """

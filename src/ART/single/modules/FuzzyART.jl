@@ -19,7 +19,7 @@ Includes all of the structures and logic for running a Gamma-Normalized Fuzzy AR
 """
 Gamma-Normalized Fuzzy ART options struct.
 
-$(OPTS_DOCSTRING)
+$(_OPTS_DOCSTRING)
 """
 @with_kw mutable struct opts_FuzzyART <: ARTOpts @deftype Float
     """
