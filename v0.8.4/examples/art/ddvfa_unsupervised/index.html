@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Unsupervised DDVFA Example · AdaptiveResonance.jl</title><meta name="title" content="Unsupervised DDVFA Example · AdaptiveResonance.jl"/><meta property="og:title" content="Unsupervised DDVFA Example · AdaptiveResonance.jl"/><meta property="twitter:title" content="Unsupervised DDVFA Example · AdaptiveResonance.jl"/><meta name="description" content="Documentation for AdaptiveResonance.jl."/><meta property="og:description" content="Documentation for AdaptiveResonance.jl."/><meta property="twitter:description" content="Documentation for AdaptiveResonance.jl."/><script data-outdated-warner src="../../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../../assets/documenter.js"></script><script src="../../../search_index.js"></script><script src="../../../siteinfo.js"></script><script src="../../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../../assets/themeswap.js"></script><link href="../../../assets/favicon.ico" rel="icon" type="image/x-icon"/><link href="../../../democards/gridtheme.css" rel="stylesheet" type="text/css"/></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../../../"><img src="../../../assets/logo.png" alt="AdaptiveResonance.jl logo"/></a><div class="docs-package-name"><span class="docs-autofit"><a href="../../../">AdaptiveResonance.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../../">Home</a></li><li><span class="tocitem">Getting Started</span><ul><li><a class="tocitem" href="../../../getting-started/whatisart/">Background</a></li><li><a class="tocitem" href="../../../getting-started/basic-example/">Basic Example</a></li></ul></li><li><span class="tocitem">Tutorial</span><ul><li><a class="tocitem" href="../../../man/guide/">Guide</a></li><li><a class="tocitem" href="../../">Examples</a></li><li><a class="tocitem" href="../../../man/modules/">Modules</a></li><li><a class="tocitem" href="../../../man/contributing/">Contributing</a></li><li><a class="tocitem" href="../../../man/full-index/">Index</a></li><li><a class="tocitem" href="../../../man/dev-index/">Internals</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Unsupervised DDVFA Example</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Unsupervised DDVFA Example</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/AP6YC/AdaptiveResonance.jl/blob/develop/docs/examples/art/ddvfa_unsupervised.jl#L" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="ddvfa_unsupervised"><a class="docs-heading-anchor" href="#ddvfa_unsupervised">Unsupervised DDVFA Example</a><a id="ddvfa_unsupervised-1"></a><a class="docs-heading-anchor-permalink" href="#ddvfa_unsupervised" title="Permalink"></a></h1><p><a href="../ddvfa_unsupervised.jl"><img src="https://img.shields.io/badge/download-julia-brightgreen.svg" alt="Source code"/></a> <a href="https://nbviewer.jupyter.org/github/AP6YC/AdaptiveResonance.jl/blob/gh-pages/v0.8.4/examples/art/ddvfa_unsupervised.ipynb"><img src="https://img.shields.io/badge/show-nbviewer-579ACA.svg" alt="notebook"/></a> <img src="https://img.shields.io/badge/julia-1.8.0-blue.svg" alt="compat"/> <a href="https://github.com/AP6YC"><img src="https://img.shields.io/badge/Author-Sasha%20Petrenko-blue" alt="Author"/></a> <img src="https://img.shields.io/date/1638230400" alt="Update time"/></p><p>DDVFA is an unsupervised clustering algorithm by definition, so it can be used to cluster a set of samples all at once in batch mode.</p><p>We begin with importing AdaptiveResonance for the ART modules and MLDatasets for loading some data.</p><pre><code class="language-julia hljs">using AdaptiveResonance # ART
+using MLDatasets        # Iris dataset
+using DataFrames        # DataFrames, necessary for MLDatasets.Iris()
+using MLDataUtils       # Shuffling and splitting</code></pre><p>We will download the Iris dataset for its small size and benchmark use for clustering algorithms.</p><pre><code class="language-julia hljs"># Get the iris dataset
+iris = Iris(as_df=false)
+# Extract the features into a local variable
+features = iris.features</code></pre><pre><code class="nohighlight hljs">4×150 Matrix{Float64}:
+ 5.1  4.9  4.7  4.6  5.0  5.4  4.6  5.0  4.4  4.9  5.4  4.8  4.8  4.3  5.8  5.7  5.4  5.1  5.7  5.1  5.4  5.1  4.6  5.1  4.8  5.0  5.0  5.2  5.2  4.7  4.8  5.4  5.2  5.5  4.9  5.0  5.5  4.9  4.4  5.1  5.0  4.5  4.4  5.0  5.1  4.8  5.1  4.6  5.3  5.0  7.0  6.4  6.9  5.5  6.5  5.7  6.3  4.9  6.6  5.2  5.0  5.9  6.0  6.1  5.6  6.7  5.6  5.8  6.2  5.6  5.9  6.1  6.3  6.1  6.4  6.6  6.8  6.7  6.0  5.7  5.5  5.5  5.8  6.0  5.4  6.0  6.7  6.3  5.6  5.5  5.5  6.1  5.8  5.0  5.6  5.7  5.7  6.2  5.1  5.7  6.3  5.8  7.1  6.3  6.5  7.6  4.9  7.3  6.7  7.2  6.5  6.4  6.8  5.7  5.8  6.4  6.5  7.7  7.7  6.0  6.9  5.6  7.7  6.3  6.7  7.2  6.2  6.1  6.4  7.2  7.4  7.9  6.4  6.3  6.1  7.7  6.3  6.4  6.0  6.9  6.7  6.9  5.8  6.8  6.7  6.7  6.3  6.5  6.2  5.9
+ 3.5  3.0  3.2  3.1  3.6  3.9  3.4  3.4  2.9  3.1  3.7  3.4  3.0  3.0  4.0  4.4  3.9  3.5  3.8  3.8  3.4  3.7  3.6  3.3  3.4  3.0  3.4  3.5  3.4  3.2  3.1  3.4  4.1  4.2  3.1  3.2  3.5  3.1  3.0  3.4  3.5  2.3  3.2  3.5  3.8  3.0  3.8  3.2  3.7  3.3  3.2  3.2  3.1  2.3  2.8  2.8  3.3  2.4  2.9  2.7  2.0  3.0  2.2  2.9  2.9  3.1  3.0  2.7  2.2  2.5  3.2  2.8  2.5  2.8  2.9  3.0  2.8  3.0  2.9  2.6  2.4  2.4  2.7  2.7  3.0  3.4  3.1  2.3  3.0  2.5  2.6  3.0  2.6  2.3  2.7  3.0  2.9  2.9  2.5  2.8  3.3  2.7  3.0  2.9  3.0  3.0  2.5  2.9  2.5  3.6  3.2  2.7  3.0  2.5  2.8  3.2  3.0  3.8  2.6  2.2  3.2  2.8  2.8  2.7  3.3  3.2  2.8  3.0  2.8  3.0  2.8  3.8  2.8  2.8  2.6  3.0  3.4  3.1  3.0  3.1  3.1  3.1  2.7  3.2  3.3  3.0  2.5  3.0  3.4  3.0
+ 1.4  1.4  1.3  1.5  1.4  1.7  1.4  1.5  1.4  1.5  1.5  1.6  1.4  1.1  1.2  1.5  1.3  1.4  1.7  1.5  1.7  1.5  1.0  1.7  1.9  1.6  1.6  1.5  1.4  1.6  1.6  1.5  1.5  1.4  1.5  1.2  1.3  1.5  1.3  1.5  1.3  1.3  1.3  1.6  1.9  1.4  1.6  1.4  1.5  1.4  4.7  4.5  4.9  4.0  4.6  4.5  4.7  3.3  4.6  3.9  3.5  4.2  4.0  4.7  3.6  4.4  4.5  4.1  4.5  3.9  4.8  4.0  4.9  4.7  4.3  4.4  4.8  5.0  4.5  3.5  3.8  3.7  3.9  5.1  4.5  4.5  4.7  4.4  4.1  4.0  4.4  4.6  4.0  3.3  4.2  4.2  4.2  4.3  3.0  4.1  6.0  5.1  5.9  5.6  5.8  6.6  4.5  6.3  5.8  6.1  5.1  5.3  5.5  5.0  5.1  5.3  5.5  6.7  6.9  5.0  5.7  4.9  6.7  4.9  5.7  6.0  4.8  4.9  5.6  5.8  6.1  6.4  5.6  5.1  5.6  6.1  5.6  5.5  4.8  5.4  5.6  5.1  5.1  5.9  5.7  5.2  5.0  5.2  5.4  5.1
+ 0.2  0.2  0.2  0.2  0.2  0.4  0.3  0.2  0.2  0.1  0.2  0.2  0.1  0.1  0.2  0.4  0.4  0.3  0.3  0.3  0.2  0.4  0.2  0.5  0.2  0.2  0.4  0.2  0.2  0.2  0.2  0.4  0.1  0.2  0.1  0.2  0.2  0.1  0.2  0.2  0.3  0.3  0.2  0.6  0.4  0.3  0.2  0.2  0.2  0.2  1.4  1.5  1.5  1.3  1.5  1.3  1.6  1.0  1.3  1.4  1.0  1.5  1.0  1.4  1.3  1.4  1.5  1.0  1.5  1.1  1.8  1.3  1.5  1.2  1.3  1.4  1.4  1.7  1.5  1.0  1.1  1.0  1.2  1.6  1.5  1.6  1.5  1.3  1.3  1.3  1.2  1.4  1.2  1.0  1.3  1.2  1.3  1.3  1.1  1.3  2.5  1.9  2.1  1.8  2.2  2.1  1.7  1.8  1.8  2.5  2.0  1.9  2.1  2.0  2.4  2.3  1.8  2.2  2.3  1.5  2.3  2.0  2.0  1.8  2.1  1.8  1.8  1.8  2.1  1.6  1.9  2.0  2.2  1.5  1.4  2.3  2.4  1.8  1.8  2.1  2.4  2.3  1.9  2.3  2.5  2.3  1.9  2.0  2.3  1.8</code></pre><p>Next, we will instantiate a DDVFA module. We could create an options struct for reuse with <code>opts=opts_DDVFA(...)</code>, but for now we will use the direct keyword arguments approach.</p><pre><code class="language-julia hljs">art = DDVFA(rho_lb=0.6, rho_ub=0.75)</code></pre><pre><code class="nohighlight hljs">DDVFA(opts_DDVFA
+  rho_lb: Float64 0.6
+  rho_ub: Float64 0.75
+  alpha: Float64 0.001
+  beta: Float64 1.0
+  gamma: Float64 3.0
+  gamma_ref: Float64 1.0
+  similarity: Symbol single
+  max_epoch: Int64 1
+  display: Bool false
+  gamma_normalization: Bool true
+  uncommitted: Bool false
+  activation: Symbol gamma_activation
+  match: Symbol gamma_match
+  update: Symbol basic_update
+, opts_FuzzyART
+  rho: Float64 0.75
+  alpha: Float64 0.001
+  beta: Float64 1.0
+  gamma: Float64 3.0
+  gamma_ref: Float64 1.0
+  max_epoch: Int64 1
+  display: Bool false
+  gamma_normalization: Bool true
+  uncommitted: Bool false
+  activation: Symbol gamma_activation
+  match: Symbol gamma_match
+  update: Symbol basic_update
+, DataConfig(false, Float64[], Float64[], 0, 0), 0.0, FuzzyART[], Int64[], 0, 0, Float64[], Float64[], Dict{String, Any}(&quot;bmu&quot; =&gt; 0, &quot;mismatch&quot; =&gt; false, &quot;M&quot; =&gt; 0.0, &quot;T&quot; =&gt; 0.0))</code></pre><p>To train the module on the training data, we use <code>train!</code>. The train method returns the prescribed cluster labels, which are just what the algorithm believes are unique/separate cluster. This is because we are doing <em>unsupervised</em> learning rather than supervised learning with known labels.</p><pre><code class="language-julia hljs">y_hat_train = train!(art, features)</code></pre><pre><code class="nohighlight hljs">150-element Vector{Int64}:
+ 1
+ 1
+ 1
+ 1
+ 1
+ 1
+ 1
+ 1
+ 1
+ 1
+ 1
+ 1
+ 1
+ 1
+ 1
+ 1
+ 1
+ 1
+ 1
+ 1
+ 1
+ 1
+ 1
+ 1
+ 1
+ 1
+ 1
+ 1
+ 1
+ 1
+ 1
+ 1
+ 1
+ 1
+ 1
+ 1
+ 1
+ 1
+ 1
+ 1
+ 1
+ 2
+ 1
+ 1
+ 1
+ 1
+ 1
+ 1
+ 1
+ 1
+ 3
+ 3
+ 3
+ 4
+ 3
+ 3
+ 3
+ 4
+ 3
+ 4
+ 4
+ 3
+ 4
+ 3
+ 3
+ 3
+ 3
+ 3
+ 3
+ 3
+ 3
+ 3
+ 3
+ 3
+ 3
+ 3
+ 3
+ 3
+ 3
+ 3
+ 3
+ 3
+ 3
+ 3
+ 3
+ 3
+ 3
+ 3
+ 3
+ 4
+ 3
+ 3
+ 3
+ 4
+ 3
+ 3
+ 3
+ 3
+ 4
+ 3
+ 5
+ 3
+ 5
+ 3
+ 5
+ 5
+ 3
+ 5
+ 5
+ 5
+ 3
+ 3
+ 5
+ 3
+ 3
+ 3
+ 5
+ 5
+ 5
+ 3
+ 5
+ 3
+ 5
+ 3
+ 5
+ 5
+ 3
+ 3
+ 5
+ 5
+ 5
+ 5
+ 5
+ 3
+ 3
+ 5
+ 5
+ 3
+ 3
+ 5
+ 5
+ 5
+ 3
+ 5
+ 5
+ 5
+ 3
+ 3
+ 5
+ 3</code></pre><p>Though we could inspect the unique entries in the list above, we can see the number of categories directly from the art module.</p><pre><code class="language-julia hljs">art.n_categories</code></pre><pre><code class="nohighlight hljs">5</code></pre><p>Because DDVFA actually has FuzzyART modules for F2 nodes, each category has its own category prototypes. We can see the total number of weights in the DDVFA module by summing <code>n_categories</code> across all F2 nodes.</p><pre><code class="language-julia hljs">total_vec = [art.F2[i].n_categories for i = 1:art.n_categories]
+total_cat = sum(total_vec)</code></pre><pre><code class="nohighlight hljs">21</code></pre><hr/><p><em>This page was generated using <a href="https://github.com/JuliaDocs/DemoCards.jl">DemoCards.jl</a> and <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.3.0 on <span class="colophon-date" title="Saturday 23 March 2024 01:32">Saturday 23 March 2024</span>. Using Julia version 1.8.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
