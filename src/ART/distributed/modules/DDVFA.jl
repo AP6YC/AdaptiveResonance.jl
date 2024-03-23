@@ -16,7 +16,7 @@ Includes all of the structures and logic for running a Distributed Dual-Vigilanc
 """
 Distributed Dual Vigilance Fuzzy ART options struct.
 
-$(OPTS_DOCSTRING)
+$(_OPTS_DOCSTRING)
 """
 @with_kw mutable struct opts_DDVFA <: ARTOpts @deftype Float
     """
