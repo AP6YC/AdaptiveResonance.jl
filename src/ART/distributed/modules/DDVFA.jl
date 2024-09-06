@@ -304,13 +304,16 @@ function train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fal
     if art.opts.sort
         index = sortperm(art.T, rev=true)
     else
-        # index = 1:art.n_categories
+        top_bmu = argmax(art.T)
     end
-    # index = sortperm(art.T, rev=true)
     accommodate_vector!(art.M, art.n_categories)
     for jx = 1:art.n_categories
         # Best matching unit
-        bmu = index[jx]
+        if art.opts.sort
+            bmu = index[jx]
+        else
+            bmu = argmax(art.T)
+        end
         # Compute the match with the similarity linkage method
         art.M[bmu] = similarity(art.opts.similarity, art.F2[bmu], sample, false)
         # If we got a match, then learn (update the category)
@@ -326,13 +329,20 @@ function train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fal
             # No mismatch
             mismatch_flag = false
             break
+        elseif !art.opts.sort
+            # Remove the top activation
+            art.T[bmu] = 0.0
         end
     end
 
     # If we triggered a mismatch
     if mismatch_flag
         # Keep the bmu as the top activation despite creating a new category
-        bmu = index[1]
+        if art.opts.sort
+            bmu = index[1]
+        else
+            bmu = top_bmu
+        end
         # Get the correct label
         y_hat = supervised ? y : art.n_categories + 1
         # Create a new category

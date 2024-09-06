@@ -324,15 +324,25 @@ function train!(art::FuzzyART, x::RealVector ; y::Integer=0, preprocessed::Bool=
     activation_match!(art, sample)
 
     # Sort activation function values in descending order
-    index = sortperm(art.T, rev=true)
+    if art.opts.sort
+        index = sortperm(art.T, rev=true)
+    else
+        top_bmu = argmax(art.T)
+    end
+    # index = sortperm(art.T, rev=true)
 
     # Initialize mismatch as true
     mismatch_flag = true
 
     # Loop over all categories
-    for j = 1:art.n_categories
+    for jx = 1:art.n_categories
         # Best matching unit
-        bmu = index[j]
+        # bmu = index[jx]
+        if art.opts.sort
+            bmu = index[jx]
+        else
+            bmu = argmax(art.T)
+        end
         # Vigilance check - pass
         if art.M[bmu] >= art.threshold
             # If supervised and the label differed, force mismatch
@@ -352,13 +362,21 @@ function train!(art::FuzzyART, x::RealVector ; y::Integer=0, preprocessed::Bool=
             # No mismatch
             mismatch_flag = false
             break
+        elseif !art.opts.sort
+            # Remove the top activation
+            art.T[bmu] = 0.0
         end
     end
 
     # If there was no resonant category, make a new one
     if mismatch_flag
         # Keep the bmu as the top activation despite creating a new category
-        bmu = index[1]
+        # bmu = index[1]
+        if art.opts.sort
+            bmu = index[1]
+        else
+            bmu = top_bmu
+        end
 
         # Get the correct label for the new category
         y_hat = supervised ? y : art.n_categories + 1
