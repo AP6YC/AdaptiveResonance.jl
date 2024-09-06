@@ -91,6 +91,14 @@ $(_OPTS_DOCSTRING)
     Selected weight update function.
     """
     update::Symbol = :basic_update
+
+    """
+    Flag to sort the F2 nodes by activation before the match phase
+
+    When true, the F2 nodes are sorted by activation before match.
+    When false, an iterative argmax and inhibition procedure is used to find the best-matching unit.
+    """
+    sort::Bool = false
 end
 
 # -----------------------------------------------------------------------------
@@ -228,6 +236,7 @@ function DDVFA(opts::opts_DDVFA)
         activation=opts.activation,
         match=opts.match,
         update=opts.update,
+        sort=opts.sort,
     )
 
     # Construct the DDVFA module
@@ -292,7 +301,12 @@ function train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fal
     end
 
     # Compute the match for each category in the order of greatest activation
-    index = sortperm(art.T, rev=true)
+    if art.opts.sort
+        index = sortperm(art.T, rev=true)
+    else
+        # index = 1:art.n_categories
+    end
+    # index = sortperm(art.T, rev=true)
     accommodate_vector!(art.M, art.n_categories)
     for jx = 1:art.n_categories
         # Best matching unit
