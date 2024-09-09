@@ -52,6 +52,14 @@ $(_OPTS_DOCSTRING)
     Display flag for progress bars.
     """
     display::Bool = false
+
+    """
+    Flag to sort the F2 nodes by activation before the match phase
+
+    When true, the F2 nodes are sorted by activation before match.
+    When false, an iterative argmax and inhibition procedure is used to find the best-matching unit.
+    """
+    sort::Bool = false
 end
 
 """
