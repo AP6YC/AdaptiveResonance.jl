@@ -86,6 +86,14 @@ $(_OPTS_DOCSTRING)
     Selected weight update function.
     """
     update::Symbol = :basic_update
+
+    """
+    Flag to sort the F2 nodes by activation before the match phase
+
+    When true, the F2 nodes are sorted by activation before match.
+    When false, an iterative argmax and inhibition procedure is used to find the best-matching unit.
+    """
+    sort::Bool = false
 end
 
 """
@@ -316,15 +324,26 @@ function train!(art::FuzzyART, x::RealVector ; y::Integer=0, preprocessed::Bool=
     activation_match!(art, sample)
 
     # Sort activation function values in descending order
-    index = sortperm(art.T, rev=true)
+    if art.opts.sort
+        index = sortperm(art.T, rev=true)
+        top_bmu = index[1]
+    else
+        top_bmu = argmax(art.T)
+    end
 
     # Initialize mismatch as true
     mismatch_flag = true
+    y_hat = -1
 
     # Loop over all categories
-    for j = 1:art.n_categories
+    for jx = 1:art.n_categories
         # Best matching unit
-        bmu = index[j]
+        if art.opts.sort
+            bmu = index[jx]
+        else
+            bmu = argmax(art.T)
+        end
+
         # Vigilance check - pass
         if art.M[bmu] >= art.threshold
             # If supervised and the label differed, force mismatch
@@ -344,13 +363,16 @@ function train!(art::FuzzyART, x::RealVector ; y::Integer=0, preprocessed::Bool=
             # No mismatch
             mismatch_flag = false
             break
+        elseif !art.opts.sort
+            # Remove the top activation
+            art.T[bmu] = 0.0
         end
     end
 
     # If there was no resonant category, make a new one
     if mismatch_flag
         # Keep the bmu as the top activation despite creating a new category
-        bmu = index[1]
+        bmu = top_bmu
 
         # Get the correct label for the new category
         y_hat = supervised ? y : art.n_categories + 1
@@ -369,13 +391,18 @@ end
 # COMMON DOC: FuzzyART incremental classification method
 function classify(art::FuzzyART, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
     # Preprocess the data
-    x = init_classify!(x, art, preprocessed)
+    sample = init_classify!(x, art, preprocessed)
 
     # Compute activation and match functions
-    activation_match!(art, x)
+    activation_match!(art, sample)
 
     # Sort activation function values in descending order
-    index = sortperm(art.T, rev=true)
+    if art.opts.sort
+        index = sortperm(art.T, rev=true)
+        top_bmu = index[1]
+    else
+        top_bmu = argmax(art.T)
+    end
 
     # Default is mismatch
     mismatch_flag = true
@@ -383,8 +410,12 @@ function classify(art::FuzzyART, x::RealVector ; preprocessed::Bool=false, get_b
 
     # Iterate over all categories
     for jx in 1:art.n_categories
-        # Set the best matching unit
-        bmu = index[jx]
+        # Get the best-matching unit
+        if art.opts.sort
+            bmu = index[jx]
+        else
+            bmu = argmax(art.T)
+        end
 
         # Vigilance check - pass
         if art.M[bmu] >= art.threshold
@@ -392,12 +423,16 @@ function classify(art::FuzzyART, x::RealVector ; preprocessed::Bool=false, get_b
             y_hat = art.labels[bmu]
             mismatch_flag = false
             break
+        elseif !art.opts.sort
+            # Remove the top activation
+            art.T[bmu] = 0.0
         end
     end
+
     # If we did not find a match
     if mismatch_flag
         # Report either the best matching unit or the mismatch label -1
-        bmu = index[1]
+        bmu = top_bmu
 
         # Report either the best matching unit or the mismatch label -1
         y_hat = get_bmu ? art.labels[bmu] : -1

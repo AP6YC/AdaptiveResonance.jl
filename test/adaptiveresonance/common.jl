@@ -33,7 +33,7 @@ Tests of common code for the `AdaptiveResonance.jl` package.
     @test_logs (:warn,) AdaptiveResonance.data_setup!(dc3, three_by_two)
     bad_config =  DataConfig(1, 0, 3)
     @test_throws ErrorException linear_normalization(three_by_two, config=bad_config)
-end # @testset "common.jl"
+end
 
 @testset "constants.jl" begin
     @info "------- Constants Tests -------"
@@ -57,7 +57,11 @@ end
 
     # Iterate over all modules
     for art in ADAPTIVERESONANCE_MODULES
-        art_module = art(alpha=1e-3, display=false)
+        art_module = art(
+            alpha=1e-3,
+            display=false,
+            sort=true,
+        )
     end
 end
 
