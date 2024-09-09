@@ -330,20 +330,20 @@ function train!(art::FuzzyART, x::RealVector ; y::Integer=0, preprocessed::Bool=
     else
         top_bmu = argmax(art.T)
     end
-    # index = sortperm(art.T, rev=true)
 
     # Initialize mismatch as true
     mismatch_flag = true
+    y_hat = -1
 
     # Loop over all categories
     for jx = 1:art.n_categories
         # Best matching unit
-        # bmu = index[jx]
         if art.opts.sort
             bmu = index[jx]
         else
             bmu = argmax(art.T)
         end
+
         # Vigilance check - pass
         if art.M[bmu] >= art.threshold
             # If supervised and the label differed, force mismatch

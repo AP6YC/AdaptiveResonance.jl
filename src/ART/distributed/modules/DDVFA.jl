@@ -292,6 +292,7 @@ function train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fal
 
     # Default to mismatch
     mismatch_flag = true
+    y_hat = -1
 
     # Compute the activation for all categories
     accommodate_vector!(art.T, art.n_categories)
@@ -380,6 +381,7 @@ function classify(art::DDVFA, x::RealVector ; preprocessed::Bool=false, get_bmu:
 
     # Default to mismatch
     mismatch_flag = true
+    y_hat = -1
 
     # Iterate over the list of activations
     accommodate_vector!(art.M, art.n_categories)

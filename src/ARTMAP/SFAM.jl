@@ -265,10 +265,10 @@ function train!(art::SFAM, x::RealVector, y::Integer ; preprocessed::Bool=false)
         end
 
         mismatch_flag = true
+
         accommodate_vector!(art.M, art.n_categories)
         for jx in 1:art.n_categories
             # Set the best-matching-unit index
-            # bmu = index[jx]
             if art.opts.sort
                 bmu = index[jx]
             else
@@ -286,7 +286,6 @@ function train!(art::SFAM, x::RealVector, y::Integer ; preprocessed::Bool=false)
                     break
                 else
                     # Match tracking
-                    # @debug "Match tracking"
                     rho_baseline = art.M[bmu] + art.opts.epsilon
                 end
             elseif !art.opts.sort
@@ -333,6 +332,7 @@ function classify(art::SFAM, x::RealVector ; preprocessed::Bool=false, get_bmu::
 
     # Default to mismatch
     mismatch_flag = true
+    y_hat = -1
 
     # Iterate over the list of activations
     accommodate_vector!(art.M, art.n_categories)
