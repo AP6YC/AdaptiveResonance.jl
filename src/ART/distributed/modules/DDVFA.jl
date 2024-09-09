@@ -303,9 +303,11 @@ function train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fal
     # Compute the match for each category in the order of greatest activation
     if art.opts.sort
         index = sortperm(art.T, rev=true)
+        top_bmu = index[1]
     else
         top_bmu = argmax(art.T)
     end
+
     accommodate_vector!(art.M, art.n_categories)
     for jx = 1:art.n_categories
         # Best matching unit
@@ -314,6 +316,7 @@ function train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fal
         else
             bmu = argmax(art.T)
         end
+
         # Compute the match with the similarity linkage method
         art.M[bmu] = similarity(art.opts.similarity, art.F2[bmu], sample, false)
         # If we got a match, then learn (update the category)
@@ -338,13 +341,11 @@ function train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fal
     # If we triggered a mismatch
     if mismatch_flag
         # Keep the bmu as the top activation despite creating a new category
-        if art.opts.sort
-            bmu = index[1]
-        else
-            bmu = top_bmu
-        end
+        bmu = top_bmu
+
         # Get the correct label
         y_hat = supervised ? y : art.n_categories + 1
+
         # Create a new category
         create_category!(art, sample, y_hat)
     end
@@ -370,7 +371,12 @@ function classify(art::DDVFA, x::RealVector ; preprocessed::Bool=false, get_bmu:
     end
 
     # Sort by highest activation
-    index = sortperm(art.T, rev=true)
+    if art.opts.sort
+        index = sortperm(art.T, rev=true)
+        top_bmu = index[1]
+    else
+        top_bmu = argmax(art.T)
+    end
 
     # Default to mismatch
     mismatch_flag = true
@@ -379,7 +385,12 @@ function classify(art::DDVFA, x::RealVector ; preprocessed::Bool=false, get_bmu:
     accommodate_vector!(art.M, art.n_categories)
     for jx = 1:art.n_categories
         # Get the best-matching unit
-        bmu = index[jx]
+        if art.opts.sort
+            bmu = index[jx]
+        else
+            bmu = argmax(art.T)
+        end
+
         # Get the match value of this activation
         art.M[bmu] = similarity(art.opts.similarity, art.F2[bmu], sample, false)
         # If the match satisfies the threshold criterion, then report that label
@@ -390,14 +401,18 @@ function classify(art::DDVFA, x::RealVector ; preprocessed::Bool=false, get_bmu:
             y_hat = art.labels[bmu]
             mismatch_flag = false
             break
+        elseif !art.opts.sort
+            # Remove the top activation
+            art.T[bmu] = 0.0
         end
     end
 
     # If we did not find a resonant category
     if mismatch_flag
         # Update the stored match and activation values of the best matching unit
-        bmu = index[1]
+        bmu = top_bmu
         log_art_stats!(art, bmu, true)
+
         # Report either the best matching unit or the mismatch label -1
         y_hat = get_bmu ? art.labels[bmu] : -1
     end
