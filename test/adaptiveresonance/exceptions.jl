@@ -37,7 +37,7 @@ Tests the edge cases and exceptions of the entire `AdaptiveResonance.jl` package
     end
 end
 
-@testset "init_tain!" begin
+@testset "init_train!" begin
     # Create a new FuzzyART module
     art = FuzzyART()
 

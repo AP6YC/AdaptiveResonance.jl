@@ -75,6 +75,14 @@ $(_OPTS_DOCSTRING)
     Selected weight update function.
     """
     update::Symbol = :basic_update
+
+    """
+    Flag to sort the F2 nodes by activation before the match phase
+
+    When true, the F2 nodes are sorted by activation before match.
+    When false, an iterative argmax and inhibition procedure is used to find the best-matching unit.
+    """
+    sort::Bool = false
 end
 
 """
@@ -283,24 +291,34 @@ function train!(art::DVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fals
     # Compute the activation and match for all categories
     activation_match!(art, sample)
     # Sort activation function values in descending order
-    index = sortperm(art.T, rev=true)
+    if art.opts.sort
+        index = sortperm(art.T, rev=true)
+        top_bmu = index[1]
+    else
+        top_bmu = argmax(art.T)
+    end
 
     # Default to mismatch
     mismatch_flag = true
     # Loop over all categories
-    for j = 1:art.n_categories
+    for jx = 1:art.n_categories
         # Best matching unit
-        bmu = index[j]
-        # If supervised and the label differs, trigger mismatch
-        if supervised && (art.labels[bmu] != y)
-            break
+        if art.opts.sort
+            bmu = index[jx]
+        else
+            bmu = argmax(art.T)
         end
+
         # Vigilance test upper bound
         if art.M[bmu] >= art.threshold_ub
+            # If supervised and the label differs, trigger mismatch
+            if supervised && (art.labels[bmu] != y)
+                break
+            end
+
             # Learn the sample
             learn!(art, sample, bmu)
             # Update sample label for output
-            # y_hat = supervised ? y : art.labels[bmu]
             y_hat = art.labels[bmu]
             # No mismatch
             mismatch_flag = false
@@ -314,15 +332,20 @@ function train!(art::DVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fals
             # No mismatch
             mismatch_flag = false
             break
+        elseif !art.opts.sort
+            # Remove the top activation
+            art.T[bmu] = 0.0
         end
     end
 
     # If there was no resonant category, make a new one
     if mismatch_flag
         # Keep the bmu as the top activation despite creating a new category
-        bmu = index[1]
+        bmu = top_bmu
+
         # Create a new category-to-cluster label
         y_hat = supervised ? y : art.n_clusters + 1
+
         # Create a new category
         create_category!(art, sample, y_hat)
     end
@@ -341,23 +364,43 @@ function classify(art::DVFA, x::RealVector ; preprocessed::Bool=false, get_bmu::
     # Compute activation and match functions
     activation_match!(art, sample)
     # Sort activation function values in descending order
-    index = sortperm(art.T, rev=true)
+    if art.opts.sort
+        index = sortperm(art.T, rev=true)
+        top_bmu = index[1]
+    else
+        top_bmu = argmax(art.T)
+    end
+
+    # Default to mismatch
     mismatch_flag = true
+    y_hat = -1
+
+    # Iterate over the list of activations
     for jx in 1:art.n_categories
-        bmu = index[jx]
+        # Get the best-matching unit
+        if art.opts.sort
+            bmu = index[jx]
+        else
+            bmu = argmax(art.T)
+        end
+
         # Vigilance check - pass
         if art.M[bmu] >= art.threshold_ub
             # Current winner
             y_hat = art.labels[bmu]
             mismatch_flag = false
             break
+        elseif !art.opts.sort
+            # Remove the top activation
+            art.T[bmu] = 0.0
         end
     end
 
     # If we did not find a resonant category
     if mismatch_flag
         # Create new weight vector
-        bmu = index[1]
+        bmu = top_bmu
+
         # Report either the best matching unit or the mismatch label -1
         y_hat = get_bmu ? art.labels[bmu] : -1
     end

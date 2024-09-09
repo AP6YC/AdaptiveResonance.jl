@@ -326,6 +326,7 @@ function train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fal
             if supervised && (art.labels[bmu] != y)
                 break
             end
+
             # Update the weights with the sample
             train!(art.F2[bmu], sample, preprocessed=true)
             # Save the output label for the sample
