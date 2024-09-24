@@ -242,6 +242,8 @@ Though most parameters differ between each ART and ARTMAP module, they all share
 
 - `display::Bool`: a flag to display or suppress progress bars and logging messages during training and testing.
 - `max_epochs::Int`: the maximum number of epochs to train over the data, regardless if other stopping conditions have not been met yet.
+- `sort::Bool`: if a sort procedure on the activations is done before the match rule.
+This is false by default for all modules, using instead an `argmax` and node deactivation strategy for evaluating the vigilance criterion, which is faster in *most* cases.
 
 Otherwise, most ART and ARTMAP modules share the following nomenclature for algorithmic parameters:
 

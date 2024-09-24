@@ -70,6 +70,14 @@ $(_OPTS_DOCSTRING)
     Selected weight update function.
     """
     update::Symbol = :basic_update
+
+    """
+    Flag to sort the F2 nodes by activation before the match phase
+
+    When true, the F2 nodes are sorted by activation before match.
+    When false, an iterative argmax and inhibition procedure is used to find the best-matching unit.
+    """
+    sort::Bool = false
 end
 
 """
@@ -249,34 +257,48 @@ function train!(art::SFAM, x::RealVector, y::Integer ; preprocessed::Bool=false)
         end
 
         # Sort activation function values in descending order
-        index = sortperm(art.T, rev=true)
+        if art.opts.sort
+            index = sortperm(art.T, rev=true)
+            top_bmu = index[1]
+        else
+            top_bmu = argmax(art.T)
+        end
+
         mismatch_flag = true
+
         accommodate_vector!(art.M, art.n_categories)
         for jx in 1:art.n_categories
             # Set the best-matching-unit index
-            bmu = index[jx]
+            if art.opts.sort
+                bmu = index[jx]
+            else
+                bmu = argmax(art.T)
+            end
+
             # Compute match function
             art.M[bmu] = art_match(art, sample, bmu)
             # Current winner
             if art.M[bmu] >= rho_baseline
                 if y == art.labels[bmu]
                     # Update the weight and break
-                    # art.W[:, index[jx]] = learn(art, sample, art.W[:, index[jx]])
                     learn!(art, sample, bmu)
                     mismatch_flag = false
                     break
                 else
                     # Match tracking
-                    @debug "Match tracking"
                     rho_baseline = art.M[bmu] + art.opts.epsilon
                 end
+            elseif !art.opts.sort
+                # Remove the top activation
+                art.T[bmu] = 0.0
             end
         end
 
         # If we triggered a mismatch
         if mismatch_flag
             # Keep the bmu as the top activation despite creating a new category
-            bmu = index[1]
+            bmu = top_bmu
+
             # Create new weight vector
             create_category!(art, sample, y)
         end
@@ -301,16 +323,27 @@ function classify(art::SFAM, x::RealVector ; preprocessed::Bool=false, get_bmu::
     end
 
     # Sort activation function values in descending order
-    index = sortperm(art.T, rev=true)
+    if art.opts.sort
+        index = sortperm(art.T, rev=true)
+        top_bmu = index[1]
+    else
+        top_bmu = argmax(art.T)
+    end
 
     # Default to mismatch
     mismatch_flag = true
+    y_hat = -1
 
     # Iterate over the list of activations
     accommodate_vector!(art.M, art.n_categories)
     for jx in 1:art.n_categories
         # Set the best-matching-unit index
-        bmu = index[jx]
+        if art.opts.sort
+            bmu = index[jx]
+        else
+            bmu = argmax(art.T)
+        end
+
         # Compute match function
         art.M[bmu] = art_match(art, sample, bmu)
         # Current winner
@@ -318,13 +351,17 @@ function classify(art::SFAM, x::RealVector ; preprocessed::Bool=false, get_bmu::
             y_hat = art.labels[bmu]
             mismatch_flag = false
             break
+        elseif !art.opts.sort
+            # Remove the top activation
+            art.T[bmu] = 0.0
         end
     end
 
     # If we did not find a resonant category
     if mismatch_flag
         # Keep the bmu as the top activation
-        bmu = index[1]
+        bmu = top_bmu
+
         # Report either the best matching unit or the mismatch label -1
         y_hat = get_bmu ? art.labels[bmu] : -1
     end
