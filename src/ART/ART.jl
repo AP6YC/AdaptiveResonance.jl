@@ -31,6 +31,7 @@ A list of (default) unsupervised ART modules that are available in the `Adaptive
 const ART_MODULES = [
     # Core modules
     FuzzyART,
+    HypersphereART,
     DVFA,
     DDVFA,
     # Variants
