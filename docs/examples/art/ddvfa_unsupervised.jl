@@ -14,7 +14,6 @@
 using AdaptiveResonance # ART
 using MLDatasets        # Iris dataset
 using DataFrames        # DataFrames, necessary for MLDatasets.Iris()
-using MLDataUtils       # Shuffling and splitting
 
 # We will download the Iris dataset for its small size and benchmark use for clustering algorithms.
 ## Get the iris dataset

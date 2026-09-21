@@ -4,6 +4,8 @@ This project implements a number of ART-based models with options that modulate 
 
 This page lists both the [implemented models](@ref Implemented-Models) and some of their [variants](@ref modules-variants)
 
+Constructor and option details are grouped in the [ART reference](reference/models-art.md) and [ARTMAP reference](reference/models-artmap.md). Shared operations are documented under [Training](reference/training.md) and [Classification and evaluation](reference/classification.md).
+
 ## Implemented Models
 
 This project has implementations of the following ART (unsupervised) and ARTMAP (supervised) modules:
