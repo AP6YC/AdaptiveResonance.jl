@@ -89,7 +89,7 @@ my_fuzzyart.opts.rho=0.6
 # We begin with importing AdaptiveResonance for the ART modules and MLDatasets for some data utilities.
 using MLDatasets        # Iris dataset
 using DataFrames        # DataFrames, necessary for MLDatasets.Iris()
-using MLDataUtils       # Shuffling and splitting
+using MLUtils           # Shuffling and splitting
 using Printf            # Formatted number printing
 using MultivariateStats # Principal component analysis (PCA)
 using Plots             # Plotting frontend
@@ -101,12 +101,13 @@ iris = Iris(as_df=false)
 ## Manipulate the features and labels into a matrix of features and a vector of labels
 features, labels = iris.features, iris.targets
 
-# Because the MLDatasets package gives us Iris labels as strings, we will use the `MLDataUtils.convertlabel` method with the `MLLabelUtils.LabelEnc.Indices` type to get a list of integers representing each class:
-labels = convertlabel(LabelEnc.Indices{Int}, vec(labels))
+# Because the MLDatasets package gives us Iris labels as strings, we map each unique label to an integer class index:
+label_indices = Dict(label => i for (i, label) in enumerate(unique(vec(labels))))
+labels = [label_indices[label] for label in vec(labels)]
 unique(labels)
 
-# Next, we will create a train/test split with the `MLDataUtils.stratifiedobs` utility:
-(X_train, y_train), (X_test, y_test) = stratifiedobs((features, labels))
+# Next, we use `MLUtils.splitobs` to create a shuffled 70/30 train/test split that preserves the class proportions:
+(X_train, y_train), (X_test, y_test) = splitobs((features, labels); at=0.7, shuffle=true, stratified=labels)
 
 # Now we can create several FuzzyART modules with different options.
 
@@ -187,7 +188,7 @@ plot(
     ytickfontsize = 12,     # y-tick size
     xlabel = "\$PCA_1\$",   # x-label
     ylabel = "\$PCA_2\$",   # y-label
-    dpi = 300,              # Set the dots-per-inch
+    dpi = 200,              # Set the dots-per-inch
 )
 
 # We can see that the two different vigilance values result in similar resutls on the whole, though they differ in how they classify certain samples that straddle the border between
