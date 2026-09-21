@@ -138,6 +138,9 @@ makedocs(
     format=Documenter.HTML(
         prettyurls = get(ENV, "CI", nothing) == "true",
         assets = assets,
+        # Up the size and warning thresholds
+        size_threshold = 400 * 1024,
+        size_threshold_warn = 300 * 1024,
     ),
     pages=[
         "Home" => "index.md",
@@ -150,9 +153,25 @@ makedocs(
             demopage,
             # "Examples" => "man/examples.md",
             "Modules" => "man/modules.md",
+        ],
+        "API Reference" => [
+            "Overview" => "man/full-index.md",
+            "ART Models and Options" => "man/reference/models-art.md",
+            "ARTMAP Models and Options" => "man/reference/models-artmap.md",
+            "Training" => "man/reference/training.md",
+            "Classification and Evaluation" => "man/reference/classification.md",
+            "Data Preparation" => "man/reference/data.md",
+            "Advanced Configuration" => "man/reference/configuration.md",
+            "ARTSCENE Feature Extraction" => "man/reference/artscene.md",
+        ],
+        "Developer Reference" => [
+            "Overview" => "man/dev-index.md",
+            "Type Hierarchy and State" => "man/internals/types.md",
+            "Training and Category Lifecycle" => "man/internals/lifecycle.md",
+            "Activation, Matching, and Weight Updates" => "man/internals/activation.md",
+            "Data, Iteration, and Logging Utilities" => "man/internals/utilities.md",
+            "ARTSCENE Internals" => "man/internals/artscene.md",
             "Contributing" => "man/contributing.md",
-            "Index" => "man/full-index.md",
-            "Internals" => "man/dev-index.md",
         ],
     ],
     repo="https://github.com/AP6YC/AdaptiveResonance.jl/blob/{commit}{path}#L{line}",

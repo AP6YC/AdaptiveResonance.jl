@@ -24,7 +24,7 @@
 using AdaptiveResonance # ART
 using MLDatasets        # Iris dataset
 using DataFrames        # DataFrames, necessary for MLDatasets.Iris()
-using MLDataUtils       # Shuffling and splitting
+using MLUtils           # Shuffling and splitting
 using Printf            # Formatted number printing
 
 # We will download the Iris dataset for its small size and benchmark use for clustering algorithms.
@@ -33,12 +33,13 @@ iris = Iris(as_df=false)
 ## Manipulate the features and labels into a matrix of features and a vector of labels
 features, labels = iris.features, iris.targets
 
-# Because the MLDatasets package gives us Iris labels as strings, we will use the `MLDataUtils.convertlabel` method with the `MLLabelUtils.LabelEnc.Indices` type to get a list of integers representing each class:
-labels = convertlabel(LabelEnc.Indices{Int}, vec(labels))
+# Because the MLDatasets package gives us Iris labels as strings, we map each unique label to an integer class index:
+label_indices = Dict(label => i for (i, label) in enumerate(unique(vec(labels))))
+labels = [label_indices[label] for label in vec(labels)]
 unique(labels)
 
-# Next, we will create a train/test split with the `MLDataUtils.stratifiedobs` utility:
-(X_train, y_train), (X_test, y_test) = stratifiedobs((features, labels))
+# Next, we use `MLUtils.splitobs` to create a shuffled 70/30 train/test split that preserves the class proportions:
+(X_train, y_train), (X_test, y_test) = splitobs((features, labels); at=0.7, shuffle=true, stratified=labels)
 
 # ## Incremental vs. Batch
 
@@ -148,7 +149,7 @@ scatter(
     legend = false,         # no legend
     xtickfontsize = 12,     # x-tick size
     ytickfontsize = 12,     # y-tick size
-    dpi = 300,              # Set the dots-per-inch
+    dpi = 200,              # Set the dots-per-inch
     xlims = :round,         # Round up the x-limits to the nearest whole number
     xlabel = "\$PCA_1\$",   # x-label
     ylabel = "\$PCA_2\$",   # y-label
