@@ -138,6 +138,9 @@ makedocs(
     format=Documenter.HTML(
         prettyurls = get(ENV, "CI", nothing) == "true",
         assets = assets,
+        # Up the size and warning thresholds
+        size_threshold = 400 * 1024,
+        size_threshold_warn = 300 * 1024,
     ),
     pages=[
         "Home" => "index.md",
