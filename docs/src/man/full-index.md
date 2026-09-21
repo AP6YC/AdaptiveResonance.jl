@@ -1,80 +1,52 @@
-# [Index](@id main-index)
+# [API Overview](@id main-index)
 
-This page lists the core methods and types of the `AdaptiveResonance.jl` package.
-The [Modules](@ref index-modules) section lists the modules exported by the package including the `AdaptiveResonance` module itself.
-The [Methods](@ref index-methods) section lists the public methods for the package that use the modules in [Types](@ref index-types).
-Each of these entries link to the docstrings in the [Docs](@ref index-docs) section.
+Browse the public API by task. Each name links to one reference location containing all of its documented methods. For help choosing an algorithm, start with the [model guide](@ref modules-page).
 
-ART modules document their internal working parameters and references, while their hyperparameters/options are documented under their corresponding option structs `opts_...`.
-
-## Index
-
-This section enumerates the names exported by the package, each of which links to its corresponding [Documentation](@ref index-docs).
-
-### [Modules](@id index-modules)
-
-```@index
-Pages   = ["full-index.md"]
-Modules = [AdaptiveResonance]
-Order = [:module]
+```@meta
+CurrentModule = AdaptiveResonance
 ```
 
-### [Methods](@id index-methods)
+## [ART Models and Options](reference/models-art.md)
 
-```@index
-Pages   = ["full-index.md"]
-Modules = [AdaptiveResonance]
-Order = [:function]
-```
+- [`FuzzyART`](@ref), [`opts_FuzzyART`](@ref)
+- [`HypersphereART`](@ref), [`opts_HypersphereART`](@ref)
+- [`DVFA`](@ref), [`opts_DVFA`](@ref)
+- [`DDVFA`](@ref), [`opts_DDVFA`](@ref)
+- [`GammaNormalizedFuzzyART`](@ref), [`opts_GammaNormalizedFuzzyART`](@ref)
 
-### [Types](@id index-types)
+## [ARTMAP Models and Options](reference/models-artmap.md)
 
-```@index
-Pages   = ["full-index.md"]
-Modules = [AdaptiveResonance]
-Order = [:type]
-```
+- [`SFAM`](@ref), [`opts_SFAM`](@ref)
+- [`FAM`](@ref), [`opts_FAM`](@ref)
+- [`DAM`](@ref), [`opts_DAM`](@ref)
 
-### [Constants](@id index-constants)
+## [Training](reference/training.md)
 
-```@index
-Pages   = ["full-index.md"]
-Modules = [AdaptiveResonance]
-Order = [:constant]
-```
+- [`train!`](@ref)
 
-## [Docs](@id index-docs)
+## [Classification and Evaluation](reference/classification.md)
 
-This section lists the documentation for every exported name of the `AdaptiveResonance.jl` package.
+- [`classify`](@ref)
+- [`performance`](@ref)
 
-### [Modules](@id index-modules-docs)
+## [Data Preparation](reference/data.md)
 
-```@autodocs
-Modules = [AdaptiveResonance]
-Private = false
-Order = [:module]
-```
+- [`DataConfig`](@ref), [`data_setup!`](@ref), [`get_data_characteristics`](@ref)
+- [`linear_normalization`](@ref), [`complement_code`](@ref)
 
-### [Functions](@id index-functions-docs)
+## [Advanced Configuration](reference/configuration.md)
 
-```@autodocs
-Modules = [AdaptiveResonance]
-Private = false
-Order = [:function]
-```
+- [`ACTIVATION_FUNCTIONS`](@ref), [`MATCH_FUNCTIONS`](@ref), [`UPDATE_FUNCTIONS`](@ref)
+- [`DDVFA_METHODS`](@ref), [`get_W`](@ref)
+- [`ART_MODULES`](@ref), [`ARTMAP_MODULES`](@ref), [`ADAPTIVERESONANCE_MODULES`](@ref), [`ADAPTIVERESONANCE_VERSION`](@ref)
+- [`ARTModule`](@ref), [`ART`](@ref), [`ARTMAP`](@ref), [`ARTOpts`](@ref)
 
-### [Types](@id index-types-docs)
+## [ARTSCENE Feature Extraction](reference/artscene.md)
 
-```@autodocs
-Modules = [AdaptiveResonance]
-Private = false
-Order = [:type]
-```
+- [`artscene_filter`](@ref)
 
-### [Constants](@id index-constants-docs)
+## Package
 
-```@autodocs
-Modules = [AdaptiveResonance]
-Private = false
-Order = [:constant]
+```@docs
+AdaptiveResonance
 ```

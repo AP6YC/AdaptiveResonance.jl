@@ -15,7 +15,7 @@ Pioneered by Stephen Grossberg and Gail Carpenter, the field has had contributio
 
 The purpose of this package is to provide a home for the development and use of these ART-based machine learning algorithms in the Julia programming language.
 
-See the [Index](@ref main-index) for the complete list of documented functions and types.
+See the [API overview](@ref main-index) for the complete list of documented functions and types.
 
 ## Manual Outline
 
@@ -36,8 +36,8 @@ Depth = 1
 The [Package Guide](@ref) provides a tutorial to the full usage of the package, while [Examples](@ref examples) gives sample workflows using a variety of ART modules.
 A list of the implemented ART modules is included in [Modules](@ref modules-page), where different options are also listed for creating variants of these modules that exist in the literature.
 
-Instructions on how to contribute to the package are found in [Contributing](@ref), and docstrings for every element of the package is listed in the [Index](@ref main-index).
-Names internal to the package are also listed under the [Developer Index](@ref dev-main-index).
+Instructions on how to contribute to the package are found in [Contributing](@ref). The [API overview](@ref main-index) links to public reference pages organized by task.
+Names internal to the package are also listed under the [Developer reference](@ref dev-main-index).
 
 ## Documentation Build
 
