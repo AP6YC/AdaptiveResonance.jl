@@ -28,12 +28,13 @@ dist2 = MvNormal([4.5, 6.0], [2.0 -1.5; -1.5 2.0])
 N_POINTS = 1000
 
 X = hcat(rand(rng, dist1, N_POINTS), rand(rng, dist2, N_POINTS))
-y = vcat(ones(Int64, N_POINTS), zeros(Int64, N_POINTS))
+# ART models reserve label 0 for unsupervised training, so use classes 1 and 2.
+y = vcat(fill(1, N_POINTS), fill(2, N_POINTS))
 
 # Show the original data in its own plot
 p1 = scatter(X[1,:], X[2,:], group=y, title="Original Data")
 
-(X_train, y_train), (X_test, y_test) = splitobs((X, y); at=0.7, shuffle=true, stratified=y)
+(X_train, y_train), (X_test, y_test) = splitobs(rng, (X, y); at=0.7, shuffle=true, stratified=y)
 
 # Standardize data types
 X_train = convert(Matrix{Float64}, X_train)
