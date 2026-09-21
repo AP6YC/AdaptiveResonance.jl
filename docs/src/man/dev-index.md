@@ -25,7 +25,7 @@ Modules = [AdaptiveResonance]
 Order = [:type]
 ```
 
-### [Constants](@id dev-index-types)
+### [Constants](@id dev-index-constants)
 
 ```@index
 Pages   = ["dev-index.md"]
@@ -33,7 +33,7 @@ Modules = [AdaptiveResonance]
 Order = [:constant]
 ```
 
-### [Docs](@id dev-index-docs)
+## [Docs](@id dev-index-docs)
 
 Documentation for all internal names are listed below.
 
