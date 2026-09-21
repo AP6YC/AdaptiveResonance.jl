@@ -167,6 +167,7 @@ export
 
     # ART (unsupervised)
     FuzzyART, opts_FuzzyART,
+    HypersphereART, opts_HypersphereART,
     DDVFA, opts_DDVFA, get_W,
     DVFA, opts_DVFA,
     # ART variants

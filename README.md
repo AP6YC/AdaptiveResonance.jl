@@ -175,6 +175,7 @@ This project has implementations of the following ART (unsupervised) and ARTMAP 
 
 - ART
   - **[`FuzzyART`][1]**: Fuzzy ART
+  - **[`HypersphereART`](https://ap6yc.github.io/AdaptiveResonance.jl/dev/man/full-index/#AdaptiveResonance.HypersphereART)**: Hypersphere ART
   - **[`DVFA`][2]**: Dual Vigilance Fuzzy ART
   - **[`DDVFA`][3]**: Distributed Dual Vigilance Fuzzy ART
 - ARTMAP

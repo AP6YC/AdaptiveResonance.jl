@@ -17,3 +17,6 @@ include("modules/FuzzyART.jl")
 
 # Dual-vigilance FuzzyART
 include("modules/DVFA.jl")
+
+# Hypersphere ART
+include("modules/HypersphereART.jl")

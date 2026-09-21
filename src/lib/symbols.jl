@@ -162,6 +162,49 @@ function art_learn(art::ARTModule, x::RealVector, index::Integer)
     return eval(art.opts.update)(art, x, get_sample(art.W, index))
 end
 
+"""
+Hypersphere ART activation for weights stored as `[center; radius]`.
+Requires an effective radial extent `art.r_bar`.
+
+$(_ARG_ART_X_W)
+"""
+function hypersphere_activation(art::ARTModule, x::RealVector, W::RealVector)
+    radius = W[end]
+    distance = norm(x - W[1:end-1])
+    return (art.r_bar - max(radius, distance)) / (art.r_bar - radius + art.opts.alpha)
+end
+
+"""
+Hypersphere ART match for weights stored as `[center; radius]`.
+Requires an effective radial extent `art.r_bar`.
+
+$(_ARG_ART_X_W)
+"""
+function hypersphere_match(art::ARTModule, x::RealVector, W::RealVector)
+    distance = norm(x - W[1:end-1])
+    return 1.0 - max(W[end], distance) / art.r_bar
+end
+
+"""
+Hypersphere ART update for weights stored as `[center; radius]`.
+Returns updated weights without modifying the supplied weight vector.
+Interior and center points leave the sphere unchanged.
+
+$(_ARG_ART_X_W)
+"""
+function hypersphere_update(art::ARTModule, x::RealVector, W::RealVector)
+    weight = copy(W)
+    delta = x - W[1:end-1]
+    distance = norm(delta)
+    radius = W[end]
+    if distance > radius
+        growth = art.opts.beta * (distance - radius) / 2
+        weight[1:end-1] += (growth / distance) * delta
+        weight[end] += growth
+    end
+    return weight
+end
+
 # -----------------------------------------------------------------------------
 # ENUMERATIONS
 # -----------------------------------------------------------------------------
@@ -171,6 +214,7 @@ Enumerates all of the update functions available in the package.
 """
 const UPDATE_FUNCTIONS = [
     :basic_update,
+    :hypersphere_update,
 ]
 
 """
@@ -178,6 +222,7 @@ Enumerates all of the match functions available in the package.
 """
 const MATCH_FUNCTIONS = [
     :basic_match,
+    :hypersphere_match,
     :gamma_match,
 ]
 
@@ -186,6 +231,7 @@ Enumerates all of the activation functions available in the package.
 """
 const ACTIVATION_FUNCTIONS = [
     :basic_activation,
+    :hypersphere_activation,
     :unnormalized_match,
     :choice_by_difference,
     :gamma_activation,

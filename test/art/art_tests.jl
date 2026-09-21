@@ -12,3 +12,7 @@ end
 @testset "FuzzyART" begin
     include("fuzzyart.jl")
 end
+
+@testset "HypersphereART" begin
+    include("hypersphereart.jl")
+end

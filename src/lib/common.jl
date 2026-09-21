@@ -373,8 +373,8 @@ function linear_normalization(data::RealMatrix ; config::DataConfig=DataConfig()
     # Populate a new array with normalized values.
     x_raw = zeros(dim, n_samples)
 
-    # Verify that all maxs are strictly greater than mins
-    if !all(mins .< maxs)
+    # Equal bounds represent constant features, which normalize to zero below.
+    if !all(mins .<= maxs)
         error("Got a data max index that is smaller than the corresonding min")
     end
 

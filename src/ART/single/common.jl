@@ -10,9 +10,15 @@ Contains all common code for single ART modules (i.e. not distributed models).
 # -----------------------------------------------------------------------------
 
 """
+Abstract supertype of single ART modules with matrix weights and symbol-based
+activation, match, and update functions.
+"""
+abstract type SingleART <: ART end
+
+"""
 Abstract supertype of FuzzyART modules.
 """
-abstract type AbstractFuzzyART <: ART end
+abstract type AbstractFuzzyART <: SingleART end
 
 # -----------------------------------------------------------------------------
 # FUNCTIONS
@@ -34,7 +40,7 @@ end
 Computes the activation and match functions of the ART module against sample x.
 
 # Arguments
-- `art::AbstractFuzzyART`: the single FuzzyART module to compute the activation and match values for all weights.
+- `art::SingleART`: the single ART module to compute the activation and match values for all weights.
 - `x::RealVector`: the sample to compute the activation and match functions against.
 
 # Examples
@@ -48,7 +54,7 @@ julia> train!(my_FuzzyART, x)
 julia> activation_match!(my_FuzzyART, x[:, 1])
 ```
 """
-function activation_match!(art::AbstractFuzzyART, x::RealVector)
+function activation_match!(art::SingleART, x::RealVector)
     # Expand the destination activation and match vectors
     accommodate_vector!(art.T, art.n_categories)
     accommodate_vector!(art.M, art.n_categories)
@@ -67,11 +73,11 @@ end
 In place learning function.
 
 # Arguments
-- `art::AbstractFuzzyART`: the FuzzyART module to update.
+- `art::SingleART`: the single ART module to update.
 - `x::RealVector`: the sample to learn from.
-- `index::Integer`: the index of the FuzzyART weight to update.
+- `index::Integer`: the index of the category weight to update.
 """
-function learn!(art::AbstractFuzzyART, x::RealVector, index::Integer)
+function learn!(art::SingleART, x::RealVector, index::Integer)
     # Compute the updated weight W
     new_vec = art_learn(art, x, index)
     # Replace the weight in place
