@@ -14,6 +14,7 @@ CurrentModule=AdaptiveResonance
 
 - ART
   - [`FuzzyART`](@ref): Fuzzy ART
+  - [`HypersphereART`](@ref): Hypersphere ART
   - [`DVFA`](@ref): Dual Vigilance Fuzzy ART
   - [`DDVFA`](@ref): Distributed Dual Vigilance Fuzzy ART
 - ARTMAP
@@ -63,3 +64,36 @@ Under the hood, this simply does
 ```julia
 my_dam = SFAM(activation=:choice_by_difference)
 ```
+
+## Hypersphere ART
+
+[`HypersphereART`](@ref) represents each category by a center and radius, stored
+in a column of `art.W` as `[center; radius]`. It supports the same batch and
+incremental `train!` and `classify` calls, optional training labels, `get_bmu`,
+progress display, and epoch limit as the other ART models.
+
+```julia
+art = HypersphereART(rho=0.6, beta=1.0)
+x = [0.0 0.1 0.9 1.0; 0.0 0.2 0.8 1.0]
+labels = train!(art, x)
+predictions = classify(art, x)
+```
+
+Raw inputs are normalized using `DataConfig`. Hypersphere ART does not use
+complement coding: `preprocessed=true` means that the original features have
+already been normalized. For incremental raw input, configure the feature
+bounds first, for example with `art.config = DataConfig(0, 1, 2)`.
+
+The options [`opts_HypersphereART`](@ref) include vigilance `rho`, choice `alpha`,
+and learning rate `beta`. The radial extent `r_bar` defaults to `sqrt(dim) / 2`, the radius of the enclosing sphere
+for the normalized unit cube. An explicit positive `r_bar` controls the distance
+scale for category choice and vigilance; for custom input scales, choose it
+at least as large as half the maximum pairwise sample distance. With `beta=1`,
+a resonating sphere expands just enough to enclose an exterior sample while
+retaining its previously enclosed points. Interior samples leave it unchanged.
+
+Like FuzzyART, HypersphereART selects its formulas through the `activation`,
+`match`, and `update` option symbols. Their defaults are
+`:hypersphere_activation`, `:hypersphere_match`, and `:hypersphere_update`,
+implemented in `src/lib/symbols.jl`. Replacement functions must support the
+`[center; radius]` weight layout; fuzzy formulas assume a different layout.
