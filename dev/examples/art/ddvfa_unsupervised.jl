@@ -1,7 +1,6 @@
 using AdaptiveResonance # ART
 using MLDatasets        # Iris dataset
 using DataFrames        # DataFrames, necessary for MLDatasets.Iris()
-using MLDataUtils       # Shuffling and splitting
 
 # Get the iris dataset
 iris = Iris(as_df=false)

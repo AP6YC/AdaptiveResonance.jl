@@ -36,7 +36,7 @@ my_fuzzyart.opts.rho=0.6
 
 using MLDatasets        # Iris dataset
 using DataFrames        # DataFrames, necessary for MLDatasets.Iris()
-using MLDataUtils       # Shuffling and splitting
+using MLUtils           # Shuffling and splitting
 using Printf            # Formatted number printing
 using MultivariateStats # Principal component analysis (PCA)
 using Plots             # Plotting frontend
@@ -47,10 +47,11 @@ iris = Iris(as_df=false)
 # Manipulate the features and labels into a matrix of features and a vector of labels
 features, labels = iris.features, iris.targets
 
-labels = convertlabel(LabelEnc.Indices{Int}, vec(labels))
+label_indices = Dict(label => i for (i, label) in enumerate(unique(vec(labels))))
+labels = [label_indices[label] for label in vec(labels)]
 unique(labels)
 
-(X_train, y_train), (X_test, y_test) = stratifiedobs((features, labels))
+(X_train, y_train), (X_test, y_test) = splitobs((features, labels); at=0.7, shuffle=true, stratified=labels)
 
 # Create two FuzzyARTs with different vigilance values and suppressing logging messages
 rho_1 = 0.5
@@ -114,7 +115,7 @@ plot(
     ytickfontsize = 12,     # y-tick size
     xlabel = "\$PCA_1\$",   # x-label
     ylabel = "\$PCA_2\$",   # y-label
-    dpi = 300,              # Set the dots-per-inch
+    dpi = 200,              # Set the dots-per-inch
 )
 
 png("assets/options-cover") #hide

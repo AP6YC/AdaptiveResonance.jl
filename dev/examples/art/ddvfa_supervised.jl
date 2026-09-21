@@ -1,7 +1,7 @@
 using AdaptiveResonance # ART
 using MLDatasets        # Iris dataset
 using DataFrames        # DataFrames, necessary for MLDatasets.Iris()
-using MLDataUtils       # Shuffling and splitting
+using MLUtils           # Shuffling and splitting
 using Printf            # Formatted number printing
 
 # Get the iris dataset
@@ -9,10 +9,11 @@ iris = Iris(as_df=false)
 # Manipulate the features and labels into a matrix of features and a vector of labels
 features, labels = iris.features, iris.targets
 
-labels = convertlabel(LabelEnc.Indices{Int}, vec(labels))
+label_indices = Dict(label => i for (i, label) in enumerate(unique(vec(labels))))
+labels = [label_indices[label] for label in vec(labels)]
 unique(labels)
 
-(X_train, y_train), (X_test, y_test) = stratifiedobs((features, labels))
+(X_train, y_train), (X_test, y_test) = splitobs((features, labels); at=0.7, shuffle=true, stratified=labels)
 
 art = DDVFA()
 

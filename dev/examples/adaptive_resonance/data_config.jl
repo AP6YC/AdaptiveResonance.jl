@@ -10,14 +10,14 @@ fieldnames(AdaptiveResonance.DataConfig)
 # Load data
 using MLDatasets        # Iris dataset
 using DataFrames        # DataFrames, necessary for MLDatasets.Iris()
-using MLDataUtils       # Shuffling and splitting
 
 # Get the iris dataset
 iris = Iris(as_df=false)
 # Manipulate the features and labels into a matrix of features and a vector of labels
 features, labels = iris.features, iris.targets
 
-labels = convertlabel(LabelEnc.Indices{Int}, vec(labels))
+label_indices = Dict(label => i for (i, label) in enumerate(unique(vec(labels))))
+labels = [label_indices[label] for label in vec(labels)]
 unique(labels)
 
 # Reinitialize the FuzzyART module
