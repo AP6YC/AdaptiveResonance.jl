@@ -250,61 +250,19 @@ function train!(art::SFAM, x::RealVector, y::Integer ; preprocessed::Bool=false)
         # Baseline vigilance parameter
         rho_baseline = art.opts.rho
 
-        # Compute the activation for all categories
-        accommodate_vector!(art.T, art.n_categories)
-        for jx in 1:art.n_categories
-            art.T[jx] = art_activation(art, sample, jx)
-        end
-
-        # Sort activation function values in descending order
-        if art.opts.sort
-            index = sortperm(art.T, rev=true)
-            top_bmu = index[1]
-        else
-            top_bmu = argmax(art.T)
-        end
-
-        mismatch_flag = true
-
-        accommodate_vector!(art.M, art.n_categories)
-        for jx in 1:art.n_categories
-            # Set the best-matching-unit index
-            if art.opts.sort
-                bmu = index[jx]
-            else
-                bmu = argmax(art.T)
+        bmu, mismatch = resonance_search!(art, sample; threshold=() -> rho_baseline) do candidate
+            if y == art.labels[candidate]
+                return true
             end
-
-            # Compute match function
-            art.M[bmu] = art_match(art, sample, bmu)
-            # Current winner
-            if art.M[bmu] >= rho_baseline
-                if y == art.labels[bmu]
-                    # Update the weight and break
-                    learn!(art, sample, bmu)
-                    mismatch_flag = false
-                    break
-                else
-                    # Match tracking
-                    rho_baseline = art.M[bmu] + art.opts.epsilon
-                end
-            elseif !art.opts.sort
-                # Remove the top activation
-                art.T[bmu] = 0.0
-            end
+            rho_baseline = art.M[candidate] + art.opts.epsilon
+            return nothing
         end
 
-        # If we triggered a mismatch
-        if mismatch_flag
-            # Keep the bmu as the top activation despite creating a new category
-            bmu = top_bmu
-
-            # Create new weight vector
+        if mismatch
             create_category!(art, sample, y)
+        else
+            learn!(art, sample, bmu)
         end
-
-        # Update the stored match and activation values
-        log_art_stats!(art, bmu, mismatch_flag)
     end
 
     # ARTMAP guarantees correct training classification, so just return the label
@@ -316,60 +274,8 @@ function classify(art::SFAM, x::RealVector ; preprocessed::Bool=false, get_bmu::
     # Run the sequential initialization procedure
     sample = init_classify!(x, art, preprocessed)
 
-    # Compute the activation for all categories
-    accommodate_vector!(art.T, art.n_categories)
-    for jx in 1:art.n_categories
-        art.T[jx] = art_activation(art, sample, jx)
-    end
-
-    # Sort activation function values in descending order
-    if art.opts.sort
-        index = sortperm(art.T, rev=true)
-        top_bmu = index[1]
-    else
-        top_bmu = argmax(art.T)
-    end
-
-    # Default to mismatch
-    mismatch_flag = true
-    y_hat = -1
-
-    # Iterate over the list of activations
-    accommodate_vector!(art.M, art.n_categories)
-    for jx in 1:art.n_categories
-        # Set the best-matching-unit index
-        if art.opts.sort
-            bmu = index[jx]
-        else
-            bmu = argmax(art.T)
-        end
-
-        # Compute match function
-        art.M[bmu] = art_match(art, sample, bmu)
-        # Current winner
-        if art.M[bmu] >= art.opts.rho
-            y_hat = art.labels[bmu]
-            mismatch_flag = false
-            break
-        elseif !art.opts.sort
-            # Remove the top activation
-            art.T[bmu] = 0.0
-        end
-    end
-
-    # If we did not find a resonant category
-    if mismatch_flag
-        # Keep the bmu as the top activation
-        bmu = top_bmu
-
-        # Report either the best matching unit or the mismatch label -1
-        y_hat = get_bmu ? art.labels[bmu] : -1
-    end
-
-    # Update the stored match and activation values
-    log_art_stats!(art, bmu, mismatch_flag)
-
-    return y_hat
+    bmu, mismatch = resonance_search!(art, sample; threshold=art.opts.rho)
+    return mismatch && !get_bmu ? -1 : art.labels[bmu]
 end
 
 """
@@ -382,4 +288,17 @@ function learn!(art::SFAM, x::RealVector, index::Integer)
     replace_mat_index!(art.W, new_vec, index)
     # Return empty
     return
+end
+
+# SFAM computes matches only for candidates visited during the search.
+function resonance_activation!(art::SFAM, sample::RealVector)
+    accommodate_vector!(art.T, art.n_categories)
+    accommodate_vector!(art.M, art.n_categories)
+    for j in 1:art.n_categories
+        art.T[j] = art_activation(art, sample, j)
+    end
+end
+
+function resonance_match!(art::SFAM, sample::RealVector, bmu::Integer)
+    art.M[bmu] = art_match(art, sample, bmu)
 end
