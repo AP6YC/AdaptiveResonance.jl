@@ -29,3 +29,6 @@ include("symbols.jl")
 
 # Common documentation of multiply-dispatched functions
 include("common_docs.jl")
+
+# Shared category traversal and resonance search.
+include("resonance.jl")
