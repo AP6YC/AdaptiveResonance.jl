@@ -19,6 +19,13 @@ $(_OPTS_DOCSTRING)
 """
 @with_kw mutable struct opts_FAM <: ARTOpts @deftype Float
     """
+    Enable temporary vigilance increases after a supervisory label conflict.
+    Applies only to label-supervised searches; unsupervised learning and inference
+    are unchanged. Vigilance resets to baseline for each sample.
+    """
+    match_tracking::Bool = true
+
+    """
     Vigilance parameter: rho ∈ [0, 1].
     """
     rho = 0.6; @assert rho >= 0.0 && rho <= 1.0

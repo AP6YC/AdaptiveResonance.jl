@@ -16,7 +16,8 @@ CurrentModule = AdaptiveResonance
 ## [Training and Category Lifecycle](internals/lifecycle.md)
 
 - [`initialize!`](@ref), [`set_threshold!`](@ref), [`stopping_conditions`](@ref)
-- [`create_category!`](@ref), [`activation_match!`](@ref), [`learn!`](@ref), [`hypersphere_search`](@ref)
+- [`create_category!`](@ref), [`activation_match!`](@ref), [`learn!`](@ref)
+- [`resonance_search!`](@ref), [`resonance_activation!`](@ref), [`resonance_match!`](@ref), [`resonance_match_scale`](@ref)
 - [`get_n_weights`](@ref), [`get_n_weights_vec`](@ref)
 
 ## [Activation, Matching, and Weight Updates](internals/activation.md)

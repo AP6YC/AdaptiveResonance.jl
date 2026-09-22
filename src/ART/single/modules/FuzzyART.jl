@@ -23,6 +23,16 @@ $(_OPTS_DOCSTRING)
 """
 @with_kw mutable struct opts_FuzzyART <: ARTOpts @deftype Float
     """
+    Flag to enable match tracking.
+    """
+    match_tracking::Bool = false
+
+    """
+    Positive match-tracking increment: episilon ∈ (0, 1)
+    """
+    epsilon = 1e-3; @assert epsilon > 0.0 && epsilon < 1.0
+
+    """
     Vigilance parameter: rho ∈ [0, 1].
     """
     rho = 0.6; @assert rho >= 0.0 && rho <= 1.0
@@ -320,71 +330,15 @@ function train!(art::FuzzyART, x::RealVector ; y::Integer=0, preprocessed::Bool=
         return y
     end
 
-    # Compute activation/match functions
-    activation_match!(art, sample)
-
-    # Sort activation function values in descending order
-    if art.opts.sort
-        index = sortperm(art.T, rev=true)
-        top_bmu = index[1]
-    else
-        top_bmu = argmax(art.T)
-    end
-
-    # Initialize mismatch as true
-    mismatch_flag = true
-    y_hat = -1
-
-    # Loop over all categories
-    for jx = 1:art.n_categories
-        # Best matching unit
-        if art.opts.sort
-            bmu = index[jx]
-        else
-            bmu = argmax(art.T)
-        end
-
-        # Vigilance check - pass
-        if art.M[bmu] >= art.threshold
-            # If supervised and the label differed, force mismatch
-            if supervised && (art.labels[bmu] != y)
-                break
-            end
-
-            # Learn the sample
-            learn!(art, sample, bmu)
-
-            # Increment the instance counting
-            art.n_instance[bmu] += 1
-
-            # Save the output label for the sample
-            y_hat = art.labels[bmu]
-
-            # No mismatch
-            mismatch_flag = false
-            break
-        elseif !art.opts.sort
-            # Remove the top activation
-            art.T[bmu] = 0.0
-        end
-    end
-
-    # If there was no resonant category, make a new one
-    if mismatch_flag
-        # Keep the bmu as the top activation despite creating a new category
-        bmu = top_bmu
-
-        # Get the correct label for the new category
+    bmu, mismatch = resonance_search!(art, sample; y=y)
+    if mismatch
         y_hat = supervised ? y : art.n_categories + 1
-
-        # Create a new category
         create_category!(art, sample, y_hat)
+    else
+        learn!(art, sample, bmu)
+        art.n_instance[bmu] += 1
+        y_hat = art.labels[bmu]
     end
-
-    # Update the stored match and activation values
-    log_art_stats!(art, bmu, mismatch_flag)
-
-    # Return the training label
     return y_hat
 end
 
@@ -393,54 +347,11 @@ function classify(art::FuzzyART, x::RealVector ; preprocessed::Bool=false, get_b
     # Preprocess the data
     sample = init_classify!(x, art, preprocessed)
 
-    # Compute activation and match functions
-    activation_match!(art, sample)
+    bmu, mismatch = resonance_search!(art, sample)
+    return mismatch && !get_bmu ? -1 : art.labels[bmu]
+end
 
-    # Sort activation function values in descending order
-    if art.opts.sort
-        index = sortperm(art.T, rev=true)
-        top_bmu = index[1]
-    else
-        top_bmu = argmax(art.T)
-    end
-
-    # Default is mismatch
-    mismatch_flag = true
-    y_hat = -1
-
-    # Iterate over all categories
-    for jx in 1:art.n_categories
-        # Get the best-matching unit
-        if art.opts.sort
-            bmu = index[jx]
-        else
-            bmu = argmax(art.T)
-        end
-
-        # Vigilance check - pass
-        if art.M[bmu] >= art.threshold
-            # Current winner
-            y_hat = art.labels[bmu]
-            mismatch_flag = false
-            break
-        elseif !art.opts.sort
-            # Remove the top activation
-            art.T[bmu] = 0.0
-        end
-    end
-
-    # If we did not find a match
-    if mismatch_flag
-        # Report either the best matching unit or the mismatch label -1
-        bmu = top_bmu
-
-        # Report either the best matching unit or the mismatch label -1
-        y_hat = get_bmu ? art.labels[bmu] : -1
-    end
-
-    # Update the stored match and activation values
-    log_art_stats!(art, bmu, mismatch_flag)
-
-    # Return the inferred label
-    return y_hat
+# Convert a vigilance-parameter increment to the same units as the match threshold.
+function resonance_match_scale(art::FuzzyART)
+    return art.opts.gamma_normalization ? art.config.dim ^ art.opts.gamma_ref : 1.0
 end

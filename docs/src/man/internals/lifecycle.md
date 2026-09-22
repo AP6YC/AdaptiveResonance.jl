@@ -10,7 +10,8 @@ CurrentModule = AdaptiveResonance
 ## Index
 
 - [`initialize!`](@ref), [`set_threshold!`](@ref), [`stopping_conditions`](@ref)
-- [`create_category!`](@ref), [`activation_match!`](@ref), [`learn!`](@ref), [`hypersphere_search`](@ref)
+- [`create_category!`](@ref), [`activation_match!`](@ref), [`learn!`](@ref)
+- [`resonance_search!`](@ref), [`resonance_activation!`](@ref), [`resonance_match!`](@ref), [`resonance_match_scale`](@ref)
 - [`get_n_weights`](@ref), [`get_n_weights_vec`](@ref)
 
 ## Initialization and Stopping
@@ -53,10 +54,36 @@ activation_match!
 learn!
 ```
 
-### [`hypersphere_search`](@id internals-hypersphere_search)
+## Resonance Search
+
+All implemented ART and ARTMAP learners share `resonance_search!` for candidate
+traversal, vigilance checks, optional supervisory match tracking, mismatch
+fallback, and statistics. Learning and category creation remain with the caller.
+The hooks below specialize activation preparation, lazy match evaluation, and
+conversion of the tracking increment to each module's match units.
+
+### [`resonance_search!`](@id internals-resonance_search-mutating)
 
 ```@docs
-hypersphere_search
+resonance_search!
+```
+
+### [`resonance_activation!`](@id internals-resonance_activation-mutating)
+
+```@docs
+resonance_activation!
+```
+
+### [`resonance_match!`](@id internals-resonance_match-mutating)
+
+```@docs
+resonance_match!
+```
+
+### [`resonance_match_scale`](@id internals-resonance_match_scale)
+
+```@docs
+resonance_match_scale
 ```
 
 ## Distributed Model State

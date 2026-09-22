@@ -20,6 +20,16 @@ $(_OPTS_DOCSTRING)
 """
 @with_kw mutable struct opts_DDVFA <: ARTOpts @deftype Float
     """
+    Flag to enable match tracking.
+    """
+    match_tracking::Bool = false
+
+    """
+    Positive match-tracking increment: episilon ∈ (0, 1)
+    """
+    epsilon = 1e-3; @assert epsilon > 0.0 && epsilon < 1.0
+
+    """
     Lower-bound vigilance parameter: rho_lb ∈ [0, 1].
     """
     rho_lb = 0.7; @assert rho_lb >= 0.0 && rho_lb <= 1.0
@@ -290,71 +300,14 @@ function train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fal
         return y_hat
     end
 
-    # Default to mismatch
-    mismatch_flag = true
-    y_hat = -1
-
-    # Compute the activation for all categories
-    accommodate_vector!(art.T, art.n_categories)
-    for jx = 1:art.n_categories
-        activation_match!(art.F2[jx], sample)
-        art.T[jx] = similarity(art.opts.similarity, art.F2[jx], sample, true)
-    end
-
-    # Compute the match for each category in the order of greatest activation
-    if art.opts.sort
-        index = sortperm(art.T, rev=true)
-        top_bmu = index[1]
-    else
-        top_bmu = argmax(art.T)
-    end
-
-    accommodate_vector!(art.M, art.n_categories)
-    for jx = 1:art.n_categories
-        # Best matching unit
-        if art.opts.sort
-            bmu = index[jx]
-        else
-            bmu = argmax(art.T)
-        end
-
-        # Compute the match with the similarity linkage method
-        art.M[bmu] = similarity(art.opts.similarity, art.F2[bmu], sample, false)
-        # If we got a match, then learn (update the category)
-        if art.M[bmu] >= art.threshold
-            # If supervised and the label differs, trigger mismatch
-            if supervised && (art.labels[bmu] != y)
-                break
-            end
-
-            # Update the weights with the sample
-            train!(art.F2[bmu], sample, preprocessed=true)
-            # Save the output label for the sample
-            y_hat = art.labels[bmu]
-            # No mismatch
-            mismatch_flag = false
-            break
-        elseif !art.opts.sort
-            # Remove the top activation
-            art.T[bmu] = 0.0
-        end
-    end
-
-    # If we triggered a mismatch
-    if mismatch_flag
-        # Keep the bmu as the top activation despite creating a new category
-        bmu = top_bmu
-
-        # Get the correct label
+    bmu, mismatch = resonance_search!(art, sample; y=y)
+    if mismatch
         y_hat = supervised ? y : art.n_categories + 1
-
-        # Create a new category
         create_category!(art, sample, y_hat)
+    else
+        train!(art.F2[bmu], sample, preprocessed=true)
+        y_hat = art.labels[bmu]
     end
-
-    # Log the stats
-    log_art_stats!(art, bmu, mismatch_flag)
-
     return y_hat
 end
 
@@ -363,64 +316,8 @@ function classify(art::DDVFA, x::RealVector ; preprocessed::Bool=false, get_bmu:
     # Preprocess the data
     sample = init_classify!(x, art, preprocessed)
 
-    # Calculate all global activations
-    accommodate_vector!(art.T, art.n_categories)
-    for jx = 1:art.n_categories
-        # Update the F2 node's activation and match values
-        activation_match!(art.F2[jx], sample)
-        # Update the DDVFA activation with the similarity linkage method
-        art.T[jx] = similarity(art.opts.similarity, art.F2[jx], sample, true)
-    end
-
-    # Sort by highest activation
-    if art.opts.sort
-        index = sortperm(art.T, rev=true)
-        top_bmu = index[1]
-    else
-        top_bmu = argmax(art.T)
-    end
-
-    # Default to mismatch
-    mismatch_flag = true
-    y_hat = -1
-
-    # Iterate over the list of activations
-    accommodate_vector!(art.M, art.n_categories)
-    for jx = 1:art.n_categories
-        # Get the best-matching unit
-        if art.opts.sort
-            bmu = index[jx]
-        else
-            bmu = argmax(art.T)
-        end
-
-        # Get the match value of this activation
-        art.M[bmu] = similarity(art.opts.similarity, art.F2[bmu], sample, false)
-        # If the match satisfies the threshold criterion, then report that label
-        if art.M[bmu] >= art.threshold
-            # Update the stored match and activation values
-            log_art_stats!(art, bmu, false)
-            # Current winner
-            y_hat = art.labels[bmu]
-            mismatch_flag = false
-            break
-        elseif !art.opts.sort
-            # Remove the top activation
-            art.T[bmu] = 0.0
-        end
-    end
-
-    # If we did not find a resonant category
-    if mismatch_flag
-        # Update the stored match and activation values of the best matching unit
-        bmu = top_bmu
-        log_art_stats!(art, bmu, true)
-
-        # Report either the best matching unit or the mismatch label -1
-        y_hat = get_bmu ? art.labels[bmu] : -1
-    end
-
-    return y_hat
+    bmu, mismatch = resonance_search!(art, sample)
+    return mismatch && !get_bmu ? -1 : art.labels[bmu]
 end
 
 # -----------------------------------------------------------------------------
@@ -609,4 +506,23 @@ Convenience function; return the sum total number of weights in the DDVFA module
 function get_n_weights(art::DDVFA)
     # Return the number of weights across all categories
     return sum(get_n_weights_vec(art))
+end
+
+# Distributed activation uses each local module's linkage; global matches are lazy.
+function resonance_activation!(art::DDVFA, sample::RealVector)
+    accommodate_vector!(art.T, art.n_categories)
+    accommodate_vector!(art.M, art.n_categories)
+    for j in 1:art.n_categories
+        activation_match!(art.F2[j], sample)
+        art.T[j] = similarity(art.opts.similarity, art.F2[j], sample, true)
+    end
+end
+
+function resonance_match!(art::DDVFA, sample::RealVector, bmu::Integer)
+    art.M[bmu] = similarity(art.opts.similarity, art.F2[bmu], sample, false)
+end
+
+# Convert a vigilance-parameter increment to the same units as the match threshold.
+function resonance_match_scale(art::DDVFA)
+    return art.opts.gamma_normalization ? art.config.dim ^ art.opts.gamma_ref : 1.0
 end
