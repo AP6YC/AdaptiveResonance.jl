@@ -23,6 +23,16 @@ $(_OPTS_DOCSTRING)
 """
 @with_kw mutable struct opts_FuzzyART <: ARTOpts @deftype Float
     """
+    Flag to enable match tracking.
+    """
+    match_tracking::Bool = false
+
+    """
+    Positive match-tracking increment: episilon ∈ (0, 1)
+    """
+    epsilon = 1e-3; @assert epsilon > 0.0 && epsilon < 1.0
+
+    """
     Vigilance parameter: rho ∈ [0, 1].
     """
     rho = 0.6; @assert rho >= 0.0 && rho <= 1.0
@@ -339,4 +349,9 @@ function classify(art::FuzzyART, x::RealVector ; preprocessed::Bool=false, get_b
 
     bmu, mismatch = resonance_search!(art, sample)
     return mismatch && !get_bmu ? -1 : art.labels[bmu]
+end
+
+# Convert a vigilance-parameter increment to the same units as the match threshold.
+function resonance_match_scale(art::FuzzyART)
+    return art.opts.gamma_normalization ? art.config.dim ^ art.opts.gamma_ref : 1.0
 end

@@ -5,6 +5,7 @@ Evaluate the resonance search for a module.
 - `accept::F`: anonymous function to pass the accept/reject decision to the ART module.
 - `art::ARTModule`: the ART module running the resonance search.
 - `sample::RealVector`: the sample presented for search.
+- `match_tracking=art.opts.match_tracking`: continue searching with raised vigilance after a callback rejects a label.
 - `threshold=art.threshold`: the vigilance threshold (can be rho or a function that varies during training/evaluation). Default `art.threshold`
 
 # Description
@@ -18,10 +19,14 @@ by inhibiting a working copy with `-Inf` (determined by the `art.opts.sort` flag
 The original activations are retained for statistics, including when no category resonates.
 
 `accept(bmu)` is called only when vigilance passes: return `true` to accept,
-`false` to stop with a supervisory mismatch, or `nothing` to continue searching
-(e.g. after ARTMAP match tracking).
+`false` to signal a supervisory mismatch, or `nothing` to continue searching.
+On `false`, `match_tracking=true` raises the local vigilance above the rejected
+match by `opts.epsilon` (scaled to match units) and continues; otherwise search
+stops. The baseline is never mutated, and tracked vigilance is not capped, so
+conflicting exact matches can exhaust the search and request a new category.
 `threshold` may be a number or a zero-argument function for a changing vigilance threshold to recompute it (such as in vigilance tracking).
-The default callback accepts any label when `y == 0`, otherwise it stops on a conflicting label.
+The default callback checks labels only when `supervised=true` (default: `y != 0`).
+ARTMAP callers explicitly enable supervision so label zero is also supported.
 
 # Examples
 
@@ -34,7 +39,8 @@ function resonance_search!(
     accept::F,
     art::ARTModule,
     sample::RealVector;
-    threshold=art.threshold
+    threshold=art.threshold,
+    match_tracking::Bool=art.opts.match_tracking
 ) where {F}
     # Error if doing a resonance search without any categories
     art.n_categories > 0 || throw(ArgumentError("Resonance search requires a committed category."))
@@ -51,6 +57,10 @@ function resonance_search!(
     # Start with highest activation to begin search (best matching unit)
     bmu = art.opts.sort ? first(order) : argmax(activations)
 
+    # Tracking raises only a local floor, never the stored baseline vigilance.
+    # This also permits a caller-supplied threshold function to vary independently.
+    tracked_vigilance = -Inf
+
     # Loop flag
     mismatch = true
 
@@ -63,7 +73,8 @@ function resonance_search!(
         match = resonance_match!(art, sample, candidate)
 
         # Get the threshold (sometimes rho, sometimes a function of rho, etc.)
-        vigilance = threshold isa Number ? threshold : threshold()
+        baseline = threshold isa Number ? threshold : threshold()
+        vigilance = max(baseline, tracked_vigilance)
 
         # Vigilance test
         if match >= vigilance
@@ -75,7 +86,14 @@ function resonance_search!(
                 mismatch = false
                 break
             elseif decision === false
-                break
+                # A label conflict either ends simple supervised search or raises
+                # vigilance just above this match and searches the next category.
+                if !match_tracking
+                    break
+                end
+                increment = art.opts.epsilon * resonance_match_scale(art)
+                # nextfloat guarantees a strict increase even if epsilon rounds away.
+                tracked_vigilance = max(match + increment, nextfloat(float(match)))
             end
         end
         # If not presorted and no match, manually inhibit the candidate with -Inf
@@ -94,13 +112,21 @@ function resonance_search!(
     art::ARTModule,
     sample::RealVector;
     threshold=art.threshold,
-    y::Integer=0
+    y::Integer=0,
+    supervised::Bool=!iszero(y)
 )
-    return resonance_search!(art, sample; threshold=threshold) do bmu
-        iszero(y) || art.labels[bmu] == y
+    # Only supervised searches can produce the prediction error needed for tracking.
+    return resonance_search!(art, sample;
+                             threshold=threshold,
+                             match_tracking=supervised && art.opts.match_tracking) do bmu
+        !supervised || art.labels[bmu] == y
     end
 end
 
 # Temporary workaround and placeholder for more elegant activation and match handling
 resonance_activation!(art::ARTModule, sample::RealVector) = activation_match!(art, sample)
 resonance_match!(art::ARTModule, sample::RealVector, bmu::Integer) = art.M[bmu]
+
+# Most modules compare dimensionless matches directly with vigilance parameters.
+# Modules using scaled matches override this conversion for the tracking increment.
+resonance_match_scale(::ARTModule) = 1.0

@@ -24,6 +24,16 @@ $(_OPTS_DOCSTRING)
 """
 @with_kw mutable struct opts_DVFA <: ARTOpts @deftype Float
     """
+    Flag to enable match tracking.
+    """
+    match_tracking::Bool = false
+
+    """
+    Positive match-tracking increment: episilon ∈ (0, 1)
+    """
+    epsilon = 1e-3; @assert epsilon > 0.0 && epsilon < 1.0
+
+    """
     Lower-bound vigilance parameter: rho_lb ∈ [0, 1].
     """
     rho_lb = 0.55; @assert rho_lb >= 0.0 && rho_lb <= 1.0
@@ -288,10 +298,12 @@ function train!(art::DVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fals
         return y
     end
 
-    # Lower vigilance admits a new category in an existing cluster. Only an
-    # upper-vigilance match can trigger the supervisory mismatch rule.
+    # Lower vigilance admits a new category in an existing cluster. With tracking,
+    # both branches must respect the supplied label before accepting a category.
+    # Without tracking, retain the original lower-vigilance category creation rule.
     bmu, mismatch = resonance_search!(art, sample; threshold=art.threshold_lb) do candidate
-        art.M[candidate] < art.threshold_ub || !supervised || art.labels[candidate] == y
+        !supervised || art.labels[candidate] == y ||
+            (!art.opts.match_tracking && art.M[candidate] < art.threshold_ub)
     end
     if mismatch
         y_hat = supervised ? y : art.n_clusters + 1
@@ -314,3 +326,6 @@ function classify(art::DVFA, x::RealVector ; preprocessed::Bool=false, get_bmu::
     bmu, mismatch = resonance_search!(art, sample; threshold=art.threshold_ub)
     return mismatch && !get_bmu ? -1 : art.labels[bmu]
 end
+
+# DVFA compares unnormalized fuzzy intersection sums against rho * dimension.
+resonance_match_scale(art::DVFA) = art.config.dim

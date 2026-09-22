@@ -13,6 +13,16 @@ scales, choose an extent at least half the largest pairwise sample distance.
 $(_OPTS_DOCSTRING)
 """
 @with_kw mutable struct opts_HypersphereART <: ARTOpts @deftype Float
+    """
+    Flag to enable match tracking.
+    """
+    match_tracking::Bool = false
+
+    """
+    Positive match-tracking increment: episilon ∈ (0, 1)
+    """
+    epsilon = 1e-3; @assert epsilon > 0.0 && epsilon < 1.0
+
     """Vigilance parameter in [0, 1]."""
     rho = 0.6; @assert 0.0 <= rho <= 1.0
 

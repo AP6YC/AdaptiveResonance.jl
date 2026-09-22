@@ -19,6 +19,13 @@ $(_OPTS_DOCSTRING)
 """
 @with_kw mutable struct opts_SFAM <: ARTOpts @deftype Float
     """
+    Enable temporary vigilance increases after a supervisory label conflict.
+    Applies only to label-supervised searches; unsupervised learning and inference
+    are unchanged. Vigilance resets to baseline for each sample.
+    """
+    match_tracking::Bool = true
+
+    """
     Vigilance parameter: rho ∈ [0, 1].
     """
     rho = 0.75; @assert rho >= 0.0 && rho <= 1.0
@@ -247,17 +254,9 @@ function train!(art::SFAM, x::RealVector, y::Integer ; preprocessed::Bool=false)
         create_category!(art, sample, y)
     # Otherwise, test for a match
     else
-        # Baseline vigilance parameter
-        rho_baseline = art.opts.rho
-
-        bmu, mismatch = resonance_search!(art, sample; threshold=() -> rho_baseline) do candidate
-            if y == art.labels[candidate]
-                return true
-            end
-            rho_baseline = art.M[candidate] + art.opts.epsilon
-            return nothing
-        end
-
+        # Shared search handles label checks and optional, sample-local match tracking.
+        bmu, mismatch = resonance_search!(art, sample;
+                                         threshold=art.opts.rho, y=y, supervised=true)
         if mismatch
             create_category!(art, sample, y)
         else

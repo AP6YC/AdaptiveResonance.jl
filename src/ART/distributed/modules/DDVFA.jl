@@ -20,6 +20,16 @@ $(_OPTS_DOCSTRING)
 """
 @with_kw mutable struct opts_DDVFA <: ARTOpts @deftype Float
     """
+    Flag to enable match tracking.
+    """
+    match_tracking::Bool = false
+
+    """
+    Positive match-tracking increment: episilon ∈ (0, 1)
+    """
+    epsilon = 1e-3; @assert epsilon > 0.0 && epsilon < 1.0
+
+    """
     Lower-bound vigilance parameter: rho_lb ∈ [0, 1].
     """
     rho_lb = 0.7; @assert rho_lb >= 0.0 && rho_lb <= 1.0
@@ -510,4 +520,9 @@ end
 
 function resonance_match!(art::DDVFA, sample::RealVector, bmu::Integer)
     art.M[bmu] = similarity(art.opts.similarity, art.F2[bmu], sample, false)
+end
+
+# Convert a vigilance-parameter increment to the same units as the match threshold.
+function resonance_match_scale(art::DDVFA)
+    return art.opts.gamma_normalization ? art.config.dim ^ art.opts.gamma_ref : 1.0
 end
