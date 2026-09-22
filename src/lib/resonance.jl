@@ -123,10 +123,48 @@ function resonance_search!(
     end
 end
 
-# Temporary workaround and placeholder for more elegant activation and match handling
+"""
+Prepare category activations and match storage before resonance search.
+
+# Arguments
+- `art::ARTModule`: the ART module running the resonance search.
+- `sample::RealVector`: the preprocessed sample presented for search.
+
+# Description
+
+The default delegates to [`activation_match!`](@ref). SFAM prepares activations
+and defers matches until candidates are visited; DDVFA first evaluates its local
+modules and computes global activations using the configured linkage.
+"""
 resonance_activation!(art::ARTModule, sample::RealVector) = activation_match!(art, sample)
+
+"""
+Return the candidate's match value during resonance search.
+
+# Arguments
+- `art::ARTModule`: the ART module running the resonance search.
+- `sample::RealVector`: the preprocessed sample presented for search.
+- `bmu::Integer`: the index of the candidate category being evaluated.
+
+# Description
+
+The default reads
+`art.M[bmu]`; SFAM and DDVFA compute and store this value lazily for each visited
+candidate, using their match function or linkage respectively.
+"""
 resonance_match!(art::ARTModule, sample::RealVector, bmu::Integer) = art.M[bmu]
 
-# Most modules compare dimensionless matches directly with vigilance parameters.
-# Modules using scaled matches override this conversion for the tracking increment.
+"""
+Return the scale for converting a vigilance-parameter increment to match units.
+
+# Arguments
+- `art::ARTModule`: the ART module whose match scale determines the tracking increment.
+
+# Description
+
+Resonance search raises its temporary threshold by
+`art.opts.epsilon * resonance_match_scale(art)`.
+The default scale is one. DVFA uses the feature dimension; FuzzyART and DDVFA
+use `dim ^ gamma_ref` when gamma normalization is enabled, and one otherwise.
+"""
 resonance_match_scale(::ARTModule) = 1.0
