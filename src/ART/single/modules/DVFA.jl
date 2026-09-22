@@ -288,71 +288,21 @@ function train!(art::DVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fals
         return y
     end
 
-    # Compute the activation and match for all categories
-    activation_match!(art, sample)
-    # Sort activation function values in descending order
-    if art.opts.sort
-        index = sortperm(art.T, rev=true)
-        top_bmu = index[1]
-    else
-        top_bmu = argmax(art.T)
+    # Lower vigilance admits a new category in an existing cluster. Only an
+    # upper-vigilance match can trigger the supervisory mismatch rule.
+    bmu, mismatch = resonance_search!(art, sample; threshold=art.threshold_lb) do candidate
+        art.M[candidate] < art.threshold_ub || !supervised || art.labels[candidate] == y
     end
-
-    # Default to mismatch
-    mismatch_flag = true
-    # Loop over all categories
-    for jx = 1:art.n_categories
-        # Best matching unit
-        if art.opts.sort
-            bmu = index[jx]
-        else
-            bmu = argmax(art.T)
-        end
-
-        # Vigilance test upper bound
-        if art.M[bmu] >= art.threshold_ub
-            # If supervised and the label differs, trigger mismatch
-            if supervised && (art.labels[bmu] != y)
-                break
-            end
-
-            # Learn the sample
-            learn!(art, sample, bmu)
-            # Update sample label for output
-            y_hat = art.labels[bmu]
-            # No mismatch
-            mismatch_flag = false
-            break
-        # Vigilance test lower bound
-        elseif art.M[bmu] >= art.threshold_lb
-            # Update sample labels
-            y_hat = supervised ? y : art.labels[bmu]
-            # Create a new category in the same cluster
-            create_category!(art, sample, y_hat, new_cluster=false)
-            # No mismatch
-            mismatch_flag = false
-            break
-        elseif !art.opts.sort
-            # Remove the top activation
-            art.T[bmu] = 0.0
-        end
-    end
-
-    # If there was no resonant category, make a new one
-    if mismatch_flag
-        # Keep the bmu as the top activation despite creating a new category
-        bmu = top_bmu
-
-        # Create a new category-to-cluster label
+    if mismatch
         y_hat = supervised ? y : art.n_clusters + 1
-
-        # Create a new category
         create_category!(art, sample, y_hat)
+    elseif art.M[bmu] >= art.threshold_ub
+        learn!(art, sample, bmu)
+        y_hat = art.labels[bmu]
+    else
+        y_hat = supervised ? y : art.labels[bmu]
+        create_category!(art, sample, y_hat, new_cluster=false)
     end
-
-    # Update the stored match and activation values
-    log_art_stats!(art, bmu, mismatch_flag)
-
     return y_hat
 end
 
@@ -361,53 +311,6 @@ function classify(art::DVFA, x::RealVector ; preprocessed::Bool=false, get_bmu::
     # Preprocess the data
     sample = init_classify!(x, art, preprocessed)
 
-    # Compute activation and match functions
-    activation_match!(art, sample)
-    # Sort activation function values in descending order
-    if art.opts.sort
-        index = sortperm(art.T, rev=true)
-        top_bmu = index[1]
-    else
-        top_bmu = argmax(art.T)
-    end
-
-    # Default to mismatch
-    mismatch_flag = true
-    y_hat = -1
-
-    # Iterate over the list of activations
-    for jx in 1:art.n_categories
-        # Get the best-matching unit
-        if art.opts.sort
-            bmu = index[jx]
-        else
-            bmu = argmax(art.T)
-        end
-
-        # Vigilance check - pass
-        if art.M[bmu] >= art.threshold_ub
-            # Current winner
-            y_hat = art.labels[bmu]
-            mismatch_flag = false
-            break
-        elseif !art.opts.sort
-            # Remove the top activation
-            art.T[bmu] = 0.0
-        end
-    end
-
-    # If we did not find a resonant category
-    if mismatch_flag
-        # Create new weight vector
-        bmu = top_bmu
-
-        # Report either the best matching unit or the mismatch label -1
-        y_hat = get_bmu ? art.labels[bmu] : -1
-    end
-
-    # Update the stored match and activation values
-    log_art_stats!(art, bmu, mismatch_flag)
-
-    # Return the inferred label
-    return y_hat
+    bmu, mismatch = resonance_search!(art, sample; threshold=art.threshold_ub)
+    return mismatch && !get_bmu ? -1 : art.labels[bmu]
 end
