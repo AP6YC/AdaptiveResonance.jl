@@ -202,27 +202,6 @@ function create_category!(art::HypersphereART, x::RealVector, y::Integer)
     art.n_categories += 1
 end
 
-"""Search committed hyperspheres, preserving activation values for statistics."""
-function hypersphere_search(art::HypersphereART; y::Integer=0)
-    # Either sort once or keep a working copy for iterative winner inhibition.
-    order = art.opts.sort ? sortperm(art.T, rev=true) : Int[]
-    activations = art.opts.sort ? Float[] : copy(art.T)
-    # Visit categories in descending activation order until one resonates.
-    for j in 1:art.n_categories
-        bmu = art.opts.sort ? order[j] : argmax(activations)
-        # Accept only categories whose match reaches the vigilance threshold.
-        if art.M[bmu] >= art.threshold
-            # Follow the package's simple supervisory mismatch convention.
-            !iszero(y) && art.labels[bmu] != y && return 0
-            return bmu
-        end
-        # Activations can be zero or negative for distant samples.
-        !art.opts.sort && (activations[bmu] = -Inf)
-    end
-    # Zero signals that no committed category passed the search.
-    return 0
-end
-
 # COMMON DOC: HypersphereART incremental training method
 function train!(art::HypersphereART, x::RealVector; y::Integer=0, preprocessed::Bool=false)
     # Set up the feature configuration and prepare the incoming sample.
@@ -240,24 +219,17 @@ function train!(art::HypersphereART, x::RealVector; y::Integer=0, preprocessed::
     end
     # Refresh vigilance and evaluate all categories through the shared symbols.
     set_threshold!(art)
-    activation_match!(art, sample)
-    # Retain the top activation for statistics and any mismatch fallback.
-    top_bmu = argmax(art.T)
-    bmu = hypersphere_search(art, y=y)
-    mismatch = iszero(bmu)
+    bmu, mismatch = resonance_search!(art, sample; y=y)
     if mismatch
         # Commit a new sphere when the search finds no compatible category.
         label = iszero(y) ? art.n_categories + 1 : y
         create_category!(art, sample, label)
-        bmu = top_bmu
     else
         # Update the resonant sphere and count the sample assigned to it.
         learn!(art, sample, bmu)
         art.n_instance[bmu] += 1
         label = art.labels[bmu]
     end
-    # Store the winning activation, match, and mismatch status.
-    log_art_stats!(art, bmu, mismatch)
     return label
 end
 
@@ -267,15 +239,7 @@ function classify(art::HypersphereART, x::RealVector; preprocessed::Bool=false, 
     sample = init_classify!(x, art, preprocessed)
     # Refresh vigilance and evaluate all categories through the shared symbols.
     set_threshold!(art)
-    activation_match!(art, sample)
-    # Retain the top activation for statistics and any mismatch fallback.
-    top_bmu = argmax(art.T)
-    bmu = hypersphere_search(art)
-    mismatch = iszero(bmu)
-    # On mismatch, keep the strongest category for logging and optional fallback.
-    mismatch && (bmu = top_bmu)
-    # Store the winning activation, match, and mismatch status.
-    log_art_stats!(art, bmu, mismatch)
+    bmu, mismatch = resonance_search!(art, sample)
     # Return -1 for rejection unless the caller requests the best available label.
     return mismatch && !get_bmu ? -1 : art.labels[bmu]
 end
