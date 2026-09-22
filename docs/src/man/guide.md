@@ -10,6 +10,7 @@ To work with `AdaptiveResonance.jl`, you should know:
 - [How to use ART module options](@ref art_options)
 - [ART vs. ARTMAP](@ref art_vs_artmap)
 - [ART stats logging](@ref art_stats)
+- [Match tracking](@ref match_tracking)
 
 ## [Installation](@id installation)
 
@@ -250,6 +251,7 @@ Otherwise, most ART and ARTMAP modules share the following nomenclature for algo
 - `rho::Float`: ART vigilance parameter [0, 1].
 - `alpha::Float`: Choice parameter > 0.
 - `beta::Float`: Learning parameter (0, 1].
+- `match_tracking::Bool`: Flag to enable or disable match tracking.
 - `epsilon::Float`: Match tracking parameter (0, 1).
 - `match::Symbol`: A symbolic name of the match function used (i.e., `:basic_match`). Valid names are listed in [`MATCH_FUNCTIONS`](@ref).
 - `activation::Symbol`: A symbolic name of the activation function used (i.e., `:basic_activation`). Valid names are listed in [`ACTIVATION_FUNCTIONS`](@ref).
@@ -329,3 +331,35 @@ M_bmu = my_art.stats["M"]
 bmu_index = my_art.stats["bmu"]
 mismatch_flag = my_art.stats["mismatch"]
 ```
+
+## [Match Tracking](@id match_tracking)
+
+Match tracking is a mechanism in ARTMAP during *supervised training* where if a winning node's predicts the wrong label, then the running vigilance parameter $\rho$ is increased by a small $\epsilon$, and the search continues after inhibiting that node.
+If you want to learn more, there's an entire [paper dedicated to studing all the flavors and nuances of match tracking!](https://ieeexplore.ieee.org/document/10969482).
+
+To use it, simply pass `match_tracking`:
+
+```julia
+# Pass
+art = FuzzyART(match_tracking=true, epsilon=1e-3)
+
+# With a configured model, supply nonzero supervisory labels as usual:
+train!(art, X_train; y=y_train)
+```
+
+`match_tracking` defaults to `false` for unsupervised ART models and `true` for
+SFAM and its DAM variant; `SFAM(match_tracking=false)` instead ends the search on the first resonant label conflict and creates a category.
+
+On a label conflict, the shared search raises its temporary vigilance above the
+rejected match by `epsilon` and continues to the next candidate.
+Epsilon is in vigilance parameter units and is converted to the module's match scale.
+The threshold resets for every sample; unsupervised training and classification do not use match tracking.
+Exhausting the search creates a category as usual.
+
+### Special Considerations
+
+Match tracking is *technically* defined for unsupervised models being used in simple supervised modes (i.e., ART models in simple supervised mode), but dual-vigilance variants make it a little trickier as to what "continue searching" means.
+
+In this package, for DVFA, enabling tracking enforces label agreement at both vigilance bounds, and a conflicting lower-bound match no longer creates a category within that cluster.
+For DDVFA, tracking operates on global cluster matches and labels; its local
+FuzzyART modules still train without supervisory labels (since the global F2 nodes are what map to the simple supervised labels).
