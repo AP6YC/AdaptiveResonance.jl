@@ -20,3 +20,7 @@ end
 @testset "Performance" begin
     include("performance.jl")
 end
+
+@testset "Resonance search" begin
+    include("resonance.jl")
+end

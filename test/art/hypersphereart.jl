@@ -6,7 +6,7 @@ HypersphereART-specific test sets.
 """
 
 # Short alias for testing internal helpers alongside the public API.
-const HART = AdaptiveResonance
+const AR = AdaptiveResonance
 
 
 @info "------- HypersphereART Tests -------"
@@ -46,8 +46,8 @@ end
         @test art.W[:, 1] == [0.0, 0.0, 0.0]
 
         # A sample at unit distance has a known activation and lies on vigilance.
-        @test HART.art_activation(art, [0.6, 0.8], 1) ≈ 1 / 2.1
-        @test HART.art_match(art, [0.6, 0.8], 1) ≈ 0.5
+        @test AR.art_activation(art, [0.6, 0.8], 1) ≈ 1 / 2.1
+        @test AR.art_match(art, [0.6, 0.8], 1) ≈ 0.5
 
         # Center displacement and radius growth each scale with the learning rate.
         @test train!(art, [0.6, 0.8], preprocessed=true) == 1
@@ -63,9 +63,9 @@ end
         end
 
         # Shared in-place evaluation should agree with individual symbol calls.
-        HART.activation_match!(art, [0.2, 0.3])
-        @test art.T[1] ≈ HART.art_activation(art, [0.2, 0.3], 1)
-        @test art.M[1] ≈ HART.art_match(art, [0.2, 0.3], 1)
+        AR.activation_match!(art, [0.2, 0.3])
+        @test art.T[1] ≈ AR.art_activation(art, [0.2, 0.3], 1)
+        @test art.M[1] ≈ AR.art_match(art, [0.2, 0.3], 1)
     end
 end
 
@@ -205,7 +205,7 @@ end
     default = HypersphereART(r_bar=2.0)
     train!(default, [0.0, 0.0], preprocessed=true)
     weight = view(default.W, :, 1)
-    updated = HART.hypersphere_update(default, [0.6, 0.8], weight)
+    updated = AR.hypersphere_update(default, [0.6, 0.8], weight)
     @test updated ≈ [0.3, 0.4, 0.5]
     @test weight == [0.0, 0.0, 0.0]
 end
