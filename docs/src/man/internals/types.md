@@ -8,7 +8,7 @@ CurrentModule = AdaptiveResonance
 
 ## Index
 
-- [`SingleART`](@ref), [`AbstractFuzzyART`](@ref), [`MergeART`](@ref), [`opts_MergeART`](@ref)
+- [`SingleART`](@ref), [`AbstractFuzzyART`](@ref), [`DistributedART`](@ref)
 - [`ARTMatrix`](@ref), [`ARTVector`](@ref), [`ARTStats`](@ref), [`ARTIterator`](@ref), [`ART_DIM`](@ref), [`ART_SAMPLES`](@ref)
 
 ## Model Types
@@ -25,16 +25,10 @@ SingleART
 AbstractFuzzyART
 ```
 
-### [`MergeART`](@id internals-MergeART)
+### [`DistributedART`](@id internals-DistributedART)
 
 ```@docs
-MergeART
-```
-
-### [`opts_MergeART`](@id internals-opts_MergeART)
-
-```@docs
-opts_MergeART
+DistributedART
 ```
 
 ## Storage and Dimensions

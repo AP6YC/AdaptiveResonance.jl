@@ -32,6 +32,7 @@ These variants are:
 
 - ART
   - [`GammaNormalizedFuzzyART`](@ref): Gamma-Normalized FuzzyART
+  - [`MergeART`](@ref)
 - ARTMAP
   - [`DAM`](@ref): Default ARTMAP
 
@@ -99,3 +100,25 @@ Like FuzzyART, HypersphereART selects its formulas through the `activation`,
 `:hypersphere_activation`, `:hypersphere_match`, and `:hypersphere_update`,
 implemented in `src/lib/symbols.jl`. Replacement functions must support the
 `[center; radius]` weight layout; fuzzy formulas assume a different layout.
+
+## MergeART
+
+Instead of being an ART module of its own, MergeART actually combines a trained DDVFA partition and then compresses prototypes inside each resulting cluster.
+It accepts a DDVFA model rather than raw training samples:
+
+```julia
+source = DDVFA(rho_lb=0.7, rho_ub=0.85)
+train!(source, X)
+merged = MergeART(source; max_iter=10)
+y_hat = classify(merged, X_test; get_bmu=true)
+```
+
+Note that the source `DDVFA` model is unchanged.
+`merged.source_map[i]` is the new cluster corresponding to source F2 node `i`.
+Calling `train!(merged, source)` again rebuilds from the current source snapshot; it does not import its counts a second time.
+Source labels do not constrain this unsupervised procedure.
+Merging parameters default to the source settings and can be overridden; compression uses reference exponent one, so `gamma` must exceed one.
+Zero-norm prototypes use an explicit convention: a zero-norm input matches only a zero-norm destination.
+
+MergeART supports all six DDVFA linkage methods and ordinary vector/batch inference.
+It is excluded from `ART_MODULES`, which lists models trained on raw samples.

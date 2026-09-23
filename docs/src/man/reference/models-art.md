@@ -13,6 +13,7 @@ CurrentModule = AdaptiveResonance
 - [`HypersphereART`](@ref), [`opts_HypersphereART`](@ref)
 - [`DVFA`](@ref), [`opts_DVFA`](@ref)
 - [`DDVFA`](@ref), [`opts_DDVFA`](@ref)
+- [`MergeART`](@ref), [`opts_MergeART`](@ref)
 - [`GammaNormalizedFuzzyART`](@ref), [`opts_GammaNormalizedFuzzyART`](@ref)
 
 ## FuzzyART
@@ -83,4 +84,11 @@ GammaNormalizedFuzzyART
 
 ```@docs
 opts_GammaNormalizedFuzzyART
+```
+
+## MergeART
+
+```@docs
+MergeART
+opts_MergeART
 ```

@@ -12,6 +12,7 @@ CurrentModule = AdaptiveResonance
 - [`initialize!`](@ref), [`set_threshold!`](@ref), [`stopping_conditions`](@ref)
 - [`create_category!`](@ref), [`activation_match!`](@ref), [`learn!`](@ref)
 - [`resonance_search!`](@ref), [`resonance_activation!`](@ref), [`resonance_match!`](@ref), [`resonance_match_scale`](@ref)
+- [`merge_categories!`](@ref), [`compress_categories!`](@ref), [`prototype_similarity`](@ref)
 - [`get_n_weights`](@ref), [`get_n_weights_vec`](@ref)
 
 ## Initialization and Stopping
@@ -98,4 +99,12 @@ get_n_weights
 
 ```@docs
 get_n_weights_vec
+```
+
+## Cluster Merging and Compression
+
+```@docs
+merge_categories!
+compress_categories!
+prototype_similarity
 ```
