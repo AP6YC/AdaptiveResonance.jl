@@ -124,7 +124,7 @@ For module options, see [`AdaptiveResonance.opts_DDVFA`](@ref).
 1. L. E. Brito da Silva, I. Elnabarawy, and D. C. Wunsch, 'Distributed dual vigilance fuzzy adaptive resonance theory learns online, retrieves arbitrarily-shaped clusters, and mitigates order dependence,' Neural Networks, vol. 121, pp. 208-228, 2020, doi: 10.1016/j.neunet.2019.08.033.
 2. G. Carpenter, S. Grossberg, and D. Rosen, 'Fuzzy ART: Fast stable learning and categorization of analog patterns by an adaptive resonance system,' Neural Networks, vol. 4, no. 6, pp. 759-771, 1991.
 """
-mutable struct DDVFA <: ART
+mutable struct DDVFA <: DistributedART
     # Option Parameters
     """
     DDVFA options struct.
@@ -311,15 +311,6 @@ function train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fal
     return y_hat
 end
 
-# COMMON DOC: DDVFA incremental classification method
-function classify(art::DDVFA, x::RealVector ; preprocessed::Bool=false, get_bmu::Bool=false)
-    # Preprocess the data
-    sample = init_classify!(x, art, preprocessed)
-
-    bmu, mismatch = resonance_search!(art, sample)
-    return mismatch && !get_bmu ? -1 : art.labels[bmu]
-end
-
 # -----------------------------------------------------------------------------
 # INTERNAL FUNCTIONS
 # -----------------------------------------------------------------------------
@@ -478,49 +469,6 @@ end
 # -----------------------------------------------------------------------------
 # CONVENIENCE METHODS
 # -----------------------------------------------------------------------------
-
-"""
-Convenience function; return a concatenated array of all DDVFA weights.
-
-# Arguments
-- `art::DDVFA`: the DDVFA module to get all of the weights from as a list.
-"""
-function get_W(art::DDVFA)
-    # Return a concatenated array of the weights
-    return [art.F2[kx].W for kx = 1:art.n_categories]
-end
-
-"""
-Convenience function; return the number of weights in each category as a vector.
-
-# Arguments
-- `art::DDVFA`: the DDVFA module to get all of the weights from as a list.
-"""
-function get_n_weights_vec(art::DDVFA)
-    return [art.F2[i].n_categories for i = 1:art.n_categories]
-end
-
-"""
-Convenience function; return the sum total number of weights in the DDVFA module.
-"""
-function get_n_weights(art::DDVFA)
-    # Return the number of weights across all categories
-    return sum(get_n_weights_vec(art))
-end
-
-# Distributed activation uses each local module's linkage; global matches are lazy.
-function resonance_activation!(art::DDVFA, sample::RealVector)
-    accommodate_vector!(art.T, art.n_categories)
-    accommodate_vector!(art.M, art.n_categories)
-    for j in 1:art.n_categories
-        activation_match!(art.F2[j], sample)
-        art.T[j] = similarity(art.opts.similarity, art.F2[j], sample, true)
-    end
-end
-
-function resonance_match!(art::DDVFA, sample::RealVector, bmu::Integer)
-    art.M[bmu] = similarity(art.opts.similarity, art.F2[bmu], sample, false)
-end
 
 # Convert a vigilance-parameter increment to the same units as the match threshold.
 function resonance_match_scale(art::DDVFA)
