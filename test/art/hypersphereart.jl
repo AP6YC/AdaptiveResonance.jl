@@ -8,7 +8,6 @@ HypersphereART-specific test sets.
 # Short alias for testing internal helpers alongside the public API.
 const AR = AdaptiveResonance
 
-
 @info "------- HypersphereART Tests -------"
 
 @testset "Options and constructors" begin

@@ -4,7 +4,7 @@ Evaluate the resonance search for a module.
 # Arguments
 - `accept::F`: anonymous function to pass the accept/reject decision to the ART module.
 - `art::ARTModule`: the ART module running the resonance search.
-- `sample::RealVector`: the sample presented for search.
+- `sample`: the preprocessed vector or category representation presented for search.
 - `match_tracking=art.opts.match_tracking`: continue searching with raised vigilance after a callback rejects a label.
 - `threshold=art.threshold`: the vigilance threshold (can be rho or a function that varies during training/evaluation). Default `art.threshold`
 
@@ -38,7 +38,7 @@ resonance_search!(accept, art, sample; threshold=art.threshold)
 function resonance_search!(
     accept::F,
     art::ARTModule,
-    sample::RealVector;
+    sample;
     threshold=art.threshold,
     match_tracking::Bool=art.opts.match_tracking
 ) where {F}
@@ -110,15 +110,17 @@ end
 # Wrapper for resonance search, handling supervised and unsupervised cases
 function resonance_search!(
     art::ARTModule,
-    sample::RealVector;
+    sample;
     threshold=art.threshold,
     y::Integer=0,
     supervised::Bool=!iszero(y)
 )
     # Only supervised searches can produce the prediction error needed for tracking.
-    return resonance_search!(art, sample;
-                             threshold=threshold,
-                             match_tracking=supervised && art.opts.match_tracking) do bmu
+    return resonance_search!(
+        art,
+        sample;
+        threshold=threshold,
+        match_tracking=supervised && art.opts.match_tracking) do bmu
         !supervised || art.labels[bmu] == y
     end
 end
@@ -148,8 +150,7 @@ Return the candidate's match value during resonance search.
 
 # Description
 
-The default reads
-`art.M[bmu]`; SFAM and DDVFA compute and store this value lazily for each visited
+The default reads `art.M[bmu]`; SFAM and DDVFA compute and store this value lazily for each visited
 candidate, using their match function or linkage respectively.
 """
 resonance_match!(art::ARTModule, sample::RealVector, bmu::Integer) = art.M[bmu]
@@ -162,8 +163,7 @@ Return the scale for converting a vigilance-parameter increment to match units.
 
 # Description
 
-Resonance search raises its temporary threshold by
-`art.opts.epsilon * resonance_match_scale(art)`.
+Resonance search raises its temporary threshold by `art.opts.epsilon * resonance_match_scale(art)`.
 The default scale is one. DVFA uses the feature dimension; FuzzyART and DDVFA
 use `dim ^ gamma_ref` when gamma normalization is enabled, and one otherwise.
 """
