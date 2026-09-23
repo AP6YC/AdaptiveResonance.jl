@@ -16,3 +16,7 @@ end
 @testset "HypersphereART" begin
     include("hypersphereart.jl")
 end
+
+@testset "MergeART" begin
+    include("mergeart.jl")
+end
