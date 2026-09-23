@@ -12,6 +12,7 @@ CurrentModule = AdaptiveResonance
 - [`HypersphereART`](@ref), [`opts_HypersphereART`](@ref)
 - [`DVFA`](@ref), [`opts_DVFA`](@ref)
 - [`DDVFA`](@ref), [`opts_DDVFA`](@ref)
+- [`MergeART`](@ref), [`opts_MergeART`](@ref)
 - [`GammaNormalizedFuzzyART`](@ref), [`opts_GammaNormalizedFuzzyART`](@ref)
 
 ## [ARTMAP Models and Options](reference/models-artmap.md)

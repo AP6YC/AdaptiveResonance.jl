@@ -10,7 +10,7 @@ CurrentModule = AdaptiveResonance
 
 ## [Type Hierarchy and State](internals/types.md)
 
-- [`SingleART`](@ref), [`AbstractFuzzyART`](@ref), [`MergeART`](@ref), [`opts_MergeART`](@ref)
+- [`SingleART`](@ref), [`AbstractFuzzyART`](@ref), [`DistributedART`](@ref)
 - [`ARTMatrix`](@ref), [`ARTVector`](@ref), [`ARTStats`](@ref), [`ARTIterator`](@ref), [`ART_DIM`](@ref), [`ART_SAMPLES`](@ref)
 
 ## [Training and Category Lifecycle](internals/lifecycle.md)
@@ -18,6 +18,7 @@ CurrentModule = AdaptiveResonance
 - [`initialize!`](@ref), [`set_threshold!`](@ref), [`stopping_conditions`](@ref)
 - [`create_category!`](@ref), [`activation_match!`](@ref), [`learn!`](@ref)
 - [`resonance_search!`](@ref), [`resonance_activation!`](@ref), [`resonance_match!`](@ref), [`resonance_match_scale`](@ref)
+- [`merge_categories!`](@ref), [`compress_categories!`](@ref), [`prototype_similarity`](@ref)
 - [`get_n_weights`](@ref), [`get_n_weights_vec`](@ref)
 
 ## [Activation, Matching, and Weight Updates](internals/activation.md)
