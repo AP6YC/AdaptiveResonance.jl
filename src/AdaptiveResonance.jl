@@ -169,6 +169,7 @@ export
     FuzzyART, opts_FuzzyART,
     HypersphereART, opts_HypersphereART,
     DDVFA, opts_DDVFA, get_W,
+    MergeART, opts_MergeART,
     DVFA, opts_DVFA,
     # ART variants
     GammaNormalizedFuzzyART, opts_GammaNormalizedFuzzyART,
