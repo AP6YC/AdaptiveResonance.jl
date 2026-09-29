@@ -350,12 +350,6 @@ const F2_DOCSTRING = """
 - `F2::FuzzyART`: the DDVFA FuzzyART F2 node to compute the linkage method within.
 """
 
-# Argument docstring for the F2 field, includes the argument header
-const FIELD_DOCSTRING = """
-# Arguments
-- `field::RealVector`: the DDVFA FuzzyART F2 node field (F2.T or F2.M) to compute the linkage for.
-"""
-
 """
 Compute the similarity metric depending on method with explicit comparisons for the field name.
 
@@ -368,13 +362,13 @@ $ACTIVATION_DOCSTRING
 function similarity(method::Symbol, F2::FuzzyART, sample::RealVector, activation::Bool)
     # Handle :centroid usage
     if method === :centroid
-        value = eval(method)(F2, sample, activation)
+        value = centroid(F2, sample, activation)
     # Handle :weighted usage
     elseif method === :weighted
-        value = eval(method)(F2, activation)
+        value = weighted(F2, activation)
     # Handle common usage
     else
-        value = eval(method)(activation ? F2.T : F2.M)
+        value = similarity(method, activation ? F2.T : F2.M)
     end
 
     return value
@@ -391,42 +385,6 @@ const DDVFA_METHODS = [
     :weighted,
     :centroid,
 ]
-
-"""
-Single linkage DDVFA similarity function.
-
-$FIELD_DOCSTRING
-"""
-function single(field::RealVector)
-    return maximum(field)
-end
-
-"""
-Average linkage DDVFA similarity function.
-
-$FIELD_DOCSTRING
-"""
-function average(field::RealVector)
-    return statistics_mean(field)
-end
-
-"""
-Complete linkage DDVFA similarity function.
-
-$FIELD_DOCSTRING
-"""
-function complete(field::RealVector)
-    return minimum(field)
-end
-
-"""
-Median linkage DDVFA similarity function.
-
-$FIELD_DOCSTRING
-"""
-function median(field::RealVector)
-    return statistics_median(field)
-end
 
 """
 Weighted linkage DDVFA similarity function.

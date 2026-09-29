@@ -150,3 +150,43 @@ end
     # Ensure every source cluster has an entry in the final provenance mapping.
     @test length(model.source_map) == raw.n_categories
 end
+
+@testset "Lifecycle methods and shared linkage" begin
+    source = merge_source([0.0, 0.1, 1.0]; counts=[2, 3, 5])
+    model = MergeART(rho_lb=0.7, rho_ub=0.95, gamma=2.0, alpha=0.01)
+    # Preparing a snapshot leaves the destination untouched and owns its weights.
+    partition = AR.init_train!(source, model)
+    @test model.n_categories == 0
+    @test partition[1].W !== source.F2[1].W
+    AR.initialize!(model, source)
+    @test model.source_map == [1, 2, 3]
+    @test model.epoch == 0
+    @test model.config !== source.config
+    # Incremental cluster training uses the same creation and learning dispatches.
+    @test train!(model, partition[1]) == 1
+    @test train!(model, partition[2]) == 1
+    @test train!(model, partition[3]) == 2
+    @test model.F2[1].n_instance == [2, 3]
+    @test model.F2[1].W !== partition[1].W
+    # A fresh pass may read the previous destination without modifying that input.
+    previous = model.F2
+    @test AR.merge_pass!(model, previous) == [1, 2]
+    @test previous !== model.F2
+    @test previous[1].n_instance == [2, 3]
+    @test AR.stopping_conditions(model, 2)
+    @test !AR.stopping_conditions(model, 3)
+    model.epoch = model.opts.max_iter
+    @test AR.stopping_conditions(model, 3)
+    # Validate before initialization so invalid input does not discard a fitted model.
+    @test_throws ArgumentError train!(model, DDVFA())
+    @test model.n_categories == 2
+    # Matrix reductions visit all pairs and match the corresponding vector result.
+    scores = [0.1 0.9; 0.3 0.5]
+    for method in (:single, :complete, :average, :median)
+        @test AR.similarity(method, scores) == AR.similarity(method, vec(scores))
+    end
+    @test_throws ArgumentError AR.similarity(:unknown, scores)
+    @test_throws ArgumentError AR.similarity(:unknown, source.F2[1], [0.0, 1.0], true)
+    model.opts.similarity = :unknown
+    @test_throws ArgumentError AR.similarity(model, partition[1], partition[2], true)
+end

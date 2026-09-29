@@ -245,17 +245,7 @@ function similarity(
 )
     # Select the reduction used to compare the incoming and destination clusters.
     method = art.opts.similarity
-    if method === :centroid
-        # The paper's centroid is a fuzzy envelope, not an arithmetic mean.
-        left = vec(minimum(destination.W, dims=2))
-        right = vec(minimum(input.W, dims=2))
-        # Evaluate activation directly between the two cluster envelopes.
-        activation && return prototype_similarity(art.opts, right, left, true, art.opts.gamma_ref)
-        # For centroid matching, normalize their overlap by the incoming envelope norm.
-        denominator = sum(right)
-        iszero(denominator) && return iszero(sum(left)) ? 1.0 : 0.0
-        return (sum(min.(left, right)) / denominator) ^ art.opts.gamma
-    end
+    method === :centroid && return centroid(art, destination, input, activation)
     # Keep both category axes: weighted linkage needs both sets of counts.
     scores = [prototype_similarity(
         art.opts,
@@ -264,16 +254,54 @@ function similarity(
         activation,
         art.opts.gamma_ref
     ) for i in 1:destination.n_categories, j in 1:input.n_categories]
-    # Reduce all pairwise scores for the unweighted linkage methods.
-    method === :single && return maximum(scores)
-    method === :complete && return minimum(scores)
-    method === :average && return statistics_mean(scores)
-    method === :median && return statistics_median(vec(scores))
-    # For weighted linkage, turn counts into category probabilities in each cluster.
+    # Weighted linkage needs both clusters; other reductions share the common API.
+    method === :weighted && return weighted(scores, destination, input)
+    return similarity(method, scores)
+end
+
+"""
+Weight pairwise scores by the category probabilities of both clusters.
+
+# Arguments
+- `scores::RealMatrix`: destination-by-input activation or match matrix.
+- `destination::FuzzyART`: cluster supplying row instance counts.
+- `input::FuzzyART`: cluster supplying column instance counts.
+
+# Description
+
+Normalizes each cluster's counts separately and weights each pair by the product
+of its two category probabilities.
+"""
+function weighted(scores::RealMatrix, destination::FuzzyART, input::FuzzyART)
     p = destination.n_instance ./ sum(destination.n_instance)
     q = input.n_instance ./ sum(input.n_instance)
-    # Weight each pair by the product of its two category probabilities.
     return sum(scores .* (p * q'))
+end
+
+"""
+Compare the fuzzy envelopes of two local clusters.
+
+# Arguments
+- `art::MergeART`: model supplying activation and match parameters.
+- `destination::FuzzyART`: candidate output cluster.
+- `input::FuzzyART`: incoming cluster.
+- `activation::Bool`: select activation instead of match.
+
+# Description
+
+Uses the componentwise minimum of each cluster's weights and preserves the
+separate centroid match equation rather than reducing pairwise category scores.
+"""
+function centroid(art::MergeART, destination::FuzzyART, input::FuzzyART, activation::Bool)
+    # The paper's centroid is a fuzzy envelope, not an arithmetic mean.
+    left = vec(minimum(destination.W, dims=2))
+    right = vec(minimum(input.W, dims=2))
+    # Evaluate activation directly between the two cluster envelopes.
+    activation && return prototype_similarity(art.opts, right, left, true, art.opts.gamma_ref)
+    # For centroid matching, normalize their overlap by the incoming envelope norm.
+    denominator = sum(right)
+    iszero(denominator) && return iszero(sum(left)) ? 1.0 : 0.0
+    return (sum(min.(left, right)) / denominator) ^ art.opts.gamma
 end
 
 # Cluster inputs reuse the same traversal and statistics as vector inputs.
@@ -394,9 +422,40 @@ Only after merging stops are prototypes compressed within each output cluster.
 Returns the source-node-to-output-cluster mapping. Source supervisory labels are not constraints: MergeART is an unsupervised postprocessor.
 """
 function train!(art::MergeART, source::DDVFA)
-    # Require an existing partition before validating its individual local modules.
+    # Validate and snapshot the source before replacing destination state.
+    current = init_train!(source, art)
+    initialize!(art, source)
+    # Repeatedly merge the previous partition and compose its source mapping.
+    for iteration in 1:art.opts.max_iter
+        assignment = merge_pass!(art, current)
+        art.source_map = assignment[art.source_map]
+        art.epoch = iteration
+        art.opts.display && @info "MergeART pass $iteration: $(art.n_categories) clusters"
+        stopping_conditions(art, length(current)) && break
+        current = art.F2
+    end
+    # Compress only after the cluster partition has finished merging.
+    art.F2 = [compress_categories!(art, node) for node in art.F2]
+    # Restore the dimension-scaled threshold used by ordinary sample inference.
+    art.threshold = art.opts.rho_lb * art.config.dim
+    return copy(art.source_map)
+end
+
+"""
+Validate and snapshot a DDVFA partition for MergeART training.
+
+# Arguments
+- `source::DDVFA`: trained source whose local clusters will be copied.
+- `art::MergeART`: destination model for the prepared partition.
+
+# Description
+
+Checks prototype geometry and instance counts before destination state changes.
+Returns independent local modules so subsequent merging preserves the source.
+"""
+function init_train!(source::DDVFA, art::MergeART)
+    # Require a populated partition before examining its local modules.
     source.n_categories > 0 || throw(ArgumentError("MergeART requires a trained DDVFA."))
-    # Validate geometry and counts before replacing any destination state.
     for node in source.F2
         size(node.W, 1) == source.config.dim_comp || throw(DimensionMismatch("Incompatible prototype dimensions."))
         node.n_categories > 0 || throw(ArgumentError("Source clusters must be nonempty."))
@@ -404,54 +463,140 @@ function train!(art::MergeART, source::DDVFA)
         length(node.n_instance) == node.n_categories && all(node.n_instance .> 0) ||
             throw(ArgumentError("Each prototype requires a positive instance count."))
     end
-    # Copy source state so neither merging nor compression mutates the source model.
+    return deepcopy(source.F2)
+end
+
+"""
+Initialize MergeART state for a prepared source partition.
+
+# Arguments
+- `art::MergeART`: destination model to reset.
+- `source::DDVFA`: validated source supplying configuration and mapping size.
+
+# Description
+
+Copies the data configuration, clears the previous fit, and starts an identity
+source mapping. Source validation is performed by `init_train!` before this step.
+"""
+function initialize!(art::MergeART, source::DDVFA)
     art.config = deepcopy(source.config)
-    current = deepcopy(source.F2)
-    # Start with the identity mapping and reset statistics from any previous fit.
     art.source_map = collect(1:source.n_categories)
     art.stats = build_art_stats()
-    # Repeatedly merge the previous partition until it stabilizes or reaches the pass limit.
-    for iteration in 1:art.opts.max_iter
-        # Never search a cluster against itself or append it more than once.
-        art.F2 = FuzzyART[]
-        art.labels = Int[]
-        art.T = Float[]
-        art.M = Float[]
-        art.n_categories = 0
-        art.threshold = art.opts.rho_lb
-        # Record where each input cluster lands during this particular pass.
-        assignment = zeros(Int, length(current))
-        for (i, node) in enumerate(current)
-            # The first cluster seeds the destination; later clusters use resonance search.
-            bmu, mismatch = isempty(art.F2) ? (0, true) : resonance_search!(art, node)
-            if mismatch
-                # Fast-commit an independent copy when no destination cluster resonates.
-                push!(art.F2, deepcopy(node))
-                art.n_categories += 1
-                push!(art.labels, art.n_categories)
-                bmu = art.n_categories
-            else
-                # Preserve all incoming prototypes inside the resonant cluster until compression.
-                merge_categories!(art.F2[bmu], node)
-            end
-            # Save the destination index for composing the original source mapping.
-            assignment[i] = bmu
-        end
-        # Compose provenance back to the original source cluster indices.
-        art.source_map = assignment[art.source_map]
-        art.epoch = iteration
-        art.opts.display && @info "MergeART pass $iteration: $(art.n_categories) clusters"
-        # Passes only coarsen the partition; no reduction means no membership change.
-        art.n_categories == length(current) && break
-        # Use the completed partition as input to the next fresh merging pass.
-        current = art.F2
+    art.epoch = 0
+    # Replace containers rather than clearing storage that a previous partition owns.
+    art.F2 = FuzzyART[]
+    art.labels = Int[]
+    art.T = Float[]
+    art.M = Float[]
+    art.n_categories = 0
+    art.threshold = art.opts.rho_lb
+    return
+end
+
+"""
+Create a MergeART cluster from an incoming local module.
+
+# Arguments
+- `art::MergeART`: destination model to extend.
+- `input::FuzzyART`: local module to copy without compressing its prototypes.
+- `label::Integer`: identifier for the new output cluster.
+
+# Description
+
+Fast-commits independent weights and counts, updates the cluster state, and
+returns the new cluster index.
+"""
+function create_category!(art::MergeART, input::FuzzyART, label::Integer)
+    push!(art.F2, deepcopy(input))
+    art.n_categories += 1
+    push!(art.labels, label)
+    return art.n_categories
+end
+
+"""
+Learn an incoming cluster by concatenating its categories into the winner.
+
+# Arguments
+- `art::MergeART`: destination model performing cluster merging.
+- `input::FuzzyART`: incoming local module and its instance counts.
+- `bmu::Integer`: index of the resonant destination cluster.
+
+# Description
+
+Delegates to `merge_categories!`; prototype compression remains a separate stage.
+"""
+function learn!(art::MergeART, input::FuzzyART, bmu::Integer)
+    merge_categories!(art.F2[bmu], input)
+    return
+end
+
+"""
+Assign one local FuzzyART module during a MergeART merging pass.
+
+# Arguments
+- `art::MergeART`: destination partition under construction.
+- `input::FuzzyART`: prepared cluster in the same feature coordinates.
+
+# Description
+
+Returns the destination cluster index after resonance search and either learning
+or category creation. This internal step does not update source provenance or
+compress prototypes; the full DDVFA training method handles those operations.
+"""
+function train!(art::MergeART, input::FuzzyART)
+    # Cluster inputs use lower vigilance in prototype-match units.
+    art.threshold = art.opts.rho_lb
+    isempty(art.F2) && return create_category!(art, input, 1)
+    bmu, mismatch = resonance_search!(art, input)
+    if mismatch
+        bmu = create_category!(art, input, art.n_categories + 1)
+    else
+        learn!(art, input, bmu)
     end
-    # After all merging passes, compress prototypes separately within each final cluster.
-    art.F2 = [compress_categories!(art, node) for node in art.F2]
-    # Sample matches use the existing dimension-scaled distributed inference path.
-    art.threshold = art.opts.rho_lb * art.config.dim
-    # Return an independent mapping so callers cannot mutate the stored provenance.
-    return copy(art.source_map)
+    return bmu
+end
+
+"""
+Build one fresh MergeART partition from the preceding partition.
+
+# Arguments
+- `art::MergeART`: destination model whose cluster storage is replaced.
+- `partition::AbstractVector{FuzzyART}`: local modules to present in order.
+
+# Description
+
+Returns the input-cluster-to-output-cluster assignment for this pass. Fresh
+containers prevent self-merging even when `partition` is the previous `art.F2`.
+"""
+function merge_pass!(art::MergeART, partition::AbstractVector{FuzzyART})
+    # Detach the destination while preserving the previous partition as input.
+    art.F2 = FuzzyART[]
+    art.labels = Int[]
+    art.T = Float[]
+    art.M = Float[]
+    art.n_categories = 0
+    art.threshold = art.opts.rho_lb
+    assignment = zeros(Int, length(partition))
+    for (i, node) in enumerate(partition)
+        assignment[i] = train!(art, node)
+    end
+    return assignment
+end
+
+"""
+Check whether MergeART has finished its merging passes.
+
+# Arguments
+- `art::MergeART`: model after completing the current pass.
+- `previous_count::Integer`: number of clusters before that pass.
+
+# Description
+
+Passes only coarsen the partition. An unchanged cluster count therefore signals
+unchanged membership; the iteration limit also ends merging.
+"""
+function stopping_conditions(art::MergeART, previous_count::Integer)
+    return art.n_categories == previous_count || art.epoch >= art.opts.max_iter
 end
 
 # Reject raw training explicitly rather than entering ART's generic batch trainer.

@@ -59,3 +59,66 @@ end
 function resonance_match!(art::DistributedART, sample::RealVector, bmu::Integer)
     art.M[bmu] = similarity(art.opts.similarity, art.F2[bmu], sample, false)
 end
+
+# Argument docstring for the F2 field, includes the argument header
+const FIELD_DOCSTRING = """
+# Arguments
+- `field::RealArray`: the activation or match scores to reduce across all entries.
+"""
+
+"""
+Single linkage distributed ART similarity function.
+
+$FIELD_DOCSTRING
+"""
+function single(field::RealArray)
+    return maximum(field)
+end
+
+"""
+Average linkage distributed ART similarity function.
+
+$FIELD_DOCSTRING
+"""
+function average(field::RealArray)
+    return statistics_mean(field)
+end
+
+"""
+Complete linkage distributed ART similarity function.
+
+$FIELD_DOCSTRING
+"""
+function complete(field::RealArray)
+    return minimum(field)
+end
+
+"""
+Median linkage distributed ART similarity function.
+
+$FIELD_DOCSTRING
+"""
+function median(field::RealArray)
+    return statistics_median(field)
+end
+
+"""
+Reduce activation or match scores using an unweighted linkage method.
+
+# Arguments
+- `method::Symbol`: one of `:single`, `:complete`, `:average`, or `:median`.
+- `scores::RealArray`: vector or matrix of pairwise scores.
+
+# Description
+
+Shares the same reductions between sample-to-cluster and cluster-to-cluster
+comparisons. Weighted and centroid linkage require additional cluster state
+and are handled by their specialized methods.
+"""
+function similarity(method::Symbol, scores::RealArray)
+    method === :single && return single(scores)
+    method === :complete && return complete(scores)
+    method === :average && return average(scores)
+    method === :median && return median(scores)
+    throw(ArgumentError("Unsupported unweighted linkage method: $method"))
+end
