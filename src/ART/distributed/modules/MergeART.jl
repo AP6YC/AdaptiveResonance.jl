@@ -217,8 +217,25 @@ function prototype_similarity(
     # Activation needs no input-norm correction; match evaluation continues below.
     activation && return score
     # Handle a collapsed input before dividing by its norm.
+    return prototype_match(input_norm, weight_norm, score, reference)
+end
+
+"""
+Convert a prototype activation into its normalized match value.
+
+# Arguments
+- `input_norm::Real`: norm of the incoming prototype.
+- `weight_norm::Real`: norm of the candidate prototype.
+- `score::Real`: previously computed activation.
+- `reference::Real`: exponent for the destination-to-input norm ratio.
+
+# Description
+
+Reuses activation without recomputing the fuzzy intersection. Zero-norm inputs
+retain the explicit convention used by `prototype_similarity`.
+"""
+function prototype_match(input_norm::Real, weight_norm::Real, score::Real, reference::Real)
     iszero(input_norm) && return iszero(weight_norm) ? 1.0 : 0.0
-    # Rescale activation by the destination-to-input norm ratio to obtain the match.
     return (weight_norm / input_norm) ^ reference * score
 end
 
@@ -345,17 +362,82 @@ end
 struct MergePrototype{V<:RealVector}
     weights::V
 end
-function resonance_activation!(art::FuzzyART, input::MergePrototype)
-    # Prepare local search buffers and compare each prototype with reference exponent one.
+"""
+Evaluate a learned prototype against one local category.
+
+# Arguments
+- `art::FuzzyART`: local compression module.
+- `input::MergePrototype`: learned weights, already in feature coordinates.
+- `index::Integer`: destination category index.
+
+# Description
+
+Uses the prototype activation equation without treating the weights as a raw
+complement-coded sample.
+"""
+function art_activation(art::FuzzyART, input::MergePrototype, index::Integer)
+    return prototype_similarity(art.opts, input.weights, get_sample(art.W, index), true, 1.0)
+end
+
+"""
+Evaluate a learned prototype's match with a local category.
+
+# Arguments
+- `art::FuzzyART`: local compression module.
+- `input::MergePrototype`: incoming learned weights.
+- `index::Integer`: destination category index.
+- `score::Real`: optional cached activation for this comparison.
+
+# Description
+
+Normalizes by the incoming prototype's own norm with reference exponent one.
+Supplying activation avoids repeating the fuzzy intersection and exponentiation.
+"""
+function art_match(art::FuzzyART, input::MergePrototype, index::Integer,
+                   score::Real=art_activation(art, input, index))
+    weight = get_sample(art.W, index)
+    return prototype_match(sum(input.weights), sum(weight), score, 1.0)
+end
+
+"""
+Compute activations and matches for local prototype compression.
+
+# Arguments
+- `art::FuzzyART`: local module whose search buffers are updated.
+- `input::MergePrototype`: prototype presented for compression.
+
+# Description
+
+Evaluates each activation once, then supplies it to the matching API. The
+resonance hooks delegate evaluation here and read the stored candidate matches.
+"""
+function activation_match!(art::FuzzyART, input::MergePrototype)
+    # Prepare exactly one activation and match entry per destination category.
     resize!(art.T, art.n_categories)
     resize!(art.M, art.n_categories)
     for i in 1:art.n_categories
-        art.T[i] = prototype_similarity(art.opts, input.weights, art.W[:, i], true, 1.0)
-        art.M[i] = prototype_similarity(art.opts, input.weights, art.W[:, i], false, 1.0)
+        art.T[i] = art_activation(art, input, i)
+        art.M[i] = art_match(art, input, i, art.T[i])
     end
 end
-# Reuse the prototype matches computed alongside the local activations.
+
+# Delegate prototype preparation to the same evaluation API used by sample inputs.
+resonance_activation!(art::FuzzyART, input::MergePrototype) = activation_match!(art, input)
 resonance_match!(art::FuzzyART, ::MergePrototype, bmu::Integer) = art.M[bmu]
+
+# Cluster merging uses dimensionless lower vigilance; inference uses sample units.
+resonance_threshold(art::MergeART, ::FuzzyART) = art.opts.rho_lb
+resonance_threshold(art::MergeART, ::RealVector) = art.opts.rho_lb * art.config.dim
+# Compression uses the local upper vigilance, independently of its sample threshold.
+resonance_threshold(art::FuzzyART, ::MergePrototype) = art.opts.rho
+# MergeART has no supervisory tracking option, including for callback searches.
+resonance_match_tracking(::MergeART) = false
+
+# Keep the stored threshold in sample units for inspection and ordinary inference.
+function set_threshold!(art::MergeART)
+    art.threshold = art.opts.rho_lb * art.config.dim
+    return
+end
 
 """
 Compress a local cluster while preserving its total instance count.
@@ -393,7 +475,7 @@ function compress_categories!(art::MergeART, input::FuzzyART)
         count = input.n_instance[i]
         # An empty destination fast-commits the first prototype without search.
         bmu, mismatch = isempty(result.labels) ? (0, true) :
-            resonance_search!(result, MergePrototype(weights); threshold=art.opts.rho_ub)
+            resonance_search!(result, MergePrototype(weights))
         if mismatch
             # Commit an unmatched prototype and replace the default count of one.
             create_category!(result, weights, result.n_categories + 1)
@@ -436,8 +518,6 @@ function train!(art::MergeART, source::DDVFA)
     end
     # Compress only after the cluster partition has finished merging.
     art.F2 = [compress_categories!(art, node) for node in art.F2]
-    # Restore the dimension-scaled threshold used by ordinary sample inference.
-    art.threshold = art.opts.rho_lb * art.config.dim
     return copy(art.source_map)
 end
 
@@ -489,7 +569,7 @@ function initialize!(art::MergeART, source::DDVFA)
     art.T = Float[]
     art.M = Float[]
     art.n_categories = 0
-    art.threshold = art.opts.rho_lb
+    set_threshold!(art)
     return
 end
 
@@ -544,8 +624,7 @@ or category creation. This internal step does not update source provenance or
 compress prototypes; the full DDVFA training method handles those operations.
 """
 function train!(art::MergeART, input::FuzzyART)
-    # Cluster inputs use lower vigilance in prototype-match units.
-    art.threshold = art.opts.rho_lb
+    # The input-specific threshold selects lower vigilance in prototype-match units.
     isempty(art.F2) && return create_category!(art, input, 1)
     bmu, mismatch = resonance_search!(art, input)
     if mismatch
@@ -575,7 +654,7 @@ function merge_pass!(art::MergeART, partition::AbstractVector{FuzzyART})
     art.T = Float[]
     art.M = Float[]
     art.n_categories = 0
-    art.threshold = art.opts.rho_lb
+    set_threshold!(art)
     assignment = zeros(Int, length(partition))
     for (i, node) in enumerate(partition)
         assignment[i] = train!(art, node)

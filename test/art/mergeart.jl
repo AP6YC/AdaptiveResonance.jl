@@ -190,3 +190,46 @@ end
     model.opts.similarity = :unknown
     @test_throws ArgumentError AR.similarity(model, partition[1], partition[2], true)
 end
+
+@testset "Prototype evaluation API and input thresholds" begin
+    for sort in (false, true)
+        source = DDVFA(rho_lb=1.0, rho_ub=1.0, gamma=2.0)
+        train!(source, [0.0, 0.0, 1.0, 1.0]; y=1, preprocessed=true)
+        train!(source, [1.0, 1.0, 0.0, 0.0]; y=2, preprocessed=true)
+        model = MergeART(source; rho_lb=0.7, rho_ub=0.9, sort=sort)
+        sample = [0.0, 0.0, 1.0, 1.0]
+        node = model.F2[1]
+        # Prototype evaluation reuses cached activation and matches the direct formula.
+        for weights in (sample, [0.0, 0.0, 0.8, 0.7], zeros(4))
+            input = AR.MergePrototype(weights)
+            AR.activation_match!(node, input)
+            for i in 1:node.n_categories
+                score = AR.art_activation(node, input, i)
+                @test node.T[i] == score
+                @test node.M[i] ≈ AR.art_match(node, input, i)
+                @test node.M[i] ≈ AR.art_match(node, input, i, score)
+                @test node.M[i] ≈ AR.prototype_similarity(node.opts, weights, node.W[:, i], false, 1.0)
+            end
+        end
+        # A dimension greater than one distinguishes cluster and sample units.
+        @test AR.resonance_threshold(model, source.F2[1]) == 0.7
+        @test AR.resonance_threshold(model, sample) == 1.4
+        @test AR.resonance_threshold(node, AR.MergePrototype(sample)) == 0.9
+        # Deliberately stale stored state must not control MergeART search behavior.
+        model.threshold = 100.0
+        node.threshold = 100.0
+        @test AR.resonance_search!(model, source.F2[1]) == (1, false)
+        @test classify(model, sample; preprocessed=true) == 1
+        @test AR.resonance_search!(node, AR.MergePrototype(sample)) == (1, false)
+        # Explicit numeric and callable thresholds still override the default.
+        @test AR.resonance_search!(model, sample; threshold=100.0) == (1, true)
+        @test AR.resonance_search!(model, sample; threshold=() -> 100.0) == (1, true)
+        @test AR.resonance_search!(_ -> true, model, source.F2[1]) == (1, false)
+        @test AR.resonance_search!(_ -> false, model, source.F2[1]) == (1, true)
+        @test !AR.resonance_match_tracking(model)
+        # Cluster training and sample inference can alternate without threshold repair.
+        train!(model, source.F2[1])
+        @test classify(model, sample; preprocessed=true) == 1
+        @test model.threshold == 100.0
+    end
+end

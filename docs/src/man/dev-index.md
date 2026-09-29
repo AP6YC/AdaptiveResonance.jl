@@ -17,7 +17,7 @@ CurrentModule = AdaptiveResonance
 
 - [`initialize!`](@ref), [`set_threshold!`](@ref), [`stopping_conditions`](@ref)
 - [`create_category!`](@ref), [`activation_match!`](@ref), [`learn!`](@ref)
-- [`resonance_search!`](@ref), [`resonance_activation!`](@ref), [`resonance_match!`](@ref), [`resonance_match_scale`](@ref)
+- [`resonance_search!`](@ref), [`resonance_activation!`](@ref), [`resonance_match!`](@ref), [`resonance_match_scale`](@ref), [`resonance_threshold`](@ref), [`resonance_match_tracking`](@ref)
 - [`merge_pass!`](@ref), [`merge_categories!`](@ref), [`compress_categories!`](@ref), [`prototype_similarity`](@ref)
 - [`get_n_weights`](@ref), [`get_n_weights_vec`](@ref)
 

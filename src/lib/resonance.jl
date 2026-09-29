@@ -5,8 +5,8 @@ Evaluate the resonance search for a module.
 - `accept::F`: anonymous function to pass the accept/reject decision to the ART module.
 - `art::ARTModule`: the ART module running the resonance search.
 - `sample`: the preprocessed vector or category representation presented for search.
-- `match_tracking=art.opts.match_tracking`: continue searching with raised vigilance after a callback rejects a label.
-- `threshold=art.threshold`: the vigilance threshold (can be rho or a function that varies during training/evaluation). Default `art.threshold`
+- `match_tracking=resonance_match_tracking(art)`: continue searching with raised vigilance after a callback rejects a label.
+- `threshold=resonance_threshold(art, sample)`: the vigilance threshold (can be rho or a function that varies during training/evaluation). Defaults to the input-specific threshold
 
 # Description
 
@@ -31,16 +31,16 @@ ARTMAP callers explicitly enable supervision so label zero is also supported.
 # Examples
 
 ```julia
-resonance_search!(art, sample; threshold=art.threshold, y=0)
-resonance_search!(accept, art, sample; threshold=art.threshold)
+resonance_search!(art, sample; threshold=resonance_threshold(art, sample), y=0)
+resonance_search!(accept, art, sample; threshold=resonance_threshold(art, sample))
 ```
 """
 function resonance_search!(
     accept::F,
     art::ARTModule,
     sample;
-    threshold=art.threshold,
-    match_tracking::Bool=art.opts.match_tracking
+    threshold=resonance_threshold(art, sample),
+    match_tracking::Bool=resonance_match_tracking(art)
 ) where {F}
     # Error if doing a resonance search without any categories
     art.n_categories > 0 || throw(ArgumentError("Resonance search requires a committed category."))
@@ -111,7 +111,7 @@ end
 function resonance_search!(
     art::ARTModule,
     sample;
-    threshold=art.threshold,
+    threshold=resonance_threshold(art, sample),
     y::Integer=0,
     supervised::Bool=!iszero(y)
 )
@@ -120,7 +120,7 @@ function resonance_search!(
         art,
         sample;
         threshold=threshold,
-        match_tracking=supervised && art.opts.match_tracking) do bmu
+        match_tracking=supervised && resonance_match_tracking(art)) do bmu
         !supervised || art.labels[bmu] == y
     end
 end
@@ -168,3 +168,31 @@ The default scale is one. DVFA uses the feature dimension; FuzzyART and DDVFA
 use `dim ^ gamma_ref` when gamma normalization is enabled, and one otherwise.
 """
 resonance_match_scale(::ARTModule) = 1.0
+
+"""
+Select the baseline vigilance threshold for a resonance search input.
+
+# Arguments
+- `art::ARTModule`: model performing the search.
+- `sample`: preprocessed sample or category representation being evaluated.
+
+# Description
+
+Defaults to the model's stored threshold. Specialized methods select the units
+appropriate to cluster inputs, compression prototypes, or ordinary samples.
+An explicit `threshold` keyword in `resonance_search!` overrides this selection.
+"""
+resonance_threshold(art::ARTModule, sample) = art.threshold
+
+"""
+Return whether a model enables supervisory match tracking.
+
+# Arguments
+- `art::ARTModule`: model performing the resonance search.
+
+# Description
+
+Defaults to the configured option. Unsupervised-only models specialize this
+method instead of requiring a match-tracking field in their options.
+"""
+resonance_match_tracking(art::ARTModule) = art.opts.match_tracking
