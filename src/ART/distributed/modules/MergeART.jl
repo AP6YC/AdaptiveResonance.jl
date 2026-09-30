@@ -9,9 +9,8 @@ Includes all of the structures and logic for running a MergeART module.
 2. G. Carpenter, S. Grossberg, and D. Rosen, 'Fuzzy ART: Fast stable learning and categorization of analog patterns by an adaptive resonance system,' Neural Networks, vol. 4, no. 6, pp. 759-771, 1991.
 """
 
-# -----------------------------------------------------------------------------
-# TYPES
-# -----------------------------------------------------------------------------
+
+#region OPTIONS
 
 """
 MergeART options struct.
@@ -72,6 +71,11 @@ $(_OPTS_DOCSTRING)
     """
     display::Bool = false
 end
+
+#endregion
+
+
+#region STRUCTS
 
 """
 Merge a DDVFA partition and compress the resulting local prototypes.
@@ -150,6 +154,11 @@ mutable struct MergeART <: DistributedART
     source_map::Vector{Int}
 end
 
+#endregion
+
+
+#region CONSTRUCTORS
+
 # Validate keyword options before constructing an empty model.
 MergeART(; kwargs...) = MergeART(opts_MergeART(; kwargs...))
 function MergeART(opts::opts_MergeART)
@@ -187,6 +196,8 @@ function MergeART(source::DDVFA; kwargs...)
     train!(art, source)
     return art
 end
+
+#endregion
 
 """
 Compute a directed prototype-to-prototype activation or match.

@@ -9,9 +9,7 @@ Includes all of the structures and logic for running a Distributed Dual-Vigilanc
 2. G. Carpenter, S. Grossberg, and D. Rosen, 'Fuzzy ART: Fast stable learning and categorization of analog patterns by an adaptive resonance system,' Neural Networks, vol. 4, no. 6, pp. 759-771, 1991.
 """
 
-# -----------------------------------------------------------------------------
-# OPTIONS
-# -----------------------------------------------------------------------------
+#region OPTIONS
 
 """
 Distributed Dual Vigilance Fuzzy ART options struct.
@@ -111,9 +109,10 @@ $(_OPTS_DOCSTRING)
     sort::Bool = false
 end
 
-# -----------------------------------------------------------------------------
-# STRUCTS
-# -----------------------------------------------------------------------------
+#endregion
+
+
+#region STRUCTS
 
 """
 Distributed Dual Vigilance Fuzzy ARTMAP module struct.
@@ -184,9 +183,10 @@ mutable struct DDVFA <: DistributedART
     stats::ARTStats
 end
 
-# -----------------------------------------------------------------------------
-# CONSTRUCTORS
-# -----------------------------------------------------------------------------
+#endregion
+
+
+#region CONSTRUCTORS
 
 """
 Implements a DDVFA learner with optional keyword arguments.
@@ -265,9 +265,10 @@ function DDVFA(opts::opts_DDVFA)
     )
 end
 
-# -----------------------------------------------------------------------------
-# COMMON FUNCTIONS
-# -----------------------------------------------------------------------------
+#endregion
+
+
+#region COMMON FUNCTIONS
 
 # COMMON DOC: Set threshold function
 function set_threshold!(art::DDVFA)
@@ -311,9 +312,10 @@ function train!(art::DDVFA, x::RealVector ; y::Integer=0, preprocessed::Bool=fal
     return y_hat
 end
 
-# -----------------------------------------------------------------------------
-# INTERNAL FUNCTIONS
-# -----------------------------------------------------------------------------
+#endregion
+
+
+#region INTERNAL FUNCTIONS
 
 """
 Create a new category by appending and initializing a new FuzzyART node to F2.
@@ -432,3 +434,5 @@ end
 function resonance_match_scale(art::DDVFA)
     return art.opts.gamma_normalization ? art.config.dim ^ art.opts.gamma_ref : 1.0
 end
+
+#endregion
