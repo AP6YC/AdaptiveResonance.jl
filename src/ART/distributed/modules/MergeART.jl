@@ -482,37 +482,6 @@ function compress_categories!(art::MergeART, input::FuzzyART)
 end
 
 """
-Rebuild MergeART from a snapshot of a trained DDVFA partition.
-
-# Arguments
-- `art::MergeART`: destination model to replace.
-- `source::DDVFA`: trained source, which remains unchanged.
-
-# Description
-
-Merging passes use fresh destinations and compose `source_map` across passes.
-Only after merging stops are prototypes compressed within each output cluster.
-Returns the source-node-to-output-cluster mapping. Source supervisory labels are not constraints: MergeART is an unsupervised postprocessor.
-"""
-function train!(art::MergeART, source::DDVFA)
-    # Validate and snapshot the source before replacing destination state.
-    current = init_train!(source, art)
-    initialize!(art, source)
-    # Repeatedly merge the previous partition and compose its source mapping.
-    for iteration in 1:art.opts.max_iter
-        assignment = merge_pass!(art, current)
-        art.source_map = assignment[art.source_map]
-        art.epoch = iteration
-        art.opts.display && @info "MergeART pass $iteration: $(art.n_categories) clusters"
-        stopping_conditions(art, length(current)) && break
-        current = art.F2
-    end
-    # Compress only after the cluster partition has finished merging.
-    art.F2 = [compress_categories!(art, node) for node in art.F2]
-    return copy(art.source_map)
-end
-
-"""
 Validate and snapshot a DDVFA partition for MergeART training.
 
 # Arguments
@@ -601,6 +570,39 @@ function learn!(art::MergeART, input::FuzzyART, bmu::Integer)
     return
 end
 
+#region TRAIN
+
+"""
+Rebuild MergeART from a snapshot of a trained DDVFA partition.
+
+# Arguments
+- `art::MergeART`: destination model to replace.
+- `source::DDVFA`: trained source, which remains unchanged.
+
+# Description
+
+Merging passes use fresh destinations and compose `source_map` across passes.
+Only after merging stops are prototypes compressed within each output cluster.
+Returns the source-node-to-output-cluster mapping. Source supervisory labels are not constraints: MergeART is an unsupervised postprocessor.
+"""
+function train!(art::MergeART, source::DDVFA)
+    # Validate and snapshot the source before replacing destination state.
+    current = init_train!(source, art)
+    initialize!(art, source)
+    # Repeatedly merge the previous partition and compose its source mapping.
+    for iteration in 1:art.opts.max_iter
+        assignment = merge_pass!(art, current)
+        art.source_map = assignment[art.source_map]
+        art.epoch = iteration
+        art.opts.display && @info "MergeART pass $iteration: $(art.n_categories) clusters"
+        stopping_conditions(art, length(current)) && break
+        current = art.F2
+    end
+    # Compress only after the cluster partition has finished merging.
+    art.F2 = [compress_categories!(art, node) for node in art.F2]
+    return copy(art.source_map)
+end
+
 """
 Assign one local FuzzyART module during a MergeART merging pass.
 
@@ -625,6 +627,19 @@ function train!(art::MergeART, input::FuzzyART)
     end
     return bmu
 end
+
+
+# Reject raw training explicitly rather than entering ART's generic batch trainer.
+function train!(::MergeART, ::RealVector; kwargs...)
+    throw(ArgumentError("Train MergeART on a DDVFA model, not raw samples."))
+end
+
+function train!(::MergeART, ::RealMatrix; kwargs...)
+    throw(ArgumentError("Train MergeART on a DDVFA model, not raw samples."))
+end
+
+#endregion
+
 
 """
 Build one fresh MergeART partition from the preceding partition.
@@ -669,11 +684,3 @@ function stopping_conditions(art::MergeART, previous_count::Integer)
     return art.n_categories == previous_count || art.epoch >= art.opts.max_iter
 end
 
-# Reject raw training explicitly rather than entering ART's generic batch trainer.
-function train!(::MergeART, ::RealVector; kwargs...)
-    throw(ArgumentError("Train MergeART on a DDVFA model, not raw samples."))
-end
-
-function train!(::MergeART, ::RealMatrix; kwargs...)
-    throw(ArgumentError("Train MergeART on a DDVFA model, not raw samples."))
-end

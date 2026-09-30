@@ -60,10 +60,27 @@ function resonance_match!(art::DistributedART, sample::RealVector, bmu::Integer)
     art.M[bmu] = similarity(art.opts.similarity, art.F2[bmu], sample, false)
 end
 
+#region LINKAGE METHODS
+
 # Argument docstring for the F2 field, includes the argument header
 const FIELD_DOCSTRING = """
 # Arguments
 - `field::RealArray`: the activation or match scores to reduce across all entries.
+"""
+
+# Argument docstring for the activation flag
+const ACTIVATION_DOCSTRING = """
+- `activation::Bool`: flag to use the activation function. False uses the match function.
+"""
+
+# Argument docstring for the sample vector
+const SAMPLE_DOCSTRING = """
+- `sample::RealVector`: the sample to use for computing the linkage to the F2 module.
+"""
+
+# Argument docstring for the F2 docstring
+const F2_DOCSTRING = """
+- `F2::FuzzyART`: the local FuzzyART F2 node to compute the linkage method within.
 """
 
 """
@@ -123,25 +140,6 @@ function similarity(method::Symbol, scores::RealArray)
     throw(ArgumentError("Unsupported unweighted linkage method: $method"))
 end
 
-# -----------------------------------------------------------------------------
-# DISTRIBUTED LINKAGE METHODS
-# -----------------------------------------------------------------------------
-
-# Argument docstring for the activation flag
-const ACTIVATION_DOCSTRING = """
-- `activation::Bool`: flag to use the activation function. False uses the match function.
-"""
-
-# Argument docstring for the sample vector
-const SAMPLE_DOCSTRING = """
-- `sample::RealVector`: the sample to use for computing the linkage to the F2 module.
-"""
-
-# Argument docstring for the F2 docstring
-const F2_DOCSTRING = """
-- `F2::FuzzyART`: the local FuzzyART F2 node to compute the linkage method within.
-"""
-
 """
 Compute the similarity metric depending on method with explicit comparisons for the field name.
 
@@ -157,17 +155,31 @@ function similarity(method::Symbol, F2::FuzzyART, sample::RealVector, activation
     return similarity(method, activation ? F2.T : F2.M, F2)
 end
 
+
 """
-A list of similarity linkage methods supported by distributed ART models.
+Reduce scores with the cluster context required by weighted linkage.
+
+# Arguments
+- `method::Symbol`: an unweighted linkage name or `:weighted`.
+- `scores`: category scores as a vector or destination-by-input matrix.
+- `destination::FuzzyART`: cluster supplying destination counts.
+- `input::FuzzyART`: incoming cluster, required for pairwise matrix scores.
+
+# Description
+
+Weighted linkage uses one or both clusters' category probabilities. Other
+methods delegate to the common unweighted reducer; centroid is evaluated from
+cluster envelopes before score reduction, and unsupported names raise an error.
 """
-const LINKAGE_METHODS = [
-    :single,
-    :average,
-    :complete,
-    :median,
-    :weighted,
-    :centroid,
-]
+function similarity(method::Symbol, scores::RealVector, destination::FuzzyART)
+    method === :weighted && return weighted(scores, destination)
+    return similarity(method, scores)
+end
+
+function similarity(method::Symbol, scores::RealMatrix, destination::FuzzyART, input::FuzzyART)
+    method === :weighted && return weighted(scores, destination, input)
+    return similarity(method, scores)
+end
 
 """
 Weighted linkage distributed ART similarity function.
@@ -202,6 +214,19 @@ function centroid(F2::FuzzyART, sample::RealVector, activation::Bool)
     return value
 end
 
+"""
+A list of similarity linkage methods supported by distributed ART models.
+"""
+const LINKAGE_METHODS = [
+    :single,
+    :average,
+    :complete,
+    :median,
+    :weighted,
+    :centroid,
+]
+
+#endregion
 
 """
 Compute the category probabilities of a local cluster.
@@ -262,29 +287,4 @@ function weighted(scores::RealMatrix, destination::FuzzyART, input::FuzzyART)
     p = category_probabilities(destination)
     q = category_probabilities(input)
     return sum(scores .* (p * q'))
-end
-
-"""
-Reduce scores with the cluster context required by weighted linkage.
-
-# Arguments
-- `method::Symbol`: an unweighted linkage name or `:weighted`.
-- `scores`: category scores as a vector or destination-by-input matrix.
-- `destination::FuzzyART`: cluster supplying destination counts.
-- `input::FuzzyART`: incoming cluster, required for pairwise matrix scores.
-
-# Description
-
-Weighted linkage uses one or both clusters' category probabilities. Other
-methods delegate to the common unweighted reducer; centroid is evaluated from
-cluster envelopes before score reduction, and unsupported names raise an error.
-"""
-function similarity(method::Symbol, scores::RealVector, destination::FuzzyART)
-    method === :weighted && return weighted(scores, destination)
-    return similarity(method, scores)
-end
-
-function similarity(method::Symbol, scores::RealMatrix, destination::FuzzyART, input::FuzzyART)
-    method === :weighted && return weighted(scores, destination, input)
-    return similarity(method, scores)
 end
