@@ -70,7 +70,7 @@ end
     AR.merge_categories!(left, source.F2[2])
     right = source.F2[3]
     # Check every supported linkage against manually computed scores.
-    for method in DDVFA_METHODS
+    for method in LINKAGE_METHODS
         art = MergeART(alpha=0.01, gamma=2.0, similarity=method)
         # Both incoming and destination prototypes have norm one here.
         values = [(0.2 / 1.01)^2, (0.4 / 1.01)^2]
@@ -101,7 +101,7 @@ end
 
 @testset "Compression and inference" begin
     # Exercise the full merge-and-compress workflow with both search strategies and all linkages.
-    for sort in (false, true), method in DDVFA_METHODS
+    for sort in (false, true), method in LINKAGE_METHODS
         source = merge_source([0.0, 0.1, 1.0]; counts=[2, 3, 5])
         model = MergeART(source; rho_lb=0.7, rho_ub=0.7, similarity=method, sort=sort)
         # Verify the nearby clusters merge and their prototypes compress into one counted category.
@@ -232,4 +232,35 @@ end
         @test classify(model, sample; preprocessed=true) == 1
         @test model.threshold == 100.0
     end
+end
+
+@testset "Shared weighted and centroid linkage" begin
+    source = merge_source([0.0, 0.2, 0.8, 1.0]; counts=[2, 3, 4, 1])
+    left, right = deepcopy(source.F2[1]), deepcopy(source.F2[3])
+    AR.merge_categories!(left, source.F2[2])
+    AR.merge_categories!(right, source.F2[4])
+    # Both axes have unequal probabilities, so each must contribute to weighting.
+    @test AR.category_probabilities(left) ≈ [0.4, 0.6]
+    @test AR.category_probabilities(right) ≈ [0.8, 0.2]
+    scores = [0.1 0.9; 0.4 0.5]
+    expected = 0.1*0.4*0.8 + 0.9*0.4*0.2 + 0.4*0.6*0.8 + 0.5*0.6*0.2
+    @test AR.weighted(scores, left, right) ≈ expected
+    @test AR.similarity(:weighted, scores, left, right) ≈ expected
+    left.T = [0.1, 0.4]
+    left.M = [0.3, 0.8]
+    @test AR.weighted(left, true) ≈ 0.1*0.4 + 0.4*0.6
+    @test AR.similarity(:weighted, left, [0.0, 1.0], false) ≈ 0.3*0.4 + 0.8*0.6
+    for method in (:single, :complete, :average, :median)
+        @test AR.similarity(method, scores, left, right) == AR.similarity(method, scores)
+        @test AR.similarity(method, left.T, left) == AR.similarity(method, left.T)
+    end
+    @test_throws ArgumentError AR.similarity(:unknown, scores, left, right)
+    @test_throws ArgumentError AR.similarity(:unknown, left.T, left)
+    # Preserve the corrected exponent on the complete activation ratio.
+    @test AR.cluster_envelope(left) ≈ [0.0, 0.8]
+    sample = [0.4, 0.6]
+    activation = (0.6 / (left.opts.alpha + 0.8)) ^ left.opts.gamma
+    @test AR.centroid(left, sample, true) ≈ activation
+    @test AR.centroid(left, sample, false) ≈ 0.8^left.opts.gamma_ref * activation
+    @test LINKAGE_METHODS == [:single, :average, :complete, :median, :weighted, :centroid]
 end

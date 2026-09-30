@@ -122,3 +122,169 @@ function similarity(method::Symbol, scores::RealArray)
     method === :median && return median(scores)
     throw(ArgumentError("Unsupported unweighted linkage method: $method"))
 end
+
+# -----------------------------------------------------------------------------
+# DISTRIBUTED LINKAGE METHODS
+# -----------------------------------------------------------------------------
+
+# Argument docstring for the activation flag
+const ACTIVATION_DOCSTRING = """
+- `activation::Bool`: flag to use the activation function. False uses the match function.
+"""
+
+# Argument docstring for the sample vector
+const SAMPLE_DOCSTRING = """
+- `sample::RealVector`: the sample to use for computing the linkage to the F2 module.
+"""
+
+# Argument docstring for the F2 docstring
+const F2_DOCSTRING = """
+- `F2::FuzzyART`: the local FuzzyART F2 node to compute the linkage method within.
+"""
+
+"""
+Compute the similarity metric depending on method with explicit comparisons for the field name.
+
+# Arguments
+- `method::Symbol`: the linkage method to use.
+$F2_DOCSTRING
+$SAMPLE_DOCSTRING
+$ACTIVATION_DOCSTRING
+"""
+function similarity(method::Symbol, F2::FuzzyART, sample::RealVector, activation::Bool)
+    # Centroid compares envelopes; other methods reduce the prepared score vector.
+    method === :centroid && return centroid(F2, sample, activation)
+    return similarity(method, activation ? F2.T : F2.M, F2)
+end
+
+"""
+A list of similarity linkage methods supported by distributed ART models.
+"""
+const LINKAGE_METHODS = [
+    :single,
+    :average,
+    :complete,
+    :median,
+    :weighted,
+    :centroid,
+]
+
+"""
+Weighted linkage distributed ART similarity function.
+
+# Arguments:
+$F2_DOCSTRING
+$ACTIVATION_DOCSTRING
+"""
+function weighted(F2::FuzzyART, activation::Bool)
+    # Select the prepared field before applying the shared weighted reduction.
+    return weighted(activation ? F2.T : F2.M, F2)
+end
+
+"""
+Centroid linkage distributed ART similarity function.
+
+# Arguments:
+$F2_DOCSTRING
+$SAMPLE_DOCSTRING
+$ACTIVATION_DOCSTRING
+"""
+function centroid(F2::FuzzyART, sample::RealVector, activation::Bool)
+    Wc = cluster_envelope(F2)
+    T = (norm(element_min(sample, Wc), 1) / (F2.opts.alpha + norm(Wc, 1))) ^ F2.opts.gamma
+
+    if activation
+        value = T
+    else
+        value = (norm(Wc, 1)^F2.opts.gamma_ref) * T
+    end
+
+    return value
+end
+
+
+"""
+Compute the category probabilities of a local cluster.
+
+# Arguments
+- `art::FuzzyART`: nonempty cluster with positive instance counts.
+
+# Description
+
+Normalizes instance counts by their total for both sample-to-cluster and
+cluster-to-cluster weighted linkage.
+"""
+category_probabilities(art::FuzzyART) = art.n_instance ./ sum(art.n_instance)
+
+"""
+Compute the fuzzy envelope of a local cluster.
+
+# Arguments
+- `art::FuzzyART`: nonempty cluster whose category weights form matrix columns.
+
+# Description
+
+Returns the componentwise minimum across prototypes. This envelope is the
+centroid representation shared by distributed sample and cluster comparisons.
+"""
+cluster_envelope(art::FuzzyART) = vec(minimum(art.W, dims=2))
+
+"""
+Weight sample-to-category scores by the destination category probabilities.
+
+# Arguments
+- `scores::RealVector`: activation or match scores for destination categories.
+- `destination::FuzzyART`: cluster supplying the corresponding instance counts.
+
+# Description
+
+Computes the expected score using the same probability helper as pairwise
+cluster linkage. The supplied scores must correspond to the cluster categories.
+"""
+function weighted(scores::RealVector, destination::FuzzyART)
+    return scores' * category_probabilities(destination)
+end
+
+"""
+Weight pairwise scores by the category probabilities of both clusters.
+
+# Arguments
+- `scores::RealMatrix`: destination-by-input activation or match matrix.
+- `destination::FuzzyART`: cluster supplying row instance counts.
+- `input::FuzzyART`: cluster supplying column instance counts.
+
+# Description
+
+Normalizes each cluster's counts separately and weights each pair by the product
+of its two category probabilities.
+"""
+function weighted(scores::RealMatrix, destination::FuzzyART, input::FuzzyART)
+    p = category_probabilities(destination)
+    q = category_probabilities(input)
+    return sum(scores .* (p * q'))
+end
+
+"""
+Reduce scores with the cluster context required by weighted linkage.
+
+# Arguments
+- `method::Symbol`: an unweighted linkage name or `:weighted`.
+- `scores`: category scores as a vector or destination-by-input matrix.
+- `destination::FuzzyART`: cluster supplying destination counts.
+- `input::FuzzyART`: incoming cluster, required for pairwise matrix scores.
+
+# Description
+
+Weighted linkage uses one or both clusters' category probabilities. Other
+methods delegate to the common unweighted reducer; centroid is evaluated from
+cluster envelopes before score reduction, and unsupported names raise an error.
+"""
+function similarity(method::Symbol, scores::RealVector, destination::FuzzyART)
+    method === :weighted && return weighted(scores, destination)
+    return similarity(method, scores)
+end
+
+function similarity(method::Symbol, scores::RealMatrix, destination::FuzzyART, input::FuzzyART)
+    method === :weighted && return weighted(scores, destination, input)
+    return similarity(method, scores)
+end

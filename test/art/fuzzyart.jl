@@ -19,7 +19,7 @@ FuzzyART-specific test sets.
     AdaptiveResonance.activation_match!(my_FuzzyART, local_sample)
 
     # Test that every method and field name computes
-    for method in DDVFA_METHODS
+    for method in LINKAGE_METHODS
         results = Dict()
         # for field_name in field_names
         for activation in (true, false)

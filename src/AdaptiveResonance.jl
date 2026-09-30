@@ -184,7 +184,7 @@ export
     ART_MODULES,                # List of (default) unsupervised ART modules
     ARTMAP_MODULES,             # List of supervised ARTMAP modules
     ADAPTIVERESONANCE_MODULES,  # Combined list of ART and ARTMAP modules
-    DDVFA_METHODS,              # DDVFA linkage methods
+    LINKAGE_METHODS,              # Distributed ART linkage methods
     ADAPTIVERESONANCE_VERSION,  # Version of the package
     MATCH_FUNCTIONS,            # All match functions as a list of symbols
     ACTIVATION_FUNCTIONS,       # All activation functions as a list of symbols

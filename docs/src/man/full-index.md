@@ -38,7 +38,7 @@ CurrentModule = AdaptiveResonance
 ## [Advanced Configuration](reference/configuration.md)
 
 - [`ACTIVATION_FUNCTIONS`](@ref), [`MATCH_FUNCTIONS`](@ref), [`UPDATE_FUNCTIONS`](@ref)
-- [`DDVFA_METHODS`](@ref), [`get_W`](@ref)
+- [`LINKAGE_METHODS`](@ref), [`get_W`](@ref)
 - [`ART_MODULES`](@ref), [`ARTMAP_MODULES`](@ref), [`ADAPTIVERESONANCE_MODULES`](@ref), [`ADAPTIVERESONANCE_VERSION`](@ref)
 - [`ARTModule`](@ref), [`ART`](@ref), [`ARTMAP`](@ref), [`ARTOpts`](@ref)
 

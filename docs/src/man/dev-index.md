@@ -26,6 +26,7 @@ CurrentModule = AdaptiveResonance
 - [`art_activation`](@ref), [`art_match`](@ref), [`art_learn`](@ref)
 - [`basic_activation`](@ref), [`basic_match`](@ref), [`unnormalized_match`](@ref), [`basic_update`](@ref), [`gamma_activation`](@ref), [`gamma_match`](@ref), [`gamma_match_sub`](@ref), [`choice_by_difference`](@ref), [`x_W_min_norm`](@ref), [`W_norm`](@ref)
 - [`hypersphere_activation`](@ref), [`hypersphere_match`](@ref), [`hypersphere_update`](@ref)
+- [`category_probabilities`](@ref), [`cluster_envelope`](@ref)
 - [`similarity`](@ref), [`single`](@ref), [`average`](@ref), [`complete`](@ref), [`median`](@ref), [`weighted`](@ref), [`centroid`](@ref)
 
 ## [Data, Iteration, and Logging Utilities](internals/utilities.md)

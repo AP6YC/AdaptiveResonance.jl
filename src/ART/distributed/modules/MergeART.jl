@@ -51,7 +51,7 @@ $(_OPTS_DOCSTRING)
     """
     Similarity method (activation and match): similarity ∈ [:single, :average, :complete, :median, :weighted, :centroid].
     """
-    similarity::Symbol = :single; @assert similarity in DDVFA_METHODS
+    similarity::Symbol = :single; @assert similarity in LINKAGE_METHODS
 
     """
     Maximum merging passes before final compression: max_iter ∈ [1, Inf).
@@ -283,27 +283,7 @@ function similarity(
         art.opts.gamma_ref
     ) for i in 1:destination.n_categories, j in 1:input.n_categories]
     # Weighted linkage needs both clusters; other reductions share the common API.
-    method === :weighted && return weighted(scores, destination, input)
-    return similarity(method, scores)
-end
-
-"""
-Weight pairwise scores by the category probabilities of both clusters.
-
-# Arguments
-- `scores::RealMatrix`: destination-by-input activation or match matrix.
-- `destination::FuzzyART`: cluster supplying row instance counts.
-- `input::FuzzyART`: cluster supplying column instance counts.
-
-# Description
-
-Normalizes each cluster's counts separately and weights each pair by the product
-of its two category probabilities.
-"""
-function weighted(scores::RealMatrix, destination::FuzzyART, input::FuzzyART)
-    p = destination.n_instance ./ sum(destination.n_instance)
-    q = input.n_instance ./ sum(input.n_instance)
-    return sum(scores .* (p * q'))
+    return similarity(method, scores, destination, input)
 end
 
 """
@@ -322,8 +302,8 @@ separate centroid match equation rather than reducing pairwise category scores.
 """
 function centroid(art::MergeART, destination::FuzzyART, input::FuzzyART, activation::Bool)
     # The paper's centroid is a fuzzy envelope, not an arithmetic mean.
-    left = vec(minimum(destination.W, dims=2))
-    right = vec(minimum(input.W, dims=2))
+    left = cluster_envelope(destination)
+    right = cluster_envelope(input)
     # Evaluate activation directly between the two cluster envelopes.
     activation && return prototype_similarity(art.opts, right, left, true, art.opts.gamma_ref)
     # For centroid matching, normalize their overlap by the incoming envelope norm.

@@ -9,7 +9,7 @@ CurrentModule = AdaptiveResonance
 ## Index
 
 - [`ACTIVATION_FUNCTIONS`](@ref), [`MATCH_FUNCTIONS`](@ref), [`UPDATE_FUNCTIONS`](@ref)
-- [`DDVFA_METHODS`](@ref), [`get_W`](@ref)
+- [`LINKAGE_METHODS`](@ref), [`get_W`](@ref)
 - [`ART_MODULES`](@ref), [`ARTMAP_MODULES`](@ref), [`ADAPTIVERESONANCE_MODULES`](@ref), [`ADAPTIVERESONANCE_VERSION`](@ref)
 - [`ARTModule`](@ref), [`ART`](@ref), [`ARTMAP`](@ref), [`ARTOpts`](@ref)
 
@@ -35,10 +35,10 @@ UPDATE_FUNCTIONS
 
 ## Distributed ART
 
-### [`DDVFA_METHODS`](@id reference-DDVFA_METHODS)
+### [`LINKAGE_METHODS`](@id reference-LINKAGE_METHODS)
 
 ```@docs
-DDVFA_METHODS
+LINKAGE_METHODS
 ```
 
 ### [`get_W`](@id reference-get_W)
